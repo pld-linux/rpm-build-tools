@@ -230,7 +230,7 @@ get_all_files()
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
 			[ `echo $i | egrep 'ftp://|http://'` ]
 		then
-			wget -c -t0 "$i"
+			wget -c -nd -t0 "$i"
 		fi
 
 		if [ ! -f "`nourl $i`" ]; then
