@@ -17,6 +17,7 @@ PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 SPECFILE=""
 BE_VERBOSE=""
 QUIET=""
+CLEAN=""
 CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 
@@ -42,6 +43,8 @@ Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
 	-a, --as_anon	- get files via pserver as cvs@cvs.pld.org.pl,
 	-b, --build	- get all files from CVS repo and build
 			  package from <package>.spec,
+	-c, --clean	- clean all temporary maked files (in BUILD,
+			  SOURCES, SPECS and $RPM_BUILD_ROOT),
 	-d, --cvsroot	- setup \$CVSROOT,
 	-g, --get	- get <package>.spec and all relayted files from
 			  CVS repo,
@@ -156,7 +159,7 @@ get_all_files()
 build_package()
 {
     cd $SPECS_DIR
-    rpm -ba -v $QUIET $SPECFILE
+    rpm -ba -v $QUIET $CLEAN $SPECFILE
 
     if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
@@ -180,6 +183,8 @@ while test $# -gt 0 ; do
 	    CVSROOT=":pserver:cvs@cvs.pld.org.pl:/cvsroot"; shift ;;
 	-b | --build )
 	    COMMAND="build"; shift ;;
+	-c | --clean )
+	    CLEAN="--clean --rmspec --rmsource"; shift ;;
 	-d | --cvsroot )
 	    shift; CVSROOT="${1}"; shift ;;
 	-g | --get )
