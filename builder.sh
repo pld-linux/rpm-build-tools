@@ -20,6 +20,7 @@ SPECFILE=""
 BE_VERBOSE=""
 QUIET=""
 CLEAN=""
+DEBUG=""
 CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 
@@ -35,13 +36,14 @@ PACKAGE_NAME=""
 
 usage()
 {
-echo "\
-Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
-	[-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h] [--help]
-	[-l <logfile>] [--logtofile <logfile>] [-q] [--quiet] 
-	[-r <cvstag>] [--cvstag <cvstag>] [-v] [--verbose]
-	<package>.spec
+    if [ -n "$DEBUG" ]; then set -xv; fi
+    echo "\
+Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b]
+	[--build] [-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h]
+	[--help] [-l <logfile>] [--logtofile <logfile>] [-q] [--quiet] [-r
+	<cvstag>] [--cvstag <cvstag>] [-v] [--verbose] <package>.spec
 
+	-D, --debug	- enable scrip debuging mode,
 	-V, --version	- output builder version
 	-a, --as_anon	- get files via pserver as cvs@cvs.pld.org.pl,
 	-b, --build	- get all files from CVS repo and build
@@ -63,6 +65,8 @@ Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
 
 parse_spec()
 {
+    if [ -n "$DEBUG" ]; then set -xv; fi
+
     sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i Icon > $SPECFILE.__
 
     SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
@@ -90,6 +94,8 @@ parse_spec()
 
 Exit_error()
 {
+    if [ -n "$DEBUG" ]; then set -xv; fi
+
     cd $__PWD
 
     case "$@" in
@@ -110,6 +116,8 @@ Exit_error()
 
 init_builder()
 {
+    if [ -n "$DEBUG" ]; then set -xv; fi
+
     DUMB_SPEC_FILE=`mktemp -q /tmp/bilder.XXXXXX`
     echo "\
 Summary:	-
@@ -134,9 +142,11 @@ echo SPECS_DIR=%{_specdir}" > $DUMB_SPEC_FILE
 
 get_spec()
 {
+    if [ -n "$DEBUG" ]; then set -xv; fi
+
     cd $SPECS_DIR
 
-    OPTIONS=""
+    OPTIONS="up "
 
     if [ -n "$CVSROOT" ]; then
 	OPTIONS="-d $CVSROOT"
@@ -153,16 +163,17 @@ get_spec()
     fi
 
     chmod 444 $SPECFILE
-    unset $OPTIONS
+    unset OPTIONS
 }
 
 get_all_files()
 {
-set -xv
+    if [ -n "$DEBUG" ]; then set -xv; fi
+
     if [ -n "$SOURCES$PATCHES$ICONS" ]; then
 	cd $SOURCE_DIR
 
-	OPTIONS=""
+	OPTIONS="up "
 	if [ -n "$CVSROOT" ]; then
 	    OPTIONS="-d $CVSROOT"
 	fi
@@ -178,12 +189,14 @@ set -xv
 	fi
 
 	chmod 444 $SOURCES $PATCHES $ICONS
-	unset $OPTIONS
+	unset OPTIONS
     fi
 }
 
 build_package()
 {
+    if [ -n "$DEBUG" ]; then set -xv; fi
+
     cd $SPECS_DIR
     rpm -ba -v $QUIET $CLEAN $SPECFILE
 
@@ -203,6 +216,8 @@ fi
 
 while test $# -gt 0 ; do
     case "${1}" in
+	-D | --debug )
+	    DEBUG="yes"; shift ;;
 	-V | --version )
 	    COMMAND="version"; shift ;;
 	-a | --as_anon )
@@ -229,6 +244,8 @@ while test $# -gt 0 ; do
 	    SPECFILE="${1}"; shift ;;
     esac
 done
+
+if [ -n "$DEBUG" ]; then set -xv; fi
 
 case "$COMMAND" in
     "build" )
