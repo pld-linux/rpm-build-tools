@@ -128,7 +128,8 @@ fi
 # Example grep cvs /etc/poldek.conf:
 # source = cvs /home/users/yoshi/rpm/RPMS/
 if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-	if [ ! $(poldek -l -n ${POLDEK_SOURCE} >/dev/null) ]; then 
+	poldek -l -n ${POLDEK_SOURCE} >/dev/null)
+	if [ ! "$?" == "0" ]; then 
 		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
 		echo "Fix it and try to continue"
 		exit 7
