@@ -5,7 +5,7 @@
 # Copyright (C) 1999, 2000 PLD-Team <pld-list@pld.org.pl>
 # Authors:
 # 	Micha³ Kuratczyk <kura@pld.org.pl>
-# 	Sebastian Zagrodzki <s.zagrodzki@sith.mimuw.edu.pl>
+# 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
 # 	Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
 # 	Artur Frysiak <wiget@pld.org.pl>
 # 	Michal Kochanowicz <mkochano@ee.pw.edu.pl>
@@ -132,10 +132,22 @@ defattr == 1 {
 
 # %install section:
 /^%install/, (/^%[a-z]+$/ && !/^%install/) {
+	
 	preamble = 0
 	
-	use_macros()
+	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/) {
+		did_clean=1
+		print "rm -rf $RPM_BUILD_ROOT"
+		next
+	}
 
+	if (!/^$/ && !/^%install/ && did_clean==0) {
+		print "rm -rf $RPM_BUILD_ROOT"
+		did_clean=1
+	}
+	
+	use_macros()
+	
 	# 'install -d' instead 'mkdir -p'
 	if (/mkdir -p/)
 		sub(/mkdir -p/, "install -d")
@@ -182,7 +194,7 @@ defattr == 1 {
 # %changelog section:
 /^%changelog/, (/^%[a-z]+$/ && !/^%changelog/) {
 	preamble = 0
-	
+	has_changelog = 1
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 1) {
 		if (!/PLD Team/) {
@@ -304,7 +316,14 @@ END {
 		print
 	system("rm -f " changelog_file)
 
-	if (boc == 1) {
+	if (date == 0) {
+		print ""
+		print "%define date\t%(echo `LC_ALL=\"C\" date +\"%a %b %d %Y\"`)"
+	}
+
+	if (boc > 0) {
+		print ""
+		print "%changelog"
 		print "* %{date} PLD Team <pld-list@pld.org.pl>"
 		printf "All persons listed below can be reached at "
 		print "<cvs_login>@pld.org.pl\n"
