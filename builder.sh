@@ -115,11 +115,17 @@ fi
 
 [ -f "$USER_CFG" ] && . "$USER_CFG"
 
-wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
-wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
+if [ -z "$USE_PROZILLA" ]; then
+	 wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
+	 wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
+	 
+	 GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
+	 GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
+else
+	 GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
+	 GETURI2="$GETURI"
+fi
 
-GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
-GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
 GETLOCAL="cp -a"
 
 if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
