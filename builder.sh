@@ -1032,7 +1032,7 @@ fetch_build_requires()
 			 fi
 			 if [ -n "$DEPS" ]; then
 				  echo "Trying to install dependencies ($DEPS):"
-				  /usr/bin/poldek -uGv $DEPS
+				  /usr/bin/poldek --caplookup -uGv $DEPS
 			 fi
 			 return
 		fi
