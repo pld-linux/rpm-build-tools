@@ -273,9 +273,8 @@ defattr == 1 {
 	has_changelog = 1
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 1) {
-		if (!/\$Log$/) {
+		if (!/$.*Log.*$/)
 			print "$" "Log:$" > changelog_file
-		}
 		boc = 0
 	}
 	if (boc == 2) {
@@ -286,9 +285,8 @@ defattr == 1 {
 		boc = 0
 	}
 	if (boc == 3) {
-		if (!/PLD Team/) {
+		if (!/PLD Team/)
 			print "* %{date} PLD Team <feedback@pld.org.pl>" > changelog_file
-		}
 		boc = 2
 	}
 	# Define date macro.
