@@ -40,6 +40,7 @@ NODIST=""
 UPDATE=""
 UPDATE5=""
 ADD5=""
+NO5=""
 ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 CVSROOT=""
 
@@ -176,6 +177,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
+-n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable script debugging mode,
 -V, --version       - output builder version
 -a, --as_anon       - get files via pserver as cvs@$CVS_SERVER,
@@ -452,6 +454,7 @@ src_no ()
 
 src_md5 ()
 {
+	[ X"$NO5" = X"yes" ] && return
 	no=$(src_no "$1")
 	[ -z "$no" ] && return
 	cd $SPECS_DIR
@@ -1179,6 +1182,9 @@ do
 			NOCVSSPEC="yes"
 			UPDATE5="yes"
 			ADD5="yes"
+			shift ;;
+		-n5 | --no-md5 )
+			NO5="yes"
 			shift ;;
 		-D | --debug )
 			DEBUG="yes"; shift ;;
