@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.12. Adapter adapts .spec files for PLD.
+# This is adapter v0.13. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -322,7 +322,7 @@ function translate_group(group)
 			return
 		}
 		
-		if (line ~ group) {
+		if (line == group) {
 			found = 1
 			continue
 		}
