@@ -137,13 +137,13 @@ parse_spec()
     cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
-	SOURCES="`rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`rpmbuild -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if (rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+    if (rpmbuild -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
-    PATCHES="`rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpmbuild -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -381,9 +381,9 @@ build_package()
     esac
     if [ -n "$LOGFILE" ]; then
 	LOG=`eval echo $LOGFILE`
-	eval nice -n ${DEF_NICE_LEVEL} time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
+	eval nice -n ${DEF_NICE_LEVEL} time rpmbuild $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
     else
-	eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
+	eval nice -n ${DEF_NICE_LEVEL} rpmbuild $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
     fi
 
     if [ "$?" -ne "0" ]; then
