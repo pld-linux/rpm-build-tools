@@ -1527,7 +1527,7 @@ case "$COMMAND" in
 			fi
 			get_files "$SOURCES $PATCHES";
 			build_package;
-			if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
+			if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
 				run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
 			fi
 			remove_build_requires;
