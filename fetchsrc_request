@@ -38,10 +38,34 @@ else
 fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
-	MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:	$BRANCH\nX-Flags: force-reply\n.\n"
-	echo -e $MAIL | /usr/sbin/sendmail -t
+	cat <<EOF | /usr/sbin/sendmail -t
+To: $DMAIL
+From: $LOGIN <$LOGIN@$HOST>
+Subject: fetchsrc_request notify 
+X-CVS-Module: SPECS
+X-distfiles-request: yes
+X-Login: $LOGIN
+X-Spec: $1
+X-Branch: $BRANCH
+X-Flags: force-reply
+.
+EOF
 else
-	MAIL="EHLO $HOST\nMAIL FROM: $LOGIN <$LOGIN@$HOST>\nRCPT TO: $DMAIL\nDATA\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:$BRANCH\nX-Flags: force-reply\n.\nQUIT\n"
-	echo -e $MAIL | /usr/bin/nc $VIA 25
+	cat <<EOF | /usr/bin/nc $VIA 25 > /dev/null
+EHLO $HOST
+MAIL FROM: $LOGIN <$LOGIN@$HOST>
+RCPT TO: $DMAIL
+DATA
+To: $DMAIL
+Subject: fetchsrc_request notify
+X-CVS-Module: SPECS
+X-distfiles-request: yes
+X-Login: $LOGIN
+X-Spec: $1
+X-Branch: $BRANCH
+X-Flags: force-reply
+.
+QUIT
+EOF
 fi
 
