@@ -107,6 +107,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-m, --mr-proper - only remove all files related to spec file and
 			  all work resources,
 	-nc, --no-cvs	- don't download from CVS, if source URL is given,
+	-nm, --no-mirrors - don't download from mirror, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
 	-ns, --no-srcs  - don't downland Sources
 	-ns0, --no-source0
@@ -254,6 +255,27 @@ get_spec()
     grep -E -m 1 "^#.*Revision:.*Date" $SPECFILE
 }
 
+find_mirror(){
+
+    cd "$SPECS_DIR"
+    url="$1"	
+    if [ ! -f "mirrors" ] ; then 
+	    cvs update mirrors >&2 
+    fi
+
+    IFS="|"
+    while read origin mirror name rest; do
+	ol=`echo -n "$origin"|wc -c`    
+	prefix="`echo -n "$url" | head -c $ol`"
+	if [ "$prefix" = "$origin" ] ; then
+		suffix="`echo "$url"|cut -b $ol-`"
+		echo -n "$mirror$suffix"
+		return 0
+	fi
+    done < mirrors
+    echo "$url"
+}
+
 get_files()
 {
     GET_FILES="$@"
@@ -286,6 +308,9 @@ get_files()
 		fi
 		
 		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
+			if [ -z "$NOMIRRORS" ] ; then 
+				i="`find_mirror "$i"`"
+			fi
 			${GETURI} "$i"
 		fi
 
@@ -450,6 +475,8 @@ while test $# -gt 0 ; do
 	    COMMAND="mr-proper"; shift ;;
 	-nc | --no-cvs )
 	    NOCVS="yes"; shift ;;
+	-nm | --no-mirrors )
+	    NOMIRRORS="yes"; shift ;;
 	-nu | --no-urls )
 	    NOURLS="yes"; shift ;;
 	-ns | --no-srcs )
