@@ -254,7 +254,7 @@ get_files()
 	done
 	
 	if [ "$CHMOD" = "yes" ]; then
-	    chmod 444 `nourl $SOURCES $PATCHES $ICONS`
+	    chmod 444 `nourl $GET_FILES`
 	fi
 	unset OPTIONS
     fi
@@ -390,4 +390,7 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.70  2001/03/03 19:55:42  misiek
+# workaround for problems with rpm when icons isn't cvs up'ed
+#
 #
