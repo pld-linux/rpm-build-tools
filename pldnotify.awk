@@ -89,11 +89,17 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 				newurl=substr(ramka,RSTART+5,RLENGTH-6)
 				if (DEBUG) print "Ramka: " newurl
 				retval=(retval " " get_links(newurl))
-			} else {
+			} else if (tolower(odp) ~ /href="[^"]+"/) {
 				match(tolower(odp),/href="[^"]+"/)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+				retval=(retval " " link)
+			} else {
+				match(tolower(odp),/href=[^ \t>]+/)
+				link=substr(odp,RSTART,RLENGTH)
+				odp=substr(odp,RSTART+RLENGTH)
+				link=substr(link,6,length(link)-5)
 				retval=(retval " " link)
 			}
 		}
@@ -167,6 +173,7 @@ function process_source(number,lurl,name,version) {
 	if( odp ~ "ERROR: ") {
 		print name "(" number ") " odp
 	} else {
+		if (DEBUG) print "Sciagnieta strona"
 		c=split(odp,linki)
 		for (nr=1; nr<=c; nr++) {
 			addr=linki[nr]
