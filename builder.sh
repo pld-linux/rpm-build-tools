@@ -43,15 +43,15 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b]
 	[--help] [-l <logfile>] [--logtofile <logfile>] [-q] [--quiet] [-r
 	<cvstag>] [--cvstag <cvstag>] [-v] [--verbose] <package>.spec
 
-	-D, --debug	- enable scrip debuging mode,
+	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
 	-a, --as_anon	- get files via pserver as cvs@cvs.pld.org.pl,
 	-b, --build	- get all files from CVS repo and build
 			  package from <package>.spec,
-	-c, --clean	- clean all temporary maked files (in BUILD,
-			  SOURCES, SPECS and $RPM_BUILD_ROOT),
+	-c, --clean	- clean all temporarily created files (in BUILD,
+			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 	-d, --cvsroot	- setup \$CVSROOT,
-	-g, --get	- get <package>.spec and all relayted files from
+	-g, --get	- get <package>.spec and all related files from
 			  CVS repo,
 	-h, --help	- this message,
 	-l, --logtofile	- log all to file,
