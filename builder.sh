@@ -798,7 +798,7 @@ nourl()
 install_required_packages()
 {
 	poldek -i $package
-	exit $?
+	return $?
 }
 
 set_bconds_values()
