@@ -65,10 +65,11 @@ usage()
     echo "\
 Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	[--build] [-bb] [--build-binary] [-bs] [--build-source]
-	[-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h] [--help]
-	[-l <logfile>] [-m] [--mr-proper] [--logtofile <logfile>] [-q] [--quiet]
-	[-r <cvstag>] [--cvstag <cvstag>] [-u] [--no-urls] [-v] [--verbose]
-	[--opts <rpm opts>] [--with/--without pkg] <package>.spec
+	[-B <branch>] [--branch <branch>] [-d <cvsroot>] [--cvsroot <cvsroot>] 
+	[-g] [--get] [-h] [--help] [-l <logfile>] [-m] [--mr-proper] 
+	[--logtofile <logfile>] [-q] [--quiet] [-r <cvstag>] [--cvstag <cvstag>] 
+	[-u] [--no-urls] [-v] [--verbose] [--opts <rpm opts>] 
+	[--with/--without pkg] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -82,6 +83,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	-bs,
 	--build-source	- get all files from CVS repo or HTTP/FTP and only
 			  pack them into src.rpm,
+	-B, --branch	- add branch
 	-c, --clean     - clean all temporarily created files (in BUILD,
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
@@ -315,6 +317,40 @@ tag_files()
     fi
 }
 
+branch_files()
+{
+	TAG=$1
+	echo "CVS tag: $TAG"
+	shift;
+
+	TAG_FILES="$@"
+
+	if [ -n "$DEBUG" ]; then
+		set -x;
+		set -v;
+	fi
+
+	if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
+		
+		OPTIONS="tag -b"
+		if [ -n "$CVSROOT" ]; then
+			OPTIONS="-d $CVSROOT $OPTIONS"
+		fi
+		cd $SOURCE_DIR
+		for i in $TAG_FILES; do
+			if [ -f `nourl $i` ]; then
+				cvs $OPTIONS $TAG `nourl $i`
+			else
+				Exit_error err_no_source_in_repo $i
+			fi
+		done
+		cd $SPECS_DIR
+		cvs $OPTIONS $TAG $SPECFILE
+
+		unset OPTIONS
+	fi
+}
+
 build_package()
 {
     if [ -n "$DEBUG" ]; then 
@@ -365,6 +401,8 @@ while test $# -gt 0 ; do
 	    COMMAND="build-binary"; shift ;;
 	-bs | --build-source )
 	    COMMAND="build-source"; shift ;;
+	-B | --branch )
+	    COMMAND="branch"; shift; TAG="${1}"; shift;;
 	-c | --clean )
 	    CLEAN="--clean --rmspec --rmsource"; shift ;;
 	-d | --cvsroot )
@@ -423,6 +461,21 @@ case "$COMMAND" in
 	    Exit_error err_no_spec_in_cmdl;
 	fi
 	;;
+    "branch" )
+    	init_builder;
+	if [ -n "$SPECFILE" ]; then
+		get_spec;
+		parse_spec;
+		if [ -n "$ICONS" ]; then
+			get_files $ICONS
+			parse_spec;
+		fi
+		get_files $SOURCES $PATCHES;
+		branch_files $TAG "$SOURCES $PATCHES $ICONS";
+	else
+		Exit_error err_no_spec_in_cmdl;
+	fi
+    	;;
     "get" )
 	init_builder;
 	if [ -n "$SPECFILE" ]; then
@@ -464,6 +517,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.84  2001/11/07 22:08:48  ankry
+# - make builder's chmod configurable
+#
 # Revision 1.83  2001/10/10 08:41:32  misiek
 # - allow more bconds than one
 #
