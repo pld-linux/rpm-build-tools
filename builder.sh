@@ -394,7 +394,7 @@ build_package()
 
 nourl()
 {
-	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\)://[^ ]*/##g'
+	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
 #---------------------------------------------
 # main()
