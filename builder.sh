@@ -71,6 +71,7 @@ FAIL_IF_NO_SOURCES="yes"
 
 GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES --inet"
 GETURI2="wget -c -nd -t$WGET_RETRIES --inet"
+GETLOCAL="cp -a"
 
 if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
     RPM="rpm"
@@ -411,14 +412,18 @@ get_files()
 		    fi
 		    target=$(nourl "$i")
 		    url=$(distfiles_url "$i")
-		    if [ -z "$NOMIRRORS" ] ; then
-			url="`find_mirror "$url"`"
-		    fi
-		    ${GETURI} -O "$target" "$url" || \
-			if [ `echo $url | grep -E 'ftp://'` ]; then
-			    ${GETURI2} -O "$target" "$url"
+		    if [ `echo $url | grep -E '^(\.|/)'` ] ; then
+			${GETLOCAL} $url $target
+		    else
+			if [ -z "$NOMIRRORS" ] ; then
+			    url="`find_mirror "$url"`"
 			fi
-		    test -s "$target" || rm -f "$target"
+			${GETURI} -O "$target" "$url" || \
+			    if [ `echo $url | grep -E 'ftp://'` ]; then
+				${GETURI2} -O "$target" "$url"
+			    fi
+			test -s "$target" || rm -f "$target"
+		    fi
 		elif [ -z "$(src_md5 "$i")" ] && \
 		     ( [ -z "$NOCVS" ] || echo $i | grep -qvE '(ftp|http|https)://' ); then
 		    result=1
