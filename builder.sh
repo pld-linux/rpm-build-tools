@@ -111,9 +111,9 @@ parse_spec()
 
     PATCHES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-    PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile rpm.spec | head -1`"
-    PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile rpm.spec | head -1`"
-    PACKAGE_RELEASE="`rpm -q --qf '%{RELEASE}\n' --specfile rpm.spec | head -1`"
+    PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} | head -1`"
+    PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} | head -1`"
+    PACKAGE_RELEASE="`rpm -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} | head -1`"
 
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
@@ -446,6 +446,11 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.72  2001/03/26 22:16:22  kloczek
+# - fixed grabbing name, version and release in parse_spec(),
+# - added -T option (tag) (temporary it tags also additional STABLE tag - must
+#   be added -Ts for separate tagging as STABLE).
+#
 # Revision 1.71  2001/03/05 14:12:27  misiek
 # fix chmod
 #
