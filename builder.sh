@@ -24,6 +24,7 @@ CLEAN=""
 DEBUG=""
 NOURLS=""
 NOCVS=""
+NOCVSSPEC=""
 ALLWAYS_CVSUP="yes"
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
@@ -51,6 +52,7 @@ DEF_NICE_LEVEL=0
 FAIL_IF_NO_SOURCES="yes"
 
 GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES"
+GETURI2="wget -c -nd -t$WGET_RETRIES"
 
 if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
     RPM="rpm"
@@ -110,7 +112,10 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			- log all to file,
 	-m, --mr-proper - only remove all files related to spec file and
 			  all work resources,
-	-nc, --no-cvs	- don't download from CVS, if source URL is given,
+	-nc, --no-cvs	- don't download sources from CVS, if source URL is
+			  given,
+	-ncs, --no-cvs-specs
+			- don't check specs in CVS
 	-nm, --no-mirrors - don't download from mirror, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
 	-ns, --no-srcs  - don't downland Sources
@@ -229,26 +234,33 @@ get_spec()
 	set -v; 
     fi
 
-    cd $SPECS_DIR
+    if [ "$NOCVSSPEC" != "yes" ]; then
+	cd $SPECS_DIR
 
-    OPTIONS="up "
+	OPTIONS="up "
 
-    if [ -n "$CVSROOT" ]; then
-	OPTIONS="-d $CVSROOT $OPTIONS"
-    fi
-    if [ -n "$CVSTAG" ]; then
-	OPTIONS="$OPTIONS -r $CVSTAG"
-    else
-	OPTIONS="$OPTIONS -A"
-    fi
-
-    cvs $OPTIONS $SPECFILE
-    if [ "$?" -ne "0" ]; then
-	Exit_error err_no_spec_in_repo;
-    fi
-	if [ ! -f "$SPECFILE" ]; then
-	Exit_error err_no_spec_in_repo;
+	if [ -n "$CVSROOT" ]; then
+	    OPTIONS="-d $CVSROOT $OPTIONS"
+	else
+	    if [ ! -s CVS/Root -a "$NOCVSSPEC" != "yes" ]; then
+		echo "warning: No cvs access defined - using local .spec file"
+		NOCVSSPEC="yes"
+	    fi
 	fi
+	if [ -n "$CVSTAG" ]; then
+	    OPTIONS="$OPTIONS -r $CVSTAG"
+	else
+	    OPTIONS="$OPTIONS -A"
+	fi
+
+	cvs $OPTIONS $SPECFILE
+	if [ "$?" -ne "0" ]; then
+	    Exit_error err_no_spec_in_repo;
+	fi
+    fi
+    if [ ! -f "$SPECFILE" ]; then
+	Exit_error err_no_spec_in_repo;
+    fi
     
     if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
 	chmod $CHMOD_MODE $SPECFILE
@@ -262,7 +274,7 @@ find_mirror(){
     cd "$SPECS_DIR"
     url="$1"	
     if [ ! -f "mirrors" ] ; then 
-	    cvs update mirrors >&2 
+	cvs update mirrors >&2 
     fi
 
     IFS="|"
@@ -270,9 +282,9 @@ find_mirror(){
 	ol=`echo -n "$origin"|wc -c`    
 	prefix="`echo -n "$url" | head -c $ol`"
 	if [ "$prefix" = "$origin" ] ; then
-		suffix="`echo "$url"|cut -b $ol-`"
-		echo -n "$mirror$suffix"
-		return 0
+	    suffix="`echo "$url"|cut -b $ol-`"
+	    echo -n "$mirror$suffix"
+	    return 0
 	fi
     done < mirrors
     echo "$url"
@@ -293,6 +305,11 @@ get_files()
 	OPTIONS="up "
 	if [ -n "$CVSROOT" ]; then
 	    OPTIONS="-d $CVSROOT $OPTIONS"
+	else
+	    if [ ! -s CVS/Root -a "$NOCVS" != "yes" ]; then
+		echo "warning: No cvs access defined for SOURCES"
+		NOCVS="yes"
+	    fi
 	fi
 	if [ -n "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -r $CVSTAG"
@@ -302,22 +319,23 @@ get_files()
 	for i in $GET_FILES; do
 	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ]; then
 		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
-			echo "Warning: no URL given for $i"
+		    echo "Warning: no URL given for $i"
 		fi
 		
 		if [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
-			cvs $OPTIONS `nourl $i`
+		    cvs $OPTIONS `nourl $i`
 		fi
 		
 		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
-			if [ -z "$NOMIRRORS" ] ; then 
-				i="`find_mirror "$i"`"
-			fi
-			${GETURI} "$i"
+		    if [ -z "$NOMIRRORS" ] ; then 
+			i="`find_mirror "$i"`"
+		    fi
+		    ${GETURI} "$i" || \
+			if [ `echo $i | grep -E 'ftp://'` ]; then ${GETURI2} "$i" ; fi
 		fi
 
 		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
-			Exit_error err_no_source_in_repo $i;
+		    Exit_error err_no_source_in_repo $i;
 		fi
 	    fi
 	done
@@ -325,7 +343,7 @@ get_files()
 	if [ "$CHMOD" = "yes" ]; then
 	    CHMOD_FILES="`nourl $GET_FILES`"
 	    if [ -n "$CHMOD_FILES" ]; then
-		    chmod $CHMOD_MODE $CHMOD_FILES
+		chmod $CHMOD_MODE $CHMOD_FILES
 	    fi
 	fi
 	unset OPTIONS
@@ -516,6 +534,8 @@ while test $# -gt 0 ; do
 	    COMMAND="mr-proper"; shift ;;
 	-nc | --no-cvs )
 	    NOCVS="yes"; shift ;;
+	-ncs | --no-cvs-spec )
+	    NOCVSSPEC="yes"; shift ;;
 	-nm | --no-mirrors )
 	    NOMIRRORS="yes"; shift ;;
 	-nu | --no-urls )
