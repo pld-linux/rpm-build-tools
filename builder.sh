@@ -365,6 +365,10 @@ get_spec()
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		cd $SPECS_DIR
 
+		if [ \! -f "$SPECFILE" ]; then
+			SPECFILE="`basename $SPECFILE .spec`.spec";
+		fi
+
 		OPTIONS="up "
 
 		if [ -n "$CVSROOT" ]; then
@@ -1317,11 +1321,7 @@ do
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
 		* )
-		   if [ -f "${1}" ]; then
-				 SPECFILE="${1}"
-			else
-	 			 SPECFILE="`basename ${1} .spec`.spec";
-			fi
+			SPECFILE="${1}"
 			export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
 			shift ;;
 	esac
