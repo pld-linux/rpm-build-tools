@@ -81,7 +81,7 @@ RES_FILE=""
 CVS_SERVER="cvs.pld-linux.org"
 DISTFILES_SERVER="://distfiles.pld-linux.org"
 
-DEF_NICE_LEVEL=0
+DEF_NICE_LEVEL=19
 
 FAIL_IF_NO_SOURCES="yes"
 
@@ -881,7 +881,7 @@ set_bconds_values()
 	AVAIL_BCONDS_WITH=""
 	if `grep -q ^%bcond ${SPECFILE}`; then
 		BCOND_VERSION="NEW"
-	elif `grep -q bcond ${SPECFILE}`; then
+	elif `egrep -q ^#\ *_with ${SPECFILE}`; then
 		BCOND_VERSION="OLD"
 	else
 		BCOND_VERSION="NONE"
