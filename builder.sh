@@ -919,15 +919,15 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
 				for package_name in `cat "$package-req.txt"|grep -v ^#`
 				do 
 					if [ "$package_name" == "$package" ]; then
-						echo -ne "$package [installing BuildRequired package]:\t$package_name\n"
+						echo -ne "Installing BuildRequired package:\t$package_name\n"
 						poldek -i $package_name
 					else
-						echo -ne "$package [installing Required package]:\t$package_name\n"
+						echo -ne "Installing Required package:\t$package_name\n"
 						poldek -i $package_name
 					fi
                                 	case $? in
 	                                1)
-        	                                echo -ne "$package [package installation failed]:\t$package_name\n"
+        	                                echo -ne "Package installation failed:\t$package_name\n"
 						#
 						# No i tutaj bym chcia³ zrobiæ sztuczn± inteligencjê, która spróbuje tego
 						# pakieta zbudowaæ. 
