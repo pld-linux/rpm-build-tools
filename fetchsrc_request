@@ -39,9 +39,9 @@ fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
 	MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:	$BRANCH\nX-Flags: force-reply\n.\n"
-	echo $MAIL | /usr/sbin/sendmail -t
+	echo -e $MAIL | /usr/sbin/sendmail -t
 else
 	MAIL="EHLO $HOST\nMAIL FROM: $LOGIN <$LOGIN@$HOST>\nRCPT TO: $DMAIL\nDATA\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:$BRANCH\nX-Flags: force-reply\n.\nQUIT\n"
-	echo $MAIL | /usr/bin/nc $VIA 25
+	echo -e $MAIL | /usr/bin/nc $VIA 25
 fi
 
