@@ -235,7 +235,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -T <cvstag> , --tag <cvstag>
                     - add cvs tag <cvstag> for files,
 -Tvs, --tag-version-stable
-                    - add cvs tags STABLE and NAME-VERSION-RELAESE for files,
+                    - add cvs tags STABLE and NAME-VERSION-RELEASE for files,
 -Tvn, --tag-version-nest
                     - add cvs tags NEST and NAME-VERSION-RELEASE for files,
 -Ts, --tag-stable
