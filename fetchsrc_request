@@ -31,17 +31,17 @@ if [ "$#" = 0 ]; then
 	usage;
 	exit 1
 fi
-if [ "$2" != 0 ]; then
-	BRANCH=`cat CVS/Entries | grep $1 | awk -F/ '{print $6;}' | cut -c 2-`
+if [ "$2" != "" ]; then
+	BRANCH="$2"
 else
 	BRANCH="HEAD"
 fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
 	MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:	$BRANCH\nX-Flags: force-reply\n.\n"
-	echo $MAIL | `which sendmail`
+	echo $MAIL | /usr/sbin/sendmail
 else
 	MAIL="EHLO $HOST\nMAIL FROM: $LOGIN <$LOGIN@$HOST>\nRCPT TO: $DMAIL\nDATA\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:$BRANCH\nX-Flags: force-reply\n.\nQUIT\n"
-	echo $MAIL | `which nc` $VIA 25
+	echo $MAIL | /usr/bin/nc $VIA 25
 fi
 
