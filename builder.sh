@@ -221,7 +221,7 @@ parse_spec()
 Exit_error()
 {
     if [ -n "$DEBUG" ]; then
-    	set -x;
+	set -x;
 	set -v;
     fi
 
@@ -246,7 +246,7 @@ Exit_error()
 init_builder()
 {
     if [ -n "$DEBUG" ]; then
-    	set -x;
+	set -x;
 	set -v;
     fi
 
@@ -259,7 +259,7 @@ init_builder()
 get_spec()
 {
     if [ -n "$DEBUG" ]; then
-    	set -x;
+	set -x;
 	set -v;
     fi
 
@@ -281,10 +281,10 @@ get_spec()
 	    OPTIONS="$OPTIONS -A"
 	else
 	    if [ -n "$CVSDATE" ]; then
-	    	OPTIONS="$OPTIONS -D $CVSDATE"
+		OPTIONS="$OPTIONS -D $CVSDATE"
 	    fi
 	    if [ -n "$CVSTAG" ]; then
-	    	OPTIONS="$OPTIONS -r $CVSTAG"
+		OPTIONS="$OPTIONS -r $CVSTAG"
 	    fi
 	fi
 
@@ -300,8 +300,8 @@ get_spec()
 		    echo "Trying again [$SPECFILE]... ($retries_counter)"
 		    sleep 2
 		    continue
-		 fi
-	    	Exit_error err_no_spec_in_repo;
+		fi
+		Exit_error err_no_spec_in_repo;
 	    fi
 	done
     fi
@@ -341,9 +341,9 @@ src_no ()
 {
     cd $SPECS_DIR
     $RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | \
-       grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
-       sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
-       head -1 | xargs
+	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
+	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
+	head -1 | xargs
 }
 
 src_md5 ()
@@ -351,18 +351,22 @@ src_md5 ()
     no=$(src_no "$1")
     [ -z "$no" ] && return
     cd $SPECS_DIR
-    spec="$SPECFILE,$(head -1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
+    spec_rev=$(grep $SPECFILE CVS/Entries | sed -e s:/$SPECFILE/:: -e s:/.*::)
+    if [ -z "$spec_rev" ]; then
+	spec_rev="$(head -1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
+    fi
+    spec="$SPECFILE[0-9.,]*,$(echo $spec_rev | sed 's/\./\\./g')"
     md5=$(grep -s -v '^#' additional-md5sums | \
-          grep -E "[ 	]$(basename "$1")[ 	]*[ 	]${spec}([ 	]|\$)" | \
-	  sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
-	  grep -E '^[0-9a-f]{32}$')
+	grep -E "[ 	]$(basename "$1")[ 	]+${spec}([ 	,]|\$)" | \
+	sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
+	grep -E '^[0-9a-f]{32}$')
     if [ X"$md5" = X"" ] ; then
-      grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
+	grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
     else
-      if [ $(echo "$md5" | wc -l) != 1 ] ; then
-        echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
-      fi
-      echo "$md5" | tail -1
+	if [ $(echo "$md5" | wc -l) != 1 ] ; then
+	    echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
+	fi
+	echo "$md5" | tail -1
     fi
 }
 
@@ -383,7 +387,7 @@ get_files()
     GET_FILES="$@"
 
     if [ -n "$DEBUG" ]; then
-    	set -x;
+	set -x;
 	set -v;
     fi
 
@@ -399,16 +403,16 @@ get_files()
 		NOCVS="yes"
 	    fi
 	fi
-       if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
-            OPTIONS="$OPTIONS -A"
-        else
-            if [ -n "$CVSDATE" ]; then
-                OPTIONS="$OPTIONS -D $CVSDATE"
-            fi
-            if [ -n "$CVSTAG" ]; then
-                OPTIONS="$OPTIONS -r $CVSTAG"
-            fi
-        fi
+	if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
+	    OPTIONS="$OPTIONS -A"
+	else
+	    if [ -n "$CVSDATE" ]; then
+		OPTIONS="$OPTIONS -D $CVSDATE"
+	    fi
+	    if [ -n "$CVSTAG" ]; then
+		OPTIONS="$OPTIONS -r $CVSTAG"
+	    fi
+	fi
 	for i in $GET_FILES; do
 	    if [ ! -f `nourl $i` ] || [ $ALWAYS_CVSUP = "yes" ]; then
 		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
@@ -437,11 +441,11 @@ get_files()
 		elif [ -z "$(src_md5 "$i")" ] && \
 		     ( [ -z "$NOCVS" ] || echo $i | grep -qvE '(ftp|http|https)://' ); then
 		    result=1
-        	    retries_counter=0
-	            while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
-		  	retries_counter=$(( $retries_counter + 1 ))
+		    retries_counter=0
+		    while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
+			retries_counter=$(( $retries_counter + 1 ))
 			output=$(LC_ALL=C cvs $OPTIONS `nourl $i` 2>&1)
-         		result=$?
+			result=$?
 			[ -n "$output" ] && echo "$output"
 			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
 				echo "Trying again [`nourl $i`]... ($retries_counter)"
@@ -505,7 +509,7 @@ tag_files()
     TAG_FILES="$@"
 
     if [ -n "$DEBUG" ]; then
-    	set -x;
+	set -x;
 	set -v;
     fi
 
@@ -654,10 +658,10 @@ build_package()
 	RETVAL=`cat $RES_FILE`
 	rm $RES_FILE
 	if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
-    	    if [ "$RETVAL" -eq "0" ]; then
+	    if [ "$RETVAL" -eq "0" ]; then
 		mv $LOG $LOGDIROK
-    	    else
-    		mv $LOG $LOGDIRFAIL
+	    else
+		mv $LOG $LOGDIRFAIL
 	    fi
 	fi
     else
@@ -834,8 +838,8 @@ case "$COMMAND" in
 	    fi
 
 	    if [ -n "$ICONS" ]; then
-	    	get_files $ICONS;
-	    	parse_spec;
+		get_files $ICONS;
+		parse_spec;
 	    fi
 	    if [ -n "$NOSOURCE0" ] ; then
 		SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
@@ -847,7 +851,7 @@ case "$COMMAND" in
 	fi
 	;;
     "branch" )
-    	init_builder;
+	init_builder;
 	if [ -n "$SPECFILE" ]; then
 		get_spec;
 		parse_spec;
@@ -860,7 +864,7 @@ case "$COMMAND" in
 	else
 		Exit_error err_no_spec_in_cmdl;
 	fi
-    	;;
+	;;
     "get" )
 	init_builder;
 	if [ -n "$SPECFILE" ]; then
