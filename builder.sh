@@ -596,7 +596,7 @@ while test $# -gt 0 ; do
 	    COMMAND="mr-proper"; shift ;;
 	-nc | --no-cvs )
 	    NOCVS="yes"; shift ;;
-	-ncs | --no-cvs-spec )
+	-ncs | --no-cvs-specs )
 	    NOCVSSPEC="yes"; shift ;;
 	-nm | --no-mirrors )
 	    NOMIRRORS="yes"; shift ;;
