@@ -362,12 +362,14 @@ get_spec()
 		set -v;
 	fi
 
+	CWD=$(pwd)
+	cd $SPECS_DIR
+	if [ \! -f "$SPECFILE" ]; then
+		SPECFILE="`basename $SPECFILE .spec`.spec";
+	fi
+	cd $CWD
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		cd $SPECS_DIR
-
-		if [ \! -f "$SPECFILE" ]; then
-			SPECFILE="`basename $SPECFILE .spec`.spec";
-		fi
 
 		OPTIONS="up "
 
