@@ -1,6 +1,4 @@
-ftp://ftp.perl.org/pub/CPAN/|ftp://ftp/pub/mirrors/ftp.cpan.org/CPAN/|FTP
-ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp/pub/mirrors/ftp.cpan.org/CPAN/|FTP
--- ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
+ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 ftp://ftp.gnome.org/pub/gnome/pre-gnome2/sources/|ftp://ftp.icm.edu.pl/mirrors/ftp.gnome.org/pub/GNOME/pre-gnome2/sources/|ICM
 http://prdownloads.sourceforge.net/|http://telia.dl.sourceforge.net/sourceforge/|Telia
 http://prdownloads.sourceforge.net/|http://unc.dl.sourceforge.net/sourceforge/|UNC
