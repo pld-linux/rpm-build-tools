@@ -2,18 +2,18 @@
 # -----------
 # $Id$
 # Exit codes:
-#	0 - succesful
-#	1 - help displayed
-#	2 - no spec file name in cmdl parameters
-#	3 - spec file not stored in repo
-#	4 - some source, patch or icon files not stored in repo
-#	5 - package build failed
-#	6 - spec file with errors
-#	7 - wrong source in /etc/poldek.conf
-#  8 - Failed installing buildrequirements and subrequirements
-#  9 - Requested tag already exist
-# 10 - Refused to build fractional release
-#100 - Unknown error (should not happen)
+#	  0 - succesful
+#	  1 - help displayed
+#	  2 - no spec file name in cmdl parameters
+#	  3 - spec file not stored in repo
+#	  4 - some source, patch or icon files not stored in repo
+#	  5 - package build failed
+#	  6 - spec file with errors
+#	  7 - wrong source in /etc/poldek.conf
+#	  8 - Failed installing buildrequirements and subrequirements
+#	  9 - Requested tag already exist
+#	 10 - Refused to build fractional release
+#	100 - Unknown error (should not happen)
 
 # Notes (todo):
 #	- builder -u fetches current version first
@@ -180,7 +180,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
 [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
-	
+
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
 -n5, --no-md5       - ignore md5 comments in spec
@@ -197,7 +197,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -B, --branch        - add branch
 -c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
                       SPECS and \$RPM_BUILD_ROOT),
--d <cvsroot>, --cvsroot <cvsroot>	
+-d <cvsroot>, --cvsroot <cvsroot>
                     - setup \$CVSROOT,
 --define <macro> <value>
                     - define a macro <macro> with value <value>,
@@ -275,7 +275,7 @@ cache_rpm_dump () {
 rpm_dump_cache=`
 	case "$RPMBUILD" in
 		rpm )
-			rpm -bp --nodeps --define 'prep %dump' $BCOND $SPECFILE 2>&1
+			rpm -bp --nodeps --define 'prep %dump' $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 		rpmbuild )
 			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1
@@ -317,7 +317,6 @@ parse_spec()
 	if [ -z "$PACKAGE_NAME" -o -z "$PACKAGE_VERSION" -o -z "$PACKAGE_RELEASE" ]; then
 		 Exit_error err_no_package_data;
 	fi
-		 
 
 	if [ -n "$BE_VERBOSE" ]; then
 		echo "- Sources :  `nourl $SOURCES`"
@@ -378,7 +377,7 @@ Exit_error()
 
 	esac
    echo "Unknown error."
-   exit 100 
+   exit 100
 }
 
 init_builder()
@@ -684,7 +683,7 @@ get_files()
 				' \
 				$SPECS_DIR/$SPECFILE
 			fi
-	
+
 			if good_md5 "$i" && good_size "$i"; then
 				:
 			elif [ "$FROM_DISTFILES" = 1 ]; then
@@ -732,7 +731,7 @@ make_tagver() {
 			 set -x;
 			 set -v;
 		fi
-								  
+
 		# Check whether first character of PACKAGE_NAME is legal for tag name
 		if [ -z "${PACKAGE_NAME##[_0-9]*}" -a -z "$TAG_PREFIX" ]; then
 			TAG_PREFIX=tag_
@@ -868,11 +867,7 @@ build_package()
 		fi
 	fi
 	cd "$SPECS_DIR"
-	
-	if [ -n "$TARGET" ]; then 
-		TARGET_SWITCH="--target $TARGET"
-	fi
-	
+
 	case "$COMMAND" in
 		build )
 			BUILD_SWITCH="-ba" ;;
@@ -916,14 +911,12 @@ build_package()
 		Exit_error err_build_fail;
 	fi
 	unset BUILD_SWITCH
-	unset TARGET_SWITCH
 }
 
 nourl()
 {
 	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
-
 
 install_required_packages()
 {
@@ -957,7 +950,7 @@ set_bconds_values()
 					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
 				fi
 			done
-		
+
 			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_with_`
 			do
 				AVAIL_BCOND_WITH=`echo $opt|sed -e "s/^_with_//g"`
@@ -1024,7 +1017,6 @@ run_sub_builder()
 	# y0shi.
 
 	parent_spec_name=''
-
 
 	# Istnieje taki spec? ${package}.spec
 	if [ -f "${SPECS_DIR}${package}.spec" ]; then
@@ -1109,7 +1101,7 @@ fetch_build_requires()
 			 fi
 			 return
 		fi
-		 
+
 		echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
 		echo -ne "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES\n"
 		echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
@@ -1122,7 +1114,7 @@ fetch_build_requires()
 			package=`basename "$package_item"|sed -e "s/}$//g"`
 			COND_ARCH_TST="`cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g"`"
 			mach=`uname -m`
-		
+
 			COND_TST=`cat $SPECFILE|grep BuildRequires|grep "$package"`
 			if `echo $COND_TST|grep -q '^BuildRequires:'`; then
 				if [ "$COND_ARCH_TST" != "" ] && [ "`echo $COND_ARCH_TST|sed -e "s/i.86/ix86/g"`" != "`echo $mach|sed -e "s/i.86/ix86/g"`" ]; then
@@ -1152,12 +1144,12 @@ fetch_build_requires()
 						COND_STATE="wout"
 					else
 						COND_STATE="with"
-					fi					
+					fi
 					if `echo $AVAIL_BCONDS_WITH|grep -q "<$COND_NAME>"`; then
 						COND_ARGV="with"
 					else
 						COND_ARGV="wout"
-					fi	
+					fi
 				fi
 				RESULT="${COND_STATE}-${COND_ARGV}"
 				case "$RESULT" in
@@ -1443,49 +1435,58 @@ if [ -n "$DEBUG" ]; then
 	set -v;
 fi
 
+if [ -n "$TARGET" ]; then
+	case "$RPMBUILD" in
+		"rpmbuild")
+			TARGET_SWITCH="--target $TARGET" ;;
+		"rpm")
+			TARGET_SWITCH="--target=$TARGET" ;;
+	esac
+fi
+
 case "$COMMAND" in
 	"build" | "build-binary" | "build-source" | "build-prep" )
 		init_builder;
 		if [ -n "$SPECFILE" ]; then
-		get_spec;
-		set_bconds_values;
-		display_bconds;
-		fetch_build_requires;
-		parse_spec;
-	   if [ "$INTEGER_RELEASE" = "yes" ]; then
-		  echo "Checking release $PACKAGE_RELEASE..."
-		  if echo $PACKAGE_RELEASE | grep -q '^[^.]*\.[^.]*$' 2>/dev/null ; then
-			  Exit_error err_fract_rel "$PACKAGE_RELEASE"
-		  fi
-	   fi
-		
-		if [ -n "$TEST_TAG" ]; then
-			TAGVER=`make_tagver`
-			echo "Searching for tag $TAGVER..."
-			TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
-			if [ -n "$TAGREL" ]; then
-				Exit_error err_tag_exists "$TAGVER" "$TAGREL"
-			fi
-		fi
-
-		if [ -n "$ICONS" ]; then
-			get_files $ICONS;
+			get_spec;
+			set_bconds_values;
+			display_bconds;
+			fetch_build_requires;
 			parse_spec;
+			if [ "$INTEGER_RELEASE" = "yes" ]; then
+				echo "Checking release $PACKAGE_RELEASE..."
+				if echo $PACKAGE_RELEASE | grep -q '^[^.]*\.[^.]*$' 2>/dev/null ; then
+					Exit_error err_fract_rel "$PACKAGE_RELEASE"
+				fi
+			fi
+
+			if [ -n "$TEST_TAG" ]; then
+				TAGVER=`make_tagver`
+				echo "Searching for tag $TAGVER..."
+				TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
+				if [ -n "$TAGREL" ]; then
+					Exit_error err_tag_exists "$TAGVER" "$TAGREL"
+				fi
+			fi
+
+			if [ -n "$ICONS" ]; then
+				get_files $ICONS;
+				parse_spec;
+			fi
+			if [ -n "$NOSOURCE0" ] ; then
+				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
+			fi
+			get_files "$SOURCES $PATCHES";
+			build_package;
+			if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
+				run_poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
+				run_poldek --sn ${POLDEK_SOURCE} --up
+			fi
+			remove_build_requires;
+		else
+			Exit_error err_no_spec_in_cmdl;
 		fi
-		if [ -n "$NOSOURCE0" ] ; then
-			SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
-		fi
-		get_files "$SOURCES $PATCHES";
-		build_package;
-		if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-			run_poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
-			run_poldek --sn ${POLDEK_SOURCE} --up
-		fi
-		remove_build_requires;
-	else
-		Exit_error err_no_spec_in_cmdl;
-	fi
-	;;
+		;;
 	"branch" )
 		init_builder;
 		if [ -n "$SPECFILE" ]; then
