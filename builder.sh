@@ -944,6 +944,43 @@ set_bconds_values()
 	else
 		BCOND_VERSION="NONE"
 	fi
+
+	# expand bconds from ~/.bcondrc
+	# The file structure is like gentoo's package.use:
+	# ---
+	# * -selinux
+	# samba -mysql -pgsql
+	# w32codec license_agreement
+	# php +mysqli
+	# ---
+	if [ "${BCOND_VERSION}" != "NONE" ] && [ -f $HOME/.bcondrc ]; then
+		# This takes package name, first defined in spec.
+		# so consider that when defining flags for package.
+		PN=`$RPM -q --qf '%{NAME}\n' --specfile $SPECFILE | head -n 1`
+		AVAIL=`$RPMBUILD --bcond $SPECFILE`
+
+		while read pkg flags; do
+			# ignore comments
+			[[ "$pkg" == \#* ]] && continue
+
+			# any package or current package?
+			if [ "$pkg" = "*" ] || [ "$pkg" = "$PN" ]; then
+				for flag in $flags; do
+					opt=${flag#[+-]}
+
+					# use only flags which are in this package.
+					if [[ $AVAIL = *${opt}* ]]; then
+						if [[ $flag == -* ]]; then
+							BCOND="$BCOND --without ${opt#-}"
+						else
+							BCOND="$BCOND --with ${opt#+}"
+						fi
+					fi
+				done
+			fi
+		done < $HOME/.bcondrc
+	fi
+
 	case "${BCOND_VERSION}" in
 		 NONE)
 		 	:
