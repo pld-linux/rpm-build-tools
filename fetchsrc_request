@@ -36,7 +36,7 @@ else
 	BRANCH="HEAD"
 fi
 
-MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch: $BRANCH\nX-Flags: cvs-notify\n.\n
+MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch: $BRANCH\nX-Flags: force-reply\n.\n
 "
 
 echo $MAIL | $VIA
