@@ -2,7 +2,7 @@
 #
 # This is adapter v0.26. Adapter adapts .spec files for PLD.
 #
-# Copyright (C) 1999-2001 PLD-Team <pld-list@pld.org.pl>
+# Copyright (C) 1999-2001 PLD-Team <feedback@pld.org.pl>
 # Authors:
 # 	Micha³ Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -267,7 +267,7 @@ defattr == 1 {
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 1) {
 		if (!/PLD Team/) {
-			print "* %{date} PLD Team <pld-list@pld.org.pl>" > changelog_file
+			print "* %{date} PLD Team <feedback@pld.org.pl>" > changelog_file
 			printf "All persons listed below can be reached at " > changelog_file
 			print "<cvs_login>@pld.org.pl\n" > changelog_file
 			print "$" "Log:$" > changelog_file
@@ -511,7 +511,7 @@ END {
 		print "%changelog"
 
 	if (boc > 0) {
-		print "* %{date} PLD Team <pld-list@pld.org.pl>"
+		print "* %{date} PLD Team <feedback@pld.org.pl>"
 		printf "All persons listed below can be reached at "
 		print "<cvs_login>@pld.org.pl\n"
 		print "$" "Log:$"
