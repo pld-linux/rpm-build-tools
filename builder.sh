@@ -179,6 +179,17 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 "
 }
 
+rpm_dump () {
+	case "$RPMBUILD" in
+	rpm )
+    		rpm -bp --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+		;;
+	rpmbuild )
+    		rpmbuild --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+		;;
+	esac
+}
+
 parse_spec()
 {
     if [ -n "$DEBUG" ]; then
@@ -188,13 +199,13 @@ parse_spec()
 
     cd $SPECS_DIR
     if [ "$NOSRCS" != "yes" ]; then
-	SOURCES="`$RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`rpm_dump | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if ($RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+    if (rpm_dump | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
-    PATCHES="`$RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -340,7 +351,7 @@ find_mirror(){
 src_no ()
 {
     cd $SPECS_DIR
-    $RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | \
+    rpm_dump | \
 	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
 	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
 	head -1 | xargs
