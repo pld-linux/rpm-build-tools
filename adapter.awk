@@ -18,8 +18,8 @@ BEGIN {
 	tw = 70        		# Descriptions width
 
 	# File with rpm groups
-	"rpm --eval %_topdir" | getline groups_file
-	groups_file = groups_file "/groups"
+	"rpm --eval %_sourcedir" | getline groups_file
+	groups_file = groups_file "/rpm.groups"
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
