@@ -2,7 +2,7 @@
 #
 # This is adapter v0.27. Adapter adapts .spec files for PLD.
 #
-# Copyright (C) 1999-2001 PLD-Team <feedback@pld.org.pl>
+# Copyright (C) 1999-2003 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Micha³ Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
