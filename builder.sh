@@ -51,7 +51,6 @@ LOGDIR=""
 LOGDIROK=""
 LOGDIRFAIL=""
 LASTLOG_FILE=""
-LTAG=""
 CHMOD="no"
 CHMOD_MODE="0444"
 RPMOPTS=""
@@ -707,11 +706,6 @@ build_package()
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
     if [ -n "$LOGFILE" ]; then
-	if [ -n "$CVSTAG" ]; then
-	    LTAG="r_`echo $CVSTAG|sed -e 's/\./_/g'`_"
-	else
-	    LTAG=""
-	fi
 	LOG=`eval echo $LOGFILE`
 	if [ -n "$LASTLOG_FILE" ]; then
 	    echo "LASTLOG=$LOG" > $LASTLOG_FILE
