@@ -711,24 +711,21 @@ function use_files_macros(	i, n, t, a)
 
 	# /etc/sysconfig files
 	# %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
-	if (/\/etc\/sysconfig\// && !/%attr.*/) {
-		$0 = "%attr(640,root,root) " $0
-	}
-
+	# attr not required, allow default 644 attr
 	if (/\/etc\/sysconfig\// && /%config/ && !/%config\(noreplace\)/) {
 		gsub("%config", "%config(noreplace)")
 	}
 
 	if (/\/etc\/sysconfig\// && !/%config\(noreplace\)/) {
-		 $1 = $1 " %config(noreplace)"
-	}
-
-	if (/\/etc\/sysconfig\// && !/%verify/) {
-		gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig");
+		 $NF = "%config(noreplace) " $NF
 	}
 
 	if (/\/etc\/sysconfig\// && /%attr\(755/) {
 		gsub("^%attr\(... *,", "%attr(640,");
+	}
+
+	if (/\/etc\/sysconfig\// && !/%verify/) {
+		gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig");
 	}
 
 
