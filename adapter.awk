@@ -240,10 +240,11 @@ preamble == 1 {
 		format_preamble()
 		print $0
 		
-		translate_group($2)
+		sub($1 "[ \t]*","")
+		translate_group($0)
 		close(groups_file)
 		
-		if ($2 ~ /^X11/ && x11 == 0)	# Is it X11 application?
+		if ($0 ~ /^X11/ && x11 == 0)	# Is it X11 application?
 		       x11 = 1
 
 		next	# Line is already formatted and printed
