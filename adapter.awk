@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.22. Adapter adapts .spec files for PLD.
+# This is adapter v0.23. Adapter adapts .spec files for PLD.
 #
 # Copyright (C) 1999-2001 PLD-Team <pld-list@pld.org.pl>
 # Authors:
@@ -128,6 +128,9 @@ defattr == 1 {
 
 	use_macros()
 	
+	if (/^automake$/)
+		sub(/$/, " -a -c")
+
 	if (/LDFLAGS/) {
 		if (/LDFLAGS="-s"/)
 			sub(/LDFLAGS="-s"[ ]*/, "")
