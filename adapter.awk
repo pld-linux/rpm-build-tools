@@ -282,6 +282,9 @@ preamble == 1 {
 	if (field ~ /version:/)
 		version = $2
 
+	if (field ~ /epoch:/)
+		$1 = "Serial:"
+
 	# Use %{name} and %{version} in the filenames in "Source:"
 	if (field ~ /source/ && $2 ~ /^ftp:|^http:/) {
 		n = split($2, url, /\//)
