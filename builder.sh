@@ -385,7 +385,7 @@ get_files()
 		fi
 
 		if [ -n "$(src_md5 "$i")" ] && [ -z "$NODIST" ]; then
-		    if [ "$(src_md5 "$i")" = "$(md5sum $(nourl "$i")|sed -e 's/ [^$]\+//')" ]; then
+		    if [ "$(src_md5 "$i")" = "$(md5sum $(nourl "$i")|sed -e 's/ .*//')" ]; then
 			echo "$(nourl "$i") having proper md5sum already exists"
 			continue
 		    fi
