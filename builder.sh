@@ -57,6 +57,7 @@ CHMOD="no"
 CHMOD_MODE="0444"
 RPMOPTS=""
 BCOND=""
+GROUP_BCONDS="no"
 
 PATCHES=""
 SOURCES=""
@@ -185,6 +186,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			  tag,
         -R, --fetch-build-requires
                         - fetch what is BuildRequired,
+	-RB, --remove-build-requires
+			- remove all you fetched with -R or --fetch-build-requires
+			  remember, this option requires confirmation,
+	-FRB, --force-remove-build-requires
+			- remove all you fetched with -R or --fetch-build-requires
+			  remember, this option works without confirmation,
 	-T <cvstag> , --tag <cvstag>
 			- add cvs tag <cvstag> for files,
 	-Tvs, --tag-version-stable
@@ -810,7 +817,7 @@ done
 display_bconds()
 {
 if [ "$AVAIL_BCONDS_WITH" != "" ] || [ "$AVAIL_BCONDS_WITHOUT" != "" ]; then
-        echo -ne "We are going to build $SPECFILE with the following confitional flags:\n"
+        echo -ne "We are going to build $SPECFILE with the following conditional flags:\n"
         if [ "$BCOND" != "" ]; then
                 echo -ne "$BCOND"
         else
@@ -983,13 +990,19 @@ while test $# -gt 0 ; do
 	--opts )
 	    shift; RPMOPTS="${1}"; shift ;;
 	--with | --without )
-            COND=${1}
-            shift
-            while [ "`echo ${1}|grep ^-`" == "" ] && [ "`echo ${1}|grep spec`" == "" ]
-            do
-                BCOND="$BCOND $COND $1"
-                shift
-            done;;
+	    case $GROUP_BCONDS in
+		"yes")
+			COND=${1}
+		        shift
+		        while [ "`echo ${1}|grep ^-`" == "" ] && [ "`echo ${1}|grep spec`" == "" ]
+		        do
+		        	BCOND="$BCOND $COND $1"
+	                	shift
+			done;;
+		"no")
+			BCOND="$BCOND $1 $2" ; shift 2 ;;
+	    esac
+	    ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
 	--date )
@@ -1001,6 +1014,12 @@ while test $# -gt 0 ; do
 	    #UPDATE_POLDEK_INDEXES="yes"
             NOT_INSTALLED_PACKAGES=
             shift ;;
+        -RB | --remove-build-requires)
+            REMOVE_BUILD_REQUIRES="nice"
+	    shift ;;
+	-FRB | --force-remove-build-requires)
+	    REMOVE_BUILD_REQUIRES="force"
+	    shift ;;
 	-Tvs | --tag-version-stable )
 	    COMMAND="tag";
 	    TAG="STABLE"
@@ -1105,6 +1124,18 @@ case "$COMMAND" in
 	            poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
         	    poldek --sn ${POLDEK_SOURCE} --up
 	    fi
+	    case "$REMOVE_BUILD_REQUIRES" in
+		    "force")
+		    	poldek --noask -e $INSTALLED_PACKAGES
+		    ;;
+		    "nice")
+		    	poldek --ask -e $INSTALLED_PACKAGES
+		    ;;
+		    *)
+			    echo You may want to manually remove following BuildRequires fetched:
+			    echo $INSTALLED_PACKAGES
+		    ;;
+	    esac
 	else
 	    Exit_error err_no_spec_in_cmdl;
 	fi
