@@ -132,7 +132,7 @@ function find_mirror(url) {
 
 	while (getline line < "mirrors") {
 		nf=split(line,fields,"|")
-		if (nf>0){
+		if (nf>1){
 			origin=fields[1]
 			mirror=fields[2]
 			mname=fields[3]
