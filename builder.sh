@@ -476,6 +476,11 @@ distfiles_url ()
 	echo "$PROTOCOL$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
 }
 
+distfiles_attic_url ()
+{
+	echo "$PROTOCOL$DISTFILES_SERVER/Attic/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+}
+
 good_md5 ()
 {
 	md5=$(src_md5 "$1")
@@ -537,10 +542,11 @@ get_files()
 					fi
 					target=$(nourl "$i")
 					url=$(distfiles_url "$i")
+					url_attic=$(distfiles_attic_url "$i")
+					FROM_DISTFILES=1
 					if [ `echo $url | grep -E '^(\.|/)'` ]; then
 						${GETLOCAL} $url $target
 					else
-						FROM_DISTFILES=1
 						if [ -z "$NOMIRRORS" ]; then
 							url="`find_mirror "$url"`"
 						fi
@@ -548,11 +554,25 @@ get_files()
 						if [ `echo $url | grep -E 'ftp://'` ]; then
 							${GETURI2} -O "$target" "$url"
 						fi
-						if ! test -s "$target"; then
-							rm -f "$target"
-							FROM_DISTFILES=0
+					fi
+				   if ! test -s "$target"; then
+					   rm -f "$target"
+						if [ `echo $url_attic | grep -E '^(\.|/)'` ]; then
+							${GETLOCAL} $url_attic $target
+						else
+							if [ -z "$NOMIRRORS" ]; then
+								url_attic="`find_mirror "$url_attic"`"
+							fi
+							${GETURI} -O "$target" "$url_attic" || \
+							if [ `echo $url_attic | grep -E 'ftp://'` ]; then
+								${GETURI2} -O "$target" "$url_attic"
+							fi
 						fi
 					fi
+				   if ! test -s "$target"; then
+					  rm -f "$target"
+					  FROM_DISTFILES=0
+				   fi
 				elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
 					# ( echo $i | grep -qvE '(ftp|http|https)://' ); -- if CVS should be used, but URLs preferred
 					result=1
@@ -616,6 +636,13 @@ get_files()
 				${GETURI} -O "$target" "$url" || \
 				if [ `echo $url | grep -E 'ftp://'` ]; then
 					${GETURI2} -O "$target" "$url"
+				fi
+				if ! test -s "$target"; then
+					rm -f "$target"
+					${GETURI} -O "$target" "$url" || \
+					if [ `echo $url | grep -E 'ftp://'` ]; then
+						${GETURI2} -O "$target" "$url"
+					fi
 				fi
 				test -s "$target" || rm -f "$target"
 			fi
