@@ -1,11 +1,15 @@
 ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 ftp://ftp.cpan.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
+http://www.cpan.org/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 ftp://ftp.perl.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
+http://www.cpan.org/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 ftp://ftp.perl.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
 ftp://ftp.cpan.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
+http://www.cpan.org/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
 ftp://ftp.perl.org/pub/CPAN/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
 ftp://ftp.cpan.org/pub/CPAN/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
+http://www.cpan.org/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
 http://prdownloads.sourceforge.net/|http://telia.dl.sourceforge.net/sourceforge/|Telia
 http://prdownloads.sourceforge.net/|http://unc.dl.sourceforge.net/sourceforge/|UNC
 http://prdownloads.sourceforge.net/|http://belnet.dl.sourceforge.net/sourceforge/|Belnet
