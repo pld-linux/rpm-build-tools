@@ -181,6 +181,16 @@ defattr == 1 {
 
 # Scripts
 {
+	if (/LDFLAGS/) {
+		gsub(/LDFLAGS="?.*?"?[ \t]*;?/,"");
+		if (/export/) {
+			gsub(/LDFLAGS(="?.*?"?)?[ \t]*/,"");
+			gsub("export[ \t]*(;|$)","");
+		}
+		if (/^[ \t]*$/)
+			next
+	}
+
 	if ($1 ~ /^mv$/) {
 		if ($2 ~ /^-/)
 			sub(/-[A-Za-z0-9]+ /, "", $0)
