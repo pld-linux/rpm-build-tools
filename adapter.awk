@@ -509,10 +509,10 @@ END {
 		print "%changelog"
 
 	if (boc > 2)
-		print "* %{date} PLD Team <feedback@pld.org.pl>"
+		print "* %{date} PLD Team <feedback@pld-linux.org>"
 	if (boc > 1) {
 		printf "All persons listed below can be reached at "
-		print "<cvs_login>@pld.org.pl\n"
+		print "<cvs_login>@pld-linux.org\n"
 	}
 	if (boc > 0)
 		print "$" "Log:$"
