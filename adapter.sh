@@ -7,7 +7,7 @@ fi
 
 ./adapter.awk "$1" > "$1.adapter"
 diff -u "$1" "$1.adapter"|less
-echo -n "Are the changes OK? [yNs] "
+echo -n "Are the changes OK? [yNso] "
 
 read -n 1 OK
 echo
@@ -15,6 +15,8 @@ echo
 if [ "$OK" == "y" -o "$OK" == "Y" ]; then
   mv "$1.adapter" "$1"
   cvs ci "$1"
+elif [ "$OK" != "o" -a "$OK" != "O" ];then
+  mv "$1.adapter" "$1"
 elif [ "$OK" != "s" -a "$OK" != "S" ];then
   rm "$1.adapter"
 fi
