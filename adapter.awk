@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v1.0. Adapter adapts .spec files for PLD.
+# This is adapter v0.11. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -366,6 +366,9 @@ function use_macros()
 	gsub("%{prefix}/info", "%{_infodir}")
 	gsub("%{_prefix}/info", "%{_infodir}")
 
-	gsub(prefix, "%{_prefix}")
-	gsub("%{prefix}", "%{_prefix}")
+	if (prefix != "/") {
+		gsub(prefix, "%{_prefix}")
+		gsub("%{prefix}", "%{_prefix}")
+	}
 }
+
