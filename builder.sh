@@ -2,6 +2,7 @@
 # 
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
+SPECFILE=""
 
 usage()
 {
@@ -13,7 +14,7 @@ Usage: builder [-h] [--help] [-q] <package>.spec
 	-b, --build	- get all files from CVS repo and build
 			  package from <package>.spec,
 	-d, --cvsroot	- setup \$CVSROOT,
-	-g, --get	- get <package>.spec amd all relayted files from
+	-g, --get	- get <package>.spec and all relayted files from
 			  CVS repo,
 	-h, --help	- this message,
 	-l, --logtofile	- log all to file,
@@ -25,19 +26,37 @@ Usage: builder [-h] [--help] [-q] <package>.spec
 
 while test $# -gt 0 ; do
     case "${1}" in
-	-h | --help )
-	    usage; exit 0 ;
+	-V | --version )
 	    shift ;;
-	-q | --quiet )
+	-a | --as_anon )
+	    shift ;;
+	-b | --build )
 	    shift ;;
 	-d | --cvsroot )
 	    shift ;;
-	-v | --verbose )
-	    shift ;;
+	-g | --get )
+	    COMMAND="get"; shift ;;
+	-h | --help )
+	    COMMAND="usage"; shift ;;
 	-l | --logtofile )
 	    shift ;;
-	-V | --version )
+	-q | --quiet )
 	    shift ;;
+	-v | --verbose )
+	    shift ;;
+	* )
+	    SPECFILE="${1}";;
     esac
 done
 
+case "$COMMAND" in
+    "get" )
+	if [ "$SPECFILE" == "" ]; then
+
+	else
+
+	fi
+	;;
+    "usage" )
+	usage;;
+esac
