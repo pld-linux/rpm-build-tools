@@ -914,17 +914,32 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
 	       
                 if [ "$GO" == "yes" ]; then
                         if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
-                                echo "Package $package is not installed. Attempting to install..."
-                                poldek -i $package
-                                case $? in
-                                1)
-                                        echo "Unable to install $package package! Still trying to fetch rest..."
-                                        NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package"
-                                        ;;
-                                0)
-					INSTALLED_PACKAGES="$package $INSTALLED_PACKAGES"
-                                        ;;
-                                esac
+                                echo "$package [package not installed. installing]"
+				poldek -t -i $package --dumpn="$package-req.txt"
+				for package_name in `cat "$package-req.txt"|grep -v ^#`
+				do 
+					if [ "$package_name" == "$package" ]; then
+						echo -ne "$package [installing BuildRequired package]:\t$package_name\n"
+						poldek -i $package_name
+					else
+						echo -ne "$package [installing Required package]:\t$package_name\n"
+						poldek -i $package_name
+					fi
+                                	case $? in
+	                                1)
+        	                                echo -ne "$package [package installation failed]:\t$package_name\n"
+						#
+						# No i tutaj bym chcia³ zrobiæ sztuczn± inteligencjê, która spróbuje tego
+						# pakieta zbudowaæ. 
+						#
+                	                        NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package_name"
+                        	                ;;
+                                	0)
+						INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
+	                                        ;;
+        	                        esac
+				done
+				rm "$package-req.txt"
                         else
                                 echo "Package $package is already installed. BuildRequirement satisfied."
                         fi
