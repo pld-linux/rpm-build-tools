@@ -478,7 +478,7 @@ preamble == 1 {
 			sbindir = $3
 		if ($2 ~ /_libdir/)
 			libdir = $3
-		if ($2 ~ /_sysconfdir/)
+		if ($2 ~ /_sysconfdir/ && $3 !~ /^%\(/)
 			sysconfdir = $3
 		if ($2 ~ /_datadir/)
 			datadir = $3
@@ -743,4 +743,3 @@ function cflags(var)
 		sub("\$RPM_OPT_FLAGS", "%{rpmcflags}")
 	return 1
 }
-
