@@ -236,7 +236,7 @@ function find_mirror(url) {
 			if (prefix==origin){
 				if ( DEBUG ) print "Mirror znaleziony na " mname
 				close("mirrors")
-				return mirror substr(url,length(origin))
+				return mirror substr(url,length(origin)+1)
 			}
 		}
 	}
