@@ -834,28 +834,25 @@ run_sub_builder()
 						# konca algorytmu... Ale damy rade. :) Na razie po prostu sie wyjebie tak samo
 						# jakby nie bylo tego kawalka kodu.
                                                 #
+						# Update: Poprawi³em parê rzeczy i zaczê³o generowaæ pakiety spoza zadanej listy.
+						#         Jednym s³owem budowanie niespoldkowanych zale¿no¶ci dzia³a w paru przypadkach.
+						#         
+						#
                                                 # y0shi.
 
                                                 parent_spec_name=''
 
+						
                                                 # Istnieje taki spec? ${package}.spec
-                                                if [ -f "${POLDEK_INDEX_DIR}/SPECS/${package}.spec" ]; then
+                                                if [ -f "${POLDEK_INDEX_DIR}/../SPECS/${package}.spec" ]; then
                                                         parent_spec_name=${package}.spec
-                                                else            
-                                                        minus_pos=`echo $package_name | sed 's/[^-]//g' |tr -d "\n" | wc -c|awk '{print $1}'`
-							if [ "${minus_pos}" != "" ]; then
-								if [ "${minus_pos}" != "0" ]; then
-		                                                        parent_pkg_name=`echo $package_name|cut -d - -f $minus_pos`
-        	                                                	if [ -f "${POLDEK_INDEX_DIR}/SPECS/${parent_pkg_name}.spec" ]; then
-	        	                                                        parent_spec_name="${parent_pkg_name}.spec"
-        	        	                                        fi
-								fi
-							else
-								for provides_line in `grep ^Provides:.*$package  ${POLDEK_INDEX_DIR}/ -R`
-								do
-									echo $provides_line
-								done
-							fi
+						elif [ -f "${POLDEK_INDEX_DIR}/../SPECS/`echo ${package_name}|sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
+							parent_spec_name="`echo ${package_name}|sed -e s,-devel.*,,g -e s,-static,,g`.spec"
+						else
+							for provides_line in `grep ^Provides:.*$package  ${POLDEK_INDEX_DIR}/../SPECS/ -R`
+							do
+								echo $provides_line
+							done
                                                 fi
 
                                                 if [ "${parent_spec_name}" != "" ]; then
@@ -871,7 +868,7 @@ run_sub_builder()
                                                         if [ "${UPDATE_POLDEK_INDEXES}" == "yes" ]; then
                                                                 sub_builder_opts="${sub_builder_opts} -Upi"
                                                         fi
-                                                        cd "${POLDEK_INDEX_DIR}/SPECS"
+                                                        cd "${POLDEK_INDEX_DIR}/../SPECS"
                                                         ./builder ${sub_builder_opts} ${parent_spec_name}
                                                 fi
 
@@ -921,8 +918,8 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 	    echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
 	    echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`\n\n"
 	    echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
-            for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,\(.*\),,g -e s,%{,,g`
-            do
+	    for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,perl\(,perl-,g -e s,::,-,g -e s,\(.*\),,g -e s,%{,,g -e s,},,g|grep -v OpenGL-devel|sed -e s,sh-utils,coreutils,g -e s,fileutils,coreutils,g -e s,kgcc_package,gcc,g -e s,\),,g`
+	    do
 		package_item="`echo $package_item|sed -e s,rpmbuild,rpm-build,g |sed -e s,__perl,perl,g |sed -e s,gasp,binutils-gasp,g |sed -e s,apxs,apache,g|sed -e s,apache\(EAPI\)-devel,apache-devel,g`"
                 GO="yes"
                 package=`basename "$package_item"|sed -e "s/}$//g"`
@@ -975,6 +972,7 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 					;;
 				* )
 					echo "Action '$RESULT' was not defined for package '$package_item'"
+					GO="yes"
 					;;
 			esac
 
@@ -1002,12 +1000,14 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 							echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 	                        	                ;;
 	                                	*)
-							run_sub_builder $package_name
+							echo "Attempting to run spawn sub - builder..."
+							run_sub_builder $package_name 
 	                        	                ;;
         		                        esac
 					done
 					rm -f ".$package-req.txt"
 				else
+					echo "Attempting to run spawn sub - builder..."
 					run_sub_builder $package
 				fi
                         else
