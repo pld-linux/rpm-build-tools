@@ -159,6 +159,9 @@ get_spec()
     if [ "$?" -ne "0" ]; then
 	Exit_error err_no_spec_in_repo;
     fi
+	if [ ! -f "$SPECFILE" ]; then
+	Exit_error err_no_spec_in_repo;
+	fi
     
     if [ "$CHMODE" = "yes" ]; then
         chmod 444 $SPECFILE
