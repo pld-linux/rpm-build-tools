@@ -10,9 +10,11 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.5 (C) 1999 Tomasz K³oczko".
+V 0.6 (C) 1999 Tomasz K³oczko".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
+
+COMMAND="build"
 
 SPECFILE=""
 BE_VERBOSE=""
