@@ -128,7 +128,7 @@ function process_source(lurl,name,version) {
 	
 	references=0
 	finished=0
-	while ((("lynx --dump " acc "://" host dir) | getline result)&&(finished==0)) {
+	while (("lynx --dump " acc "://" host dir) | getline result) {
 		if (result ~ "References") references=1
 		if ((result ~ "[0-9]+\. (ftp|http)://")&&(references==1)) {
 			split(result,links)
@@ -142,12 +142,14 @@ function process_source(lurl,name,version) {
 				sub(postver,"",newfilename)
 				if (DEBUG) print "Wersja: " newfilename
 				if ( compare_ver(version, newfilename)==1 ) {
-					if (DEBUG) print "Tak jest - nowa"
+					if (DEBUG) print "Tak, jest nowa"
 					print name " : [OLD] " version " [NEW] " newfilename
+					finished=1
 				}
 			}
 		}
 	}
+	if (finished==0) ptiny name " : seems ok"
 	close("lynx --dump " acc "://" host dir)
 return 0
 }
