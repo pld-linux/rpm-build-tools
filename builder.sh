@@ -320,7 +320,7 @@ find_mirror(){
 
     cd "$SPECS_DIR"
     url="$1"
-    if [ ! -f "mirrors" ] ; then
+    if [ ! -f "mirrors" -a "$NOCVSSPEC" != "yes" ] ; then
 	cvs update mirrors >&2
     fi
 
