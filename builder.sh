@@ -24,7 +24,6 @@ CLEAN=""
 DEBUG=""
 NOURLS=""
 NOCVS=""
-NOCVSSPEC=""
 ALLWAYS_CVSUP="yes"
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
@@ -51,16 +50,7 @@ DEF_NICE_LEVEL=0
 
 FAIL_IF_NO_SOURCES="yes"
 
-GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES"
-GETURI2="wget -c -nd -t$WGET_RETRIES"
-
-if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
-    RPM="rpm"
-    RPMBUILD="rpm"
-else
-    RPM="rpm"
-    RPMBUILD="rpmbuild"
-fi
+GETURI="wget -c -nd -t$WGET_RETRIES"
 
 if [ -f ~/etc/builderrc ]; then
     . ~/etc/builderrc
@@ -76,15 +66,13 @@ usage()
     if [ -n "$DEBUG" ]; then set -xv; fi
     echo "\
 Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
-
-	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
-	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
-	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
-	[-q|--quiet] [-r <cvstag>] [{-T--tag <cvstag>]
-	[-Tvs|--tag-version-stable] [-Tvd|--tag-version-devel]
-	[-Ts|--tag-stable] [-Td|--tag-devel] [-Tv|--tag-version]
-	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
-	[--with/--without <feature>] [--define <macro> <value>] <package>.spec
+	[-bb|--build-binary] [-bs|--build-source] [{-B|--branch} <branch>]
+	[{-d|--cvsroot} <cvsroot>] [-g|--get] [-h|--help]
+	[{-l,--logtofile} <logfile>] [-m|--mr-proper] [-q|--quiet]
+	[-r <cvstag>] [{-T--tag <cvstag>] [-Tvs|--tag-version-stable]
+	[-Tvd|--tag-version-devel] [-Ts|--tag-stable] [-Td|--tag-devel]
+	[-Tv|--tag-version] [-u|--no-urls] [-v|--verbose] [--opts <rpm opts>] 
+	[--with/--without pkg] [--define <macro> <value>] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -103,8 +91,6 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 	-d <cvsroot>, --cvsroot	<cvsroot>
 			- setup \$CVSROOT,
-	--define <macro> <value>
-			- define a macro <macro> with value <value>,
 	-g, --get	- get <package>.spec and all related files from
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
@@ -112,15 +98,9 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			- log all to file,
 	-m, --mr-proper - only remove all files related to spec file and
 			  all work resources,
-	-nc, --no-cvs	- don't download sources from CVS, if source URL is
-			  given,
-	-ncs, --no-cvs-specs
-			- don't check specs in CVS
-	-nm, --no-mirrors - don't download from mirror, if source URL is given,
+	-nc, --no-cvs	- don't download from CVS, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
 	-ns, --no-srcs  - don't downland Sources
-	-ns0, --no-source0
-			- don't downland Source0
 	--opts <rpm opts>
 			- additional options for rpm
 	-q, --quiet	- be quiet,
@@ -132,7 +112,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-Tvs, --tag-version-stable
 			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
 	-Tvd, --tag-version-devel
-			- add cvs tags DEVEL and NAME-VERSION-RELESE for files,
+			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
 	-Ts, --tag-stable
 			- add cvs tag STABLE for files,
 	-Td, --tag-devel
@@ -140,36 +120,32 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-Tv, --tag-version
 			- add cvs tag NAME-VERSION-RELESE for files,
 	-v, --verbose	- be verbose,
-	-u, --try-upgrade
-			- check version, and try to upgrade package
-	--with/--without <feature>
-			- conditional build package depending on
-			  %_with_<feature>/%_without_<feature> macro
-			  switch
+	--define	- define a macro
+
 "
 }
 
 parse_spec()
 {
-    if [ -n "$DEBUG" ]; then
-	    set -x;
-	    set -v;
+    if [ -n "$DEBUG" ]; then 
+	set -x;
+	set -v;
     fi
 
     cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
-	    SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if ($RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
-	    FAIL_IF_NO_SOURCES="no"
+    if (rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+	FAIL_IF_NO_SOURCES="no"
     fi
 
-    PATCHES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-    PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
-    PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
-    PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
+    PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
+    PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
+    PACKAGE_RELEASE="`rpm -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
 
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
@@ -179,9 +155,9 @@ parse_spec()
 		echo "- Patches :  *no patches needed*"
 	fi
 	if [ -n "$ICONS" ]; then
-		echo "- Icon    :  `nourl $ICONS`"
+	    echo "- Icon    :  `nourl $ICONS`"
 	else
-		echo "- Icon    :  *no package icon*"
+	    echo "- Icon    :  *no package icon*"
 	fi
 	echo "- Name    : $PACKAGE_NAME"
 	echo "- Version : $PACKAGE_VERSION"
@@ -221,8 +197,8 @@ init_builder()
 	set -v; 
     fi
 
-    SOURCE_DIR="`$RPM --eval '%{_sourcedir}'`"
-    SPECS_DIR="`$RPM --eval '%{_specdir}'`"
+    SOURCE_DIR="`rpm --eval '%{_sourcedir}'`"
+    SPECS_DIR="`rpm --eval '%{_specdir}'`"
 
     __PWD=`pwd`
 }
@@ -234,60 +210,32 @@ get_spec()
 	set -v; 
     fi
 
-    if [ "$NOCVSSPEC" != "yes" ]; then
-	cd $SPECS_DIR
+    cd $SPECS_DIR
 
-	OPTIONS="up "
+    OPTIONS="up "
 
-	if [ -n "$CVSROOT" ]; then
-	    OPTIONS="-d $CVSROOT $OPTIONS"
-	else
-	    if [ ! -s CVS/Root -a "$NOCVSSPEC" != "yes" ]; then
-		echo "warning: No cvs access defined - using local .spec file"
-		NOCVSSPEC="yes"
-	    fi
-	fi
-	if [ -n "$CVSTAG" ]; then
-	    OPTIONS="$OPTIONS -r $CVSTAG"
-	else
-	    OPTIONS="$OPTIONS -A"
-	fi
-
-	cvs $OPTIONS $SPECFILE
-	if [ "$?" -ne "0" ]; then
-	    Exit_error err_no_spec_in_repo;
-	fi
+    if [ -n "$CVSROOT" ]; then
+	OPTIONS="-d $CVSROOT $OPTIONS"
     fi
-    if [ ! -f "$SPECFILE" ]; then
+    if [ -n "$CVSTAG" ]; then
+	OPTIONS="$OPTIONS -r $CVSTAG"
+    else
+	OPTIONS="$OPTIONS -A"
+    fi
+
+    cvs $OPTIONS $SPECFILE
+    if [ "$?" -ne "0" ]; then
 	Exit_error err_no_spec_in_repo;
     fi
+	if [ ! -f "$SPECFILE" ]; then
+	Exit_error err_no_spec_in_repo;
+	fi
     
     if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
 	chmod $CHMOD_MODE $SPECFILE
     fi
     unset OPTIONS
     grep -E -m 1 "^#.*Revision:.*Date" $SPECFILE
-}
-
-find_mirror(){
-
-    cd "$SPECS_DIR"
-    url="$1"	
-    if [ ! -f "mirrors" ] ; then 
-	cvs update mirrors >&2 
-    fi
-
-    IFS="|"
-    while read origin mirror name rest; do
-	ol=`echo -n "$origin"|wc -c`    
-	prefix="`echo -n "$url" | head -c $ol`"
-	if [ "$prefix" = "$origin" ] ; then
-	    suffix="`echo "$url"|cut -b $ol-`"
-	    echo -n "$mirror$suffix"
-	    return 0
-	fi
-    done < mirrors
-    echo "$url"
 }
 
 get_files()
@@ -305,11 +253,6 @@ get_files()
 	OPTIONS="up "
 	if [ -n "$CVSROOT" ]; then
 	    OPTIONS="-d $CVSROOT $OPTIONS"
-	else
-	    if [ ! -s CVS/Root -a "$NOCVS" != "yes" ]; then
-		echo "warning: No cvs access defined for SOURCES"
-		NOCVS="yes"
-	    fi
 	fi
 	if [ -n "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -r $CVSTAG"
@@ -318,24 +261,20 @@ get_files()
 	fi
 	for i in $GET_FILES; do
 	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ]; then
-		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
-		    echo "Warning: no URL given for $i"
+		if echo $i | grep -vE '(http|ftp|https|cvs)://' | grep -qE '\.(gz|bz2)$']; then
+			echo "Warning: no URL given for $i"
 		fi
 		
 		if [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
-		    cvs $OPTIONS `nourl $i`
+			cvs $OPTIONS `nourl $i`
 		fi
 		
 		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
-		    if [ -z "$NOMIRRORS" ] ; then 
-			i="`find_mirror "$i"`"
-		    fi
-		    ${GETURI} "$i" || \
-			if [ `echo $i | grep -E 'ftp://'` ]; then ${GETURI2} "$i" ; fi
+			${GETURI} "$i"
 		fi
 
 		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
-		    Exit_error err_no_source_in_repo $i;
+			Exit_error err_no_source_in_repo $i;
 		fi
 	    fi
 	done
@@ -343,7 +282,7 @@ get_files()
 	if [ "$CHMOD" = "yes" ]; then
 	    CHMOD_FILES="`nourl $GET_FILES`"
 	    if [ -n "$CHMOD_FILES" ]; then
-		chmod $CHMOD_MODE $CHMOD_FILES
+		    chmod $CHMOD_MODE $CHMOD_FILES
 	    fi
 	fi
 	unset OPTIONS
@@ -430,38 +369,6 @@ build_package()
     fi
 
     cd $SPECS_DIR
-
-    if [ -n "$TRY_UPGRADE" ]; then 
-    
-	TNOTIFY=`./pldnotify.awk $SPECFILE`
-	
-	TNEWVER=`echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }'`
-	
-	if [ -n "$TNEWVER" ]; then
-	
-	    TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
-	    
-	    echo "New version found, updating spec file to version " $TNEWVER
-	    
-	    cp -f $SPECFILE $SPECFILE.bak
-	    
-	    chmod +w $SPECFILE
-	
-	    eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
-	    eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t1/' $SPECFILE"
-	    
-	    parse_spec;
-	    
-	    get_files "$SOURCES $PATCHES";
-	    
-	    unset TOLDVER TNEWVER TNOTIFY
-	fi
-	
-    fi
-
-
-    cd $SPECS_DIR
-
     case "$COMMAND" in
 	build )
 	    BUILD_SWITCH="-ba" ;;
@@ -471,28 +378,21 @@ build_package()
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
     if [ -n "$LOGFILE" ]; then
-	LOG=`eval echo $LOGFILE`
-	eval nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
+	LOG=`echo $LOGFILE`
+	eval nice -n ${DEF_NICE_LEVEL} /bin/sh -c "time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE" 2>&1 | tee $LOG
     else
-	eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
+	eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
     fi
 
     if [ "$?" -ne "0" ]; then
-    
-	if [ -n "$TRY_UPGRADE" ]; then 
-	    echo "\n!!! Package with new version cannot be build automagically\n"
-	    mv -f $SPECFILE.bak $SPECFILE
-	fi
-	
 	Exit_error err_build_fail;
     fi
-    
     unset BUILD_SWITCH
 }
 
 nourl()
 {
-	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
+	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\)://[^ ]*/##g'
 }
 #---------------------------------------------
 # main()
@@ -534,16 +434,10 @@ while test $# -gt 0 ; do
 	    COMMAND="mr-proper"; shift ;;
 	-nc | --no-cvs )
 	    NOCVS="yes"; shift ;;
-	-ncs | --no-cvs-spec )
-	    NOCVSSPEC="yes"; shift ;;
-	-nm | --no-mirrors )
-	    NOMIRRORS="yes"; shift ;;
 	-nu | --no-urls )
 	    NOURLS="yes"; shift ;;
 	-ns | --no-srcs )
 	    NOSRCS="yes"; shift ;;
-	-ns0 | --no-source0 )
-	    NOSOURCE0="yes"; shift ;;
 	--opts )
 	    shift; RPMOPTS="${1}"; shift ;;
 	--with | --without )
@@ -584,8 +478,6 @@ while test $# -gt 0 ; do
 	    shift;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
-	-u | --try-upgrade )
-	    TRY_UPGRADE="1"; shift ;;
 	--define)
 	    shift
 	    MACRO="${1}"
@@ -643,9 +535,6 @@ case "$COMMAND" in
 		get_files $ICONS
 		parse_spec;
 	    fi
-	    if [ -n "$NOSOURCE0" ] ; then
-		SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
-	    fi
 	    get_files $SOURCES $PATCHES
 	else
 	    Exit_error err_no_spec_in_cmdl;
@@ -667,7 +556,7 @@ case "$COMMAND" in
 	fi
 	;;
     "mr-proper" )
-	$RPM --clean --rmsource --rmspec --force --nodeps $SPECFILE
+	rpm --clean --rmsource --rmspec --force --nodeps $SPECFILE
 	;;
     "usage" )
 	usage;;
