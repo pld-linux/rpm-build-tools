@@ -953,11 +953,14 @@ set_bconds_values()
 	# w32codec license_agreement
 	# php +mysqli
 	# ---
-	if [ "${BCOND_VERSION}" != "NONE" ] && [ -f $HOME/.bcondrc ]; then
+	if [ "${BCOND_VERSION}" != "NONE" ] && ( [ -f $HOME/.bcondrc ] || ( [ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] ) ) ; then
 		# This takes package name, first defined in spec.
 		# so consider that when defining flags for package.
 		PN=`$RPM -q --qf '%{NAME}\n' --specfile $SPECFILE | head -n 1`
 		AVAIL=`$RPMBUILD --bcond $SPECFILE`
+
+		BCONDRC=$HOME/.bcondrc
+		[ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] && BCONDRC=$HOME_ETC/.bcondrc
 
 		while read pkg flags; do
 			# ignore comments
@@ -978,7 +981,7 @@ set_bconds_values()
 					fi
 				done
 			fi
-		done < $HOME/.bcondrc
+		done < $BCONDRC
 	fi
 
 	case "${BCOND_VERSION}" in
