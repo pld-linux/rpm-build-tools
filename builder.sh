@@ -207,13 +207,13 @@ get_all_files()
 		fi
 		
 		if	[ -z "$NOCVS" ]||\
-			[ `echo $i | grep -v 'ftp://\|http://'` ]
+			[ `echo $i | egrep -v '^ftp://\|^http://'` ]
 		then
-			cvs $OPTIONS `nourl $SOURCES $PATCHES $ICONS`
+			cvs $OPTIONS `nourl $i`
 		fi
 		
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
-			[ `echo $i | grep 'ftp://\|http://'` ]
+			[ `echo $i | egrep 'ftp://\|http://'` ]
 		then
 			wget -c -t0 "$i"
 		fi
