@@ -11,7 +11,7 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.9 (C) 1999-2001 Tomasz K³oczko".
+V 0.10 (C) 1999-2001 Tomasz K³oczko".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
  
@@ -53,9 +53,9 @@ FAIL_IF_NO_SOURCES="yes"
 GETURI="wget -c -nd -t$WGET_RETRIES"
 
 if [ -f ~/etc/builderrc ]; then
-  . ~/etc/builderrc
+    . ~/etc/builderrc
 elif [ -f ~/.builderrc ]; then
-  . ~/.builderrc
+    . ~/.builderrc
 fi
 
 #---------------------------------------------
@@ -65,12 +65,13 @@ usage()
 {
     if [ -n "$DEBUG" ]; then set -xv; fi
     echo "\
-Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
-	[--build] [-bb] [--build-binary] [-bs] [--build-source]
-	[-B <branch>] [--branch <branch>] [-d <cvsroot>] [--cvsroot <cvsroot>] 
-	[-g] [--get] [-h] [--help] [-l <logfile>] [-m] [--mr-proper] 
-	[--logtofile <logfile>] [-q] [--quiet] [-r <cvstag>] [--cvstag <cvstag>] 
-	[-u] [--no-urls] [-v] [--verbose] [--opts <rpm opts>] 
+Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
+	[-bb|--build-binary] [-bs|--build-source] [{-B|--branch} <branch>]
+	[{-d|--cvsroot} <cvsroot>] [-g|--get] [-h|--help]
+	[{-l,--logtofile} <logfile>] [-m|--mr-proper] [-q|--quiet]
+	[-r <cvstag>] [{-T--tag <cvstag>] [-Tvs|--tag-version-stable]
+	[-Tvd|--tag-version-devel] [-Ts|--tag-stable] [-Td|--tag-devel]
+	[-Tv|--tag-version] [-u|--no-urls] [-v|--verbose] [--opts <rpm opts>] 
 	[--with/--without pkg] [--define <macro> <value>] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
@@ -79,33 +80,47 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	-b, -ba,
 	--build		- get all files from CVS repo or HTTP/FTP and build
 			  package from <package>.spec,
-	-bb,
-	--build-binary	- get all files from CVS repo or HTTP/FTP and build
+	-bb, --build-binary
+			- get all files from CVS repo or HTTP/FTP and build
 			  binary only package from <package>.spec,
 	-bs,
 	--build-source	- get all files from CVS repo or HTTP/FTP and only
 			  pack them into src.rpm,
 	-B, --branch	- add branch
-	-c, --clean     - clean all temporarily created files (in BUILD,
+	-c, --clean	- clean all temporarily created files (in BUILD,
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
-			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
-	-d, --cvsroot	- setup \$CVSROOT,
-	-g, --get       - get <package>.spec and all related files from
+	-d <cvsroot>, --cvsroot	<cvsroot>
+			- setup \$CVSROOT,
+	-g, --get	- get <package>.spec and all related files from
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
-	-l, --logtofile	- log all to file,
+	-l <logfile>, --logtofile <logfile>
+			- log all to file,
 	-m, --mr-proper - only remove all files related to spec file and
 			  all work resources,
 	-nc, --no-cvs	- don't download from CVS, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
 	-ns, --no-srcs  - don't downland Sources
-	--opts		- additional options for rpm
+	--opts <rpm opts>
+			- additional options for rpm
 	-q, --quiet	- be quiet,
-	-r, --cvstag	- build package using resources from specified CVS
+	-r <cvstag>, --cvstag <cvstag>
+			- build package using resources from specified CVS
 			  tag,
-	-T, --tag	- add cvs tags for files,
+	-T <cvstag> , --tag <cvstag>
+			- add cvs tag <cvstag> for files,
+	-Tvs, --tag-version-stable
+			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
+	-Tvd, --tag-version-devel
+			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
+	-Ts, --tag-stable
+			- add cvs tag STABLE for files,
+	-Td, --tag-devel
+			- add cvs tag DEVEL for files,
+	-Tv, --tag-version
+			- add cvs tag NAME-VERSION-RELESE for files,
 	-v, --verbose	- be verbose,
-	--define        - define a macro
+	--define	- define a macro
 
 "
 }
@@ -120,14 +135,13 @@ parse_spec()
     cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
-	SOURCES="`rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
     if (rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
-
-    PATCHES="`rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --nobuild $DEFINE_AS_DUMP $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -218,7 +232,7 @@ get_spec()
 	fi
     
     if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
-        chmod $CHMOD_MODE $SPECFILE
+	chmod $CHMOD_MODE $SPECFILE
     fi
     unset OPTIONS
     grep -E -m 1 "^#.*Revision:.*Date" $SPECFILE
@@ -246,24 +260,16 @@ get_files()
 	    OPTIONS="$OPTIONS -A"
 	fi
 	for i in $GET_FILES; do
-	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ] 
-	      then
-		if 
-			echo $i | grep -vE '(http|ftp|https|cvs)://' |\
-			grep -qE '\.(gz|bz2)$'
-		then
+	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ]; then
+		if echo $i | grep -vE '(http|ftp|https|cvs)://' | grep -qE '\.(gz|bz2)$']; then
 			echo "Warning: no URL given for $i"
 		fi
 		
-		if	[ -z "$NOCVS" ]||\
-			[ `echo $i | grep -vE '(ftp|http|https)://'` ]
-		then
+		if [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
 			cvs $OPTIONS `nourl $i`
 		fi
 		
-		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
-			[ `echo $i | grep -E 'ftp://|http://|https://'` ]
-		then
+		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
 			${GETURI} "$i"
 		fi
 
@@ -358,24 +364,24 @@ branch_files()
 build_package()
 {
     if [ -n "$DEBUG" ]; then 
-    	set -x;
+	set -x;
 	set -v; 
     fi
 
     cd $SPECS_DIR
     case "$COMMAND" in
 	build )
-            BUILD_SWITCH="-ba" ;;
+	    BUILD_SWITCH="-ba" ;;
 	build-binary )
 	    BUILD_SWITCH="-bb" ;;
 	build-source )
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
     if [ -n "$LOGFILE" ]; then
-    	LOG=`eval echo $LOGFILE`
- 	eval nice -n ${DEF_NICE_LEVEL} /bin/sh -c "time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE" 2>&1 | tee $LOG
+	LOG=`echo $LOGFILE`
+	eval nice -n ${DEF_NICE_LEVEL} /bin/sh -c "time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE" 2>&1 | tee $LOG
     else
-        eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
+	eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
     fi
 
     if [ "$?" -ne "0" ]; then
@@ -440,8 +446,36 @@ while test $# -gt 0 ; do
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
+	-Tvs | --tag-version-stable )
+	    COMMAND="tag";
+	    TAG="STABLE"
+	    TAG_VERSION="yes"
+	    shift;;
+	-Tvd | --tag-version-devel )
+	    COMMAND="tag";
+	    TAG="DEVEL"
+	    TAG_VERSION="yes"
+	    shift;;
+	-Ts | --tag-stable )
+	    COMMAND="tag";
+	    TAG="STABLE"
+	    TAG_VERSION="no"
+	    shift;;
+	-Td | --tag-devel )
+	    COMMAND="tag";
+	    TAG="DEVEL"
+	    TAG_VERSION="no"
+	    shift;;
+	-Tv | --tag-version )
+	    COMMAND="tag";
+	    TAG_VERSION="yes"
+	    shift;;
 	-T | --tag )
-	    COMMAND="tag"; shift;;
+	    COMMAND="tag";
+	    shift
+	    TAG="$1"
+	    TAG_VERSION="no"
+	    shift;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
 	--define)
@@ -498,8 +532,8 @@ case "$COMMAND" in
 	    get_spec;
 	    parse_spec;
 	    if [ -n "$ICONS" ]; then
-		    get_files $ICONS
-		    parse_spec;
+		get_files $ICONS
+		parse_spec;
 	    fi
 	    get_files $SOURCES $PATCHES
 	else
@@ -512,8 +546,8 @@ case "$COMMAND" in
 	    get_spec;
 	    parse_spec;
 	    if [ -n "$ICONS" ]; then
-		    get_files $ICONS
-		    parse_spec;
+		get_files $ICONS
+		parse_spec;
 	    fi
 	    get_files $SOURCES $PATCHES;
 	    tag_files "$SOURCES $PATCHES $ICONS";
