@@ -25,6 +25,8 @@ function compare_ver(v1,v2) {
 	else mincount=count2
 	
 	for (i=1; i<=mincount; i++) {
+		sub("^0*","",v1a[i])
+		sub("^0*","",v2a[i])
 		if (v1a[i]=="") v1a[i]=0
 		if (v2a[i]=="") v2a[i]=0
 		if (DEBUG) print "i == " i
@@ -64,7 +66,7 @@ function compare_ver(v1,v2) {
 }
 
 function compare_ver_dec(v1,v2) {
-# compares version numbers
+# compares version numbers as decimal floats
 	while (match(v1,/[0-9][a-zA-Z]/))
 		v1=(substr(v1,1,RSTART) "." substr(v1,RSTART+RLENGTH-1))
 	while (match(v2,/[0-9][a-zA-Z]/))
