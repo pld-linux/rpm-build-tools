@@ -61,6 +61,7 @@ ICONS=""
 PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
+PROTOCOL="ftp"
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
 
@@ -68,7 +69,7 @@ CVSTAG=""
 RES_FILE=""
 
 CVS_SERVER="cvs.pld-linux.org"
-DISTFILES_SERVER="ftp://distfiles.pld-linux.org"
+DISTFILES_SERVER="://distfiles.pld-linux.org"
 
 DEF_NICE_LEVEL=0
 
@@ -103,7 +104,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
 	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
-	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
+	[-h|--help] [--http] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
 	[-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
 	[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
 	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
@@ -135,6 +136,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-g, --get	- get <package>.spec and all related files from
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
+	--http		- use http instead of ftp,
 	-l <logfile>, --logtofile <logfile>
 			- log all to file,
 	-m, --mr-proper - only remove all files related to spec file and
@@ -390,7 +392,7 @@ src_md5 ()
 
 distfiles_url ()
 {
-    echo "$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+    echo "$PROTOCOL$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
 }
 
 good_md5 ()
@@ -750,6 +752,8 @@ while test $# -gt 0 ; do
 	    COMMAND="get"; shift ;;
 	-h | --help )
 	    COMMAND="usage"; shift ;;
+	--http )
+	    PROTOCOL="http"; shift ;;
 	-l | --logtofile )
 	    shift; LOGFILE="${1}"; shift ;;
 	-ni| --nice )
