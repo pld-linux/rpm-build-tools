@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 # -----------
 # Exit codes:
 #	0 - succesful
@@ -55,11 +55,11 @@ Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
 
 parse_spec()
 {
-    sed -e "s/^Summary:*/Summary:\%dump/I" $SPECFILE > $SPECFILE.__
+    sed -e "s/^Summary:*/Summary:\%dump/I" -e "s/^Icon:.*//I" $SPECFILE > $SPECFILE.__
 
-    SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'`"
-    PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'`"
-    ICON="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/^Icon:/ {print $2}' ${SPEC}`"
+    SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
+    PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
+    ICON="`awk '/^Icon:/ {print $2}' ${SPECFILE} |sed -e 's#.*/##g'`"
     PACKAGE_NAME="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
     PACKAGE_VERSION="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
     PACKAGE_RELEASE="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
@@ -145,7 +145,7 @@ get_all_files()
     if [ -n "$CVSROOT" ]; then
 	cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICON
     else
-	cvs up up $SOURCES $PATCHES $ICON
+	cvs up $SOURCES $PATCHES $ICON
     fi
 
     if [ "$?" -ne "0" ]; then
