@@ -349,6 +349,15 @@ preamble == 1 {
 			url[n+1] = ".bz2" url[n+1]
 			sub(/\.bz2$/,"",url[n])
 		}
+		if (url[n] ~ /\.logrotate$/) {
+			url[n+1] = ".logrotate" url[n+1]
+			sub(/\.logrotate$/,"",url[n])
+		}
+		if (url[n] ~ /\.pamd$/) {
+			url[n+1] = ".pamd" url[n+1]
+			sub(/\.pamd$/,"",url[n])
+		}
+
 		filename = url[n]
 		url[n] = fixedsub(name, "%{name}", url[n])
 		if (field ~ /source/) 
