@@ -84,6 +84,7 @@ RES_FILE=""
 
 CVS_SERVER="cvs.pld-linux.org"
 DISTFILES_SERVER="://distfiles.pld-linux.org"
+ATTICDISTFILES_SERVER="://attic-distfiles.pld-linux.org"
 
 DEF_NICE_LEVEL=19
 
@@ -510,7 +511,7 @@ distfiles_url ()
 
 distfiles_attic_url ()
 {
-	echo "$PROTOCOL$DISTFILES_SERVER/Attic/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+	echo "$PROTOCOL$ATTICDISTFILES_SERVER/Attic/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
 }
 
 good_md5 ()
