@@ -7,9 +7,9 @@ http://www.cpan.org/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 ftp://ftp.perl.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
 ftp://ftp.cpan.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
 http://www.cpan.org/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
-ftp://ftp.perl.org/pub/CPAN/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
-ftp://ftp.cpan.org/pub/CPAN/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
-http://www.cpan.org/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
+ftp://ftp.perl.org/pub/CPAN/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
+ftp://ftp.cpan.org/pub/CPAN/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
+http://www.cpan.org/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
 ftp://alpha.gnu.org/gnu/|ftp://ftp.icm.edu.pl/mirrors/alpha.gnu.org/gnu/|ICM
 ftp://ftp.troll.no/qt/source/|ftp://ftp.planetmirror.com.au/pub/trolltech/qt/source/|PlanetMirror
 ftp://ftp.troll.no/qt/source/|ftp://ftp.bero.org/pub/qt/source/|Bero
