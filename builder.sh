@@ -127,9 +127,9 @@ parse_spec()
     DEFINE_AS_DUMP="--define 'prep ' --define 'install %dump'"
 
     if [ "$NOSRCS" != "yes" ]; then
-        SOURCES="`eval rpm -bp --nobuild $DEFINE_AS_DUMP $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+        SOURCES="`eval rpm -bp --nobuild $BCOND $DEFINE_AS_DUMP $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if (rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+    if (rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
@@ -540,6 +540,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.92  2002/01/19 14:54:45  mkochano
+# - Typos fixed.
+#
 # Revision 1.91  2002/01/19 14:41:25  mkochano
 # - Default value for LOGFILE with note about type of quotes to use.
 # - Modified method of getting list of sources and patches. Now %%install
