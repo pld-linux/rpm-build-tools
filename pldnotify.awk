@@ -69,7 +69,7 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 	close("mktemp /tmp/XXXXXX")
 	
 	if (DEBUG) print "Retrieving: " url
-	errno=system("wget -O - \"" url "\" -t 1 -T 300 --passive-ftp > " tmpfile " 2>/dev/null" )
+	errno=system("wget -O - \"" url "\" -t 3 -T 300 --passive-ftp > " tmpfile " 2>/dev/null" )
 	
 	if (errno==0) {
 		while (getline oneline < tmpfile)
