@@ -66,17 +66,17 @@ parse_spec()
 
     rm -f $SPECFILE.__
 
-    if [ "$BE_VERBOSE" != "" ]; then
-	echo -e "- Sources :\n  " $SOURCES
-	echo -e "- Patches :\n  " $PATCHES
-	if [ "$ICON" != "" ]; then
-	    echo -e "- Icon    :\n  " $ICON
+    if [ -n "$BE_VERBOSE" ]; then
+	echo "- Sources :  $SOURCES"
+	echo "- Patches :  $PATCHES"
+	if [ -n "$ICON" ]; then
+	    echo "- Icon    :  $ICON"
 	else
-	    echo -e "- Icon    :  *no package icon*"
+	    echo "- Icon    :  *no package icon*"
 	fi
-	echo -e "- Name    : " $PACKAGE_NAME
-	echo -e "- Version : " $PACKAGE_VERSION
-	echo -e "- Release : " $PACKAGE_RELEASE
+	echo "- Name    : $PACKAGE_NAME"
+	echo "- Version : $PACKAGE_VERSION"
+	echo  "- Release : $PACKAGE_RELEASE"
     fi
 }
 
@@ -119,8 +119,7 @@ echo SPECS_DIR=%{_specdir}" > $DUMB_SPEC_FILE
     SOURCE_DIR=`rpm -bp $DUMB_SPEC_FILE 2>&1 | grep "^SOURCE_DIR" | sed "s/SOURCE_DIR\=//"`
     SPECS_DIR=`rpm -bp $DUMB_SPEC_FILE 2>&1 | grep "^SPECS_DIR" |sed "s/SPECS_DIR\=//"`
 
-echo aaa \"$SPECS_DIR\" 
-#    rm -f $DUMB_SPEC_FILE
+    rm -f $DUMB_SPEC_FILE
 
     __PWD=`pwd`
 }
@@ -129,13 +128,13 @@ get_spec()
 {
     cd $SPECS_DIR
 
-    if [ "$CVSROOT" -n "" ]; then
+    if [ -n "$CVSROOT" ]; then
 	cvs -d "$CVSROOT" up $SPECFILE
     else
 	cvs up $SPECFILE
     fi
 
-    if [ "$?" != 0 ]; then
+    if [ "$?" -ne "0" ]; then
 	Exit_error err_no_spec_in_repo;
     fi
 }
@@ -143,14 +142,13 @@ get_spec()
 get_all_files()
 {
     cd $SOURCE_DIR
-    if [ "$CVSROOT" -n ""]; then
+    if [ -n "$CVSROOT" ]; then
 	cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICON
     else
 	cvs up $SPECFILE
     fi
 
-
-    if [ "$?" != 0 ]; then
+    if [ "$?" -ne "0" ]; then
 	Exit_error err_no_source_in_repo;
     fi
 }
@@ -160,7 +158,7 @@ build_package()
     cd $SPECS_DIR
     rpm -ba -v $QUIET $SPECFILE
 
-    if [ "$?" != 0 ]; then
+    if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
     fi
 }
@@ -226,3 +224,5 @@ case "$COMMAND" in
     "version" )
 	echo "$VERSION";;
 esac
+
+cd $__PWD
