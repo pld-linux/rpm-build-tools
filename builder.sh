@@ -100,7 +100,7 @@ fi
 
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
 POLDEK_SOURCE="cvs"
-POLDEK_CMD="/usr/bin/poldek"
+POLDEK_CMD="/usr/bin/poldek --noask"
 
 # Here we load saved user environment used to
 # predefine options set above, or passed to builder
