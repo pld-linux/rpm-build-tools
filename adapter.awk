@@ -130,20 +130,25 @@ defattr == 1 {
 	use_macros()
 }
 
+# %clean section:
+/^%clean/, (/^%[a-z]+$/ && !/^%clean/) {
+	did_clean = 1
+}
+
 # %install section:
 /^%install/, (/^%[a-z]+$/ && !/^%install/) {
 	
 	preamble = 0
 	
-	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/ && did_clean==0) {
-		did_clean=1
+	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/ && did_rmroot==0) {
+		did_rmroot=1
 		print "rm -rf $RPM_BUILD_ROOT"
 		next
 	}
 
-	if (!/^(#?[ \t]*)$/ && !/^%install/ && did_clean==0) {
+	if (!/^(#?[ \t]*)$/ && !/^%install/ && did_rmroot==0) {
 		print "rm -rf $RPM_BUILD_ROOT"
-		did_clean=1
+		did_rmroot=1
 	}
 	
 	use_macros()
@@ -346,6 +351,12 @@ END {
 	while ((getline < changelog_file) > 0)
 		print
 	system("rm -f " changelog_file)
+
+	if (did_clean == 0) {
+		print ""
+		print "%clean"
+		print "rm -rf $RPM_BUILD_ROOT"
+	}
 
 	if (date == 0) {
 		print ""
