@@ -274,7 +274,7 @@ function is_there_line(line, l)
 {
 	command = "grep \"" line "\" " ARGV[1];
 	command	| getline l;
-	close(ARGV[1]);
+	close(command);
 
 	if (l != "")
 		return 1;
