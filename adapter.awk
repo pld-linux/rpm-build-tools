@@ -126,6 +126,12 @@ defattr == 1 {
 	}
  
 	if (/^%[a-z]+/ && (!/^%description/ || bod == 2)) {
+		if (NF > 3 && $2 == "-l") {
+			ll = $1
+			for (i = 4; i <= NF; i++)
+				ll = ll " " $i
+			$0 = ll " -l " $3
+		}
 		format_flush(format_line, format_indent)
 		if (bod == 2) {
 			bod = 1
