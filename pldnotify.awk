@@ -278,7 +278,7 @@ function process_source(number,lurl,name,version) {
 		for (nr=1; nr<=c; nr++) {
 			addr=linki[nr]
 			if (DEBUG) print "Znaleziony link: " addr
-			if (addr ~ filenameexp) {
+			if ((addr ~ filenameexp) && !(addr ~ "[-_.0-9A-Za-z]" filenameexp)) {
 				match(addr,filenameexp)
 				newfilename=substr(addr,RSTART,RLENGTH)
 				if (DEBUG) print "Hipotetyczny nowy: " newfilename
