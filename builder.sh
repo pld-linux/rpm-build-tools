@@ -14,7 +14,7 @@ Build package utility from PLD CVS repository
 V 0.10 (C) 1999-2001 Tomasz K³oczko".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
- 
+
 COMMAND="build"
 
 SPECFILE=""
@@ -152,17 +152,17 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 parse_spec()
 {
     if [ -n "$DEBUG" ]; then
-	    set -x;
-	    set -v;
+	set -x;
+	set -v;
     fi
 
     cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
-	    SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
     if ($RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
-	    FAIL_IF_NO_SOURCES="no"
+	FAIL_IF_NO_SOURCES="no"
     fi
 
     PATCHES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
@@ -174,14 +174,14 @@ parse_spec()
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
 	if [ -n "$PATCHES" ]; then
-		echo "- Patches :  `nourl $PATCHES`"
+	    echo "- Patches :  `nourl $PATCHES`"
 	else
-		echo "- Patches :  *no patches needed*"
+	    echo "- Patches :  *no patches needed*"
 	fi
 	if [ -n "$ICONS" ]; then
-		echo "- Icon    :  `nourl $ICONS`"
+	    echo "- Icon    :  `nourl $ICONS`"
 	else
-		echo "- Icon    :  *no package icon*"
+	    echo "- Icon    :  *no package icon*"
 	fi
 	echo "- Name    : $PACKAGE_NAME"
 	echo "- Version : $PACKAGE_VERSION"
@@ -261,7 +261,7 @@ get_spec()
     if [ ! -f "$SPECFILE" ]; then
 	Exit_error err_no_spec_in_repo;
     fi
-    
+
     if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
 	chmod $CHMOD_MODE $SPECFILE
     fi
@@ -321,11 +321,11 @@ get_files()
 		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 		    echo "Warning: no URL given for $i"
 		fi
-		
+
 		if [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
 		    cvs $OPTIONS `nourl $i`
 		fi
-		
+
 		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
 		    if [ -z "$NOMIRRORS" ] ; then 
 			i="`find_mirror "$i"`"
@@ -339,7 +339,7 @@ get_files()
 		fi
 	    fi
 	done
-	
+
 	if [ "$CHMOD" = "yes" ]; then
 	    CHMOD_FILES="`nourl $GET_FILES`"
 	    if [ -n "$CHMOD_FILES" ]; then
@@ -403,36 +403,36 @@ tag_files()
 
 branch_files()
 {
-	TAG=$1
-	echo "CVS branch tag: $TAG"
-	shift;
+    TAG=$1
+    echo "CVS branch tag: $TAG"
+    shift;
 
-	TAG_FILES="$@"
+    TAG_FILES="$@"
 
-	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+    if [ -n "$DEBUG" ]; then
+	set -x;
+	set -v;
+    fi
+
+    if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
+
+	OPTIONS="tag -b"
+	if [ -n "$CVSROOT" ]; then
+	    OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
+	cd $SOURCE_DIR
+	for i in $TAG_FILES; do
+	    if [ -f `nourl $i` ]; then
+		cvs $OPTIONS $TAG `nourl $i`
+	    else
+		Exit_error err_no_source_in_repo $i
+	    fi
+	done
+	cd $SPECS_DIR
+	cvs $OPTIONS $TAG $SPECFILE
 
-	if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
-		
-		OPTIONS="tag -b"
-		if [ -n "$CVSROOT" ]; then
-			OPTIONS="-d $CVSROOT $OPTIONS"
-		fi
-		cd $SOURCE_DIR
-		for i in $TAG_FILES; do
-			if [ -f `nourl $i` ]; then
-				cvs $OPTIONS $TAG `nourl $i`
-			else
-				Exit_error err_no_source_in_repo $i
-			fi
-		done
-		cd $SPECS_DIR
-		cvs $OPTIONS $TAG $SPECFILE
-
-		unset OPTIONS
-	fi
+	unset OPTIONS
+    fi
 }
 
 build_package()
@@ -445,28 +445,32 @@ build_package()
     cd $SPECS_DIR
 
     if [ -n "$TRY_UPGRADE" ]; then 
-    
-	TNOTIFY=`./pldnotify.awk $SPECFILE`
-	
+
+	if [ -n "FLOAT_VERSION" ]; then
+	    TNOTIFY=`./pldnotify.awk $SPECFILE -n`
+	else
+	    TNOTIFY=`./pldnotify.awk $SPECFILE`
+	fi
+
 	TNEWVER=`echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }'`
-	
+
 	if [ -n "$TNEWVER" ]; then
-	
+
 	    TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
-	    
+
 	    echo "New version found, updating spec file to version " $TNEWVER
-	    
+
 	    cp -f $SPECFILE $SPECFILE.bak
-	    
+
 	    chmod +w $SPECFILE
-	
+
 	    eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
 	    eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t1/' $SPECFILE"
-	    
+
 	    parse_spec;
-	    
+
 	    get_files "$SOURCES $PATCHES";
-	    
+
 	    unset TOLDVER TNEWVER TNOTIFY
 	fi
 	
@@ -491,21 +495,21 @@ build_package()
     fi
 
     if [ "$?" -ne "0" ]; then
-    
+
 	if [ -n "$TRY_UPGRADE" ]; then 
 	    echo "\n!!! Package with new version cannot be build automagically\n"
 	    mv -f $SPECFILE.bak $SPECFILE
 	fi
-	
+
 	Exit_error err_build_fail;
     fi
-    
+
     unset BUILD_SWITCH
 }
 
 nourl()
 {
-	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
+    echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
 #---------------------------------------------
 # main()
@@ -600,6 +604,8 @@ while test $# -gt 0 ; do
 	    BE_VERBOSE="1"; shift ;;
 	-u | --try-upgrade )
 	    TRY_UPGRADE="1"; shift ;;
+	-un | --try-upgrade-with-float-version )
+	    TRY_UPGRADE="1"; FLOAT_VERSION="1"; shift ;;
 	--define)
 	    shift
 	    MACRO="${1}"
@@ -613,8 +619,8 @@ while test $# -gt 0 ; do
 done
 
 if [ -n "$DEBUG" ]; then 
-	set -x;
-	set -v; 
+    set -x;
+    set -v; 
 fi
 
 case "$COMMAND" in
