@@ -312,6 +312,7 @@ preamble == 1 {
 		sub(/^Games/,"Applications/Games",$2)
 		sub(/^X11\/Games/,"Applications\/Games",$2)
 		sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy",$2)
+		sub(/^Shells/,"Applications/Shells",$2)
 
 		if (!match(field,/\(..\):/))
 			glang="en"
