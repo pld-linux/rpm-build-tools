@@ -262,7 +262,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                       %_without_<feature> macro switch.  You may now use
                       --with feat1 feat2 feat3 --without feat4 feat5 --with feat6
                       constructions. Set GROUP_BCONDS to yes to make use of it.
---target <platform>
+--target <platform>, --target=<platform>
 		    - build for platform <platform>.
 "
 }
@@ -1340,6 +1340,8 @@ do
 			;;
 		--target )
 			shift; TARGET="${1}"; shift ;;
+		--target=* )
+			TARGET=$(echo "${1}" | sed 's/^--target=//'); shift ;;
 		-q | --quiet )
 			QUIET="--quiet"; shift ;;
 		--date )
