@@ -301,7 +301,7 @@ Exit_error()
 		set -v;
 	fi
 
-	cd $__PWD
+	cd "$__PWD"
 
 	case "$1" in
 		"err_no_spec_in_cmdl" )
@@ -333,7 +333,7 @@ init_builder()
 	SOURCE_DIR="`$RPM --eval '%{_sourcedir}'`"
 	SPECS_DIR="`$RPM --eval '%{_specdir}'`"
 
-	__PWD=`pwd`
+	__PWD="`pwd`"
 }
 
 get_spec()
@@ -1380,6 +1380,6 @@ case "$COMMAND" in
 	"version" )
 		echo "$VERSION";;
 esac
-cd $__PWD
+cd "$__PWD"
 
 # vi:syntax=sh:tw=80:ts=3:sw=4
