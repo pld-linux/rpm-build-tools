@@ -88,7 +88,10 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 
 parse_spec()
 {
-    if [ -n "$DEBUG" ]; then set -xv; fi
+    if [ -n "$DEBUG" ]; then 
+    	set -x;
+	set -v; 
+    fi
 
     sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i "^Icon\:" > $SPECFILE.__
 
@@ -121,7 +124,10 @@ parse_spec()
 
 Exit_error()
 {
-    if [ -n "$DEBUG" ]; then set -xv; fi
+    if [ -n "$DEBUG" ]; then 
+    	set -x;
+	set -v; 
+    fi
 
     cd $__PWD
 
@@ -143,7 +149,10 @@ Exit_error()
 
 init_builder()
 {
-    if [ -n "$DEBUG" ]; then set -xv; fi
+    if [ -n "$DEBUG" ]; then 
+    	set -x;
+	set -v; 
+    fi
 
     SOURCE_DIR="`rpm --eval "%{_sourcedir}"`"
     SPECS_DIR="`rpm --eval "%{_specdir}"`"
@@ -153,7 +162,10 @@ init_builder()
 
 get_spec()
 {
-    if [ -n "$DEBUG" ]; then set -xv; fi
+    if [ -n "$DEBUG" ]; then 
+    	set -x;
+	set -v; 
+    fi
 
     cd $SPECS_DIR
 
@@ -184,7 +196,10 @@ get_spec()
 
 get_all_files()
 {
-    if [ -n "$DEBUG" ]; then set -xv; fi
+    if [ -n "$DEBUG" ]; then 
+    	set -x;
+	set -v; 
+    fi
 
     if [ -n "$SOURCES$PATCHES$ICONS" ]; then
 	cd $SOURCE_DIR
@@ -200,20 +215,20 @@ get_all_files()
 	fi
 	for i in $SOURCES $PATCHES $ICONS; do
 		if 
-			echo $i | grep -v '^\(http\|ftp\)://' |\
-			grep -q '\.\(gz\|bz2\)$'
+			echo $i | egrep -v '(http|ftp)://' |\
+			egrep -q '\.(gz|bz2)$'
 		then
 			echo "Warning: no URL given for $i"
 		fi
 		
 		if	[ -z "$NOCVS" ]||\
-			[ `echo $i | egrep -v '^ftp://\|^http://'` ]
+			[ `echo $i | egrep -v 'ftp://|http://'` ]
 		then
 			cvs $OPTIONS `nourl $i`
 		fi
 		
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
-			[ `echo $i | egrep 'ftp://\|http://'` ]
+			[ `echo $i | egrep 'ftp://|http://'` ]
 		then
 			wget -c -t0 "$i"
 		fi
@@ -232,7 +247,10 @@ get_all_files()
 
 build_package()
 {
-    if [ -n "$DEBUG" ]; then set -xv; fi
+    if [ -n "$DEBUG" ]; then 
+    	set -x;
+	set -v; 
+    fi
 
     cd $SPECS_DIR
     case "$COMMAND" in
@@ -304,7 +322,10 @@ while test $# -gt 0 ; do
     esac
 done
 
-if [ -n "$DEBUG" ]; then set -xv; fi
+if [ -n "$DEBUG" ]; then 
+	set -x;
+	set -v; 
+fi
 
 case "$COMMAND" in
     "build" | "build-binary" | "build-source" )
