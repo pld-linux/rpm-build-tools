@@ -201,7 +201,7 @@ preamble == 1 {
 		next
 	
 	if (field ~ /buildroot:/)
-		$2 = "/tmp/%{name}-%{version}-root"
+		$2 = "/tmp/%{name}-%{version}-root-%(id -u -n)"
 
 	if (field ~ /group:/) {
 		format_preamble()
