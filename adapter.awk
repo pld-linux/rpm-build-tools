@@ -202,7 +202,7 @@ preamble == 1 {
 	
 	field = tolower($1)
 
-	if (field ~ /packager:|distribution:|prefix:/)
+	if (field ~ /packager:|distribution:|docdir:|prefix:/)
 		next
 	
 	if (field ~ /buildroot:/)
@@ -391,5 +391,8 @@ function use_macros()
 		gsub(prefix, "%{_prefix}")
 		gsub("%{prefix}", "%{_prefix}")
 	}
+
+	gsub("%{PACKAGE_VERSION}", "%{version}")
+	gsub("%{PACKAGE_NAME}", "%{name}")
 }
 
