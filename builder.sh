@@ -97,7 +97,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
-	-a, --as_anon	- get files via pserver as cvs@anoncvs.pld.org.pl,
+	-a, --as_anon	- get files via pserver as cvs@cvs.pld-linux.org,
 	-b, -ba,
 	--build		- get all files from CVS repo or HTTP/FTP and build
 			  package from <package>.spec,
@@ -338,7 +338,7 @@ src_md5 ()
 
 distfiles_url ()
 {
-    echo "ftp://distfiles.pld.org.pl/src/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')"
+    echo "ftp://distfiles.pld-ppc.org/src/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')"
 }
 
 get_files()
@@ -627,7 +627,7 @@ while test $# -gt 0 ; do
 	-V | --version )
 	    COMMAND="version"; shift ;;
 	-a | --as_anon )
-	    CVSROOT=":pserver:cvs@anoncvs.pld.org.pl:/cvsroot"; shift ;;
+	    CVSROOT=":pserver:cvs@cvs.pld-linux.org:/cvsroot"; shift ;;
 	-b | -ba | --build )
 	    COMMAND="build"; shift ;;
 	-bb | --build-binary )
