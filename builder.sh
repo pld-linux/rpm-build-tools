@@ -396,7 +396,7 @@ case "$COMMAND" in
 	    get_spec;
 	    parse_spec;
 	    if [ -n "$ICONS" ]; then
-	    	get_files "$ICONS";
+	    	get_files $ICONS;
 	    	parse_spec;
 	    fi
 	    get_files "$SOURCES $PATCHES";
@@ -411,10 +411,10 @@ case "$COMMAND" in
 	    get_spec;
 	    parse_spec;
 	    if [ -n "$ICONS" ]; then
-		    get_files "$ICONS"
+		    get_files $ICONS
 		    parse_spec;
 	    fi
-	    get_files "$SOURCES $PATCHES"
+	    get_files $SOURCES $PATCHES
 	else
 	    Exit_error err_no_spec_in_cmdl;
 	fi
@@ -425,10 +425,10 @@ case "$COMMAND" in
 	    get_spec;
 	    parse_spec;
 	    if [ -n "$ICONS" ]; then
-		    get_files "$ICONS"
+		    get_files $ICONS
 		    parse_spec;
 	    fi
-	    get_files "$SOURCES $PATCHES";
+	    get_files $SOURCES $PATCHES;
 	    tag_files "$SOURCES $PATCHES $ICONS";
 	else
 	    Exit_error err_no_spec_in_cmdl;
@@ -446,6 +446,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.73  2001/03/30 14:06:10  wiget
+# massive typo by kloczek
+#
 # Revision 1.72  2001/03/26 22:16:22  kloczek
 # - fixed grabbing name, version and release in parse_spec(),
 # - added -T option (tag) (temporary it tags also additional STABLE tag - must
