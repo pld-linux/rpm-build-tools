@@ -85,7 +85,7 @@ function get_ftp_links(host,dir,port) {
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
 	
-	system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"sebek@sith\" FTP_USERNAME=\"anonymous\" FTP_HOST=\"" host "\" ; nc -e \"ftplinks.sh\" " host " " port)
+	system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"sebek@sith\" FTP_USERNAME=\"anonymous\" FTP_HOST=\"" host "\" ; nc -e \"./ftplinks.sh\" " host " " port)
 	
 	while (getline link < tmpfile)
 		retval=(retval " " link)
