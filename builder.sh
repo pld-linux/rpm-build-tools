@@ -1021,8 +1021,8 @@ fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
-			 CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | xargs)
-			 DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | xargs)
+			 CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print "@" $3 } ' | xargs)
+			 DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print "@" $3 } ' | xargs)
 			 if [ -n "$CONF" -o -n "$DEPS" ]; then
 				  /usr/bin/poldek --update; /usr/bin/poldek --upa
 			 fi
