@@ -67,7 +67,7 @@ parse_spec()
 {
     if [ -n "$DEBUG" ]; then set -xv; fi
 
-    sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i Icon > $SPECFILE.__
+    sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i "^Icon\:" > $SPECFILE.__
 
     SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
     PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
