@@ -154,7 +154,7 @@ get_spec()
     if [ -n "$CVSTAG" ]; then
 	OPTIONS="$OPTIONS -r $CVSTAG"
     else
-	OPTIONS="$OPTIONS -P"
+	OPTIONS="$OPTIONS -A"
     fi
 
     cvs $OPTIONS $SPECFILE
@@ -180,7 +180,7 @@ get_all_files()
 	if [ -n "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -r $CVSTAG"
 	else
-	    OPTIONS="$OPTIONS -P"
+	    OPTIONS="$OPTIONS -A"
 	fi
 
 	cvs $OPTIONS $SOURCES $PATCHES $ICONS
