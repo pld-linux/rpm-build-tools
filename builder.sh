@@ -23,6 +23,7 @@ CLEAN=""
 DEBUG=""
 NOURLS=""
 NOCVS=""
+ALLWAYS_CVSUP="yes"
 CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 CHMOD="yes"
@@ -218,7 +219,7 @@ get_all_files()
 	    OPTIONS="$OPTIONS -A"
 	fi
 	for i in $SOURCES $PATCHES $ICONS; do
-	    if ! [ -r `nourl $i` ]
+	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ] 
 	      then
 		if 
 			echo $i | grep -vE '(http|ftp|https|cvs)://' |\
@@ -228,7 +229,7 @@ get_all_files()
 		fi
 		
 		if	[ -z "$NOCVS" ]||\
-			[ `echo $i | grep -vE '(ftp|http|https|cvs)://'` ]
+			[ `echo $i | grep -vE '(ftp|http|https)://'` ]
 		then
 			cvs $OPTIONS `nourl $i`
 		fi
