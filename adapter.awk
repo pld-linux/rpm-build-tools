@@ -14,6 +14,8 @@
 # TODO
 # - parse ../PLD-doc/BuildRequires.txt and setup proper BR epoches?
 # - add "-nc" option to skip CVS interaction
+# - sort Summary(XX)
+# - sort Requires, BuildRequires
 
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
@@ -90,6 +92,11 @@ defattr == 1 {
 		next
 	if ($2 == "date")
 		date = 1
+}
+
+# Obsolete
+/^%include.*\/usr\/lib\/rpm\/macros\.python$/ {
+	next
 }
 
 ################
@@ -488,6 +495,13 @@ preamble == 1 {
 			mandir = $3
 		if ($2 ~ /_infodir/)
 			infodir = $3
+	}
+
+	if (field ~ /buildrequires:/) {
+		# obsolete
+		if ($2 ~ /rpm-pythonprov/) {
+			next
+		}
 	}
 }
 
