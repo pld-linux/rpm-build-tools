@@ -345,6 +345,8 @@ get_files()
 			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
 				echo "Trying again... ($retries_counter)"
 				continue
+			else
+				break
 			fi
 		    done
 		fi
