@@ -10,7 +10,7 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.7 (C) 1999 Tomasz K³oczko".
+V 0.8 (C) 1999 Tomasz K³oczko".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -47,10 +47,11 @@ usage()
     if [ -n "$DEBUG" ]; then set -xv; fi
     echo "\
 Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
-	[--build] [-bb] [--build-binary] [-bs] [--build-source] [-d <cvsroot>]
-	[--cvsroot <cvsroot>] [-g] [--get] [-h] [--help] [-l <logfile>]
-	[--logtofile <logfile>] [-q] [--quiet] [-r <cvstag>]
-	[--cvstag <cvstag>] [-v] [--verbose] <package>.spec
+	[--build] [-bb] [--build-binary] [-bs] [--build-source]
+	[-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h] [--help]
+	[-l <logfile>] [-m] [--mr-proper] [--logtofile <logfile>] [-q] [--quiet]
+	[-r <cvstag>] [--cvstag <cvstag>] [-u] [--no-urls] [-v] [--verbose]
+	<package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -72,10 +73,12 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
 	-l, --logtofile	- log all to file,
+	-m, --mr-proper - only remove all files relayted to spec file and
+			  all work resources,
 	-q, --quiet	- be quiet,
 	-r, --cvstag	- build package using resources from specified CVS
 			  tag,
-	-u, --no_urls	- try to get sources only from CVS repo,
+	-u, --no-urls	- try to get sources only from CVS repo,
 	-v, --verbose	- be verbose,
 
 "
@@ -275,13 +278,15 @@ while test $# -gt 0 ; do
 	    COMMAND="usage"; shift ;;
 	-l | --logtofile )
 	    shift; LOGFILE="${1}"; shift ;;
+	-m | --mr-proper )
+	    COMMAND="mr-proper"; shift ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
-	-u | --no_urls )
+	-u | --no-urls )
 	    NOURLS="yes"; shift ;;
 	* )
 	    SPECFILE="${1}"; shift ;;
@@ -311,6 +316,9 @@ case "$COMMAND" in
 	else
 	    Exit_error err_no_spec_in_cmdl;
 	fi
+	;;
+    "mr-proper" )
+	rpm --clean --rmsource --rmspec --force --nodeps $SPECFILE
 	;;
     "usage" )
 	usage;;
