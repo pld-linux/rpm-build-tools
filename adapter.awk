@@ -100,14 +100,6 @@ defattr == 1 {
 		format_indent = -1
 	}
 
-	# Define _prefix and _mandir if it is X11 application
-#	if (/^%description$/ && x11 == 1) {
-#		print "%define\t\t_prefix\t\t/usr/X11R6"
-#		print "%define\t\t_mandir\t\t%{_prefix}/man\n"
-#		prefix = "/usr/X11R6"
-#		x11 = 2
-#	}
-	
 	# Format description
 	if (description == 1 && !/^%[a-z]+/ && !/^%description/) {
 		if (/^[ \t]*$/) {
@@ -454,7 +446,6 @@ preamble == 1 {
 			sub("^"prefix, $3, datadir)
 			sub("^"prefix, $3, includedir)
 			prefix = $3
-			x11 = 2
 		}
 		if ($2 ~ /_bindir/ && !/_sbindir/)
 			bindir = $3
@@ -555,11 +546,6 @@ function use_macros()
 	if(prefix"/sbin" == sbindir)
 		gsub("%{_prefix}/sbin", "%{_sbindir}")
 
-#	gsub(libdir, "%{_libdir}")
-#	gsub("%{prefix}/lib", "%{_libdir}")
-#	if(prefix"/lib" == libdir)
-#		gsub("%{_prefix}/lib", "%{_libdir}")
-
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sysconfdir "/{?cron.")
 			continue;
@@ -620,10 +606,9 @@ function use_macros()
 	gsub("%{PACKAGE_VERSION}", "%{version}")
 	gsub("%{PACKAGE_NAME}", "%{name}")
 
-	# we can move files between tge dirs below
+	# we can move files between the dirs below
 	if ($0 !~ "%{_applnkdir}") {
 		gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
-		gsub("%{_datadir}/applnk", "%{_applnkdir}")
 	}
 
 	gsub("^make$", "%{__make}")
