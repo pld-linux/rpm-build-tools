@@ -248,7 +248,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
                     - as above, but allow float version
--U, --update        - refetch sources, don't use distfiles, and update md5 and size comments
+-U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
 --with/--without <feature>
@@ -483,15 +483,6 @@ src_md5 ()
 	fi
 }
 
-src_size ()
-{
-	 [ X"$NO5" = X"yes" ] && return
-	 no=$(src_no "$1")
-	 [ -z "$no" ] && return
-	 cd $SPECS_DIR
-	 grep -i "#[ 	]*Source$no-size[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
-}
-
 distfiles_url ()
 {
 	echo "$PROTOCOL$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
@@ -511,9 +502,8 @@ good_md5 ()
 
 good_size ()
 {
-	 size=$(src_size "$1")
-	 [ "$size" = "" ] || \
-	 [ "$size" = "$(find $(nourl "$1") -printf "%s" 2>/dev/null)" ]
+	 size="$(find $(nourl "$1") -printf "%s" 2>/dev/null)"
+	 [ -n "$size" -a "$size" -gt 0 ]
 }
 
 cvsignore_df ()
@@ -576,7 +566,7 @@ get_files()
 
 				if [ -n "$(src_md5 "$i")" ] && [ -z "$NODIST" ]; then
 					if good_md5 "$i" && good_size "$i"; then
-						echo "$(nourl "$i") having proper md5sum and size already exists"
+						echo "$(nourl "$i") having proper md5sum already exists"
 						continue
 					fi
 					target=$(nourl "$i")
@@ -655,12 +645,11 @@ get_files()
 				[ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
 				grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
 			then
-				echo "Updating source-$srcno md5 and size."
+				echo "Updating source-$srcno md5."
 				md5=$(md5sum `nourl $i` | cut -f1 -d' ')
-				size=$(find $(nourl "$i") -printf "%s" 2>/dev/null)
 				perl -i -ne '
-				print unless /^\s*#\s*Source'$srcno'-(md5|size)\s*:/i;
-				print "# Source'$srcno'-md5:\t'$md5'\n# Source'$srcno'-size:\t'$size'\n"
+				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
+				print "# Source'$srcno'-md5:\t'$md5'\n"
 				if /^Source'$srcno'\s*:\s+/;
 				' \
 				$SPECS_DIR/$SPECFILE
@@ -669,9 +658,9 @@ get_files()
 			if good_md5 "$i" && good_size "$i"; then
 				:
 			elif [ "$FROM_DISTFILES" = 1 ]; then
-				# wrong md5 or size from distfiles: remove the file and try again
+				# wrong md5 from distfiles: remove the file and try again
 				# but only once ...
-				echo "MD5 sum or size mismatch. Trying full fetch."
+				echo "MD5 sum mismatch. Trying full fetch."
 				FROM_DISTFILES=2
 				rm -f $target
 				${GETURI} -O "$target" "$url" || \
@@ -691,8 +680,8 @@ get_files()
 			if good_md5 "$i" && good_size "$i" ; then
 				:
 			else
-				echo "MD5 sum or size mismatch.  Use -U to refetch sources,"
-				echo "or -5 to update md5 sums and size info, if you're sure files are correct."
+				echo "MD5 sum mismatch or 0 size.  Use -U to refetch sources,"
+				echo "or -5 to update md5 sums, if you're sure files are correct."
 				Exit_error err_no_source_in_repo $i
 			fi
 		done
