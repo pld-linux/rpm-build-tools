@@ -250,12 +250,16 @@ get_spec()
 		NOCVSSPEC="yes"
 	    fi
 	fi
-	if [ -n "$CVSDATE" ]; then
-	    OPTIONS="$OPTIONS -D $CVSDATE"
-	elif [ -n "$CVSTAG" ]; then
-	    OPTIONS="$OPTIONS -r $CVSTAG"
-	else
+	
+	if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -A"
+	else
+	    if [ -n "$CVSDATE" ]; then
+	    	OPTIONS="$OPTIONS -D $CVSDATE"
+	    fi
+	    if [ -n "$CVSTAG" ]; then
+	    	OPTIONS="$OPTIONS -r $CVSTAG"
+	    fi
 	fi
 
 	result=1
@@ -327,13 +331,16 @@ get_files()
 		NOCVS="yes"
 	    fi
 	fi
-	if [ -n "$CVSDATE" ]; then
-	    OPTIONS="$OPTIONS -D $CVSDATE"
-	elif [ -n "$CVSTAG" ]; then
-	    OPTIONS="$OPTIONS -r $CVSTAG"
-	else
-	    OPTIONS="$OPTIONS -A"
-	fi
+       if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
+            OPTIONS="$OPTIONS -A"
+        else
+            if [ -n "$CVSDATE" ]; then
+                OPTIONS="$OPTIONS -D $CVSDATE"
+            fi
+            if [ -n "$CVSTAG" ]; then
+                OPTIONS="$OPTIONS -r $CVSTAG"
+            fi
+        fi
 	for i in $GET_FILES; do
 	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ]; then
 		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
