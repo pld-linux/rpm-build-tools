@@ -1019,7 +1019,16 @@ display_bconds()
 
 fetch_build_requires()
 {
-	if [ "${FETCH_BUILD_REQUIRES}" == "yes" ]; then
+	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
+		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
+			 DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk ' { print $3 } ' | xargs)
+			 if [ -n "$DEPS" ]; then
+				  echo "Trying to install dependencies ($DEPS):"
+				  /usr/bin/poldek -uGv $DEPS
+			 fi
+			 return
+		fi
+		 
 		echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
 		echo -ne "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES\n"
 		echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
