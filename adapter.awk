@@ -275,7 +275,7 @@ defattr == 1 {
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 3) {
 		if (!/PLD Team/)
-			print "* %{date} PLD Team <feedback@pld.org.pl>" > changelog_file
+			print "* %{date} PLD Team <feedback@pld-linux.org>" > changelog_file
 		else
 			skip = 1
 		boc = 2
@@ -283,7 +283,7 @@ defattr == 1 {
 	if (boc == 2 && !skip) {
 		if (!/All persons listed below/) {
 			printf "All persons listed below can be reached at " > changelog_file
-			print "<cvs_login>@pld.org.pl\n" > changelog_file
+			print "<cvs_login>@pld-linux.org\n" > changelog_file
 		} else
 			skip = 1
 		boc = 1
