@@ -263,7 +263,7 @@ get_files()
 	fi
 	for i in $GET_FILES; do
 	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ]; then
-		if echo $i | grep -vE '(http|ftp|https|cvs)://' | grep -qE '\.(gz|bz2)$']; then
+		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 			echo "Warning: no URL given for $i"
 		fi
 		
