@@ -122,7 +122,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-Tvs, --tag-version-stable
 			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
 	-Tvd, --tag-version-devel
-			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
+			- add cvs tags DEVEL and NAME-VERSION-RELESE for files,
 	-Ts, --tag-stable
 			- add cvs tag STABLE for files,
 	-Td, --tag-devel
