@@ -45,7 +45,7 @@ Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
 
 parse_spec()
 {
-    sed -e 's#^%prep#%dump#' ${SPECFILE} > $SPECFILE.__
+    sed -e "s/^Summary:*/Summary:\%dump/I" $SPECFILE > $SPECFILE.__
 
     SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'`"
     PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'`"
