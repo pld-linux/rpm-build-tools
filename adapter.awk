@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.24. Adapter adapts .spec files for PLD.
+# This is adapter v0.25. Adapter adapts .spec files for PLD.
 #
 # Copyright (C) 1999-2001 PLD-Team <pld-list@pld.org.pl>
 # Authors:
@@ -22,6 +22,9 @@ BEGIN {
 	removed["CFLAGS"] = 0
 	removed["CXXFLAGS"] = 0
 
+	# If 1, we are inside of comment block (started with /^#%/)
+	comment_block = 0
+	
 	# File with rpm groups
 	"rpm --eval %_sourcedir" | getline groups_file
 	groups_file = groups_file "/rpm.groups"
@@ -61,6 +64,20 @@ defattr == 1 {
 	defattr = 0
 }
 
+# Do not touch commented sections!
+/^#%/ {
+	comment_block = 1
+}
+
+comment_block == 1 {
+	if (/^#/) {
+		# Print as is
+		print $0
+		next
+	} else
+		comment_block = 0
+}
+
 # Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
 /^%define/ {
 	if ($2 == "_applnkdir")
@@ -69,7 +86,9 @@ defattr == 1 {
 		date = 1
 }
 
-# descriptions:
+################
+# %description #
+################
 /^%description/, (/^%[a-z]+/ && !/^%description/) {
 	preamble = 0
 
@@ -118,7 +137,9 @@ defattr == 1 {
 		description = 1
 }
 
-# %prep section:
+#########
+# %prep #
+#########
 /^%prep/, (/^%[a-z]+$/ && !/^%prep/) {
 	preamble = 0
 	
@@ -127,7 +148,9 @@ defattr == 1 {
 		sub(/^%setup/, "%setup -q")
 }
 
-# %build section:
+##########
+# %build #
+##########
 /^%build/, (/^%[a-z]+$/ && !/^%build/) {
 	preamble = 0
 
@@ -174,12 +197,16 @@ defattr == 1 {
 			
 }
 
-# %clean section:
+##########
+# %clean #
+##########
 /^%clean/, (/^%[a-z]+$/ && !/^%clean/) {
 	did_clean = 1
 }
 
-# %install section:
+############
+# %install #
+############
 /^%install/, (/^%[a-z]+$/ && !/^%install/) {
 	
 	preamble = 0
@@ -217,8 +244,9 @@ defattr == 1 {
 		next
 }
 
-
-# %files section:
+##########
+# %files #
+##########
 /^%files/, (/^%[a-z \-]+$/ && !/^%files/) {
 	preamble = 0
 	
@@ -228,7 +256,9 @@ defattr == 1 {
 	use_macros()
 }
 
-# %changelog section:
+##############
+# %changelog #
+##############
 /^%changelog/, (/^%[a-z]+$/ && !/^%changelog/) {
 	preamble = 0
 	has_changelog = 1
@@ -260,7 +290,25 @@ defattr == 1 {
 	next
 }
 
-# preambles:
+###########
+# SCRIPTS #
+###########
+/^%pre/, (/^%[a-z]+$/ && !/^%pre/) {
+	preamble = 0
+}
+/^%post/, (/^%[a-z]+$/ && !/^%post/) {
+	preamble = 0
+}
+/^%preun/, (/^%[a-z]+$/ && !/^%preun/) {
+	preamble = 0
+}
+/^%postun/, (/^%[a-z]+$/ && !/^%postun/) {
+	preamble = 0
+}
+
+#############
+# PREAMBLES #
+#############
 preamble == 1 {
 	# There should not be a space after the name of field
 	# and before the colon.
@@ -612,7 +660,8 @@ function cflags(var)
 		return 0
 	}
 		
-	sub("\$RPM_OPT_FLAGS", "%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g}")
+	if (!/!\?debug/)
+		sub("\$RPM_OPT_FLAGS", "%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g}")
 	return 1
 }
 
