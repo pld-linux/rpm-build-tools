@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.13. Adapter adapts .spec files for PLD.
+# This is adapter v0.14. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -182,7 +182,7 @@ defattr == 1 {
 	boc--
 	}
 
-	if (!/^%[a-z]+$/ || /%changelog/)
+	if (!/^%[a-z]+$/ || /changelog/)
 		print > changelog_file
 	else
 		print
@@ -275,21 +275,19 @@ preamble == 1 {
 }
 
 END {
-	if (changelog_file)
+	if (changelog_file) {
 		close(changelog_file)
-			
+		while ((getline < changelog_file) > 0)
+			print
+		system("rm -f " changelog_file)
+	}
+
 	if (boc == 1) {
 		print "* %{date} PLD Team <pld-list@pld.org.pl>"
 		printf "All below listed persons can be reached on "
 		print "<cvs_login>@pld.org.pl\n"
 		print "$" "Log:$"
-	} else {
-		while ((getline < changelog_file) > 0)
-			print
 	}
-
-	if (changelog_file)
-		system("rm -f " changelog_file)
 }
 
 # This function uses grep to determine if there is line (in the current file)
