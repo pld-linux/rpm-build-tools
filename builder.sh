@@ -435,6 +435,14 @@ get_files()
 	    fi
 	fi
 	for i in $GET_FILES; do
+	    if [ -n "$UPDATE5" ]; then
+	 	if [ -n "$ADD5" ]; then
+		    [ `nourl $i` = "$i" ] && continue
+		    grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
+		else
+		    grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
+		fi
+	    fi
 	    FROM_DISTFILES=0
 	    if [ ! -f `nourl $i` ] || [ $ALWAYS_CVSUP = "yes" ]; then
 		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
@@ -726,6 +734,7 @@ nourl()
 {
     echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
+
 #---------------------------------------------
 # main()
 
@@ -834,10 +843,10 @@ while test $# -gt 0 ; do
 	    TAG_VERSION="no"
 	    shift;;
 	-U | --update )
+	    COMMAND="get"
 	    UPDATE="yes"
 	    NODIST="yes"
 	    UPDATE5="yes"
-	    COMMAND="get"
 	    shift ;;
 	-u | --try-upgrade )
 	    TRY_UPGRADE="1"; shift ;;
