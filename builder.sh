@@ -127,7 +127,8 @@ echo SPECS_DIR=%{_specdir}" > $DUMB_SPEC_FILE
 get_spec()
 {
     cd $SPECS_DIR
-    if [ "$CVSROOT" != ""[; then
+
+    if [ "${CVSROOT}" != "" ]; then
 	cvs -d "$CVSROOT" up $SPECFILE
     else
 	cvs up $SPECFILE
@@ -141,7 +142,7 @@ get_spec()
 get_all_files()
 {
     cd $SOURCE_DIR
-    if [ "$CVSROOT" != ""[; then
+    if [ "${CVSROOT}" != ""]; then
 	cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICON
     else
 	cvs up $SPECFILE
