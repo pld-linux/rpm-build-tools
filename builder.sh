@@ -534,8 +534,8 @@ tag_files()
     fi
 
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
-	echo $PACKAGE_VERSION
-	echo $PACKAGE_RELEASE
+	echo "Version: $PACKAGE_VERSION"
+	echo "Release: $PACKAGE_RELEASE"
 	TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
 	if [ "$TAG_VERSION" = "yes" ]; then
 	    echo "CVS tag: $TAGVER"
