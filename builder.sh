@@ -1,5 +1,6 @@
 #!/bin/sh
 # -----------
+# $Revision$, $Date$
 # Exit codes:
 #	0 - succesful
 #	1 - help dispayed
@@ -100,16 +101,12 @@ parse_spec()
 	set -v; 
     fi
 
-    sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i "^Icon\:" > $SPECFILE.__
-
-    SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCEURL[0-9]+/ {print $3}'`"
-    PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCHURL[0-9]+/ {print $3}'`"
+    SOURCES="`rpm -bp --nobuild --define "__spec_prep_pre %{dump}" $SPECFILE 2>&1 | awk '/ SOURCEURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --nobuild --define "__spec_prep_pre %{dump}" $SPECFILE 2>&1 | awk '/ PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-    PACKAGE_NAME="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
-    PACKAGE_VERSION="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
-    PACKAGE_RELEASE="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
-
-    rm -f $SPECFILE.__
+    PACKAGE_NAME="`rpm -bp --nobuild --define "__spec_prep_pre %{dump}" $SPECFILE 2>&1 | awk '/ name/ {print $3}'`"
+    PACKAGE_VERSION="`rpm -bp --nobuild --define "__spec_prep_pre %{dump}" $SPECFILE 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
+    PACKAGE_RELEASE="`rpm -bp --nobuild --define "__spec_prep_pre %{dump}" $SPECFILE 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
 
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
@@ -176,7 +173,7 @@ get_spec()
 
     cd $SPECS_DIR
 
-    OPTIONS="-z3 up "
+    OPTIONS="up "
 
     if [ -n "$CVSROOT" ]; then
 	OPTIONS="-d $CVSROOT $OPTIONS"
@@ -211,7 +208,7 @@ get_all_files()
     if [ -n "$SOURCES$PATCHES$ICONS" ]; then
 	cd $SOURCE_DIR
 
-	OPTIONS="-z3 up "
+	OPTIONS="up "
 	if [ -n "$CVSROOT" ]; then
 	    OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
@@ -234,9 +231,6 @@ get_all_files()
 			[ `echo $i | grep -vE '(ftp|http|https)://'` ]
 		then
 			cvs $OPTIONS `nourl $i`
-			if [ "$?" -ne "0" ]; then
-				Exit_error err_no_source_in_repo;
-			fi
 		fi
 		
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
