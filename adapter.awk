@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.9. Adapter adapts .spec files for PLD.
+# This is adapter v0.9+. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -52,12 +52,14 @@ FNR == 1 {
 			if (length(line) + length(dt[i]) + 1 < tw)
 				line = line dt[i] " ";
 			else {
+				sub(/[ ]+$/, "", line);
 				print line;
 				line = "";
 				i--;
 			}
 		}
 
+		sub(/[ ]+$/, "", line);
 		print line "\n";
 		line = "";
 		delete dt;
