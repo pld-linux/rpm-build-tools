@@ -24,10 +24,6 @@ BEGIN {
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
 
-	# Is 'date' macro already defined?
-	if (is_there_line("%define date"))
-		date = 1
-
 	# Load rpm macros
 	"rpm --eval %_prefix"	| getline prefix
 	"rpm --eval %_bindir"	| getline bindir
@@ -62,7 +58,9 @@ defattr == 1 {
 # Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
 /^%define/ {
 	if ($2 == "_applnkdir")
-		next					
+		next
+	if ($2 == "date")
+		date = 1
 }
 
 # descriptions:
@@ -409,20 +407,6 @@ END {
 		print "<cvs_login>@pld.org.pl\n"
 		print "$" "Log:$"
 	}
-}
-
-# This function uses grep to determine if there is line (in the current file)
-# which matches regexp.
-function is_there_line(line, l)
-{
-	command = "grep \"" line "\" " ARGV[1]
-	command	| getline l
-	close(command)
-
-	if (l != "")
-		return 1
-	else
-		return 0
 }
 
 # There should be one or two tabs after the colon.
