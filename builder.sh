@@ -154,6 +154,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-bs,
 	--build-source	- get all files from CVS repo or HTTP/FTP and only
 			  pack them into src.rpm,
+	-bp, --build-prep
+			- execute the %prep phase of <package>.spec,
 	-B, --branch	- add branch
 	-c, --clean	- clean all temporarily created files (in BUILD,
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
@@ -759,6 +761,8 @@ build_package()
 	    BUILD_SWITCH="-bb" ;;
 	build-source )
 	    BUILD_SWITCH="-bs --nodeps" ;;
+	build-prep )
+	    BUILD_SWITCH="-bp --nodeps" ;;
     esac
     if [ -n "$LOGFILE" ]; then
 	LOG=`eval echo $LOGFILE`
@@ -1006,6 +1010,8 @@ while test $# -gt 0 ; do
 	    COMMAND="build-binary"; shift ;;
 	-bs | --build-source )
 	    COMMAND="build-source"; shift ;;
+	-bp | --build-prep )
+	    COMMAND="build-prep"; shift ;;
 	-B | --branch )
 	    COMMAND="branch"; shift; TAG="${1}"; shift;;
 	-c | --clean )
@@ -1143,7 +1149,7 @@ if [ -n "$DEBUG" ]; then
 fi
 
 case "$COMMAND" in
-    "build" | "build-binary" | "build-source" )
+    "build" | "build-binary" | "build-source" | "build-prep" )
 	init_builder;
 	if [ -n "$SPECFILE" ]; then
 	    get_spec;
