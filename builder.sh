@@ -33,7 +33,9 @@ PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
 
-if [ -f ~/.builderrc ]; then
+if [ -f ~/etc/builderrc ]; then
+  . ~/etc/builderrc
+elif [ -f ~/.builderrc ]; then
   . ~/.builderrc
 fi
 
