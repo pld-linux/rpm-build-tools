@@ -210,6 +210,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -nu, --no-urls      - don't try to download from FTP/HTTP location,
 -ns, --no-srcs      - don't download Sources
 -ns0, --no-source0  - don't download Source0
+-nn, --no-net       - don't download anything from the net
 --opts <rpm opts>   - additional options for rpm
 -q, --quiet         - be quiet,
 --date yyyy-mm-dd   - build package using resources from specified CVS date,
@@ -1229,6 +1230,14 @@ do
 			NOSRCS="yes"; shift ;;
 		-ns0 | --no-source0 )
 			NOSOURCE0="yes"; shift ;;
+		-nn | --no-net )
+			NOCVS="yes"
+			NOCVSSPEC="yes"
+			NODIST="yes"
+			NOMIRRORS="yes"
+			NOURLS="yes"
+			NOSRCS="yes"
+			shift;;
 		--opts )
 			shift; RPMOPTS="${1}"; shift ;;
 		--with | --without )
