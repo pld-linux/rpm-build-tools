@@ -190,6 +190,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 }
 
 rpm_dump () {
+    if [ "$rpm_dump_cache" = "" ] ; then
+        rpm_dump_cache=`
 	case "$RPMBUILD" in
 	rpm )
     		rpm -bp --nodeps --define 'prep %dump' $BCOND $SPECFILE 2>&1 
@@ -197,7 +199,9 @@ rpm_dump () {
 	rpmbuild )
     		rpmbuild --define 'prep %dump' $BCOND $SPECFILE 2>&1 
 		;;
-	esac
+	esac`
+    fi
+    echo "$rpm_dump_cache"
 }
 
 parse_spec()
