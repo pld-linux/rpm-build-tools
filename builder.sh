@@ -657,7 +657,7 @@ get_files()
 			then
 				echo "Updating source-$srcno md5."
 				md5=$(md5sum `nourl $i` | cut -f1 -d' ')
-				size=$(find $(nourl "$1") -printf "%s" 2>/dev/null)
+				size=$(find $(nourl "$i") -printf "%s" 2>/dev/null)
 				perl -i -ne '
 				print unless /^\s*#\s*Source'$srcno'-(md5|size)\s*:/i;
 				print "# Source'$srcno'-md5:\t'$md5'\n# Source'$srcno'-size:\t'$size'\n"
