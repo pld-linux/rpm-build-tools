@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.4. Adapter adapts .spec files for PLD.
+# This is adapter v0.5. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -108,40 +108,36 @@ bof == 1 {
 	}
 }
 
-# ignore some spec filelds
-/^[Pp]ackager:/	{next}
-/^[Dd]istribution:/ {next}
-/^[Pp]refix:/ {next}
-
 # preambles:
 preamble == 1 {
 	# There should not be a space after the name of field
 	# and before the colon.
 	sub(/[ \t]*:/, ":");
 	
-	if (tolower($1) ~ /buildroot:/)
+	field = tolower($1);
+
+	if (field ~ /packager:|distribution:|prefix:/)
+		next;
+	
+	if (field ~ /buildroot:/)
 		$2 = "/tmp/%{name}-%{version}-root";
 
 	# Is it X11 application?
-	if (tolower($1) ~ /group/ && $2 ~ /^X11/ && x11 == 0)
+	if (field ~ /group/ && $2 ~ /^X11/ && x11 == 0)
 		x11 = 1;
 		
-	# Do not add %define of _prefix if it already is.
-	if ($1 ~ /%define/ && $2 ~ /_prefix/)
-		x11 = 2;
-			
 	# Use "License" instead of "Copyright" if it is (L)GPL or BSD
-	if (tolower($1) ~ /copyright:/ && $2 ~ /GPL|BSD/)
+	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/)
 		$1 = "License:";
 	
-	if (tolower($1) ~ /name:/)
+	if (field ~ /name:/)
 		name = $2;
 
-	if (tolower($1) ~ /version:/)
+	if (field ~ /version:/)
 		version = $2;
 
 	# Use %{name} and %{version} in the filenames in "Source:"
-	if (tolower($1) ~ /source/ && $2 ~ /^ftp:|^http:/) {
+	if (field ~ /source/ && $2 ~ /^ftp:|^http:/) {
 		n = split($2, url, /\//);
 		filename = url[n];
 		sub(name, "%{name}", url[n]);
@@ -157,6 +153,11 @@ preamble == 1 {
 		else
 			sub(/:/, ":\t");
 	}
+	
+	# Do not add %define of _prefix if it already is.
+	if ($1 ~ /%define/ && $2 ~ /_prefix/)
+		x11 = 2;
+			
 }
 
 
