@@ -309,6 +309,10 @@ preamble == 1 {
 	if (field ~ /group(\(..\))?:/) {
 		format_preamble()
 		sub(/^Utilities\//,"Applications/",$2)
+		sub(/^Games,"Applications/Games",$2)
+		sub(/^X11\//Games,"Applications/Games",$2)
+		sub(/^X11\//Games\//Strategy,"X11/Applications/Games/Strategy",$2)
+
 		if (!match(field,/\(..\):/))
 			glang="en"
 		else
