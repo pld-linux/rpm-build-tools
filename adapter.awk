@@ -593,7 +593,7 @@ function cflags(var)
 	if ($0 == var "=\"$RPM_OPT_FLAGS\"")
 		return 0
 		
-	sub("\$RPM_OPT_FLAGS", "%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O -g}")
+	sub("\$RPM_OPT_FLAGS", "%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g}")
 	return 1
 }
 
