@@ -25,6 +25,7 @@ NOURLS=""
 NOCVS=""
 NOCVSSPEC=""
 NODIST=""
+UPDATE=""
 ALLWAYS_CVSUP=${ALLWAYS_CVSUP:-"yes"}
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
@@ -160,6 +161,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-v, --verbose	- be verbose,
 	-u, --try-upgrade
 			- check version, and try to upgrade package
+	-un, --try-upgrade-with-float-version
+			- as above, but allow float version
+	-U, --update
+			- refetch sources (makes sense with -nc -nd)
+			  (CVS updates are controlled by ALLWAYS_CVSUP environment
+			  variable, distfiles are checked against md5 sum)
 	--with/--without <feature>
 			- conditional build package depending on
 			  %_with_<feature>/%_without_<feature> macro
@@ -416,7 +423,7 @@ get_files()
 		    done
 		fi
 
-		if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
+		if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" -o -n "$UPDATE" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
 		    if [ -z "$NOMIRRORS" ] ; then
 			i="`find_mirror "$i"`"
 		    fi
@@ -717,12 +724,14 @@ while test $# -gt 0 ; do
 	    TAG="$1"
 	    TAG_VERSION="no"
 	    shift;;
-	-v | --verbose )
-	    BE_VERBOSE="1"; shift ;;
+	-U | --update )
+	    UPDATE="yes"; shift ;;
 	-u | --try-upgrade )
 	    TRY_UPGRADE="1"; shift ;;
 	-un | --try-upgrade-with-float-version )
 	    TRY_UPGRADE="1"; FLOAT_VERSION="1"; shift ;;
+	-v | --verbose )
+	    BE_VERBOSE="1"; shift ;;
 	--define)
 	    shift
 	    MACRO="${1}"
