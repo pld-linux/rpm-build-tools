@@ -3,28 +3,51 @@
 # This is adapter v0.18. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
+function fill(ch, n, i) {
+	for (i=0; i<n; i++) printf("%c",ch)
+}
+
+function format_flush(linia, wciecie,	newlinia, slowo, pierwszeslowo) {
+	pierwszeslowo=1
+	if (format_wciecie==-1) 
+		newlinia=""
+	else
+		newlinia=(fill(" ",format_wciecie) "- ")
+	while (match(linia,/[^\t ]+/)) {
+		slowo=substr(linia,RSTART,RLENGTH)
+		if (length(newlinia)+length(slowo)+1 > tw) {
+			print newlinia
+			
+			if (format_wciecie==-1)
+				newlinia=""
+			else
+				newlinia=fill(" ",format_wciecie+2)
+			pierwszeslowo=1
+		}
+
+		if (pierwszeslowo) {
+			newlinia=(newlinia slowo)
+			pierwszeslowo=0
+		} else
+			newlinia=(newlinia " " slowo)
+			
+		linia=substr(linia,RSTART+RLENGTH)
+	}
+	if (newlinia ~ /[^\t ]/) {
+		print newlinia
+	}
+}
+
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 2			# Beggining of %changelog
 	bod = 0			# Beggining of %description
-	tw = 77        		# Descriptions width
+	tw = 75        		# Descriptions width
 
 	groups_file = ENVIRON["HOME"] "/rpm/groups"	# File with rpm groups
-	format_macro = ENVIRON["HOME"] "/tmp/format.vim"# File with format macro
 
-	# Create format macro file
-	system("rm -f " format_macro)
-	print ":set tw = " tw > format_macro
-	print "VGgq" >> format_macro
-	print ":wq!" >> format_macro
-	close(format_macro)
-
-	# Command to format the text
-	format_command = "vim -s " format_macro ">/dev/null 2>&1 "
-	
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
-	description_file = ENVIRON["HOME"] "/tmp/adapter.description"
 
 	# Is 'date' macro already defined?
 	if (is_there_line("%define date"))
@@ -71,9 +94,12 @@ defattr == 1 {
 /^%description/, (/^%[a-z]+/ && !/^%description/) {
 	preamble = 0
 
-	if (/^%description/)
+	if (/^%description/) {
 		bod++
-	
+		format_linia=""
+		format_wciecie=-1
+	}
+
 	# Define _prefix and _mandir if it is X11 application
 	if (/^%description$/ && x11 == 1) {
 		print "%define\t\t_prefix\t\t/usr/X11R6"
@@ -81,22 +107,29 @@ defattr == 1 {
 		prefix = "/usr/X11R6"
 		x11 = 2
 	}
-
-        # Collect whole text of description in file
+	
+	# formatter (c) 2000 by Sebastian Zagrodzki
+	
 	if (description == 1 && !/^%[a-z]+/ && !/^%description/) {
-		print $0 >> description_file
+		if (/^[ \t]*$/) {
+			format_flush(format_linia, format_wciecie)
+			print ""
+			format_linia=""
+			format_wciecie=-1
+		} else if (/^[ \t]*[-\*][ \t]*/) {
+			format_flush(format_linia, format_wciecie)
+			match($0,/^[ \t]*/)	
+			format_wciecie=RLENGTH
+			match($0,/^[ \t]*[-\*][ \t]/)
+			format_linia=substr($0,RLENGTH)
+		} else 
+			format_linia=(format_linia " " $0)
 		next
 	}
  
 	# Format description file and insert it
 	if (/^%[a-z]+/ && (!/^%description/ || bod == 2)) {
-		close(description_file)
-		system(format_command description_file)
-
-		while ((getline line < description_file) > 0)
-			print line
-		system("rm -f " description_file)
-		
+		format_flush(format_linia, format_wciecie)
 		if (bod == 2) {
 			bod = 1
 			description = 1
