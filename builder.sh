@@ -40,11 +40,7 @@ UPDATE=""
 UPDATE5=""
 ADD5=""
 ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
-if [ -s CVS/Root ]; then
-    CVSROOT=$(cat CVS/Root)
-else
-    CVSROOT=${CVSROOT:-""}
-fi
+CVSROOT=""
 # Example: LOGFILE='../log.$PACKAGE_NAME'
 # Yes, you can use variable name! Note _single_ quotes!
 LOGFILE=''
