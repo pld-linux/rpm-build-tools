@@ -724,7 +724,7 @@ build_package()
 	    echo "LASTLOG=$LOG" > $LASTLOG_FILE
 	fi
 	RES_FILE=~/tmp/$RPMBUILD-exit-status.$RANDOM
-	(nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+	(time nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 	RETVAL=`cat $RES_FILE`
 	rm $RES_FILE
 	if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
