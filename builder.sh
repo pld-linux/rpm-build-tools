@@ -51,8 +51,8 @@ DEF_NICE_LEVEL=0
 
 FAIL_IF_NO_SOURCES="yes"
 
-GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES"
-GETURI2="wget -c -nd -t$WGET_RETRIES"
+GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES --inet"
+GETURI2="wget -c -nd -t$WGET_RETRIES --inet"
 
 if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
     RPM="rpm"
