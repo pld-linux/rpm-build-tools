@@ -322,7 +322,6 @@ END {
 	}
 
 	if (boc > 0) {
-		print ""
 		print "%changelog"
 		print "* %{date} PLD Team <pld-list@pld.org.pl>"
 		printf "All persons listed below can be reached at "
