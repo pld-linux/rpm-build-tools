@@ -94,7 +94,7 @@ bof == 1 {
 		if (!/PLD Team/) {
 			print "* %{date} PLD Team <pld-list@pld.org.pl>";
 			printf "All below listed persons can be reached on ";
-			print "<cvs_login>@pld.org.pl\n\n";
+			print "<cvs_login>@pld.org.pl\n";
 			print "$" "Log:$";
 		}
 		boc = 0;
@@ -107,6 +107,11 @@ bof == 1 {
 		boc--;
 	}
 }
+
+# ignore some spec filelds
+/^[Pp]ackager:/	{next}
+/^[Dd]istribution:/ {next}
+/^[Pp]refix:/ {next}
 
 # preambles:
 preamble == 1 {
