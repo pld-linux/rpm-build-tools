@@ -363,7 +363,12 @@ tag_files()
 	echo $PACKAGE_VERSION
 	echo $PACKAGE_RELEASE
 	TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
-	echo "CVS tag: $TAGVER"
+	if [ "$TAG_VERSION" = "yes" ]; then
+	    echo "CVS tag: $TAGVER"
+	fi
+	if [ -n "$TAG" ]; then
+	    echo "CVS tag: $TAG"
+	fi
 
 	OPTIONS="tag -F"
 	if [ -n "$CVSROOT" ]; then
