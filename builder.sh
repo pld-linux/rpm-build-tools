@@ -6,8 +6,8 @@
 #	1 - help dispayed
 #	2 - no spec file name in cmdl parameters
 #	3 - spec file not stored in repo
-#	4 - some source, apatch or icon files not stored in repo
-#	5 - build package no succed
+#	4 - some source, patch or icon files not stored in repo
+#	5 - package build failed
 
 VERSION="\
 Build package utility from PLD CVS repository
@@ -540,6 +540,16 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.91  2002/01/19 14:41:25  mkochano
+# - Default value for LOGFILE with note about type of quotes to use.
+# - Modified method of getting list of sources and patches. Now %%install
+#   section is redefined instead of %%prep. This is because not all
+#   packages have %%prep section.
+# - Tab replaced with space in "- Patches :" message. This fixes list of
+#   patches placed too far right.
+# - Logging implemented. And it's really cool ;)
+# - Fixed "nourl" function. It returned only last argument.
+#
 # Revision 1.90  2002/01/15 17:03:14  misiek
 # - use grep instead of head
 #
