@@ -449,7 +449,8 @@ preamble == 1 {
 		$2 = fixedsub(filename, url[n], $2)
 
 		# sourceforge urls
-		sub("^http://.*dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", $2)
+		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
+		sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", $2)
 	}
 
 
