@@ -391,6 +391,10 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/rc.d")
 			continue;
+		if ($c ~ sysconfdir "/pam.d")
+			continue;
+		if ($c ~ sysconfdir "/security")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
