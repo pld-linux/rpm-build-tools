@@ -513,7 +513,7 @@ src_md5 ()
 	sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
 	grep -E '^[0-9a-f]{32}$')
 	if [ X"$md5" = X"" ] ; then
-		grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
+		grep -i -E "#[ 	]*(No)?Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
 	else
 		if [ $(echo "$md5" | wc -l) != 1 ] ; then
 			echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
