@@ -4,6 +4,8 @@
 # Sending via 
 VIA="SENDMAIL"
 #VIA="localhost"
+VIA_ARGS=""
+#VIA_ARGS="some additional flags"
 #
 # DISTFILES EMAIL
 DMAIL="distfiles@pld-linux.org"
@@ -38,7 +40,7 @@ else
 fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
-	cat <<EOF | /usr/sbin/sendmail -t
+	cat <<EOF | /usr/sbin/sendmail -t $VIA_ARGS 
 To: $DMAIL
 From: $LOGIN <$LOGIN@$HOST>
 Subject: fetchsrc_request notify 
