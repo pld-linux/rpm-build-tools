@@ -90,6 +90,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	-q, --quiet	- be quiet,
 	-r, --cvstag	- build package using resources from specified CVS
 			  tag,
+	-T, --tag	- add cvs tags for files,
 	-v, --verbose	- be verbose,
 
 "
@@ -110,9 +111,9 @@ parse_spec()
 
     PATCHES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-    PACKAGE_NAME="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
-    PACKAGE_VERSION="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
-    PACKAGE_RELEASE="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
+    PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile rpm.spec | head -1`"
+    PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile rpm.spec | head -1`"
+    PACKAGE_RELEASE="`rpm -q --qf '%{RELEASE}\n' --specfile rpm.spec | head -1`"
 
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
@@ -260,6 +261,44 @@ get_files()
     fi
 }
 
+tag_files()
+{
+    TAG_FILES="$@"
+
+    if [ -n "$DEBUG" ]; then 
+    	set -x;
+	set -v; 
+    fi
+
+    if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
+	echo $PACKAGE_VERSION
+	echo $PACKAGE_RELEASE
+	TAG=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
+	echo "CVS tag: $TAG"
+
+	OPTIONS="tag -F"
+	if [ -n "$CVSROOT" ]; then
+	    OPTIONS="-d $CVSROOT $OPTIONS"
+	fi
+
+	cd $SOURCE_DIR
+	for i in $TAG_FILES; do
+	    if [ -f `nourl $i` ]; then
+		cvs $OPTIONS $TAG `nourl $i`
+		cvs $OPTIONS STABLE `nourl $i`
+	    else
+		Exit_error err_no_source_in_repo
+	    fi
+	done
+
+	cd $SPECS_DIR
+	cvs $OPTIONS $TAG $SPECFILE
+	cvs $OPTIONS STABLE $SPECFILE
+
+	unset OPTIONS
+    fi
+}
+
 build_package()
 {
     if [ -n "$DEBUG" ]; then 
@@ -336,6 +375,8 @@ while test $# -gt 0 ; do
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
+	-T | --tag )
+	    COMMAND="tag"; shift;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
 	* )
@@ -378,6 +419,21 @@ case "$COMMAND" in
 	    Exit_error err_no_spec_in_cmdl;
 	fi
 	;;
+    "tag" )
+	init_builder;
+	if [ -n "$SPECFILE" ]; then
+	    get_spec;
+	    parse_spec;
+	    if [ -n "$ICONS" ]; then
+		    get_files "$ICONS"
+		    parse_spec;
+	    fi
+	    get_files "$SOURCES $PATCHES";
+	    tag_files "$SOURCES $PATCHES $ICONS";
+	else
+	    Exit_error err_no_spec_in_cmdl;
+	fi
+	;;
     "mr-proper" )
 	rpm --clean --rmsource --rmspec --force --nodeps $SPECFILE
 	;;
@@ -390,6 +446,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.71  2001/03/05 14:12:27  misiek
+# fix chmod
+#
 # Revision 1.70  2001/03/03 19:55:42  misiek
 # workaround for problems with rpm when icons isn't cvs up'ed
 #
