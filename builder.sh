@@ -26,7 +26,7 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.11 (C) 1999-2004 Free Penguins".
+V 0.12 (C) 1999-2005 Free Penguins".
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
@@ -115,15 +115,21 @@ fi
 
 [ -f "$USER_CFG" ] && . "$USER_CFG"
 
-if [ -z "$USE_PROZILLA" ]; then
+if [ -n "$USE_PROZILLA" ]; then
+	 GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
+	 GETURI2="$GETURI"
+	 OUTFILEOPT="-O"
+elif [ -n "$USE_AXEL" ]; then
+	 GETURI="axel -n 4 -a $AXEL_OPTS"
+	 GETURI2="$GETURI"
+	 OUTFILEOPT="-o"
+else
 	 wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
 	 wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
 	 
 	 GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
 	 GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
-else
-	 GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
-	 GETURI2="$GETURI"
+	 OUTFILEOPT="-O"
 fi
 
 GETLOCAL="cp -a"
@@ -612,9 +618,9 @@ get_files()
 						if [ -z "$NOMIRRORS" ]; then
 							url="`find_mirror "$url"`"
 						fi
-						${GETURI} -O "$target" "$url" || \
+						${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 						if [ `echo $url | grep -E 'ftp://'` ]; then
-							${GETURI2} -O "$target" "$url"
+							${GETURI2} ${OUTFILEOPT} "$target" "$url"
 						fi
 					fi
 					if ! test -s "$target"; then
@@ -625,9 +631,9 @@ get_files()
 							if [ -z "$NOMIRRORS" ]; then
 								url_attic="`find_mirror "$url_attic"`"
 							fi
-							${GETURI} -O "$target" "$url_attic" || \
+							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 							if [ `echo $url_attic | grep -E 'ftp://'` ]; then
-								${GETURI2} -O "$target" "$url_attic"
+								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 							fi
 						fi
 					fi
@@ -696,15 +702,15 @@ get_files()
 				echo "MD5 sum mismatch. Trying full fetch."
 				FROM_DISTFILES=2
 				rm -f $target
-				${GETURI} -O "$target" "$url" || \
+				${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 				if [ `echo $url | grep -E 'ftp://'` ]; then
-					${GETURI2} -O "$target" "$url"
+					${GETURI2} ${OUTFILEOPT} "$target" "$url"
 				fi
 				if ! test -s "$target"; then
 					rm -f "$target"
-					${GETURI} -O "$target" "$url_attic" || \
+					${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 					if [ `echo $url_attic | grep -E 'ftp://'` ]; then
-						${GETURI2} -O "$target" "$url_attic"
+						${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 					fi
 				fi
 				test -s "$target" || rm -f "$target"
