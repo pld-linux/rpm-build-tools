@@ -71,12 +71,31 @@ function get_http_links(host,dir,port,	errno,link,oneline,retval,odp,tmpfile) {
 		
 	close(tmpfile)
 	if ( errno==0) {
-		while (tolower(odp) ~ /href=/) {
-			match(tolower(odp),/href="[^"]+"/)
-			link=substr(odp,RSTART,RLENGTH)
-			odp=substr(odp,RSTART+RLENGTH)
-			link=substr(link,7,length(link)-7)
-			retval=(retval " " link)
+		while ((tolower(odp) ~ /<frame[ \t]/)||(tolower(odp) ~ /href=/)) {
+			if (tolower(odp) ~ /<frame[ \t]/) {
+				match(tolower(odp),/<frame[ \t][^>]*>/)
+				ramka=substr(odp,RSTART,RLENGTH)
+				odp=substr(odp,RSTART+RLENGTH)
+				match(tolower(ramka),/src="[^"]+"/)
+				link=substr(ramka,RSTART+5,RLENGTH-6)
+				if (link !~ /^http:\/\//)
+					newhost=host
+				else {
+					match(link,/^http:\/\/[^\/]*/)
+					newhost=substr(link,RSTART+7,RLENGTH-7)
+					link=substr(link,RSTART+RLENGTH)
+				}
+				if (link !~ /^\//)
+					link=dir link
+				if (DEBUG) print "Ramka: http://" newhost ":" port link
+				retval=(retval " " get_http_links(newhost,link,port))
+			} else {
+				match(tolower(odp),/href="[^"]+"/)
+				link=substr(odp,RSTART,RLENGTH)
+				odp=substr(odp,RSTART+RLENGTH)
+				link=substr(link,7,length(link)-7)
+				retval=(retval " " link)
+			}
 		}
 	} else {
 		retval=("HTTP ERROR: " errno)
