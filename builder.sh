@@ -27,6 +27,7 @@ NOCVSSPEC=""
 NODIST=""
 UPDATE=""
 UPDATE5=""
+ADD5=""
 ALLWAYS_CVSUP=${ALLWAYS_CVSUP:-"yes"}
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
@@ -101,7 +102,9 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 	[--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
-	-5		- update md5 comments in spec
+	-5, --update-md5
+			- update md5 comments in spec, implies -nd
+	-a5, --add-md5	- add md5 comments to URL sources, implies -nc -nd
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
 	-a, --as_anon	- get files via pserver as cvs@$CVS_SERVER,
@@ -166,9 +169,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-un, --try-upgrade-with-float-version
 			- as above, but allow float version
 	-U, --update
-			- refetch sources (makes sense with -nc -nd)
-			  (CVS updates are controlled by ALLWAYS_CVSUP environment
-			  variable, distfiles are checked against md5 sum)
+			- refetch sources, don't use distfiles, and update md5 
+			  comments
 	--with/--without <feature>
 			- conditional build package depending on
 			  %_with_<feature>/%_without_<feature> macro
@@ -407,7 +409,8 @@ get_files()
 			if [ `echo $url | grep -E 'ftp://'` ]; then
 			    ${GETURI2} -O "$target" "$url"
 			fi
-		elif [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
+		elif [ -z "$(src_md5 "$i")" ] && \
+		     ( [ -z "$NOCVS" ] || echo $i | grep -qvE '(ftp|http|https)://' ); then
 		    result=1
         	    retries_counter=0
 	            while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
@@ -433,17 +436,20 @@ get_files()
 			if [ `echo $i | grep -E 'ftp://'` ]; then ${GETURI2} "$i" ; fi
 		fi
 
+
 		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
 		    Exit_error err_no_source_in_repo $i;
-		else
-		if [ -n "$UPDATE5" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
-		    tmp_spec=`mktemp ${TMPDIR:-/tmp}/$SPECFILE.XXXXXX`
+		elif [ -n "$UPDATE5" ] && \
+		     ( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' ) || \
+		       grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
+		then
 		    srcno=$(src_no $i)
-		    md5=$(md5sum `echo $i | perl -ne '/.*\/(.*)/; print "$1\n"'` 2> /dev/null | cut -f1 -d' ')
-		    perl -ne 'print "# Source'$srcno'-md5:	'$md5'\n" if /^Source'$srcno':[ 	]*/;
-				print unless /^#[ 	]*Source'$srcno'-md5:[ 	]*/' < $SPECS_DIR/$SPECFILE > $tmp_spec
-		    mv -f $tmp_spec $SPECS_DIR/$SPECFILE
-		fi
+		    echo "Updating source-$srcno md5."
+		    md5=$(md5sum `nourl $i` | cut -f1 -d' ')
+		    perl -i -ne 'print "# Source'$srcno'-md5:\t'$md5'\n" 
+		    		 if /^Source'$srcno'\s*:\s+/;
+			      	 print unless /^\s*#\s*Source'$srcno'-md5\s*:/i' \
+				 $SPECS_DIR/$SPECFILE
 		fi
 	    fi
 	done
@@ -650,10 +656,17 @@ fi
 
 while test $# -gt 0 ; do
     case "${1}" in
-	-5 )
+	-5 | --update-md5 )
 	    COMMAND="get";
 	    NODIST="yes"
 	    UPDATE5="yes"
+	    shift ;;
+	-a5 | --add-md5 )
+	    COMMAND="get";
+	    NODIST="yes"
+	    NOCVS="yes"
+	    UPDATE5="yes"
+	    ADD5="yes"
 	    shift ;;
 	-D | --debug )
 	    DEBUG="yes"; shift ;;
@@ -739,7 +752,11 @@ while test $# -gt 0 ; do
 	    TAG_VERSION="no"
 	    shift;;
 	-U | --update )
-	    UPDATE="yes"; shift ;;
+	    UPDATE="yes"
+	    NODIST="yes"
+	    UPDATE5="yes"
+	    COMMAND="get"
+	    shift ;;
 	-u | --try-upgrade )
 	    TRY_UPGRADE="1"; shift ;;
 	-un | --try-upgrade-with-float-version )
