@@ -69,7 +69,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	[-g] [--get] [-h] [--help] [-l <logfile>] [-m] [--mr-proper] 
 	[--logtofile <logfile>] [-q] [--quiet] [-r <cvstag>] [--cvstag <cvstag>] 
 	[-u] [--no-urls] [-v] [--verbose] [--opts <rpm opts>] 
-	[--with/--without pkg] <package>.spec
+	[--with/--without pkg] [--define <macro> <value>] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -103,6 +103,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 			  tag,
 	-T, --tag	- add cvs tags for files,
 	-v, --verbose	- be verbose,
+	--define        - define a macro
 
 "
 }
@@ -435,6 +436,12 @@ while test $# -gt 0 ; do
 	    COMMAND="tag"; shift;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
+	--define)
+	    MACRO="${1}"
+	    VALUE="${2}"
+	    shift 2
+	    RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
+	    ;;
 	* )
 	    SPECFILE="${1}"; shift ;;
     esac
@@ -517,6 +524,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.86  2001/11/20 01:38:01  blues
+# - small cosmetic fix
+#
 # Revision 1.85  2001/11/19 23:02:06  blues
 # - added raw branching support
 #
