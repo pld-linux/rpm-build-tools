@@ -281,10 +281,6 @@ rpm_dump_cache=`
 			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1
 			;;
 	esac`
-	if [ $? -ne 0 ]; then
-		 echo "ERROR: cache_rpm_dump failed! Check spec file." 1>&2
-		 exit 1
-	fi
 }
 
 rpm_dump () {
