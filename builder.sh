@@ -101,6 +101,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-nc, --no-cvs	- don't download from CVS, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
 	-ns, --no-srcs  - don't downland Sources
+	-ns0, --no-source0
+			- don't downland Source0
 	--opts <rpm opts>
 			- additional options for rpm
 	-q, --quiet	- be quiet,
@@ -438,6 +440,8 @@ while test $# -gt 0 ; do
 	    NOURLS="yes"; shift ;;
 	-ns | --no-srcs )
 	    NOSRCS="yes"; shift ;;
+	-ns0 | --no-source0 )
+	    NOSOURCE0="yes"; shift ;;
 	--opts )
 	    shift; RPMOPTS="${1}"; shift ;;
 	--with | --without )
@@ -534,6 +538,9 @@ case "$COMMAND" in
 	    if [ -n "$ICONS" ]; then
 		get_files $ICONS
 		parse_spec;
+	    fi
+	    if [ -n "$NOSOURCE0" ] ; then
+		SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 	    fi
 	    get_files $SOURCES $PATCHES
 	else
