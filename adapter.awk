@@ -166,7 +166,7 @@ defattr == 1 {
 	if (boc == 1) {
 		if (!/PLD Team/) {
 			print "* %{date} PLD Team <pld-list@pld.org.pl>" > changelog_file
-			printf "All persons listed below can be reached on " > changelog_file
+			printf "All persons listed below can be reached at " > changelog_file
 			print "<cvs_login>@pld.org.pl\n" > changelog_file
 			print "$" "Log:$" > changelog_file
 		}
