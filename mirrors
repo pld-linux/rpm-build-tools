@@ -27,3 +27,4 @@ ftp://ftp.alsa-project.org/pub/|ftp://ftp.task.gda.pl/pub/linux/misc/alsa/|TASK
 http://ftp.mozilla.org/pub/mozilla.org/|ftp://ftp.task.gda.pl/pub/mozilla/|TASK
 ftp://ftp.porcupine.org/mirrors/postfix-release/official/|ftp://ftp.sgh.waw.pl/pub/postfix/src/official/|SGH
 ftp://ftp.kernel.org/pub/|ftp://ftp.kernel.pl/pub|KernelPL
+ftp://ftp.kernel.org/pub/|ftp://ftp.pl.kernel.org/pub|TASK
