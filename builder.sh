@@ -139,6 +139,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			- setup \$CVSROOT,
 	--define <macro> <value>
 			- define a macro <macro> with value <value>,
+	--nodeps	- rpm won't check any dependences
 	-g, --get	- get <package>.spec and all related files from
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
@@ -885,6 +886,10 @@ while test $# -gt 0 ; do
 	    VALUE="${2}"
 	    shift 2
 	    RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
+	    ;;
+	--nodeps)
+	    shift
+	    RPMOPTS="${RPMOPTS} --nodeps"
 	    ;;
 	* )
 	    SPECFILE="`basename ${1} .spec`.spec"; shift ;;
