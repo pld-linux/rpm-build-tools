@@ -227,6 +227,10 @@ defattr == 1 {
 	# 'install -d' instead 'mkdir -p'
 	if (/mkdir -p/)
 		sub(/mkdir -p/, "install -d")
+
+	# 'install' instead 'cp -p'
+	if (/cp -p/)
+		sub(/cp -p/, "install")
 		
 	# No '-u root' or '-g root' for 'install'
 	if (/^install/ && /-[ug][ \t]*root/)
