@@ -97,20 +97,16 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 parse_spec()
 {
     if [ -n "$DEBUG" ]; then 
-    	set -x;
-	set -v; 
+	set -x;
+	set -v;
     fi
 
-    sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i "^Icon\:" > $SPECFILE.__
-
-    SOURCES="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ SOURCEURL[0-9]+/ {print $3}'`"
-    PATCHES="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ PATCHURL[0-9]+/ {print $3}'`"
+    SOURCES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
     PACKAGE_VERSION="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
     PACKAGE_RELEASE="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
-
-    rm -f $SPECFILE.__
 
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
