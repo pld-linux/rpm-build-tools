@@ -515,6 +515,7 @@ get_files()
 	    elif [ "$FROM_DISTFILES" = 1 ]; then
 		# wrong md5 from distfiles: remove the file and try again
 		# but only once ...
+		echo "MD5 sum mismatch. Trying full fetch."
 		FROM_DISTFILES=2
 		rm -f $target
 		${GETURI} -O "$target" "$url" || \
