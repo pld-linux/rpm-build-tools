@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xv
 # 
 
 VERSION="\
@@ -151,6 +151,7 @@ case "$COMMAND" in
 	else
 	    echo "ERROR: spec file name not specified.";
 	    usage;
+	    exit 1;
 	fi
 	;;
     "get" )
@@ -161,6 +162,7 @@ case "$COMMAND" in
 	else
 	    echo "ERROR: spec file name not specified.";
 	    usage;
+	    exit 1;
 	fi
 	;;
     "usage" )
