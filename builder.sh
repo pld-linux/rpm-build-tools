@@ -29,6 +29,7 @@ CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 CHMOD="yes"
 RPMOPTS=""
+BCOND=""
 
 PATCHES=""
 SOURCES=""
@@ -61,7 +62,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	[-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h] [--help]
 	[-l <logfile>] [-m] [--mr-proper] [--logtofile <logfile>] [-q] [--quiet]
 	[-r <cvstag>] [--cvstag <cvstag>] [-u] [--no-urls] [-v] [--verbose]
-	[--opts <rpm opts>] <package>.spec
+	[--opts <rpm opts>] [--with/--without pkg] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -324,7 +325,7 @@ build_package()
 	build-source )
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
-    nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $SPECFILE 
+    nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 
 
     if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
@@ -380,6 +381,8 @@ while test $# -gt 0 ; do
 	    NOSRCS="yes"; shift ;;
 	--opts )
 	    shift; RPMOPTS="${1}"; shift ;;
+	--with | --without )
+	    BCOND="$1 $2" ; shift 2 ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
@@ -455,6 +458,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.79  2001/05/28 14:44:16  baggins
+# - if file is not in repo TELL which fucking file it is!
+#
 # Revision 1.78  2001/05/13 19:04:44  misiek
 # fixes for ksh93
 #
