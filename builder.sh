@@ -82,7 +82,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-Tvs|--tag-version-stable] [-Tvd|--tag-version-devel]
 	[-Ts|--tag-stable] [-Td|--tag-devel] [-Tv|--tag-version]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
-	[--with/--without <feacture>] [--define <macro> <value>] <package>.spec
+	[--with/--without <feature>] [--define <macro> <value>] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -137,9 +137,9 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-v, --verbose	- be verbose,
 	-u, --try-upgrade
 			- check version, and try to upgrade package
-	--with/--without <feacture>
+	--with/--without <feature>
 			- conditional build package depending on
-			  %_with_<feacture>/%_without_<feacture> macro
+			  %_with_<feature>/%_without_<feature> macro
 			  switch
 "
 }
