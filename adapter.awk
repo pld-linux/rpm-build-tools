@@ -337,13 +337,35 @@ function format_preamble()
 function use_macros()
 {
 	gsub(bindir, "%{_bindir}")
-	gsub(sbindir, "%{_sbindir}")
-	gsub(libdir, "%{_libdir}")
-	gsub(sysconfdir, "%{_sysconfdir}")
-	gsub(datadir, "%{_datadir}")
-	gsub(includedir, "%{_includedir}")
-	gsub(mandir, "%{_mandir}")
-	gsub(infodir, "%{_infodir}")
-	gsub(prefix, "%{_prefix}")
-}
+	gsub("%{_prefix}/bin", "%{_bindir}")
+	gsub("%{prefix}/bin", "%{_bindir}")
 
+	gsub(sbindir, "%{_sbindir}")
+	gsub("%{prefix}/sbin", "%{_sbindir}")
+	gsub("%{_prefix}/sbib", "%{_sbindir}")
+
+	gsub(libdir, "%{_libdir}")
+	gsub("%{prefix}/lib", "%{_libdir}")
+	gsub("%{_prefix}/lib", "%{_libdir}")
+
+	gsub(sysconfdir, "%{_sysconfdir}")
+
+	gsub(datadir, "%{_datadir}")
+	gsub("%{prefix}/share", "%{_datadir}")
+	gsub("%{_prefix}/share", "%{_datadir}")
+
+	gsub(includedir, "%{_includedir}")
+	gsub("%{prefix}/include", "%{_includedir}")
+	gsub("%{_prefix}/include", "%{_includedir}")
+
+	gsub(mandir, "%{_mandir}")
+	gsub("%{prefix}/man", "%{_mandir}")
+	gsub("%{_prefix}/man", "%{_mandir}")
+
+	gsub(infodir, "%{_infodir}")
+	gsub("%{prefix}/info", "%{_infodir}")
+	gsub("%{_prefix}/info", "%{_infodir}")
+
+	gsub(prefix, "%{_prefix}")
+	gsub("%{prefix}", "%{_prefix}")
+}
