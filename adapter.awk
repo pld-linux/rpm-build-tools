@@ -206,7 +206,7 @@ preamble == 1 {
 		next
 	
 	if (field ~ /buildroot:/)
-		$2 = "/tmp/%{name}-%{version}-root-%(id -u -n)"
+		$2 = "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
 
 	if (field ~ /group:/) {
 		format_preamble()
@@ -246,9 +246,6 @@ preamble == 1 {
 	if (field ~ /patch:/)
 		$1 = "Patch0:"
 	
-	if (fiels ~ /buildroot:/)
-		$2 = "%{tmpdir}/%{name}-%{dir}"
-
 	format_preamble()
 	
 	if ($1 ~ /%define/) {
