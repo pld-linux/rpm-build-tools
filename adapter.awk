@@ -1,22 +1,28 @@
 #!/bin/awk -f
 #
-# This is adapter v0.8. Adapter adapts .spec files for PLD.
+# This is adapter v0.9. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
 	preamble = 1;
-	bof = 1;	# Beggining of file
-	boc = 2;	# Beggining of %changelog
-	bod = 0;	# Beggining of %description
-	tw = 77;        # Descriptions width	
+	boc = 2;			# Beggining of %changelog
+	bod = 0;			# Beggining of %description
+	tw = 77;        		# Descriptions width
+	groups_file = ENVIRON["HOME"] "/rpm/groups" # File with rpm groups
+	
+	# Is 'date' macro already defined?
+	if (is_there_line("%define date"))
+		date = 1;
 }
 
 # There should be a comment with CVS keywords on the first line of file.
-bof == 1 {
-	preamble = 0;
-	if (!/# \$Revision:/)
-		 print "# $" "Revision:$, " "$" "Date:$";
-	bof = 0;
+FNR == 1 {
+	if (!/# \$Revision:/)		# If this line is already OK?
+		print "# $" "Revision:$, " "$" "Date:$";	# No
+	else
+		print $0;					# Yes
+
+	next;				# It is enough for first line
 }
 
 # descriptions:
@@ -121,7 +127,6 @@ bof == 1 {
 	
 	if (/%defattr/)
 		$0 = "%defattr(644,root,root,755)";
-
 }
 
 # %changelog section:
@@ -145,7 +150,7 @@ bof == 1 {
 			printf "%%define date\t%%(echo `LC_ALL=\"C\"";
 			print " date +\"%a %b %d %Y\"`)"
 		}
-		boc--;
+	boc--;
 	}
 }
 
@@ -163,9 +168,18 @@ preamble == 1 {
 	if (field ~ /buildroot:/)
 		$2 = "/tmp/%{name}-%{version}-root";
 
-	# Is it X11 application?
-	if (field ~ /group/ && $2 ~ /^X11/ && x11 == 0)
-		x11 = 1;
+	if (field ~ /group:/) {
+		format_preamble();
+		print $0;
+		
+		translate_group($2);
+		close(groups_file);
+		
+		if ($2 ~ /^X11/ && x11 == 0)	# Is it X11 application?
+		       x11 = 1;
+
+		next;	# Line is already formatted and printed
+	}
 		
 	# Use "License" instead of "Copyright" if it is (L)GPL or BSD
 	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/)
@@ -185,15 +199,8 @@ preamble == 1 {
 		sub(version, "%{version}", url[n]);
 		sub(filename, url[n], $2);
 	}
-		
-	# There should be one or two tabs after the colon.
-	sub(/:[ \t]*/, ":");
-	if (match($0, /[A-Za-z0-9()# \t]+[ \t]*:[ \t]*/) == 1) {
-		if (RLENGTH < 8)
-			sub(/:/, ":\t\t");
-		else
-			sub(/:/, ":\t");
-	}
+
+	format_preamble();
 	
 	# Do not add %define of _prefix if it already is.
 	if ($1 ~ /%define/ && $2 ~ /_prefix/)
@@ -201,15 +208,8 @@ preamble == 1 {
 			
 }
 
-
-# If redundant_line is zero, print this line, otherwise do not print,
-# but set the redundant_line to 0.
 {
 	preamble = 1;
-	
-	# Macro 'date' already defined.
-	if (/%define date/)
-		date = 1;
 	
 	print;
 }
@@ -220,6 +220,65 @@ END {
 		printf "All below listed persons can be reached on ";
 		print "<cvs_login>@pld.org.pl\n";
 		print "$" "Log:$";
+	}
+}
+
+# This function uses grep to determine if there is line (in the current file)
+# which matches regexp.
+function is_there_line(line, l)
+{
+	command = "grep \"" line "\" " ARGV[1];
+	command	| getline l;
+	close(ARGV[1]);
+
+	if (l != "")
+		return 1;
+	else
+		return 0;
+}
+
+# This function prints translated names of groups.
+function translate_group(group)
+{
+	for(;;) {
+		result = getline line < groups_file;
+		
+		if (result == -1) {
+			print "######\t\t" groups_file ": no such file";
+			return;
+		}
+
+		if (result == 0) {
+			print "######\t\t" "Unknown group!";
+			return;
+		}
+		
+		if (line ~ group) {
+			found = 1;
+			continue;
+		}
+
+		if (found == 1)
+			if (line ~ /\[[a-z][a-z]\]:/) {
+				split(line, g, /\[|\]|\:/);
+				if (!is_there_line("^Group(" g[2] "):"))
+						printf("Group(%s):%s\n", g[2], g[4]);
+			} else {
+				found = 0;
+				return;
+			}
+	}
+}
+
+# There should be one or two tabs after the colon.
+function format_preamble()
+{
+	sub(/:[ \t]*/, ":");
+	if (match($0, /[A-Za-z0-9()# \t]+[ \t]*:[ \t]*/) == 1) {
+		if (RLENGTH < 8)
+			sub(/:/, ":\t\t");
+		else
+			sub(/:/, ":\t");
 	}
 }
 
