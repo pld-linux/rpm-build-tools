@@ -1569,7 +1569,9 @@ case "$COMMAND" in
 			get_spec;
 			parse_spec;
 			if [ -n "$ICONS" ]; then
+				OLD_UPDATE5=$UPDATE5
 				UPDATE5= get_files $ICONS
+				UPDATE5=$OLD_UPDATE5
 				parse_spec;
 			fi
 			if [ -n "$NOSOURCE0" ] ; then
