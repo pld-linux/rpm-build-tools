@@ -409,6 +409,7 @@ get_files()
 			if [ `echo $url | grep -E 'ftp://'` ]; then
 			    ${GETURI2} -O "$target" "$url"
 			fi
+		    test -s "$target" || rm -f "$target"
 		elif [ -z "$(src_md5 "$i")" ] && \
 		     ( [ -z "$NOCVS" ] || echo $i | grep -qvE '(ftp|http|https)://' ); then
 		    result=1
