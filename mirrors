@@ -1,5 +1,5 @@
-ftp://ftp.perl.org/pub/CPAN/|http://sunsite.icm.edu.pl/pub/CPAN/|ICM
-ftp://ftp.cpan.org/pub/CPAN/|http://sunsite.icm.edu.pl/pub/CPAN/|ICM
+ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
+ftp://ftp.cpan.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 ftp://ftp.perl.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 ftp://ftp.perl.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
