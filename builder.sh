@@ -291,9 +291,9 @@ parse_spec()
 
 	PATCHES="`rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}'`"
 	ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-	PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
-	PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
-	PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
+	PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
+	PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -n 1`"
+	PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
 
 	if [ -n "$BE_VERBOSE" ]; then
 		echo "- Sources :  `nourl $SOURCES`"
@@ -444,7 +444,7 @@ src_no ()
 	rpm_dump | \
 	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
 	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
-	head -1 | xargs
+	head -n 1 | xargs
 }
 
 src_md5 ()
@@ -454,7 +454,7 @@ src_md5 ()
 	cd $SPECS_DIR
 	spec_rev=$(grep $SPECFILE CVS/Entries | sed -e s:/$SPECFILE/:: -e s:/.*::)
 	if [ -z "$spec_rev" ]; then
-		spec_rev="$(head -1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
+		spec_rev="$(head -n 1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
 	fi
 	spec="$SPECFILE[0-9.,]*,$(echo $spec_rev | sed 's/\./\\./g')"
 	md5=$(grep -s -v '^#' additional-md5sums | \
@@ -467,7 +467,7 @@ src_md5 ()
 		if [ $(echo "$md5" | wc -l) != 1 ] ; then
 			echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
 		fi
-		echo "$md5" | tail -1
+		echo "$md5" | tail -n 1
 	fi
 }
 
