@@ -639,9 +639,9 @@ get_files()
 				fi
 				if ! test -s "$target"; then
 					rm -f "$target"
-					${GETURI} -O "$target" "$url" || \
-					if [ `echo $url | grep -E 'ftp://'` ]; then
-						${GETURI2} -O "$target" "$url"
+					${GETURI} -O "$target" "$url_attic" || \
+					if [ `echo $url_attic | grep -E 'ftp://'` ]; then
+						${GETURI2} -O "$target" "$url_attic"
 					fi
 				fi
 				test -s "$target" || rm -f "$target"
