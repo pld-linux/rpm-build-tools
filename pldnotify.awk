@@ -79,6 +79,8 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 	
 	close(tmpfile)
 	system("rm -f " tmpfile)
+	urldir=url;
+	sub(/[^\/]+$/,"",urldir)
 	if ( errno==0) {
 		while ((tolower(odp) ~ /<frame[ \t]/)||(tolower(odp) ~ /href=/)) {
 			if (tolower(odp) ~ /<frame[ \t]/) {
@@ -89,6 +91,10 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 				match(tolower(ramka),/src="[^"]+"/)
 				newurl=substr(ramka,RSTART+5,RLENGTH-6)
 				if (DEBUG) print "Ramka: " newurl
+				if (newurl !~ /\//) {
+					newurl=(urldir newurl)
+					if (DEBUG) print "Ramka->: " newurl
+				}
 				retval=(retval " " get_links(newurl))
 			} else if (tolower(odp) ~ /href=[ \t]*"[^"]+"/) {
 				sub(/[hH][rR][eE][fF]=[ \t]+/,"href=",odp)
