@@ -1,4 +1,11 @@
-ftp://ftp.perl.org/pub/CPAN/|ftp://ftp/pub/mirrors/ftp.cpan.org/CPAN/|FTP
-ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp/pub/mirrors/ftp.cpan.org/CPAN/|FTP
+# This file contains mirror list for "builder" and "pldnotify.awk" scripts.
+# Only the first match will be used so if you want to use other one
+# you need to preceding matching definitions.
+# Anyone may modify this list locally according to his needs, but
+# should never commit any changes (unless in a branch) which may fail for
+# others (eg. local mirrors, not accesible for others)
 ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 ftp://ftp.gnome.org/pub/gnome/pre-gnome2/sources/|ftp://ftp.icm.edu.pl/mirrors/ftp.gnome.org/pub/GNOME/pre-gnome2/sources/|ICM
+http://prdownloads.sourceforge.net/|http://telia.dl.sourceforge.net/sourceforge/|Telia
+http://prdownloads.sourceforge.net/|http://unc.dl.sourceforge.net/sourceforge/|UNC
+http://prdownloads.sourceforge.net/|http://belnet.dl.sourceforge.net/sourceforge/|Belnet
