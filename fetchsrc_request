@@ -3,10 +3,10 @@
 #
 # Sending via 
 #VIA="localhost"
-VIA="/usr/bin/sendmail"
+VIA="/usr/sbin/sendmail"
 #
 # DISTFILES EMAIL
-DMAIL="distfiles@pld-ppc.org"
+DMAIL="plddist@ep09.kernel.pl"
 #
 # CVS LOGIN or fill it by hand :)
 LOGIN=`cat CVS/Root | awk -F: '{ print $3; }' | perl -pi -e "s/@.+//"`
@@ -39,5 +39,5 @@ fi
 MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch: $BRANCH\nX-Flags: cvs-notify\n.\n
 "
 
-echo $MAIL
+echo $MAIL | $VIA
 
