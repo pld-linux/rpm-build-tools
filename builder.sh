@@ -394,7 +394,7 @@ get_files()
 		fi
 
 		if [ -n "$(src_md5 "$i")" ] && [ -z "$NODIST" ]; then
-		    if [ "$(src_md5 "$i")" = "$(md5sum $(nourl "$i")|sed -e 's/ .*//')" ]; then
+		    if [ "$(src_md5 "$i")" = "$(md5sum $(nourl "$i") 2> /dev/null | sed -e 's/ .*//')" ]; then
 			echo "$(nourl "$i") having proper md5sum already exists"
 			continue
 		    fi
@@ -439,7 +439,7 @@ get_files()
 		if [ -n "$UPDATE5" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
 		    tmp_spec=`mktemp ${TMPDIR:-/tmp}/$SPECFILE.XXXXXX`
 		    srcno=$(src_no $i)
-		    md5=$(md5sum `echo $i | perl -ne '/.*\/(.*)/; print "$1\n"'` | cut -f1 -d' ')
+		    md5=$(md5sum `echo $i | perl -ne '/.*\/(.*)/; print "$1\n"'` 2> /dev/null | cut -f1 -d' ')
 		    perl -ne 'print "# Source'$srcno'-md5:	'$md5'\n" if /^Source'$srcno':[ 	]*/;
 				print unless /^#[ 	]*Source'$srcno'-md5:[ 	]*/' < $SPECS_DIR/$SPECFILE > $tmp_spec
 		    mv -f $tmp_spec $SPECS_DIR/$SPECFILE
