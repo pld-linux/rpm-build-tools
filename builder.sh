@@ -807,11 +807,17 @@ set_bconds_values()
 	AVAIL_BCONDS_WITH=""
 	TEST_BCOND_VERSION="`grep ^%bcond ${SPECFILE}`"
 	if [ "${TEST_BCOND_VERSION}" == "" ]; then
-		 BCOND_VERSION="OLD"
+		 TEST_BCOND_VERSION="`grep bcond ${SPECFILE}`"
+		 if [ "${TEST_BCOND_VERSION}" == "" ]; then
+		 	BCOND_VERSION="NONE"
+	  fi
 	else
 		 BCOND_VERSION="NEW"
 	fi
 	case "${BCOND_VERSION}" in
+		 NONE)
+		 	:
+			;;
 		 OLD)
 			echo "Warning: This spec has old style bconds. Fix it || die."
 			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
