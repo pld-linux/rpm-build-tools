@@ -427,6 +427,7 @@ function use_macros()
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
 	gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
+	gsub("%{_datadir}/applnk", "%{_applnkdir}")
 }
 
 function fill(ch, n, i) {
