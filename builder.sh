@@ -799,25 +799,72 @@ set_bconds_values()
 {
 	AVAIL_BCONDS_WITHOUT=""
 	AVAIL_BCONDS_WITH=""
-	for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
-	do
-		AVAIL_BCOND_WITHOUT=`echo $opt|sed -e "s/^_without_//g"`
-		if [ "`echo $BCOND|grep -- "--without $AVAIL_BCOND_WITHOUT"`" != "" ];then
-			AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
-		else
-			AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
-		fi
-	done
-
-	for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_with_`
-	do
-		AVAIL_BCOND_WITH=`echo $opt|sed -e "s/^_with_//g"`
-		if [ "`echo $BCOND|grep -- "--with $AVAIL_BCOND_WITH"`" != "" ];then
-			AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
-		else
-			AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
-		fi
-	done
+	TEST_BCOND_VERSION="`grep ^%bcond ${SPECFILE}`"
+	if [ "${TEST_BCOND_VERSION}" == "" ]; then
+		 BCOND_VERSION="OLD"
+		 echo old
+	else
+		 BCOND_VERSION="NEW"
+	fi
+	case "${BCOND_VERSION}" in
+		 OLD)
+			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
+			do
+				AVAIL_BCOND_WITHOUT=`echo $opt|sed -e "s/^_without_//g"`
+				if [ "`echo $BCOND|grep -- "--without $AVAIL_BCOND_WITHOUT"`" != "" ];then
+					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
+				else
+					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
+				fi
+			done
+		
+			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_with_`
+			do
+				AVAIL_BCOND_WITH=`echo $opt|sed -e "s/^_with_//g"`
+				if [ "`echo $BCOND|grep -- "--with $AVAIL_BCOND_WITH"`" != "" ];then
+					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
+				else
+					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
+				fi
+			done
+			;;
+		NEW)
+			cond_type="" # with || without
+			for opt in `$RPMBUILD --bcond $SPECFILE`
+			do
+				case "$opt" in
+					_without)
+						cond_type="without"
+						;;
+					_with)
+						cond_type="with"
+		  				;;
+					*)
+						case "$cond_type" in
+							with)
+								cond_type=''
+								AVAIL_BCOND_WITH="$opt"
+								if [ "`echo $BCOND|grep -- "--with $AVAIL_BCOND_WITH"`" != "" ];then
+									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
+								else
+									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
+								fi
+							 	;;
+							without)
+								cond_type=''
+								AVAIL_BCOND_WITHOUT="$opt"
+								if [ "`echo $BCOND|grep -- "--without $AVAIL_BCOND_WITHOUT"`" != "" ];then
+									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
+								else
+									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
+								fi
+								;;
+						esac
+						;;
+				esac
+			done
+			;;
+	esac
 }
 
 run_sub_builder()
