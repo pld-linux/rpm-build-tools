@@ -291,11 +291,11 @@ preamble == 1 {
 		$1 = "Epoch:"
 
 	# Use %{name} and %{version} in the filenames in "Source:"
-	if (field ~ /source/ && $2 ~ /^ftp:|^http:/) {
+	if (field ~ /source/ || field ~ /patch/) {
 		n = split($2, url, /\//)
 		filename = url[n]
 		sub(name, "%{name}", url[n])
-		sub(version, "%{version}", url[n])
+		if (field ~ /source/) sub(version, "%{version}", url[n])
 		sub(filename, url[n], $2)
 	}
 
