@@ -215,20 +215,20 @@ get_all_files()
 	fi
 	for i in $SOURCES $PATCHES $ICONS; do
 		if 
-			echo $i | egrep -v '(http|ftp)://' |\
+			echo $i | egrep -v '(http|ftp|https)://' |\
 			egrep -q '\.(gz|bz2)$'
 		then
 			echo "Warning: no URL given for $i"
 		fi
 		
 		if	[ -z "$NOCVS" ]||\
-			[ `echo $i | egrep -v 'ftp://|http://'` ]
+			[ `echo $i | egrep -v 'ftp://|http://|https://'` ]
 		then
 			cvs $OPTIONS `nourl $i`
 		fi
 		
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
-			[ `echo $i | egrep 'ftp://|http://'` ]
+			[ `echo $i | egrep 'ftp://|http://|https://'` ]
 		then
 			wget -c -nd -t0 "$i"
 		fi
@@ -271,7 +271,7 @@ build_package()
 
 nourl()
 {
-	echo "$@" | sed 's#\<\(ftp\|http\)://.*/##g'
+	echo "$@" | sed 's#\<\(ftp\|http\|https\)://.*/##g'
 }
 #---------------------------------------------
 # main()
