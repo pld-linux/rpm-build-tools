@@ -362,7 +362,7 @@ tag_files()
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
 	echo $PACKAGE_VERSION
 	echo $PACKAGE_RELEASE
-	TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
+	TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
 	if [ "$TAG_VERSION" = "yes" ]; then
 	    echo "CVS tag: $TAGVER"
 	fi
@@ -625,7 +625,7 @@ case "$COMMAND" in
 	    parse_spec;
 
 	    if [ -n "$FAIL_IF_CHANGED_BUT_NOT_BUMPED" ]; then
-		TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
+		TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
 		CURTAGREL=$(cvs status $SPECFILE | grep "Working revision:" | awk '{ print $3 }')
 		TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
 
