@@ -824,8 +824,9 @@ fi
 fetch_build_requires()
 {
 if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
-            for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'`
+            for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,\(.*\),,g -e s,%{,,g`
             do
+		package_item=`echo $package_item|sed -e s,rpmbuild,rpm-build,g`
                 GO="yes"
                 package=`basename "$package_item"|sed -e "s/}$//g"`
                 COND_ARCH_TST="`cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g"`"
