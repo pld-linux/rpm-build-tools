@@ -280,6 +280,11 @@ preamble == 1 {
 	if ($1 ~ /%define/) {
 		# Do not add %define of _prefix if it already is.
 	       	if ($2 ~ /_prefix/) {
+			sub("^"prefix, $3, bindir)
+			sub("^"prefix, $3, sbindir)
+			sub("^"prefix, $3, libdir)
+			sub("^"prefix, $3, datadir)
+			sub("^"prefix, $3, includedir)
 			prefix = $3
 			x11 = 2
 		}
