@@ -314,6 +314,11 @@ parse_spec()
 	PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -n 1`"
 	PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
 
+	if [ -z "$PACKAGE_NAME" -o -z "$PACKAGE_VERSION" -o -z "$PACKAGE_RELEASE" ]; then
+		 Exit_error err_no_package_data;
+	fi
+		 
+
 	if [ -n "$BE_VERBOSE" ]; then
 		echo "- Sources :  `nourl $SOURCES`"
 		if [ -n "$PATCHES" ]; then
@@ -358,6 +363,10 @@ Exit_error()
 			remove_build_requires
 			echo "Error: package build failed. (${2:-no more info})";
 			exit 5 ;;
+		"err_no_package_data" )
+			remove_build_requires
+			echo "Error: couldn't get out package name/version/release from spec file."
+			exit 6 ;;
 	   "err_tag_exists" )
 			remove_build_requires
 			echo "Tag ${2} already exists (spec release: ${3}).";
@@ -718,6 +727,12 @@ get_files()
 }
 
 make_tagver() {
+
+		if [ -n "$DEBUG" ]; then
+			 set -x;
+			 set -v;
+		fi
+								  
 		# Check whether first character of PACKAGE_NAME is legal for tag name
 		if [ -z "${PACKAGE_NAME##[_0-9]*}" -a -z "$TAG_PREFIX" ]; then
 			TAG_PREFIX=tag_
