@@ -39,6 +39,8 @@ PACKAGE_NAME=""
 
 DEF_NICE_LEVEL=0
 
+FAIL_IF_NO_SOURCES="yes"
+
 GETURI="wget -c -nd -t0"
 
 if [ -f ~/etc/builderrc ]; then
@@ -108,6 +110,10 @@ parse_spec()
     if [ "$NOSRCS" != "yes" ]; then
         SOURCES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
+    if (rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+	FAIL_IF_NO_SOURCES="no"
+    fi
+
 
     PATCHES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
@@ -248,7 +254,7 @@ get_files()
 			${GETURI} "$i"
 		fi
 
-		if [ ! -f "`nourl $i`" ]; then
+		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
 			Exit_error err_no_source_in_repo;
 		fi
 	    fi
@@ -449,6 +455,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.76  2001/04/19 23:24:06  misiek
+# fix chmod again
+#
 # Revision 1.75  2001/04/19 23:14:25  misiek
 # redirect errors from query to /dev/null
 #
