@@ -871,6 +871,10 @@ build_package()
 			eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
 			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t1/' $SPECFILE"
 			parse_spec;
+			if [ -n "$ICONS" ]; then
+				get_files $ICONS;
+				parse_spec;
+			fi
 			get_files "$SOURCES $PATCHES";
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
@@ -1565,7 +1569,7 @@ case "$COMMAND" in
 			get_spec;
 			parse_spec;
 			if [ -n "$ICONS" ]; then
-				get_files $ICONS
+				UPDATE5= get_files $ICONS
 				parse_spec;
 			fi
 			if [ -n "$NOSOURCE0" ] ; then
