@@ -56,47 +56,61 @@ function compare_ver(v1,v2) {
 	return 0
 }
 
-function get_http_links(host,dir,port) {
+function get_http_links(host,dir,port,	errno,link,oneline,retval,odp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
+	errno=system("echo -e \"GET " dir " HTTP/1.0\\n\" | nc " host " " port " | tr -d '\\r' > " tmpfile )
 	
-	print ("GET " dir) | ( "nc " host " " port " > " tmpfile )
-	close("nc " host " " port " > " tmpfile)
-	
-	while (getline reply < tmpfile ) {
-		odp=(odp " " reply)
+	if (errno==0) {
+		getline oneline < tmpfile
+		if ( oneline ~ "200" ) {
+			while (getline oneline < tmpfile)
+				odp=(odp " " oneline)
+			if ( DEBUG ) print "Odpowiedz: " odp
+		} else {
+			match(oneline,"[0-9][0-9][0-9]")
+			errno=substr(oneline,RSTART,RLENGTH)
+		}
 	}
-
+		
+	close(tmpfile)
+		
+	if ( errno==0) {
+		while (tolower(odp) ~ /href=/) {
+			match(tolower(odp),/href="[^"]+"/)
+			link=substr(odp,RSTART,RLENGTH)
+			odp=substr(odp,RSTART+RLENGTH)
+			link=substr(link,7,length(link)-7)
+			retval=(retval " " link)
+		}
+	} else {
+		retval=("HTTP ERROR: " errno)
+	}
+	
 	system("rm -f " tmpfile)
 	
-	if ( DEBUG ) print "Odpowiedz: " odp
-	while (tolower(odp) ~ /href=/) {
-		match(tolower(odp),/href="[^"]+"/)
-		link=substr(odp,RSTART,RLENGTH)
-		odp=substr(odp,RSTART+RLENGTH)
-		link=substr(link,7,length(link)-7)
-		retval=(retval " " link)
-	}
+	if (DEBUG) print "Zwracane: " retval
 	return retval
 }
 
-function get_ftp_links(host,dir,port) {
+function get_ftp_links(host,dir,port,	tmpfile,link,retval) {
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
 	
-	errno=system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"sebek@sith\" FTP_USERNAME=\"anonymous\" FTP_HOST=\"" host "\" ; nc -e \"./ftplinks.sh\" " host " " port)
+	errno=system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"sebek@sith\" FTP_USERNAME=\"anonymous\" FTP_HOST=\"" host "\" DEBUG=\"" DEBUG "\" ; nc -e \"./ftplinks.sh\" " host " " port)
 	
 	if (errno==0) {
 		while (getline link < tmpfile)
 			retval=(retval " " link)
-	} else { retval=("ERROR:" errno) }
+		close(tmpfile)
+	} else {
+		retval=("FTP ERROR: " errno)
+	}
 
-	close(tmpfile)
 	system("rm -f " tmpfile)
 	
-	if (DEBUG) print "Odpowiedz: " retval
-	
+	if (DEBUG) print "Zwracane: " retval
 	return retval
 }
 
@@ -119,6 +133,12 @@ function subst_defines(var,defs) {
 function process_source(number,lurl,name,version) {
 # fetches file list, and compares version numbers
 	if ( DEBUG ) print "Przetwarzam " lurl
+
+	if ( index(lurl,version)==0 ) {
+		if (DEBUG) print "Nie ma numeru wersji."
+		return 0
+	}
+
 	sub("://",":",lurl)
 	sub("/",":/",lurl)
 	gsub("[^/]*$",":&",lurl)
@@ -128,14 +148,14 @@ function process_source(number,lurl,name,version) {
 	dir=url[3]
 	filename=url[4]
 
-	if ( index(dir,version) ) {
+	if (index(dir,version)) {
 		dir=substr(dir,1,index(dir,version)-1)
 		sub("[^/]*$","",dir)
 		sub("(\.tar\.(bz|bz2|gz)|zip)$","",filename)
 		if ( DEBUG ) print "Sprawdze katalog: " dir
 		if ( DEBUG ) print "i plik: " filename
 	}
-		
+
 	filenameexp=filename
 	gsub("\+","\\+",filenameexp)
 	sub(version,"[A-Za-z0-9\\.]+",filenameexp)
@@ -146,7 +166,7 @@ function process_source(number,lurl,name,version) {
 	if ( DEBUG ) print "Przed numerkiem: " prever
 	if ( DEBUG ) print "i po: " postver
 	
-	if ( DEBUG ) print "LYNX " acc "://" host dir 
+	if ( DEBUG ) print "Zagl±dam na " acc "://" host dir 
 	
 	references=0
 	finished=0
@@ -156,8 +176,8 @@ function process_source(number,lurl,name,version) {
 	else {
 		odp=get_ftp_links(host,dir,21)
 	}
-	if(odp ~ "ERROR:") {
-		print retval
+	if( odp ~ "ERROR: ") {
+		print name "(" number ") " odp
 	} else {
 		c=split(odp,linki)
 		for (nr=1; nr<=c; nr++) {
