@@ -314,9 +314,12 @@ parse_spec()
 	PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -n 1`"
 	PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
 
-	if [ -z "$PACKAGE_NAME" -o -z "$PACKAGE_VERSION" -o -z "$PACKAGE_RELEASE" ]; then
-		 Exit_error err_no_package_data;
-	fi
+# These variables may be unset after first cache_rpm_dump call
+# (because of not-yet-retrieved icon file)
+#
+#	if [ -z "$PACKAGE_NAME" -o -z "$PACKAGE_VERSION" -o -z "$PACKAGE_RELEASE" ]; then
+#		 Exit_error err_no_package_data;
+#	fi
 
 	if [ -n "$BE_VERBOSE" ]; then
 		echo "- Sources :  `nourl $SOURCES`"
