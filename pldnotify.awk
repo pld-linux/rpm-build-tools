@@ -60,7 +60,7 @@ function get_http_links(host,dir,port,	errno,link,oneline,retval,odp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
-	errno=system("echo -e \"GET " dir " HTTP/1.0\\n\" | nc " host " " port " | tr -d '\\r' > " tmpfile )
+	errno=system("echo -e \"GET " dir "\\n\" | nc " host " " port " | tr -d '\\r' > " tmpfile )
 	
 	if (errno==0) {
 		getline oneline < tmpfile
