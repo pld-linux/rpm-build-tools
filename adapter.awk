@@ -109,8 +109,8 @@ bof == 1 {
 	
 	# 'gzip -9nf' for compressing
 	if ($1 ~ /gzip|bzip2/) {
-		if ($2 ~ /^-[[:alnum:]]+/)
-			sub(/-[[:alnum:]]+ /, "", $0);
+		if ($2 ~ /^-/)
+			sub(/-[A-Za-z0-9]+ /, "", $0);
 		sub($1, "gzip -9nf");
 	}
 }
