@@ -85,6 +85,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 			  all work resources,
 	-nc, --no-cvs	- don't download from CVS, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
+	-ns, --no-srcs  - don't downland Sources
 	--opts		- additional options for rpm
 	-q, --quiet	- be quiet,
 	-r, --cvstag	- build package using resources from specified CVS
@@ -101,7 +102,10 @@ parse_spec()
 	set -v;
     fi
 
-    SOURCES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+    if [ "$NOSRCS" != "yes" ]; then
+        SOURCES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+    fi
+
     PATCHES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -bp --nobuild $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
@@ -320,6 +324,8 @@ while test $# -gt 0 ; do
 	    NOCVS="yes"; shift ;;
 	-nu | --no-urls )
 	    NOURLS="yes"; shift ;;
+	-ns | --no-srcs )
+	    NOSRCS="yes"; shift ;;
 	--opts )
 	    shift; RPMOPTS="${1}"; shift ;;
 	-q | --quiet )
