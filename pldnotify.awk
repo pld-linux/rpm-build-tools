@@ -1,4 +1,5 @@
 #!/bin/awk -f
+# $Revision$, $Date$
 
 function compare_ver(v1,v2) {
 # compares version numbers
