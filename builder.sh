@@ -110,9 +110,15 @@ fi
 
 if [ -f ~/etc/builderrc ]; then
     . ~/etc/builderrc
-elif [ -f ~/.builderrc ]; then
-    . ~/.builderrc
 fi
+
+if [ -n "$HOME_ETC" ]; then
+    USER_CFG=$HOME_ETC/.builderrc
+else
+    USER_CFG=~/.builderrc
+fi
+
+[ -f $USER_CFG ] && . $USER_CFG        
 
 #---------------------------------------------
 # functions
