@@ -1,16 +1,19 @@
 #!/bin/awk -f
 #
-# This is adapter v0.7. Adapter adapts .spec files for PLD.
+# This is adapter v0.8. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
 	preamble = 1;
 	bof = 1;	# Beggining of file
 	boc = 2;	# Beggining of %changelog
+	bod = 0;	# Beggining of %description
+	tw = 77;        # Descriptions width	
 }
 
 # There should be a comment with CVS keywords on the first line of file.
 bof == 1 {
+	preamble = 0;
 	if (!/# \$Revision:/)
 		 print "# $" "Revision:$, " "$" "Date:$";
 	bof = 0;
@@ -19,6 +22,9 @@ bof == 1 {
 # descriptions:
 /%description/, (/^%[a-z]+/ && !/%description/) {
 	preamble = 0;
+
+	if (/^%description/)
+		bod++;
 	
 	# Define _prefix and _mandir if it is X11 application
 	if (/^%description$/ && x11 == 1) {
@@ -26,6 +32,39 @@ bof == 1 {
 		print "%define\t\t_mandir\t\t%{_prefix}/man\n";
 		x11 == 2;
 	}
+
+        # Collect whole text of description
+	if (description == 1 && !/^%[a-z]+/ && !/%description/) {
+		description_text = description_text $0 " ";
+		next;
+	}
+ 
+	# Formt description to the length of tw (default == 77)
+	if (/^%[a-z]+/ && (!/%description/ || bod == 2)) {
+		n = split(description_text, dt, / /);
+		for (i = 1; i <= n; i++) {
+			if (length(line) + length(dt[i]) + 1 < tw)
+				line = line dt[i] " ";
+			else {
+				print line;
+				line = "";
+				i--;
+			}
+		}
+
+		print line "\n";
+		line = "";
+		delete dt;
+		description_text = "";
+		if (bod == 2) {
+			bod = 1;
+			description = 1;
+		} else {
+			bod = 0;
+			description = 0;
+		}
+	} else
+		description = 1;
 }
 
 # %prep section:
