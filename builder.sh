@@ -90,25 +90,6 @@ DEF_NICE_LEVEL=19
 
 FAIL_IF_NO_SOURCES="yes"
 
-wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
-wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
-
-GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
-GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
-GETLOCAL="cp -a"
-
-if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
-	RPM="rpm"
-	RPMBUILD="rpm"
-else
-	RPM="rpm"
-	RPMBUILD="rpmbuild"
-fi
-
-POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
-POLDEK_SOURCE="cvs"
-POLDEK_CMD="/usr/bin/poldek --noask"
-
 # Here we load saved user environment used to
 # predefine options set above, or passed to builder
 # in command line.
@@ -133,6 +114,25 @@ else
 fi
 
 [ -f "$USER_CFG" ] && . "$USER_CFG"
+
+wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
+wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
+
+GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
+GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
+GETLOCAL="cp -a"
+
+if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
+	RPM="rpm"
+	RPMBUILD="rpm"
+else
+	RPM="rpm"
+	RPMBUILD="rpmbuild"
+fi
+
+POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
+POLDEK_SOURCE="cvs"
+POLDEK_CMD="/usr/bin/poldek --noask"
 
 run_poldek()
 {
