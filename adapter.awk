@@ -617,6 +617,9 @@ function use_macros()
 
 	gsub("^make$", "%{__make}")
 	gsub("^make ", "%{__make} ")
+
+	gsub("/usr/src/linux", "%{_kernelsrcdir}")
+	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
 }
 	
 function use_files_macros()
