@@ -387,7 +387,7 @@ while test $# -gt 0 ; do
 	--opts )
 	    shift; RPMOPTS="${1}"; shift ;;
 	--with | --without )
-	    BCOND="$1 $2" ; shift 2 ;;
+	    BCOND="$BCOND $1 $2" ; shift 2 ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
@@ -463,6 +463,11 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.82  2001/09/18 10:55:37  ankry
+# - added support for limitting number of wget retries when fetching a file
+#   from ftp/http server via environment variable MAX_WGET_RETRIES.
+#   Defaults to infinite (0).
+#
 # Revision 1.81  2001/07/06 16:52:30  misiek
 # - by default use CVSroot from CVS/Root and if it doesn't exist use from CVSROOT variable
 #
