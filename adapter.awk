@@ -11,6 +11,10 @@
 # 	Michal Kochanowicz <mkochano@pld.org.pl>
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+# TODO
+# - parse ../PLD-doc/BuildRequires.txt and setup proper BR epoches?
+# - add "-nc" option to skip CVS interaction
+
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beggining of %changelog
