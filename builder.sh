@@ -99,12 +99,12 @@ parse_spec()
 
     sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i "^Icon\:" > $SPECFILE.__
 
-    SOURCES="`rpm -bp --test --ignorearch $SPECFILE.__ 2>&1 | awk '/ SOURCEURL[0-9]+/ {print $3}'`"
-    PATCHES="`rpm -bp --test --ignorearch $SPECFILE.__ 2>&1 | awk '/ PATCHURL[0-9]+/ {print $3}'`"
+    SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCEURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-    PACKAGE_NAME="`rpm -bp --test --ignorearch $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
-    PACKAGE_VERSION="`rpm -bp --test --ignorearch $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
-    PACKAGE_RELEASE="`rpm -bp --test --ignorearch $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
+    PACKAGE_NAME="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
+    PACKAGE_VERSION="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
+    PACKAGE_RELEASE="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
 
     rm -f $SPECFILE.__
 
