@@ -192,7 +192,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 rpm_dump () {
 	case "$RPMBUILD" in
 	rpm )
-    		rpm -bp --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+    		rpm -bp --nodeps --define 'prep %dump' $BCOND $SPECFILE 2>&1 
 		;;
 	rpmbuild )
     		rpmbuild --define 'prep %dump' $BCOND $SPECFILE 2>&1 
