@@ -1,6 +1,6 @@
 #!/bin/sh
 # -----------
-# $Revision$, $Date$
+# $Id$
 # Exit codes:
 #	0 - succesful
 #	1 - help dispayed
@@ -11,7 +11,7 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.8 (C) 1999 Tomasz K³oczko".
+V 0.9 (C) 1999-2001 Tomasz K³oczko".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
  
@@ -101,6 +101,8 @@ parse_spec()
 	set -x;
 	set -v;
     fi
+
+    cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
         SOURCES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
@@ -202,14 +204,16 @@ get_spec()
     unset OPTIONS
 }
 
-get_all_files()
+get_files()
 {
+    GET_FILES="$@"
+
     if [ -n "$DEBUG" ]; then 
     	set -x;
 	set -v; 
     fi
 
-    if [ -n "$SOURCES$PATCHES$ICONS" ]; then
+    if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
 	cd $SOURCE_DIR
 
 	OPTIONS="up "
@@ -221,7 +225,7 @@ get_all_files()
 	else
 	    OPTIONS="$OPTIONS -A"
 	fi
-	for i in $SOURCES $PATCHES $ICONS; do
+	for i in $GET_FILES; do
 	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ] 
 	      then
 		if 
@@ -350,7 +354,11 @@ case "$COMMAND" in
 	if [ -n "$SPECFILE" ]; then
 	    get_spec;
 	    parse_spec;
-	    get_all_files;
+	    if [ -n "$ICONS" ]; then
+	    	get_files "$ICONS";
+	    	parse_spec;
+	    fi
+	    get_files "$SOURCES $PATCHES";
 	    build_package;
 	else
 	    Exit_error err_no_spec_in_cmdl;
@@ -361,7 +369,11 @@ case "$COMMAND" in
 	if [ -n "$SPECFILE" ]; then
 	    get_spec;
 	    parse_spec;
-	    get_all_files;
+	    if [ -n "$ICONS" ]; then
+		    get_files "$ICONS"
+		    parse_spec;
+	    fi
+	    get_files "$SOURCES $PATCHES"
 	else
 	    Exit_error err_no_spec_in_cmdl;
 	fi
@@ -376,3 +388,6 @@ case "$COMMAND" in
 esac
 
 cd $__PWD
+
+# $Log$
+#
