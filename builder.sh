@@ -138,27 +138,21 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 parse_spec()
 {
-    if [ -n "$DEBUG" ]; then 
-	set -x;
-	set -v;
+    if [ -n "$DEBUG" ]; then
+	    set -x;
+	    set -v;
     fi
 
     cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
-	SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
-	if [ -z "$SOURCES" ]; then
-		SOURCES="`$RPMBUILD -bp  $BCOND --define 'setup %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
-	fi
+	    SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
     if ($RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
-	FAIL_IF_NO_SOURCES="no"
+	    FAIL_IF_NO_SOURCES="no"
     fi
 
     PATCHES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
-    if [ -z "$PATCHES" ]; then
-	    PATCHES="`$RPMBUILD -bp  $BCOND --define 'setup %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
-    fi
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -172,9 +166,9 @@ parse_spec()
 		echo "- Patches :  *no patches needed*"
 	fi
 	if [ -n "$ICONS" ]; then
-	    echo "- Icon    :  `nourl $ICONS`"
+		echo "- Icon    :  `nourl $ICONS`"
 	else
-	    echo "- Icon    :  *no package icon*"
+		echo "- Icon    :  *no package icon*"
 	fi
 	echo "- Name    : $PACKAGE_NAME"
 	echo "- Version : $PACKAGE_VERSION"
