@@ -15,7 +15,7 @@ BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beggining of %changelog
 	bod = 0			# Beggining of %description
-	tw = 70        		# Descriptions width
+	tw = 70			# Descriptions width
 	
 	# If variable removed, then 1 (for removing it from export)
 	removed["LDFLAGS"] = 0
@@ -350,7 +350,7 @@ preamble == 1 {
 
 		print "Group:\t\t" Grupa
 		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
-		       x11 = 1
+			x11 = 1
 
 		byl_plik_z_grupami = 0
 		byl_opis_grupy = 0
@@ -439,7 +439,7 @@ preamble == 1 {
 	
 	if ($1 ~ /%define/) {
 		# Do not add %define of _prefix if it already is.
-	       	if ($2 ~ /^_prefix/) {
+		if ($2 ~ /^_prefix/) {
 			sub("^"prefix, $3, bindir)
 			sub("^"prefix, $3, sbindir)
 			sub("^"prefix, $3, libdir)
@@ -467,7 +467,7 @@ preamble == 1 {
 }
 
 
-# main()  ;-)
+# main() ;-)
 {
 	preamble = 1
 	
@@ -509,11 +509,11 @@ END {
 		print "$" "Log:$"
 }
 
-function fixedsub(s1,s2,t,      ind) {
+function fixedsub(s1,s2,t, ind) {
 # substitutes fixed strings (not regexps)
-        if (ind = index(t,s1))
-                t = substr(t, 1, ind-1) s2 substr(t, ind+length(s1))
-        return t
+	if (ind = index(t,s1))
+		t = substr(t, 1, ind-1) s2 substr(t, ind+length(s1))
+	return t
 }
 
 # There should be one or two tabs after the colon.
