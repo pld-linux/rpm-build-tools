@@ -114,7 +114,7 @@ function subst_defines(var,defs) {
 	return var
 }
 
-function process_source(lurl,name,version) {
+function process_source(number,lurl,name,version) {
 # fetches file list, and compares version numbers
 	if ( DEBUG ) print "Przetwarzam " lurl
 	sub("://",":",lurl)
@@ -173,9 +173,9 @@ function process_source(lurl,name,version) {
 		}
 	}
 	if (finished==0)
-		print name " : seems ok"
+		print name "(" number ") seems ok"
 	else
-		print name " : [OLD] " oldversion " [NEW] " version
+		print name "(" number ") [OLD] " oldversion " [NEW] " version
 		
 }
 	
@@ -185,7 +185,7 @@ function process_data(name,ver,rel,src) {
 	for (i in src) {
 		if ( src[i] !~ /%{.*}/ && src[i] !~ /%[A-Za-z0-9_]/ )  {
 			if ( DEBUG ) print "Zrodlo: " src[i]
-			process_source(src[i],name,ver)
+			process_source(i,src[i],name,ver)
 		} else {
 			print FNAME ":" i ": niemozliwe podstawienie: " src[i]
 		}
