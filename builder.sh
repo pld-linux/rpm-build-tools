@@ -39,7 +39,8 @@ echo "\
 Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
 	[-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h] [--help]
 	[-l <logfile>] [--logtofile <logfile>] [-q] [--quiet] 
-	[-v] [--verbose] <package>.spec
+	[-r <cvstag>] [--cvstag <cvstag>] [-v] [--verbose]
+	<package>.spec
 
 	-V, --version	- output builder version
 	-a, --as_anon	- get files via pserver as cvs@cvs.pld.org.pl,
@@ -53,6 +54,8 @@ Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
 	-h, --help	- this message,
 	-l, --logtofile	- log all to file,
 	-q, --quiet	- be quiet,
+	-r, --cvstag	- build package using resources from specified CVS
+			  tag,
 	-v, --verbose	- be verbose,
 
 "
@@ -133,17 +136,24 @@ get_spec()
 {
     cd $SPECS_DIR
 
+    OPTIONS=""
+
     if [ -n "$CVSROOT" ]; then
-	cvs -d "$CVSROOT" up $SPECFILE
+	OPTIONS="-d $CVSROOT"
+    fi
+    if [ -n "$CVSTAG" ]; then
+	OPTIONS="$OPTIONS -r $CVSTAG"
     else
-	cvs up $SPECFILE
+	OPTIONS="$OPTIONS -P"
     fi
 
+    cvs $OPTIONS $SPECFILE
     if [ "$?" -ne "0" ]; then
 	Exit_error err_no_spec_in_repo;
     fi
 
     chmod 444 $SPECFILE
+    unset $OPTIONS
 }
 
 get_all_files()
@@ -152,17 +162,23 @@ set -xv
     if [ -n "$SOURCES$PATCHES$ICONS" ]; then
 	cd $SOURCE_DIR
 
+	OPTIONS=""
 	if [ -n "$CVSROOT" ]; then
-	    cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICONS
+	    OPTIONS="-d $CVSROOT"
+	fi
+	if [ -n "$CVSTAG" ]; then
+	    OPTIONS="$OPTIONS -r $CVSTAG"
 	else
-	    cvs up $SOURCES $PATCHES $ICONS
+	    OPTIONS="$OPTIONS -P"
 	fi
 
+	cvs $OPTIONS $SOURCES $PATCHES $ICONS
 	if [ "$?" -ne "0" ]; then
 	    Exit_error err_no_source_in_repo;
 	fi
 
 	chmod 444 $SOURCES $PATCHES $ICONS
+	unset $OPTIONS
     fi
 }
 
@@ -205,6 +221,8 @@ while test $# -gt 0 ; do
 	    shift; LOGFILE="${1}"; shift ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
+	-r | --cvstag )
+	    shift; CVSTAG="${1}"; shift ;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
 	* )
