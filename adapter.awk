@@ -16,7 +16,7 @@ BEGIN {
 	boc = 4			# Beggining of %changelog
 	bod = 0			# Beggining of %description
 	tw = 70			# Descriptions width
-	
+
 	# If variable removed, then 1 (for removing it from export)
 	removed["LDFLAGS"] = 0
 	removed["CFLAGS"] = 0
@@ -24,7 +24,7 @@ BEGIN {
 
 	# If 1, we are inside of comment block (started with /^#%/)
 	comment_block = 0
-	
+
 	# File with rpm groups
 	"rpm --eval %_sourcedir" | getline groups_file
 	groups_file = groups_file "/rpm.groups"
@@ -109,15 +109,15 @@ defattr == 1 {
 			format_indent = -1
 		} else if (/^[ \t]*[-\*][ \t]*/) {
 			format_flush(format_line, format_indent)
-			match($0, /^[ \t]*/)	
+			match($0, /^[ \t]*/)
 			format_indent = RLENGTH
 			match($0, /^[ \t]*[-\*][ \t]/)
 			format_line = substr($0, RLENGTH)
-		} else 
+		} else
 			format_line = format_line " " $0
 		next
 	}
- 
+
 	if (/^%[a-z]+/ && (!/^%description/ || bod == 2)) {
 		if (NF > 3 && $2 == "-l") {
 			ll = $1
@@ -142,7 +142,7 @@ defattr == 1 {
 #########
 /^%prep/, (/^%[a-z]+$/ && !/^%prep/) {
 	preamble = 0
-	
+
 	# Add '-q' to %setup
 	if (/^%setup/ && !/-q/)
 		sub(/^%setup/, "%setup -q")
@@ -155,7 +155,7 @@ defattr == 1 {
 	preamble = 0
 
 	use_macros()
-	
+
 	if (/^automake$/)
 		sub(/$/, " -a -c")
 
@@ -182,7 +182,7 @@ defattr == 1 {
 	if (/CXXFLAGS=/)
 		if (cflags("CXXFLAGS") == 0)
 			next
-	
+
 	if (/^export /) {
 		if (removed["LDFLAGS"])
 			sub(" LDFLAGS", "")
@@ -194,7 +194,7 @@ defattr == 1 {
 		if (/^export[ ]*$/)
 			next
 	}
-			
+
 }
 
 ##########
@@ -208,9 +208,9 @@ defattr == 1 {
 # %install #
 ############
 /^%install/, (/^%[a-z]+$/ && !/^%install/) {
-	
+
 	preamble = 0
-	
+
 	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/ && did_rmroot==0) {
 		did_rmroot=1
 		print "rm -rf $RPM_BUILD_ROOT"
@@ -221,9 +221,9 @@ defattr == 1 {
 		print "rm -rf $RPM_BUILD_ROOT"
 		did_rmroot=1
 	}
-	
+
 	use_macros()
-	
+
 	# 'install -d' instead 'mkdir -p'
 	if (/mkdir -p/)
 		sub(/mkdir -p/, "install -d")
@@ -231,18 +231,18 @@ defattr == 1 {
 	# 'install' instead 'cp -p'
 	if (/cp -p/)
 		sub(/cp -p/, "install")
-		
+
 	# No '-u root' or '-g root' for 'install'
 	if (/^install/ && /-[ug][ \t]*root/)
 		gsub(/-[ug][ \t]*root /, "")
-	
+
 	if (/^install/ && /-m[ \t]*644/)
 		gsub(/-m[ \t]*644 /, "")
-	
+
 	# No lines contain 'chown' or 'chgrp' if owner/group is 'root'
 	if (($1 ~ /chown/ && $2 ~ /root\.root/) || ($1 ~ /chgrp/ && $2 ~ /root/))
 		next
-	
+
 	# No lines contain 'chmod' if it sets the modes to '644'
 	if ($1 ~ /chmod/ && $2 ~ /644/)
 		next
@@ -253,10 +253,10 @@ defattr == 1 {
 ##########
 /^%files/, (/^%[a-z \-]+$/ && !/^%files/) {
 	preamble = 0
-	
+
 	if ($0 ~ /^%files/)
 		defattr = 1
-	
+
 	use_macros()
 	use_files_macros()
 }
@@ -332,7 +332,7 @@ preamble == 1 {
 	# There should not be a space after the name of field
 	# and before the colon.
 	sub(/[ \t]*:/, ":")
-	
+
 	field = tolower($1)
 	fieldnlower = $1
 	if (field ~ /group(\([^)]+\)):/)
@@ -370,21 +370,21 @@ preamble == 1 {
 			print "######\t\t" groups_file ": no such file"
 		else if (!byl_opis_grupy)
 			print "######\t\t" "Unknown group!"
-		
+
 		close(groups_file)
 		next
 	}
-	
+
 	if (field ~ /packager:|distribution:|docdir:|prefix:/)
 		next
-	
+
 	if (field ~ /buildroot:/)
 		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
 
 	# Use "License" instead of "Copyright" if it is (L)GPL or BSD
 	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/)
 		$1 = "License:"
-	
+
 	if (field ~ /name:/)
 		name = $2
 
@@ -428,19 +428,23 @@ preamble == 1 {
 
 		filename = url[n]
 		url[n] = fixedsub(name, "%{name}", url[n])
-		if (field ~ /source/) 
+		if (field ~ /source/)
 			url[n] = fixedsub(version, "%{version}", url[n])
 		$2 = fixedsub(filename, url[n], $2)
+
+		# sourceforge urls
+		sub("^http://dl.sourceforge.net/sourceforge/", "http://dl.sourceforge.net/", $2)
 	}
 
+
 	if (field ~ /^source:/)
-		$1 = "Source0:"	
+		$1 = "Source0:"
 
 	if (field ~ /patch:/)
 		$1 = "Patch0:"
-	
+
 	format_preamble()
-	
+
 	if ($1 ~ /%define/) {
 		# Do not add %define of _prefix if it already is.
 		if ($2 ~ /^_prefix/) {
@@ -474,7 +478,7 @@ preamble == 1 {
 # main() ;-)
 {
 	preamble = 1
-	
+
 	sub(/[ \t]+$/, "")
 	print
 }
@@ -483,7 +487,7 @@ preamble == 1 {
 END {
 	if (do_not_touch_anything)
 		exit 0
-	
+
 	close(changelog_file)
 	while ((getline < changelog_file) > 0)
 		print
@@ -499,7 +503,7 @@ END {
 		print ""
 		print "%define date\t%(echo `LC_ALL=\"C\" date +\"%a %b %d %Y\"`)"
 	}
-	
+
 	if (has_changelog == 0)
 		print "%changelog"
 
@@ -621,7 +625,7 @@ function use_macros()
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
 }
-	
+
 function use_files_macros()
 {
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
@@ -635,7 +639,7 @@ function fill(ch, n, i) {
 
 function format_flush(line, indent, newline, word, first_word) {
 	first_word = 1
-	if (format_indent == -1) 
+	if (format_indent == -1)
 		newline = ""
 	else
 		newline = fill(" ", format_indent) "- "
@@ -644,7 +648,7 @@ function format_flush(line, indent, newline, word, first_word) {
 		word = substr(line, RSTART, RLENGTH)
 		if (length(newline) + length(word) + 1 > tw) {
 			print newline
-			
+
 			if (format_indent == -1)
 				newline = ""
 			else
@@ -657,7 +661,7 @@ function format_flush(line, indent, newline, word, first_word) {
 			first_word = 0
 		} else
 			newline = newline " " word
-			
+
 		line = substr(line, RSTART + RLENGTH)
 	}
 	if (newline ~ /[^\t ]/) {
@@ -671,7 +675,7 @@ function cflags(var)
 		removed[var] = 1
 		return 0
 	}
-		
+
 	if (!/!\?debug/)
 		sub("\$RPM_OPT_FLAGS", "%{rpmcflags}")
 	return 1
