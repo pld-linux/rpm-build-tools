@@ -11,7 +11,7 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.10 (C) 1999-2001 Tomasz K³oczko".
+V 0.11 (C) 1999-2001 Free Penguins".
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
@@ -33,6 +33,12 @@ fi
 # Example: LOGFILE='../log.$PACKAGE_NAME'
 # Yes, you can use variable name! Note _single_ quotes!
 LOGFILE=''
+
+LOGDIR=""
+LOGDIROK=""
+LOGDIRFAIL=""
+LASTLOG_FILE=""
+LTAG=""
 CHMOD="yes"
 CHMOD_MODE="0444"
 RPMOPTS=""
@@ -46,6 +52,9 @@ PACKAGE_VERSION=""
 PACKAGE_NAME=""
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
+
+CVSTAG=""
+RES_FILE=""
 
 DEF_NICE_LEVEL=0
 
@@ -80,7 +89,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
 	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
 	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
-	[-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>] 
+	[-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
 	[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
 	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
@@ -174,7 +183,7 @@ parse_spec()
     PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
 
     if [ -n "$BE_VERBOSE" ]; then
-	echo "- Sources :  `nourl $SOURCES`" 
+	echo "- Sources :  `nourl $SOURCES`"
 	if [ -n "$PATCHES" ]; then
 	    echo "- Patches :  `nourl $PATCHES`"
 	else
@@ -193,9 +202,9 @@ parse_spec()
 
 Exit_error()
 {
-    if [ -n "$DEBUG" ]; then 
+    if [ -n "$DEBUG" ]; then
     	set -x;
-	set -v; 
+	set -v;
     fi
 
     cd $__PWD
@@ -218,9 +227,9 @@ Exit_error()
 
 init_builder()
 {
-    if [ -n "$DEBUG" ]; then 
+    if [ -n "$DEBUG" ]; then
     	set -x;
-	set -v; 
+	set -v;
     fi
 
     SOURCE_DIR="`$RPM --eval '%{_sourcedir}'`"
@@ -231,9 +240,9 @@ init_builder()
 
 get_spec()
 {
-    if [ -n "$DEBUG" ]; then 
+    if [ -n "$DEBUG" ]; then
     	set -x;
-	set -v; 
+	set -v;
     fi
 
     if [ "$NOCVSSPEC" != "yes" ]; then
@@ -249,7 +258,7 @@ get_spec()
 		NOCVSSPEC="yes"
 	    fi
 	fi
-	
+
 	if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -A"
 	else
@@ -292,14 +301,14 @@ get_spec()
 find_mirror(){
 
     cd "$SPECS_DIR"
-    url="$1"	
-    if [ ! -f "mirrors" ] ; then 
-	cvs update mirrors >&2 
+    url="$1"
+    if [ ! -f "mirrors" ] ; then
+	cvs update mirrors >&2
     fi
 
     IFS="|"
     while read origin mirror name rest; do
-	ol=`echo -n "$origin"|wc -c`    
+	ol=`echo -n "$origin"|wc -c`
 	prefix="`echo -n "$url" | head -c $ol`"
 	if [ "$prefix" = "$origin" ] ; then
 	    suffix="`echo "$url"|cut -b $ol-`"
@@ -310,13 +319,35 @@ find_mirror(){
     echo "$url"
 }
 
+src_no ()
+{
+    cd $SPECS_DIR
+    $RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | \
+       grep "SOURCEURL[0-9]*[  ]*$1""[         ]*$" | \
+       sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
+       xargs
+}
+
+src_md5 ()
+{
+    no=$(src_no "$1")
+    [ -z "$no" ] && return
+    cd $SPECS_DIR
+    grep -i "#[        ]*Source$no-md5[        ]*:" $SPECFILE | sed -e 's/.*://' | xargs
+}
+
+distfiles_url ()
+{
+    echo "ftp://distfiles.pld.org.pl/src/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')"
+}
+
 get_files()
 {
     GET_FILES="$@"
 
-    if [ -n "$DEBUG" ]; then 
+    if [ -n "$DEBUG" ]; then
     	set -x;
-	set -v; 
+	set -v;
     fi
 
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
@@ -347,7 +378,17 @@ get_files()
 		    echo "Warning: no URL given for $i"
 		fi
 
-		if [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
+		if [ -n "$(src_md5 "$i")" ] ; then
+		    target=$(nourl "$i")
+		    url=$(distfiles_url "$i")
+		    if [ -z "$NOMIRRORS" ] ; then
+			url="`find_mirror "$url"`"
+		    fi
+		    ${GETURI} -O "$target" "$url" || \
+			if [ `echo $url | grep -E 'ftp://'` ]; then
+			    ${GETURI2} -O "$target" "$url"
+			fi
+		elif [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
 		    result=1
         	    retries_counter=0
 	            while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
@@ -366,7 +407,7 @@ get_files()
 		fi
 
 		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
-		    if [ -z "$NOMIRRORS" ] ; then 
+		    if [ -z "$NOMIRRORS" ] ; then
 			i="`find_mirror "$i"`"
 		    fi
 		    ${GETURI} "$i" || \
@@ -393,9 +434,9 @@ tag_files()
 {
     TAG_FILES="$@"
 
-    if [ -n "$DEBUG" ]; then 
+    if [ -n "$DEBUG" ]; then
     	set -x;
-	set -v; 
+	set -v;
     fi
 
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
@@ -478,14 +519,14 @@ branch_files()
 
 build_package()
 {
-    if [ -n "$DEBUG" ]; then 
+    if [ -n "$DEBUG" ]; then
 	set -x;
-	set -v; 
+	set -v;
     fi
 
     cd $SPECS_DIR
 
-    if [ -n "$TRY_UPGRADE" ]; then 
+    if [ -n "$TRY_UPGRADE" ]; then
 
 	if [ -n "FLOAT_VERSION" ]; then
 	    TNOTIFY=`./pldnotify.awk $SPECFILE -n`
@@ -514,7 +555,7 @@ build_package()
 
 	    unset TOLDVER TNEWVER TNOTIFY
 	fi
-	
+
     fi
 
 
@@ -529,11 +570,26 @@ build_package()
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
     if [ -n "$LOGFILE" ]; then
+	if [ -n "$CVSTAG" ]; then
+	    LTAG="r_`echo $CVSTAG|sed -e 's/\./_/g'`_"
+	else
+	    LTAG=""
+	fi
 	LOG=`eval echo $LOGFILE`
-	mknod ~/tmp/builder_log_fifo p
-	cat ~/tmp/builder_log_fifo | tee $LOG & eval nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE > ~/tmp/builder_log_fifo 2>&1 
-	RETVAL=$?
-	rm ~/tmp/builder_log_fifo
+	if [ -n "$LASTLOG_FILE" ]; then
+	    echo "LASTLOG=$LOG" > $LASTLOG_FILE
+	fi
+	RES_FILE=~/tmp/$RPMBUILD-exit-status.$RANDOM
+	(nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+	RETVAL=`cat $RES_FILE`
+	rm $RES_FILE
+	if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
+    	    if [ "$RETVAL" -eq "0" ]; then
+		mv $LOG $LOGDIROK
+    	    else
+    		mv $LOG $LOGDIRFAIL
+	    fi
+	fi
     else
 	eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
 	RETVAL=$?
@@ -541,7 +597,7 @@ build_package()
 
     if [ "$RETVAL" -ne "0" ]; then
 
-	if [ -n "$TRY_UPGRADE" ]; then 
+	if [ -n "$TRY_UPGRADE" ]; then
 	    echo "\n!!! Package with new version cannot be build automagically\n"
 	    mv -f $SPECFILE.bak $SPECFILE
 	fi
@@ -665,9 +721,9 @@ while test $# -gt 0 ; do
     esac
 done
 
-if [ -n "$DEBUG" ]; then 
+if [ -n "$DEBUG" ]; then
     set -x;
-    set -v; 
+    set -v;
 fi
 
 case "$COMMAND" in
