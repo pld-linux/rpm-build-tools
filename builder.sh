@@ -627,7 +627,7 @@ case "$COMMAND" in
 	    if [ -n "$FAIL_IF_CHANGED_BUT_NOT_BUMPED" ]; then
 		TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
 		CURTAGREL=$(cvs status $SPECFILE | grep "Working revision:" | awk '{ print $3 }')
-		TAGREL=$(cvs status -v $SPECFILE | grep -E "[[:space:]]${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
+		TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
 
 		if [ -n "$TAGREL" -a "$TAGREL" != "$CURTAGREL" ]; then
 		    Exit_error err_build_fail "not bumped ver-rel - was already used in rev $TAGREL"
