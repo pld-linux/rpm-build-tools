@@ -405,17 +405,19 @@ function use_macros()
 	gsub("%{_prefix}/lib", "%{_libdir}")
 
 	for (c = 1; c <= NF; c++) {
-		if ($c ~ sysconfdir "/sysconfig")
-			continue;
-		if ($c ~ sysconfdir "/rc.d")
+		if ($c ~ sysconfdir "/logrotate.d")
 			continue;
 		if ($c ~ sysconfdir "/pam.d")
 			continue;
-		if ($c ~ sysconfdir "/logrotate.d")
+		if ($c ~ sysconfdir "/profile.d")
+			continue;
+		if ($c ~ sysconfdir "/rc.d")
 			continue;
 		if ($c ~ sysconfdir "/security")
 			continue;
 		if ($c ~ sysconfdir "/skel")
+			continue;
+		if ($c ~ sysconfdir "/sysconfig")
 			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
