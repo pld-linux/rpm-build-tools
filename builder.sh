@@ -145,7 +145,7 @@ get_all_files()
     if [ -n "$CVSROOT" ]; then
 	cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICON
     else
-	cvs up $SPECFILE
+	cvs up up $SOURCES $PATCHES $ICON
     fi
 
     if [ "$?" -ne "0" ]; then
