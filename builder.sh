@@ -473,9 +473,11 @@ get_files()
 	    then
 		echo "Updating source-$srcno md5."
 		md5=$(md5sum `nourl $i` | cut -f1 -d' ')
-		perl -i -ne 'print "# Source'$srcno'-md5:\t'$md5'\n" 
-				if /^Source'$srcno'\s*:\s+/;
-				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i' \
+		perl -i -ne '
+				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
+				print "# Source'$srcno'-md5:\t'$md5'\n" 
+					if /^Source'$srcno'\s*:\s+/;
+				' \
 				$SPECS_DIR/$SPECFILE
 	    fi
 
