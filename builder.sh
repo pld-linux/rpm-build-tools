@@ -259,7 +259,7 @@ build_package()
 	build-binary )
 	    BUILD_SWITCH="-bb" ;;
 	build-source )
-	    BUILD_SWITCH="-bs" ;;
+	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
     rpm $BUILD_SWITCH -v $QUIET $CLEAN $SPECFILE
 
