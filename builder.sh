@@ -140,6 +140,8 @@ get_spec()
     if [ "$?" -ne "0" ]; then
 	Exit_error err_no_spec_in_repo;
     fi
+
+    chmod 444 $SPECFILE
 }
 
 get_all_files()
@@ -154,6 +156,8 @@ get_all_files()
     if [ "$?" -ne "0" ]; then
 	Exit_error err_no_source_in_repo;
     fi
+
+    chmod 444 $SOURCES $PATCHES $ICON
 }
 
 build_package()
