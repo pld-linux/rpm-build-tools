@@ -795,6 +795,12 @@ nourl()
 	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
 
+install_required_packages()
+{
+	poldek -i $package
+	exit $?
+}
+
 set_bconds_values()
 {
 	AVAIL_BCONDS_WITHOUT=""
@@ -802,12 +808,12 @@ set_bconds_values()
 	TEST_BCOND_VERSION="`grep ^%bcond ${SPECFILE}`"
 	if [ "${TEST_BCOND_VERSION}" == "" ]; then
 		 BCOND_VERSION="OLD"
-		 echo old
 	else
 		 BCOND_VERSION="NEW"
 	fi
 	case "${BCOND_VERSION}" in
 		 OLD)
+			echo "Warning: This spec has old style bconds. Fix it || die."
 			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
 			do
 				AVAIL_BCOND_WITHOUT=`echo $opt|sed -e "s/^_without_//g"`
@@ -1027,11 +1033,11 @@ fetch_build_requires()
 							if [ "$package_name" = "$package" ]; then
 								echo -ne "Installing BuildRequired package:\t$package_name\n"
 								export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing BuildRequired package: ${package_name}\007"`
-								poldek -i $package_name
+								install_required_packages;
 							else
 								echo -ne "Installing (sub)Required package:\t$package_name\n"
 								export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing (sub)Required package: ${package_name}\007"`
-								poldek -i $package_name
+								install_required_packages;
 							fi
 							case $? in
 								0)
@@ -1042,7 +1048,7 @@ fetch_build_requires()
 									echo "Attempting to run spawn sub - builder..."
 									run_sub_builder $package_name 
 									if [ $? -eq 0 ]; then
-										poldek -i $package_name
+										install_required_packages;
 										case $? in
 											0)
 												INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
@@ -1061,7 +1067,7 @@ fetch_build_requires()
 						echo "Attempting to run spawn sub - builder..."
 						run_sub_builder $package
 						if [ $? -eq 0 ]; then
-							poldek -i $package_name
+							install_required_packages;
 							case $? in
 								0)
 									INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
