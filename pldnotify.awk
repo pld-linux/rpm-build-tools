@@ -169,27 +169,30 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 					if (DEBUG) print "Ramka->: " newurl
 				}
 				retval=(retval " " get_links(newurl))
-			} else if (tolower(odp) ~ /href=[ \t]*"[^"]+"/) {
+			} else if (tolower(odp) ~ /href=[ \t]*"[^"]*"/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*"/,"href=\"",odp)
-				match(odp,/href="[^"]+"/)
+				match(odp,/href="[^"]*"/)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
 				retval=(retval " " link)
-			} else if (tolower(odp) ~ /href=[ \t]*'[^']+'/) {
+				if (DEBUG) print "href(\"\"): " link
+			} else if (tolower(odp) ~ /href=[ \t]*'[^']*'/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*'/,"href='",odp)
-				match(odp,/href='[^']+'/)
+				match(odp,/href='[^']*'/)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
 				retval=(retval " " link)
-			} else if (tolower(odp) ~ /href=[ \t]*[^ \t>]+/) {
+				if (DEBUG) print "href(''): " link
+			} else if (tolower(odp) ~ /href=[ \t]*[^ \t>]*/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*/,"href=",odp)
-				match(odp,/href=[^ \t>]+/)
+				match(odp,/href=[^ \t>]*/)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,6,length(link)-5)
 				retval=(retval " " link)
+				if (DEBUG) print "href(): " link
 			} else {
 				retval=(retval " INTERNAL_ERROR")
 				break
