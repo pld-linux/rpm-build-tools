@@ -113,8 +113,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
 	-5, --update-md5
-			- update md5 comments in spec, implies -nd
-	-a5, --add-md5	- add md5 comments to URL sources, implies -nc -nd
+			- update md5 comments in spec, implies -nd -ncs
+	-a5, --add-md5	- add md5 comments to URL sources, implies -nc -nd -ncs
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
 	-a, --as_anon	- get files via pserver as cvs@$CVS_SERVER,
@@ -748,12 +748,14 @@ while test $# -gt 0 ; do
 	-5 | --update-md5 )
 	    COMMAND="get";
 	    NODIST="yes"
+	    NOCVSSPEC="yes"
 	    UPDATE5="yes"
 	    shift ;;
 	-a5 | --add-md5 )
 	    COMMAND="get";
 	    NODIST="yes"
 	    NOCVS="yes"
+	    NOCVSSPEC="yes"
 	    UPDATE5="yes"
 	    ADD5="yes"
 	    shift ;;
