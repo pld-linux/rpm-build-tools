@@ -999,7 +999,7 @@ display_bconds()
 		if [ "$BCOND" != "" ]; then
 			echo -ne "$BCOND"
 		else
-			echo -ne "No --with || --without conditions passed to $0!"
+			echo -ne "No --with || --without conditions passed to $0"
 		fi
 		echo -ne "\n\nfrom available:\n\n"
 		echo -ne "--with   :\t$AVAIL_BCONDS_WITH\n--without:\t$AVAIL_BCONDS_WITHOUT\n\n"
