@@ -135,7 +135,7 @@ defattr == 1 {
 	
 	preamble = 0
 	
-	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/) {
+	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/ && did_clean==0) {
 		did_clean=1
 		print "rm -rf $RPM_BUILD_ROOT"
 		next
