@@ -998,7 +998,7 @@ while test $# -gt 0 ; do
 	    shift; CVSTAG="${1}"; shift ;;
         -R | --fetch-build-requires)
             FETCH_BUILD_REQUIRES="yes"
-	    UPDATE_POLDEK_INDEXES="yes"
+	    #UPDATE_POLDEK_INDEXES="yes"
             NOT_INSTALLED_PACKAGES=
             shift ;;
 	-Tvs | --tag-version-stable )
