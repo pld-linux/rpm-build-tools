@@ -284,9 +284,10 @@ preamble == 1 {
 
 		delete Grupa["en"]
 		for (jezyk in Grupa) {
-			print "Group(" jezyk "):\t" Grupa[jezyk]
+			print "Group(" jezyk "):\t" Grupa[jezyk] | "sort"
 			delete Grupa[jezyk]
 		}
+		close ("sort")
 	}
 	
 	if (field ~ /packager:|distribution:|docdir:|prefix:/)
