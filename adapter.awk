@@ -313,6 +313,7 @@ preamble == 1 {
 		sub(/^X11\/Games/,"Applications\/Games",$2)
 		sub(/^X11\/GNOME\/Development\/Libraries/,"X11/Development/Libraries",$2)
 		sub(/^X11\/GNOME\/Applications/,"X11/Applications",$2)
+		sub(/^X11\/GNOME/,"X11/Applications",$2)
 		sub(/^X11\/Utilities/,"X11\/Applications",$2)
 		sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy",$2)
 		sub(/^Shells/,"Applications/Shells",$2)
