@@ -26,6 +26,7 @@ NOCVS=""
 CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 CHMOD="yes"
+RPMOPTS=""
 
 PATCHES=""
 SOURCES=""
@@ -54,7 +55,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	[-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h] [--help]
 	[-l <logfile>] [-m] [--mr-proper] [--logtofile <logfile>] [-q] [--quiet]
 	[-r <cvstag>] [--cvstag <cvstag>] [-u] [--no-urls] [-v] [--verbose]
-	<package>.spec
+	[--opts <rpm opts>] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -80,6 +81,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 			  all work resources,
 	-nc, --no-cvs	- don't download from CVS, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
+	--opts		- additional options for rpm
 	-q, --quiet	- be quiet,
 	-r, --cvstag	- build package using resources from specified CVS
 			  tag,
@@ -266,7 +268,7 @@ build_package()
 	build-source )
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
-    nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $SPECFILE 
+    nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $SPECFILE 
 
     if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
@@ -318,6 +320,8 @@ while test $# -gt 0 ; do
 	    NOCVS="yes"; shift ;;
 	-nu | --no-urls )
 	    NOURLS="yes"; shift ;;
+	--opts )
+	    shift; RPMOPTS="${1}"; shift ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
