@@ -1,22 +1,36 @@
 #!/bin/awk -f
 #
-# This is adapter v0.15. Adapter adapts .spec files for PLD.
+# This is adapter v0.16. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
-	preamble = 1
+	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 2			# Beggining of %changelog
 	bod = 0			# Beggining of %description
 	tw = 77        		# Descriptions width
-	groups_file = ENVIRON["HOME"] "/rpm/groups" # File with rpm groups
 
+	groups_file = ENVIRON["HOME"] "/rpm/groups"	# File with rpm groups
+	format_macro = ENVIRON["HOME"] "/tmp/format.vim"# File with format macro
+
+	# Create format macro file
+	system("rm -f " format_macro)
+	print ":set tw = " tw > format_macro
+	print "VGgq" >> format_macro
+	print ":wq!" >> format_macro
+	close(format_macro)
+
+	# Command to format the text
+	format_command = "vim -s " format_macro ">/dev/null 2>&1 "
+	
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
+	description_file = ENVIRON["HOME"] "/tmp/adapter.description"
 
 	# Is 'date' macro already defined?
 	if (is_there_line("%define date"))
 		date = 1
 	
+	# Load rpm macros
 	"rpm --eval %_prefix"	| getline prefix
 	"rpm --eval %_bindir"	| getline bindir
 	"rpm --eval %_sbindir"	| getline sbindir
@@ -30,11 +44,11 @@ BEGIN {
 
 # There should be a comment with CVS keywords on the first line of file.
 FNR == 1 {
-	if (!/# \$Revision:/)		# If this line is already OK?
-		print "# $" "Revision:$, " "$" "Date:$"		# No
+	if (!/# \$Revision:/)	# If this line is already OK?
+		print "# $" "Revision:$, " "$" "Date:$"	# No
 	else {
-		print $0						# Yes
-		next				# It is enough for first line
+		print $0				# Yes
+		next		# It is enough for first line
 	}
 }
 
@@ -47,6 +61,7 @@ defattr == 1 {
 	defattr = 0
 }
 
+# Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
 /^%define/ {
 	if ($2 == "_applnkdir")
 		next					
@@ -67,31 +82,21 @@ defattr == 1 {
 		x11 = 2
 	}
 
-        # Collect whole text of description
+        # Collect whole text of description in file
 	if (description == 1 && !/^%[a-z]+/ && !/^%description/) {
-		description_text = description_text $0 " "
+		print $0 >> description_file
 		next
 	}
  
-	# Formt description to the length of tw (default == 77)
+	# Format description file and insert it
 	if (/^%[a-z]+/ && (!/^%description/ || bod == 2)) {
-		n = split(description_text, dt, / /)
-		for (i = 1; i <= n; i++) {
-			if (length(line) + length(dt[i]) + 1 < tw)
-				line = line dt[i] " "
-			else {
-				sub(/[ ]+$/, "", line)
-				print line
-				line = ""
-				i--
-			}
-		}
+		close(description_file)
+		system(format_command description_file)
 
-		sub(/[ ]+$/, "", line)
-		print line "\n"
-		line = ""
-		delete dt
-		description_text = ""
+		while ((getline line < description_file) > 0)
+			print line
+		system("rm -f " description_file)
+		
 		if (bod == 2) {
 			bod = 1
 			description = 1
@@ -136,8 +141,7 @@ defattr == 1 {
 	if (/^install/ && /-m[ \t]*644/)
 		gsub(/-m[ \t]*644 /, "")
 	
-	# No lines contain 'chown' or 'chgrp', which changes
-	# owner/group to 'root'
+	# No lines contain 'chown' or 'chgrp' if owner/group is 'root'
 	if (($1 ~ /chown/ && $2 ~ /root\.root/) || ($1 ~ /chgrp/ && $2 ~ /root/))
 		next
 	
@@ -273,19 +277,20 @@ preamble == 1 {
 	}
 }
 
+
+# main()  ;-)
 {
 	preamble = 1
 	
 	print
 }
 
+
 END {
-	if (changelog_file) {
-		close(changelog_file)
-		while ((getline < changelog_file) > 0)
-			print
-		system("rm -f " changelog_file)
-	}
+	close(changelog_file)
+	while ((getline < changelog_file) > 0)
+		print
+	system("rm -f " changelog_file)
 
 	if (boc == 1) {
 		print "* %{date} PLD Team <pld-list@pld.org.pl>"
