@@ -702,7 +702,8 @@ tag_files()
 		for i in $TAG_FILES
 		do
 			# don't tag non cvs files (ie. stored on distfiles)
-			[ "`nourl $i`" != "$i" ] && continue
+# FIXME! file_has_url != file_is_on_distfiles
+#			[ "`nourl $i`" != "$i" ] && continue
 			if [ -f "`nourl $i`" ]; then
 				if [ "$TAG_VERSION" = "yes" ]; then
 					cvs $OPTIONS $TAGVER `nourl $i`
