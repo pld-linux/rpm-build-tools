@@ -16,6 +16,8 @@ function compare_ver(v1,v2) {
 		v2=(substr(v2,1,RSTART) "." substr(v2,RSTART+RLENGTH-1))
 	sub("^0*","",v1)
 	sub("^0*","",v2)
+	gsub("\.0*",".",v1)
+	gsub("\.0*",".",v2)
 	if (DEBUG) print "v1 == " v1
 	if (DEBUG) print "v2 == " v2
 	count=split(v1,v1a,"\.")
@@ -25,8 +27,6 @@ function compare_ver(v1,v2) {
 	else mincount=count2
 	
 	for (i=1; i<=mincount; i++) {
-		sub("^0*","",v1a[i])
-		sub("^0*","",v2a[i])
 		if (v1a[i]=="") v1a[i]=0
 		if (v2a[i]=="") v2a[i]=0
 		if (DEBUG) print "i == " i
