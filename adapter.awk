@@ -430,6 +430,18 @@ preamble == 1 {
 			sub(/\.pamd$/,"",url[n])
 		}
 
+		# allow %{name} just in last url component
+		s = ""
+		for (i = 1; i <= n; i++) {
+			url[i] = fixedsub("%{name}", name, url[i])
+			if (s) {
+				s = s "/" url[i]
+			} else {
+				s = url[i]
+			}
+		}
+		$2 = s url[n+1]
+
 		filename = url[n]
 		url[n] = fixedsub(name, "%{name}", url[n])
 		if (field ~ /source/)
@@ -438,7 +450,6 @@ preamble == 1 {
 
 		# sourceforge urls
 		sub("^http://dl.sourceforge.net/sourceforge/", "http://dl.sourceforge.net/", $2)
-		sub("^http://dl.sourceforge.net/%{name}/", "http://dl.sourceforge.net/"  name "/", $2)
 	}
 
 
