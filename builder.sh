@@ -10,7 +10,7 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.6 (C) 1999 Tomasz K³oczko".
+V 0.7 (C) 1999 Tomasz K³oczko".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -38,20 +38,29 @@ usage()
 {
     if [ -n "$DEBUG" ]; then set -xv; fi
     echo "\
-Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b]
-	[--build] [-d <cvsroot>] [--cvsroot <cvsroot>] [-g] [--get] [-h]
-	[--help] [-l <logfile>] [--logtofile <logfile>] [-q] [--quiet] [-r
-	<cvstag>] [--cvstag <cvstag>] [-v] [--verbose] <package>.spec
+Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
+	[--build] [-bb] [--build-binary] [-bs] [--build-source] [-d <cvsroot>]
+	[--cvsroot <cvsroot>] [-g] [--get] [-h] [--help] [-l <logfile>]
+	[--logtofile <logfile>] [-q] [--quiet] [-r <cvstag>]
+	[--cvstag <cvstag>] [-v] [--verbose] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
 	-a, --as_anon	- get files via pserver as cvs@cvs.pld.org.pl,
-	-b, --build	- get all files from CVS repo and build
+	-b, -ba,
+	--build		- get all files from CVS repo and build
 			  package from <package>.spec,
-	-c, --clean	- clean all temporarily created files (in BUILD,
+	-bb,
+	--build-binary	- get all files from CVS repo and build
+			  binary only package from <package>.spec,
+	-bs,
+	--build-source	- get all files from CVS repo and only pack them into
+			  src.rpm,
+	-c, --clean     - clean all temporarily created files (in BUILD,
+			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 	-d, --cvsroot	- setup \$CVSROOT,
-	-g, --get	- get <package>.spec and all related files from
+	-g, --get       - get <package>.spec and all related files from
 			  CVS repo,
 	-h, --help	- this message,
 	-l, --logtofile	- log all to file,
@@ -198,11 +207,20 @@ build_package()
     if [ -n "$DEBUG" ]; then set -xv; fi
 
     cd $SPECS_DIR
-    rpm -ba -v $QUIET $CLEAN $SPECFILE
+    case "$COMMAND" in
+	build )
+            BUILD_SWITCH="-ba" ;;
+	build-binary )
+	    BUILD_SWITCH="-bb" ;;
+	build-source )
+	    BUILD_SWITCH="-bs" ;;
+    esac
+    rpm $BUILD_SWITCH -v $QUIET $CLEAN $SPECFILE
 
     if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
     fi
+    unset BUILD_SWITCH
 }
 
 
@@ -222,8 +240,12 @@ while test $# -gt 0 ; do
 	    COMMAND="version"; shift ;;
 	-a | --as_anon )
 	    CVSROOT=":pserver:cvs@cvs.pld.org.pl:/cvsroot"; shift ;;
-	-b | --build )
+	-b | -ba | --build )
 	    COMMAND="build"; shift ;;
+	-bb | --build-binary )
+	    COMMAND="build-binary"; shift ;;
+	-bs | --build-source )
+	    COMMAND="build-source"; shift ;;
 	-c | --clean )
 	    CLEAN="--clean --rmspec --rmsource"; shift ;;
 	-d | --cvsroot )
@@ -248,7 +270,7 @@ done
 if [ -n "$DEBUG" ]; then set -xv; fi
 
 case "$COMMAND" in
-    "build" )
+    "build" | "build-binary" | "build-source" )
 	init_builder;
 	if [ -n "$SPECFILE" ]; then
 	    get_spec;
