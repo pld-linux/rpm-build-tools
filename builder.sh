@@ -81,8 +81,9 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
 	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
 	[-q|--quiet] [-r <cvstag>] [{-T--tag <cvstag>]
-	[-Tvs|--tag-version-stable] [-Tvd|--tag-version-devel]
-	[-Ts|--tag-stable] [-Td|--tag-devel] [-Tv|--tag-version]
+	[-Tvr|--tag-version-ra] [-Tva|--tag-version-ac] 
+	[-Tvn|--tag-version-nest] [-Tr|--tag-ra] [-Ta|--tag-ac]
+	[-Tn|--tag-nest] [-Tv|--tag-version]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 	[--with/--without <feature>] [--define <macro> <value>] <package>.spec
 
@@ -129,14 +130,18 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			  tag,
 	-T <cvstag> , --tag <cvstag>
 			- add cvs tag <cvstag> for files,
-	-Tvs, --tag-version-stable
-			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
-	-Tvd, --tag-version-devel
-			- add cvs tags DEVEL and NAME-VERSION-RELESE for files,
-	-Ts, --tag-stable
-			- add cvs tag STABLE for files,
-	-Td, --tag-devel
-			- add cvs tag DEVEL for files,
+	-Tvr, --tag-version-ra
+			- add cvs tags RA and NAME-VERSION-RELESE for files,
+	-Tva, --tag-version-ac
+			- add cvs tags AC and NAME-VERSION-RELESE for files,
+	-Tvn, --tag-version-nest
+			- add cvs tags NEST and NAME-VERSION-RELESE for files,
+	-Tr, --tag-ra
+			- add cvs tag RA for files,
+	-Ta, --tag-ac
+			- add cvs tag AC for files,
+	-Tn, --tag-nest
+			- add cvs tag NEST for files,
 	-Tv, --tag-version
 			- add cvs tag NAME-VERSION-RELESE for files,
 	-v, --verbose	- be verbose,
@@ -565,24 +570,34 @@ while test $# -gt 0 ; do
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
-	-Tvs | --tag-version-stable )
+	-Tvr | --tag-version-ra )
 	    COMMAND="tag";
-	    TAG="STABLE"
+	    TAG="RA"
 	    TAG_VERSION="yes"
 	    shift;;
-	-Tvd | --tag-version-devel )
+	-Tva | --tag-version-ac )
 	    COMMAND="tag";
-	    TAG="DEVEL"
+	    TAG="AC"
 	    TAG_VERSION="yes"
 	    shift;;
-	-Ts | --tag-stable )
+	-Tvn | --tag-version-nest )
 	    COMMAND="tag";
-	    TAG="STABLE"
+	    TAG="NEST"
+	    TAG_VERSION="yes"
+	    shift;;
+	-Tr | --tag-ra )
+	    COMMAND="tag";
+	    TAG="RA"
 	    TAG_VERSION="no"
 	    shift;;
-	-Td | --tag-devel )
+	-Ta | --tag-ac )
 	    COMMAND="tag";
-	    TAG="DEVEL"
+	    TAG="AC"
+	    TAG_VERSION="no"
+	    shift;;
+	-Tn | --tag-nest )
+	    COMMAND="tag";
+	    TAG="NEST"
 	    TAG_VERSION="no"
 	    shift;;
 	-Tv | --tag-version )
