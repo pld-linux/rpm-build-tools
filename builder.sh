@@ -108,7 +108,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-h|--help] [--http] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
 	[-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
 	[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
-	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
+	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version] 
+	[{-Tp|--tag-prefix} <prefix>]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 	[--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
@@ -174,6 +175,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			- add cvs tag NEST for files,
 	-Tv, --tag-version
 			- add cvs tag NAME-VERSION-RELESE for files,
+	-Tp, --tag-prefix <prefix>
+			- add <prefix> to NAME-VERSION-RELEASE tags,
 	-v, --verbose	- be verbose,
 	-u, --try-upgrade
 			- check version, and try to upgrade package
@@ -578,7 +581,7 @@ tag_files()
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
-	TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
+	TAGVER=$TAG_PREFIX$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
 	if [ "$TAG_VERSION" = "yes" ]; then
 	    echo "CVS tag: $TAGVER"
 	fi
@@ -847,6 +850,9 @@ while test $# -gt 0 ; do
 	    TAG=""
 	    TAG_VERSION="yes"
 	    shift;;
+	-Tp | --tag-prefix )
+	    TAG_PREFIX="$2"
+	    shift 2;;
 	-T | --tag )
 	    COMMAND="tag";
 	    shift
