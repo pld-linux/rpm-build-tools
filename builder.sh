@@ -272,6 +272,7 @@ get_spec()
 	    if [ "$result" -ne "0" ]; then
 		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer)") && [ "$retries_counter" -le "$CVS_RETRIES" ]; then
 		    echo "Trying again [$SPECFILE]... ($retries_counter)"
+		    sleep 2
 		    continue
 		 fi
 	    	Exit_error err_no_spec_in_repo;
@@ -357,6 +358,7 @@ get_files()
 			[ -n "$output" ] && echo "$output"
 			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
 				echo "Trying again [`nourl $i`]... ($retries_counter)"
+				sleep 2
 				continue
 			else
 				break
