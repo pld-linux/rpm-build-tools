@@ -9,6 +9,7 @@
 #	4 - some source, patch or icon files not stored in repo
 #	5 - package build failed
 #	6 - spec file with errors
+#	7 - wrong source in /etc/poldek.conf
 
 # Notes (todo):
 #	- builder -u fetches current version first
@@ -92,6 +93,19 @@ else
     RPMBUILD="rpmbuild"
 fi
 
+#POLDEK_INDEX_DIR="/home/users/yoshi/rpm/RPMS/"
+POLDEK_INDEX_DIR="~/rpm/RPMS/"
+POLDEK_SOURCE="cvs"
+
+# Example grep cvs /etc/poldek.conf:
+# source = cvs /home/users/yoshi/rpm/RPMS/
+POLDEK_SOURCE_VALIDITY="`grep ${POLDEK_SOURCE} /etc/poldek.conf|grep -v ^#`"
+if [ "${POLDEK_SOURCE_VALIDITY}" == "" ]; then 
+	echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
+	echo "Fix it and try to contiune"
+	exit 7
+fi
+
 if [ -f ~/etc/builderrc ]; then
     . ~/etc/builderrc
 elif [ -f ~/.builderrc ]; then
@@ -168,6 +182,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-r <cvstag>, --cvstag <cvstag>
 			- build package using resources from specified CVS
 			  tag,
+        -R, --fetch-build-requires
+                        - fetch what is BuildRequired,
 	-T <cvstag> , --tag <cvstag>
 			- add cvs tag <cvstag> for files,
 	-Tvs, --tag-version-stable
@@ -190,10 +206,14 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-U, --update
 			- refetch sources, don't use distfiles, and update md5 
 			  comments
+	-Upi, --update-poldek-indexes 
+			- refresh or make poldek package index files.
 	--with/--without <feature>
 			- conditional build package depending on
 			  %_with_<feature>/%_without_<feature> macro
-			  switch
+			  switch. 
+			  You may now use --with feat1 feat2 feat3 --without feat4
+			  feat5 --with feat6 constructions.
 "
 }
 
@@ -761,6 +781,134 @@ nourl()
     echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
 
+set_bconds_values()
+{
+AVAIL_BCONDS_WITHOUT=""
+AVAIL_BCONDS_WITH=""
+for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
+do
+        AVAIL_BCOND_WITHOUT=`echo $opt|sed -e "s/^_without_//g"`
+        if [ "`echo $BCOND|grep -- "--without $AVAIL_BCOND_WITHOUT"`" != "" ];then
+                AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
+        else
+                AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
+        fi
+done
+
+for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_with_`
+do
+        AVAIL_BCOND_WITH=`echo $opt|sed -e "s/^_with_//g"`
+        if [ "`echo $BCOND|grep -- "--with $AVAIL_BCOND_WITH"`" != "" ];then
+                AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
+        else
+                AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
+        fi
+done
+}
+
+display_bconds()
+{
+if [ "$AVAIL_BCONDS_WITH" != "" ] || [ "$AVAIL_BCONDS_WITHOUT" != "" ]; then
+        echo -ne "We are going to build $SPECFILE with the following confitional flags:\n"
+        if [ "$BCOND" != "" ]; then
+                echo -ne "$BCOND"
+        else
+                echo -ne "No --with || --without conditions passed to $0!"
+        fi
+        echo -ne "\n\nfrom available:\n\n"
+        echo -ne "--with   :\t$AVAIL_BCONDS_WITH\n--without:\t$AVAIL_BCONDS_WITHOUT\n\n"
+fi
+}
+
+fetch_build_requires()
+{
+if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
+            for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'`
+            do
+                GO="yes"
+                package=`basename "$package_item"|sed -e "s/}$//g"`
+                COND_ARCH_TST="`cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g"`"
+                mach=`uname -m`
+		
+                COND_TST=`cat $SPECFILE|grep BuildRequires|grep "$package"`
+                if [ "`echo $COND_TST|grep '^BuildRequires:'`" != "" ]; then
+                	if [ "$COND_ARCH_TST" != "" ] && [ "`echo $COND_ARCH_TST|sed -e "s/i.86/ix86/g"`" != "`echo $mach|sed -e "s/i.86/ix86/g"`" ]; then
+                        	GO="yes"
+	                fi
+		# bcond:
+	        else
+			COND_NAME=`echo $COND_TST|sed -e s,:BuildRequires:.*$,,g`
+			GO=""
+			# %{without}
+			if [ "`echo $COND_TST|grep 'without_'`" != "" ]; then
+				COND_NAME=`echo $COND_NAME|sed -e s,^.*_without_,,g`
+				if [ "`echo $COND_TST|grep !`" != "" ]; then
+					COND_STATE="with"
+				else
+					COND_STATE="wout"
+				fi
+				if [ "`echo $AVAIL_BCONDS_WITHOUT|grep "<$COND_NAME>"`" != "" ]; then
+					COND_ARGV="wout"
+				else
+					COND_ARGV="with"
+				fi
+			# %{with}
+			elif [ "`echo $COND_TST|grep 'with_'`" != "" ]; then
+				COND_NAME=`echo $COND_NAME|sed -e s,^.*_with_,,g`
+				if [ "`echo $COND_TST|grep !`" != "" ]; then
+					COND_STATE="wout"
+				else
+					COND_STATE="with"
+				fi					
+				if [ "`echo $AVAIL_BCONDS_WITH|grep "<$COND_NAME>"`" != "" ]; then
+					COND_ARGV="with"
+				else
+					COND_ARGV="wout"
+				fi	
+			fi
+			RESULT="${COND_STATE}-${COND_ARGV}"
+			case "$RESULT" in 
+				with-wout|wout-with )
+				GO=""
+				;;
+				wout-wout|with-with )
+				GO="yes"
+				;;
+				*)
+				echo "Action '$RESULT' was not defined for package '$package_item'"
+				;;
+			esac
+
+                fi
+	       
+                if [ "$GO" == "yes" ]; then
+                        if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
+                                echo "Package $package is not installed. Attempting to install..."
+                                poldek ${POLDEK_SOURCE} -i $package
+                                case $? in
+                                1)
+                                        echo "Unable to install $package package! Still trying to fetch rest..."
+                                        NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package"
+                                        ;;
+                                0)
+                                        ;;
+                                esac
+                        else
+                                echo "Package $package is already installed. BuildRequirement satisfied."
+                        fi
+                fi
+            done
+            if [ "$NOT_INSTALLED_PACKAGES" != "" ]; then
+                    echo "Nie uda³o siê zainstalowaæ nastêpuj±cych pakietów i ich zale¿no¶ci:"
+                    for pkg in "$NOT_INSTALLED_PACKAGES"
+                    do
+                            echo $pkg
+                    done
+                    exit 1
+            fi
+fi
+}
+
 #---------------------------------------------
 # main()
 
@@ -832,13 +980,23 @@ while test $# -gt 0 ; do
 	--opts )
 	    shift; RPMOPTS="${1}"; shift ;;
 	--with | --without )
-	    BCOND="$BCOND $1 $2" ; shift 2 ;;
+            COND=${1}
+            shift
+            while [ "`echo ${1}|grep ^-`" == "" ] && [ "`echo ${1}|grep spec`" == "" ]
+            do
+                BCOND="$BCOND $COND $1"
+                shift
+            done;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
 	--date )
 	    CVSDATE="${2}"; shift 2 ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
+        -R | --fetch-build-requires)
+            FETCH_BUILD_REQUIRES="yes"
+            NOT_INSTALLED_PACKAGES=
+            shift ;;
 	-Tvs | --tag-version-stable )
 	    COMMAND="tag";
 	    TAG="STABLE"
@@ -880,6 +1038,9 @@ while test $# -gt 0 ; do
 	    NODIST="yes"
 	    UPDATE5="yes"
 	    shift ;;
+	-Upi | --update-poldek-indexes )
+	    UPDATE_POLDEK_INDEXES="yes"
+	    shift ;;
 	-u | --try-upgrade )
 	    TRY_UPGRADE="1"; shift ;;
 	-un | --try-upgrade-with-float-version )
@@ -912,6 +1073,9 @@ case "$COMMAND" in
 	init_builder;
 	if [ -n "$SPECFILE" ]; then
 	    get_spec;
+	    set_bconds_values;
+            display_bconds;
+            fetch_build_requires;
 	    parse_spec;
 
 	    if [ -n "$FAIL_IF_CHANGED_BUT_NOT_BUMPED" ]; then
@@ -933,6 +1097,10 @@ case "$COMMAND" in
 	    fi
 	    get_files "$SOURCES $PATCHES";
 	    build_package;
+	    if [ $_ -eq 0 ] && [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
+	            poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
+        	    poldek --sn ${POLDEK_SOURCE} --up
+	    fi
 	else
 	    Exit_error err_no_spec_in_cmdl;
 	fi
