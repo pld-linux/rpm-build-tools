@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.20. Adapter adapts .spec files for PLD.
+# This is adapter v0.21. Adapter adapts .spec files for PLD.
 #
 # Copyright (C) 1999, 2000 PLD-Team <pld-list@pld.org.pl>
 # Authors:
@@ -386,7 +386,13 @@ function use_macros()
 	gsub("%{prefix}/lib", "%{_libdir}")
 	gsub("%{_prefix}/lib", "%{_libdir}")
 
-	gsub(sysconfdir, "%{_sysconfdir}")
+	for (c = 1; c <= NF; c++) {
+		if ($c ~ sysconfdir "/sysconfig")
+			continue;
+		if ($c ~ sysconfdir "/rc.d")
+			continue;
+		gsub(sysconfdir, "%{_sysconfdir}", $c)
+	}
 
 	gsub(datadir, "%{_datadir}")
 	gsub("%{prefix}/share", "%{_datadir}")
