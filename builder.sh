@@ -1505,12 +1505,6 @@ case "$COMMAND" in
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
 			parse_spec;
-			if [ "$INTEGER_RELEASE" = "yes" ]; then
-		      echo "Checking release $PACKAGE_RELEASE..."
-				if echo $PACKAGE_RELEASE | grep -q '[^.]*\.[^.]*' 2>/dev/null ; then
-					Exit_error err_fract_rel "$PACKAGE_RELEASE"
-				fi
-			fi
 			if [ -n "$ICONS" ]; then
 				get_files $ICONS
 				parse_spec;
