@@ -209,7 +209,7 @@ Exit_error()
 	echo "Error: some source, patch or icon files not stored in CVS repo. ($2)";
 	exit 4 ;;
     "err_build_fail" )
-	echo "Error: package build failed.";
+	echo "Error: package build failed. (${2:-no more info})";
 	exit 5 ;;
     esac
 }
@@ -623,6 +623,17 @@ case "$COMMAND" in
 	if [ -n "$SPECFILE" ]; then
 	    get_spec;
 	    parse_spec;
+
+	    if [ -n "$FAIL_IF_CHANGED_BUT_NOT_BUMPED" ]; then
+		TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
+		CURTAGREL=$(cvs status $SPECFILE | grep "Working revision:" | awk '{ print $3 }')
+		TAGREL=$(cvs status -v $SPECFILE | grep -E "[[:space:]]${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
+
+		if [ -n "$TAGREL" -a "$TAGREL" != "$CURTAGREL" ]; then
+		    Exit_error err_build_fail "not bumped ver-rel - was already used in rev $TAGREL"
+		fi
+	    fi
+
 	    if [ -n "$ICONS" ]; then
 	    	get_files $ICONS;
 	    	parse_spec;
