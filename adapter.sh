@@ -12,10 +12,10 @@ echo -n "Are the changes OK? [yNso] "
 read -n 1 OK
 echo
 
-if [ "$OK" == "y" -o "$OK" == "Y" ]; then
+if [ "$OK" = "y" -o "$OK" = "Y" ]; then
   mv "$1.adapter" "$1"
   cvs ci "$1"
-elif [ "$OK" != "o" -a "$OK" != "O" ];then
+elif [ "$OK" = "o" -a "$OK" = "O" ];then
   mv "$1.adapter" "$1"
 elif [ "$OK" != "s" -a "$OK" != "S" ];then
   rm "$1.adapter"
