@@ -107,7 +107,7 @@ build_package()
 
 if [ "$#" == 0 ]; then
     usage;
-    exit
+    exit 1
 fi
 
 while test $# -gt 0 ; do
