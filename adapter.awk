@@ -15,7 +15,7 @@ BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 2			# Beggining of %changelog
 	bod = 0			# Beggining of %description
-	tw = 75        		# Descriptions width
+	tw = 70        		# Descriptions width
 
 	# File with rpm groups
 	"rpm --eval %_topdir" | getline groups_file
