@@ -608,7 +608,7 @@ while test $# -gt 0 ; do
 	    RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
 	    ;;
 	* )
-	    SPECFILE="`dirname ${1}`/`basename ${1} .spec`.spec"; shift ;;
+	    SPECFILE="`basename ${1} .spec`.spec"; shift ;;
     esac
 done
 
