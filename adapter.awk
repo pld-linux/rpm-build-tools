@@ -674,6 +674,10 @@ function use_files_macros(	i, n, t, a)
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
+	if (/^%attr.*\/etc\/rc\.d\/init\.d/ && !/^%attr\(754 *,/) {
+		gsub("^%attr\(... *,", "%attr(754,");
+	}
+
 	# sort %verify attrs
 	if (match($0, /%verify\(not (.*)\)/)) {
 		t = substr($0, RSTART, RLENGTH)
