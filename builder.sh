@@ -38,14 +38,14 @@ Usage: builder [-V] [--version] [-a] [--as_anon] [-b] [--build]
 
 parse_spec()
 {
-    (echo "%dump"; cat $SPECFILE) > $SPECFILE.__
+    sed -e 's#^%prep#%dump#' ${SPECFILE} > $SPECFILE.__
 
-    SOURCES="`rpm -bp $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'`"
-    PATCHES="`rpm -bp $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'`"
-    ICON="`rpm -bp $SPECFILE.__ 2>&1 | awk '/^Icon:/ {print $2}' ${SPEC}`"
-    PACKAGE_NAME="`rpm -bp $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
-    PACKAGE_VERSION="`rpm -bp $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
-    PACKAGE_RELEASE="`rpm -bp $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
+    SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'`"
+    ICON="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/^Icon:/ {print $2}' ${SPEC}`"
+    PACKAGE_NAME="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
+    PACKAGE_VERSION="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
+    PACKAGE_RELEASE="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
 
     rm -f $SPECFILE.__
 
