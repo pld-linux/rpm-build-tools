@@ -13,7 +13,7 @@
 
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
-	boc = 2			# Beggining of %changelog
+	boc = 4			# Beggining of %changelog
 	bod = 0			# Beggining of %description
 	tw = 70        		# Descriptions width
 	
@@ -273,23 +273,32 @@ defattr == 1 {
 	has_changelog = 1
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 1) {
-		if (!/PLD Team/) {
-			print "* %{date} PLD Team <feedback@pld.org.pl>" > changelog_file
-			printf "All persons listed below can be reached at " > changelog_file
-			print "<cvs_login>@pld.org.pl\n" > changelog_file
+		if (!/\$Log$/) {
 			print "$" "Log:$" > changelog_file
 		}
 		boc = 0
 	}
-	
-	# Define date macro.
 	if (boc == 2) {
+		if (!/All persons listed below/) {
+			printf "All persons listed below can be reached at " > changelog_file
+			print "<cvs_login>@pld.org.pl\n" > changelog_file
+		}
+		boc = 0
+	}
+	if (boc == 3) {
+		if (!/PLD Team/) {
+			print "* %{date} PLD Team <feedback@pld.org.pl>" > changelog_file
+		}
+		boc = 2
+	}
+	# Define date macro.
+	if (boc == 4) {
 		if (date == 0) {
 			printf "%%define date\t%%(echo `LC_ALL=\"C\"" > changelog_file
 			print " date +\"%a %b %d %Y\"`)" > changelog_file
 			date = 1
 		}
-		boc = 1
+		boc = 3
 	}
 
 	sub(/[ \t]+$/, "")
@@ -495,12 +504,14 @@ END {
 	if (has_changelog == 0)
 		print "%changelog"
 
-	if (boc > 0) {
+	if (boc > 2)
 		print "* %{date} PLD Team <feedback@pld.org.pl>"
+	if (boc > 1) {
 		printf "All persons listed below can be reached at "
 		print "<cvs_login>@pld.org.pl\n"
-		print "$" "Log:$"
 	}
+	if (boc > 0)
+		print "$" "Log:$"
 }
 
 function fixedsub(s1,s2,t,      ind) {
