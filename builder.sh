@@ -604,7 +604,9 @@ tag_files()
 
 	cd $SOURCE_DIR
 	for i in $TAG_FILES; do
-	    if [ -f `nourl $i` ]; then
+	    # don't tag non cvs files (ie. stored on distfiles)
+	    [ "`nourl $i`" != "$i" ] && continue
+	    if [ -f "`nourl $i`" ]; then
 		if [ "$TAG_VERSION" = "yes" ]; then
 		    cvs $OPTIONS $TAGVER `nourl $i`
 		fi
@@ -972,6 +974,13 @@ case "$COMMAND" in
 		get_files $ICONS
 		parse_spec;
 	    fi
+	    # don't fetch sources from remote locations
+	    new_SOURCES=""
+	    for file in $SOURCES; do
+		[ "`nourl $file`" != "$file" ] && continue
+		new_SOURCES="$new_SOURCES $file"
+	    done
+	    SOURCES="$new_SOURCES"
 	    get_files $SOURCES $PATCHES;
 	    tag_files "$SOURCES $PATCHES $ICONS";
 	else
