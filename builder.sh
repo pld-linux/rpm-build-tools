@@ -52,6 +52,14 @@ FAIL_IF_NO_SOURCES="yes"
 
 GETURI="wget -c -nd -t$WGET_RETRIES"
 
+if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
+    RPM="rpm"
+    RPMBUILD="rpm"
+else
+    RPM="rpm"
+    RPMBUILD="rpmbuild"
+fi
+
 if [ -f ~/etc/builderrc ]; then
     . ~/etc/builderrc
 elif [ -f ~/.builderrc ]; then
@@ -137,17 +145,17 @@ parse_spec()
     cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
-	SOURCES="`rpmbuild -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if (rpmbuild -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+    if ($RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
-    PATCHES="`rpmbuild -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-    PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
-    PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
-    PACKAGE_RELEASE="`rpm -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
+    PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
+    PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
+    PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
 
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
@@ -199,8 +207,8 @@ init_builder()
 	set -v; 
     fi
 
-    SOURCE_DIR="`rpm --eval '%{_sourcedir}'`"
-    SPECS_DIR="`rpm --eval '%{_specdir}'`"
+    SOURCE_DIR="`$RPM --eval '%{_sourcedir}'`"
+    SPECS_DIR="`$RPM --eval '%{_specdir}'`"
 
     __PWD=`pwd`
 }
@@ -381,9 +389,9 @@ build_package()
     esac
     if [ -n "$LOGFILE" ]; then
 	LOG=`eval echo $LOGFILE`
-	eval nice -n ${DEF_NICE_LEVEL} time rpmbuild $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
+	eval nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
     else
-	eval nice -n ${DEF_NICE_LEVEL} rpmbuild $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
+	eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
     fi
 
     if [ "$?" -ne "0" ]; then
@@ -563,7 +571,7 @@ case "$COMMAND" in
 	fi
 	;;
     "mr-proper" )
-	rpm --clean --rmsource --rmspec --force --nodeps $SPECFILE
+	$RPM --clean --rmsource --rmspec --force --nodeps $SPECFILE
 	;;
     "usage" )
 	usage;;
