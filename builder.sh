@@ -342,7 +342,7 @@ src_no ()
     $RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | \
        grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
        sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
-       xargs
+       head -1 | xargs
 }
 
 src_md5 ()
@@ -350,7 +350,7 @@ src_md5 ()
     no=$(src_no "$1")
     [ -z "$no" ] && return
     cd $SPECS_DIR
-    grep -i "#[        ]*Source$no-md5[        ]*:" $SPECFILE | sed -e 's/.*://' | xargs
+    grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
 }
 
 distfiles_url ()
