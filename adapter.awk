@@ -514,7 +514,7 @@ function fixedsub(s1,s2,t,      ind) {
 function format_preamble()
 {
 	sub(/:[ \t]*/, ":")
-	if (match($0, /[A-Za-z0-9()#_ \t]+[ \t]*:[ \t]*/) == 1) {
+	if (match($0, /[A-Za-z0-9(),#_ \t]+[ \t]*:[ \t]*/) == 1) {
 		if (RLENGTH < 8)
 			sub(/:/, ":\t\t")
 		else
