@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xv
 # -----------
 # Exit codes:
 #	0 - succesful
@@ -116,10 +116,11 @@ Group:		-
 echo SOURCE_DIR=%{_sourcedir}
 echo SPECS_DIR=%{_specdir}" > $DUMB_SPEC_FILE
 
-    SOURCE_DIR=`rpm -bp $DUMB_SPEC_FILE | grep "SOURCE_DIR"`
-    SPEC_DIR=`rpm -bp $DUMB_SPEC_FILE | grep "SPECS_DIR"`
+    SOURCE_DIR=`rpm -bp $DUMB_SPEC_FILE 2>&1 | grep "^SOURCE_DIR" | sed "s/SOURCE_DIR\=//"`
+    SPECS_DIR=`rpm -bp $DUMB_SPEC_FILE 2>&1 | grep "^SPECS_DIR" |sed "s/SPECS_DIR\=//"`
 
-    rm -f $DUMB_SPEC_FILE
+echo aaa \"$SPECS_DIR\" 
+#    rm -f $DUMB_SPEC_FILE
 
     __PWD=`pwd`
 }
@@ -128,7 +129,7 @@ get_spec()
 {
     cd $SPECS_DIR
 
-    if [ "${CVSROOT}" != "" ]; then
+    if [ "$CVSROOT" -n "" ]; then
 	cvs -d "$CVSROOT" up $SPECFILE
     else
 	cvs up $SPECFILE
@@ -142,7 +143,7 @@ get_spec()
 get_all_files()
 {
     cd $SOURCE_DIR
-    if [ "${CVSROOT}" != ""]; then
+    if [ "$CVSROOT" -n ""]; then
 	cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICON
     else
 	cvs up $SPECFILE
