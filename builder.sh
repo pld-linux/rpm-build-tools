@@ -374,7 +374,6 @@ tag_files()
 	for i in $TAG_FILES; do
 	    if [ -f `nourl $i` ]; then
 		cvs $OPTIONS $TAG `nourl $i`
-		cvs $OPTIONS STABLE `nourl $i`
 	    else
 		Exit_error err_no_source_in_repo $i
 	    fi
@@ -382,7 +381,6 @@ tag_files()
 
 	cd $SPECS_DIR
 	cvs $OPTIONS $TAG $SPECFILE
-	cvs $OPTIONS STABLE $SPECFILE
 
 	unset OPTIONS
     fi
