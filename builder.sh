@@ -368,7 +368,7 @@ build_package()
 	build-source )
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
-    nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 
+    eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 
 
     if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
@@ -437,6 +437,7 @@ while test $# -gt 0 ; do
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
 	--define)
+	    shift
 	    MACRO="${1}"
 	    VALUE="${2}"
 	    shift 2
@@ -524,6 +525,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.87  2001/11/23 13:53:01  zagrodzki
+# - added --define option
+#
 # Revision 1.86  2001/11/20 01:38:01  blues
 # - small cosmetic fix
 #
