@@ -181,6 +181,9 @@ defattr == 1 {
 
 # Scripts
 {
+	if (/^automake$/) {
+	        sub(/$/, " -a -c")
+	}
 	if (/LDFLAGS/) {
 		gsub(/LDFLAGS="?.*?"?[ \t]*;?/,"");
 		if (/export/) {
