@@ -17,6 +17,8 @@ function compare_ver(v1,v2) {
 	else mincount=count2
 	
 	for (i=1; i<=mincount; i++) {
+		if (v1a[i]=="") v1a[i]=0
+		if (v2a[i]=="") v2a[i]=0
 		if (DEBUG) print "i == " i
 		if (DEBUG) print "v1[i] == " v1a[i]
 		if (DEBUG) print "v2[i] == " v2a[i]
@@ -125,7 +127,8 @@ function process_source(lurl,name,version) {
 	if ( DEBUG ) print "LYNX " acc "://" host dir 
 	
 	references=0
-	while (("lynx --dump " acc "://" host dir) | getline result ) {
+	finished=0
+	while ((("lynx --dump " acc "://" host dir) | getline result)&&(finished==0)) {
 		if (result ~ "References") references=1
 		if ((result ~ "[0-9]+\. (ftp|http)://")&&(references==1)) {
 			split(result,links)
@@ -138,9 +141,10 @@ function process_source(lurl,name,version) {
 				sub(prever,"",newfilename)
 				sub(postver,"",newfilename)
 				if (DEBUG) print "Wersja: " newfilename
-				if ( compare_ver(newfilename, version) )
+				if ( compare_ver(version, newfilename)==1 ) {
 					if (DEBUG) print "Tak jest - nowa"
 					print name " : [OLD] " version " [NEW] " newfilename
+				}
 			}
 		}
 	}
