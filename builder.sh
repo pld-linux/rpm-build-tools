@@ -923,7 +923,7 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 	    echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
             for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,\(.*\),,g -e s,%{,,g`
             do
-		package_item=`echo $package_item|sed -e s,rpmbuild,rpm-build,g -e s,__perl,perl,g -e s,gasp,binutils-gasp,g`
+		package_item="`echo $package_item|sed -e s,rpmbuild,rpm-build,g |sed -e s,__perl,perl,g |sed -e s,gasp,binutils-gasp,g |sed -e s,apxs,apache,g|sed -e s,apache\(EAPI\)-devel,apache-devel,g`"
                 GO="yes"
                 package=`basename "$package_item"|sed -e "s/}$//g"`
                 COND_ARCH_TST="`cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g"`"
@@ -994,7 +994,7 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 						else
 							echo -ne "Installing (sub)Required package:\t$package_name\n"
 							export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing (sub)Required package: ${package_name}\007"`
-							uoldek -i $package_name
+							poldek -i $package_name
 						fi
 	                                	case $? in
         	                        	0)
