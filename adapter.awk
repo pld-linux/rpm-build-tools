@@ -329,10 +329,31 @@ preamble == 1 {
 	# Use %{name} and %{version} in the filenames in "Source:"
 	if (field ~ /source/ || field ~ /patch/) {
 		n = split($2, url, /\//)
+		if (url[n] ~ /\.gz$/) {
+			url[n+1] = ".gz" url[n+1]
+			sub(/\.gz$/,"",url[n])
+		}
+		if (url[n] ~ /\.zip$/) {
+			url[n+1] = ".zip" url[n+1]
+			sub(/\.zip$/,"",url[n])
+		}
+		if (url[n] ~ /\.tar$/) {
+			url[n+1] = ".tar" url[n+1]
+			sub(/\.tar$/,"",url[n])
+		}
+		if (url[n] ~ /\.patch$/) {
+			url[n+1] = ".patch" url[n+1]
+			sub(/\.patch$/,"",url[n])
+		}
+		if (url[n] ~ /\.bz2$/) {
+			url[n+1] = ".bz2" url[n+1]
+			sub(/\.bz2$/,"",url[n])
+		}
 		filename = url[n]
-		sub(name, "%{name}", url[n])
-		if (field ~ /source/) sub(version, "%{version}", url[n])
-		sub(filename, url[n], $2)
+		url[n] = fixedsub(name, "%{name}", url[n])
+		if (field ~ /source/) 
+			url[n] = fixedsub(version, "%{version}", url[n])
+		$2 = fixedsub(filename, url[n], $2)
 	}
 
 	if (field ~ /source:/)
@@ -408,6 +429,13 @@ END {
 		print "<cvs_login>@pld.org.pl\n"
 		print "$" "Log:$"
 	}
+}
+
+function fixedsub(s1,s2,t,      ind) {
+# substitutes fixed strings (not regexps)
+        if (ind = index(t,s1))
+                t = substr(t, 1, ind-1) s2 substr(t, ind+length(s1))
+        return t
 }
 
 # There should be one or two tabs after the colon.
