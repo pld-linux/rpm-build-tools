@@ -677,7 +677,7 @@ build_package()
 
     if [ -n "$TRY_UPGRADE" ]; then
 
-	if [ -n "FLOAT_VERSION" ]; then
+	if [ -n "$FLOAT_VERSION" ]; then
 	    TNOTIFY=`./pldnotify.awk $SPECFILE -n`
 	else
 	    TNOTIFY=`./pldnotify.awk $SPECFILE`
