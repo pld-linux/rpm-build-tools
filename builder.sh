@@ -148,7 +148,7 @@ Exit_error()
 
     cd $__PWD
 
-    case "$@" in
+    case "$1" in
     "err_no_spec_in_cmdl" )
 	echo "ERROR: spec file name not specified.";
 	exit 2 ;;
@@ -156,7 +156,7 @@ Exit_error()
 	echo "Error: spec file not stored in CVS repo.";
 	exit 3 ;;
     "err_no_source_in_repo" )
-	echo "Error: some source, patch or icon files not stored in CVS repo.";
+	echo "Error: some source, patch or icon files not stored in CVS repo. ($2)";
 	exit 4 ;;
     "err_build_fail" )
 	echo "Error: package build failed.";
@@ -255,7 +255,7 @@ get_files()
 		fi
 
 		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
-			Exit_error err_no_source_in_repo;
+			Exit_error err_no_source_in_repo $i;
 		fi
 	    fi
 	done
@@ -296,7 +296,7 @@ tag_files()
 		cvs $OPTIONS $TAG `nourl $i`
 		cvs $OPTIONS STABLE `nourl $i`
 	    else
-		Exit_error err_no_source_in_repo
+		Exit_error err_no_source_in_repo $i
 	    fi
 	done
 
@@ -455,6 +455,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.78  2001/05/13 19:04:44  misiek
+# fixes for ksh93
+#
 # Revision 1.77  2001/05/13 10:51:30  misiek
 # don't fail if no sources found (hack to allow build nosrc packages)
 #
