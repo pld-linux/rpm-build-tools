@@ -25,7 +25,11 @@ DEBUG=""
 NOURLS=""
 NOCVS=""
 ALLWAYS_CVSUP="yes"
-CVSROOT=${CVSROOT:-""}
+if [ -s CVS/Root ]; then
+    CVSROOT=$(cat CVS/Root)
+else
+    CVSROOT=${CVSROOT:-""}
+fi
 LOGFILE=""
 CHMOD="yes"
 RPMOPTS=""
@@ -458,6 +462,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.80  2001/06/22 18:52:39  misiek
+# - added support for --with/--without options
+#
 # Revision 1.79  2001/05/28 14:44:16  baggins
 # - if file is not in repo TELL which fucking file it is!
 #
