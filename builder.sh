@@ -379,7 +379,7 @@ build_package()
     esac
     if [ -n "$LOGFILE" ]; then
 	LOG=`eval echo $LOGFILE`
-	eval nice -n ${DEF_NICE_LEVEL} /bin/sh -c "time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE" 2>&1 | tee $LOG
+	eval nice -n ${DEF_NICE_LEVEL} time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
     else
 	eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
     fi
