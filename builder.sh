@@ -267,6 +267,10 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 }
 
 cache_rpm_dump () {
+	 if [ -n "$DEBUG" ]; then
+		  set -x;
+		  set -v;
+	 fi
 rpm_dump_cache=`
 	case "$RPMBUILD" in
 		rpm )
