@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.6. Adapter adapts .spec files for PLD.
+# This is adapter v0.7. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -62,11 +62,11 @@ bof == 1 {
 	# no lines contain 'chown' or 'chgrp', which changes
 	# owner/group to 'root'
 	if ($1 ~ /chown|chgrp/ && $2 ~ /root|root.root/)
-		noprint = 1;
+		next;
 	
 	# no lines contain 'chmod' if it sets the modes to '644'
 	if ($1 ~ /chmod/ && $2 ~ /644/)
-		noprint = 1;
+		next;
 	
 	# 'gzip -9nf' for compressing
 	if ($1 ~ /gzip|bzip2/) {
@@ -101,9 +101,11 @@ bof == 1 {
 	}
 	
 	# Define date macro.
-	if (boc == 2 && date == 0) {
-		printf "%%define date\t%%(echo `LC_ALL=\"C\"";
-	       	print " date +\"%a %b %d %Y\"`)"
+	if (boc == 2) {
+		if (date == 0) {
+			printf "%%define date\t%%(echo `LC_ALL=\"C\"";
+			print " date +\"%a %b %d %Y\"`)"
+		}
 		boc--;
 	}
 }
@@ -170,9 +172,15 @@ preamble == 1 {
 	if (/%define date/)
 		date = 1;
 	
-	if (noprint == 0)
-		print;
-	else
-		noprint = 0;
+	print;
+}
+
+END {
+	if (boc == 1) {
+		print "* %{date} PLD Team <pld-list@pld.org.pl>";
+		printf "All below listed persons can be reached on ";
+		print "<cvs_login>@pld.org.pl\n";
+		print "$" "Log:$";
+	}
 }
 
