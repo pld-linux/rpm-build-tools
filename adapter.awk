@@ -541,8 +541,9 @@ function format_preamble()
 function use_macros()
 {
 	gsub(bindir, "%{_bindir}")
-	gsub("%{_prefix}/bin", "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
+	if(prefix"/bin" == bindir)
+		gsub("%{_prefix}/bin", "%{_bindir}")
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sbindir "/fix-info-dir")
@@ -551,41 +552,45 @@ function use_macros()
 	}
 
 	gsub("%{prefix}/sbin", "%{_sbindir}")
-	gsub("%{_prefix}/sbib", "%{_sbindir}")
+	if(prefix"/sbin" == sbindir)
+		gsub("%{_prefix}/sbib", "%{_sbindir}")
 
 	gsub(libdir, "%{_libdir}")
 	gsub("%{prefix}/lib", "%{_libdir}")
-	gsub("%{_prefix}/lib", "%{_libdir}")
+	if(prefix"/lib" == libdir)
+		gsub("%{_prefix}/lib", "%{_libdir}")
 
 	for (c = 1; c <= NF; c++) {
-		if ($c ~ sysconfdir "/cron.d")
+		if ($c ~ sysconfdir "/{?cron.d")
 			continue;
-		if ($c ~ sysconfdir "/crontab.d")
+		if ($c ~ sysconfdir "/{?crontab.d")
 			continue;
-		if ($c ~ sysconfdir "/logrotate.d")
+		if ($c ~ sysconfdir "/{?logrotate.d")
 			continue;
-		if ($c ~ sysconfdir "/pam.d")
+		if ($c ~ sysconfdir "/{?pam.d")
 			continue;
-		if ($c ~ sysconfdir "/profile.d")
+		if ($c ~ sysconfdir "/{?profile.d")
 			continue;
-		if ($c ~ sysconfdir "/rc.d")
+		if ($c ~ sysconfdir "/{?rc.d")
 			continue;
-		if ($c ~ sysconfdir "/security")
+		if ($c ~ sysconfdir "/{?security")
 			continue;
-		if ($c ~ sysconfdir "/skel")
+		if ($c ~ sysconfdir "/{?skel")
 			continue;
-		if ($c ~ sysconfdir "/sysconfig")
+		if ($c ~ sysconfdir "/{?sysconfig")
 			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
 	gsub(datadir, "%{_datadir}")
 	gsub("%{prefix}/share", "%{_datadir}")
-	gsub("%{_prefix}/share", "%{_datadir}")
+	if(prefix"/share" == datadir)
+		gsub("%{_prefix}/share", "%{_datadir}")
 
 	gsub(includedir, "%{_includedir}")
 	gsub("%{prefix}/include", "%{_includedir}")
-	gsub("%{_prefix}/include", "%{_includedir}")
+	if(prefix"/include" == includedir)
+		gsub("%{_prefix}/include", "%{_includedir}")
 
 	gsub(mandir, "%{_mandir}")
 	gsub("%{_datadir}/man", "%{_mandir}")
