@@ -1,10 +1,17 @@
 #!/bin/bash
 # 
 
+VERSION="\
+Build package utility from PLD CVS repository
+V 0.1 (C) 1999 Tomasz K³oczko".
+
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 SPECFILE=""
 BE_VERBOSE=""
+QUIET=""
+CVSROOT=""
+LOGFILE=""
 
 PATCHES=""
 SOURCES=""
@@ -81,21 +88,21 @@ build_package()
 while test $# -gt 0 ; do
     case "${1}" in
 	-V | --version )
-	    shift ;;
+	    COMMAND="version"; shift ;;
 	-a | --as_anon )
-	    shift ;;
+	    CVSROOT=":pserver:anonymous@cvspld.org.pl:/cvsroot"; shift ;;
 	-b | --build )
-	    shift ;;
+	    COMMAND="build"; shift ;;
 	-d | --cvsroot )
-	    shift ;;
+	    shift; CVSROOT="${1}"; shift ;;
 	-g | --get )
 	    COMMAND="get"; shift ;;
 	-h | --help )
 	    COMMAND="usage"; shift ;;
 	-l | --logtofile )
-	    shift ;;
+	    shift; LOGFILE="${1}"; shift ;;
 	-q | --quiet )
-	    shift ;;
+	    QUIET="1"; shift ;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
 	* )
@@ -127,4 +134,6 @@ case "$COMMAND" in
 	;;
     "usage" )
 	usage;;
+    "version" )
+	echo "$VERSION";;
 esac
