@@ -352,7 +352,7 @@ src_md5 ()
     [ -z "$no" ] && return
     cd $SPECS_DIR
     spec="$SPECFILE,$(head -1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
-    md5=$(grep -v '^#' additional-md5sums | \
+    md5=$(grep -s -v '^#' additional-md5sums | \
           grep -E "[ 	]$(basename "$1")[ 	]*[ 	]${spec}([ 	]|\$)" | \
 	  sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
 	  grep -E '^[0-9a-f]{32}$')
