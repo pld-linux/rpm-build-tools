@@ -797,7 +797,7 @@ nourl()
 
 install_required_packages()
 {
-	poldek -i $package
+	poldek -vi $1
 	return $?
 }
 
@@ -934,10 +934,10 @@ remove_build_requires()
 	if [ "$INSTALLED_PACKAGES" != "" ]; then
 		case "$REMOVE_BUILD_REQUIRES" in
 			"force")
-				poldek --noask -e $INSTALLED_PACKAGES
+				poldek --noask -ve $INSTALLED_PACKAGES
 				;;
 			"nice")
-				poldek --ask -e $INSTALLED_PACKAGES
+				poldek --ask -ve $INSTALLED_PACKAGES
 				;;
 			*)
 				echo You may want to manually remove following BuildRequires fetched:
@@ -1039,11 +1039,11 @@ fetch_build_requires()
 							if [ "$package_name" = "$package" ]; then
 								echo -ne "Installing BuildRequired package:\t$package_name\n"
 								export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing BuildRequired package: ${package_name}\007"`
-								install_required_packages;
+								install_required_packages $package;
 							else
 								echo -ne "Installing (sub)Required package:\t$package_name\n"
 								export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing (sub)Required package: ${package_name}\007"`
-								install_required_packages;
+								install_required_packages $package_name;
 							fi
 							case $? in
 								0)
@@ -1054,7 +1054,7 @@ fetch_build_requires()
 									echo "Attempting to run spawn sub - builder..."
 									run_sub_builder $package_name 
 									if [ $? -eq 0 ]; then
-										install_required_packages;
+										install_required_packages $package_name;
 										case $? in
 											0)
 												INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
@@ -1073,7 +1073,7 @@ fetch_build_requires()
 						echo "Attempting to run spawn sub - builder..."
 						run_sub_builder $package
 						if [ $? -eq 0 ]; then
-							install_required_packages;
+							install_required_packages $package;
 							case $? in
 								0)
 									INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
@@ -1099,8 +1099,6 @@ fetch_build_requires()
 			done
 			remove_build_requires
 			exit 1
-	   else
-			rm `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 		fi
 	fi
 }
@@ -1382,6 +1380,7 @@ case "$COMMAND" in
 	"version" )
 		echo "$VERSION";;
 esac
+test -f `pwd`/.${SPECFILE}_INSTALLED_PACKAGES && rm `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 cd "$__PWD"
 
 # vi:syntax=sh:tw=80:ts=3:sw=4
