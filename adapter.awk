@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.14. Adapter adapts .spec files for PLD.
+# This is adapter v0.15. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -289,7 +289,7 @@ END {
 
 	if (boc == 1) {
 		print "* %{date} PLD Team <pld-list@pld.org.pl>"
-		printf "All below listed persons can be reached on "
+		printf "All persons listed below can be reached at "
 		print "<cvs_login>@pld.org.pl\n"
 		print "$" "Log:$"
 	}
