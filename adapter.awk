@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.19. Adapter adapts .spec files for PLD.
+# This is adapter v0.20. Adapter adapts .spec files for PLD.
 #
 # Copyright (C) 1999, 2000 PLD-Team <pld-list@pld.org.pl>
 # Authors:
@@ -397,6 +397,9 @@ function use_macros()
 	gsub("%{_prefix}/include", "%{_includedir}")
 
 	gsub(mandir, "%{_mandir}")
+	gsub("%{_datadir}/man", "%{_mandir}")
+	gsub("%{_prefix}/share/man", "%{_mandir}")
+	gsub("%{prefix}/share/man", "%{_mandir}")
 	gsub("%{prefix}/man", "%{_mandir}")
 	gsub("%{_prefix}/man", "%{_mandir}")
 
