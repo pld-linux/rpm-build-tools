@@ -1,5 +1,7 @@
 #!/bin/awk -f
 # $Revision$, $Date$
+# TODO: "SourceXDownload" support (use given URLs if present instead of cut-down SourceX URLs)
+
 function fixedsub(s1,s2,t,	ind) {
 # substitutes fixed strings (not regexps)
 	if (ind = index(t,s1)) {
