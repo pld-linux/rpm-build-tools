@@ -1,42 +1,15 @@
 #!/bin/awk -f
 #
-# This is adapter v0.18. Adapter adapts .spec files for PLD.
-# Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
-
-function fill(ch, n, i) {
-	for (i=0; i<n; i++) printf("%c",ch)
-}
-
-function format_flush(linia, wciecie,	newlinia, slowo, pierwszeslowo) {
-	pierwszeslowo=1
-	if (format_wciecie==-1) 
-		newlinia=""
-	else
-		newlinia=(fill(" ",format_wciecie) "- ")
-	while (match(linia,/[^\t ]+/)) {
-		slowo=substr(linia,RSTART,RLENGTH)
-		if (length(newlinia)+length(slowo)+1 > tw) {
-			print newlinia
-			
-			if (format_wciecie==-1)
-				newlinia=""
-			else
-				newlinia=fill(" ",format_wciecie+2)
-			pierwszeslowo=1
-		}
-
-		if (pierwszeslowo) {
-			newlinia=(newlinia slowo)
-			pierwszeslowo=0
-		} else
-			newlinia=(newlinia " " slowo)
-			
-		linia=substr(linia,RSTART+RLENGTH)
-	}
-	if (newlinia ~ /[^\t ]/) {
-		print newlinia
-	}
-}
+# This is adapter v0.19. Adapter adapts .spec files for PLD.
+#
+# Copyright (C) 1999, 2000 PLD-Team <pld-list@pld.org.pl>
+# Authors:
+# 	Micha³ Kuratczyk <kura@pld.org.pl>
+# 	Sebastian Zagrodzki <s.zagrodzki@sith.mimuw.edu.pl>
+# 	Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+# 	Artur Frysiak <wiget@pld.org.pl>
+# 	Michal Kochanowicz <mkochano@ee.pw.edu.pl>
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
@@ -96,8 +69,8 @@ defattr == 1 {
 
 	if (/^%description/) {
 		bod++
-		format_linia=""
-		format_wciecie=-1
+		format_line = ""
+		format_indent = -1
 	}
 
 	# Define _prefix and _mandir if it is X11 application
@@ -108,28 +81,26 @@ defattr == 1 {
 		x11 = 2
 	}
 	
-	# formatter (c) 2000 by Sebastian Zagrodzki
-	
+	# Format description
 	if (description == 1 && !/^%[a-z]+/ && !/^%description/) {
 		if (/^[ \t]*$/) {
-			format_flush(format_linia, format_wciecie)
+			format_flush(format_line, format_indent)
 			print ""
-			format_linia=""
-			format_wciecie=-1
+			format_line = ""
+			format_indent = -1
 		} else if (/^[ \t]*[-\*][ \t]*/) {
-			format_flush(format_linia, format_wciecie)
-			match($0,/^[ \t]*/)	
-			format_wciecie=RLENGTH
-			match($0,/^[ \t]*[-\*][ \t]/)
-			format_linia=substr($0,RLENGTH)
+			format_flush(format_line, format_indent)
+			match($0, /^[ \t]*/)	
+			format_indent = RLENGTH
+			match($0, /^[ \t]*[-\*][ \t]/)
+			format_line = substr($0, RLENGTH)
 		} else 
-			format_linia=(format_linia " " $0)
+			format_line = format_line " " $0
 		next
 	}
  
-	# Format description file and insert it
 	if (/^%[a-z]+/ && (!/^%description/ || bod == 2)) {
-		format_flush(format_linia, format_wciecie)
+		format_flush(format_line, format_indent)
 		if (bod == 2) {
 			bod = 1
 			description = 1
@@ -446,3 +417,41 @@ function use_macros()
 
 	gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
 }
+
+function fill(ch, n, i) {
+	for (i = 0; i < n; i++)
+		printf("%c", ch)
+}
+
+function format_flush(line, indent, newline, word, first_word) {
+	first_word = 1
+	if (format_indent == -1) 
+		newline = ""
+	else
+		newline = fill(" ", format_indent) "- "
+
+	while (match(line, /[^\t ]+/)) {
+		word = substr(line, RSTART, RLENGTH)
+		if (length(newline) + length(word) + 1 > tw) {
+			print newline
+			
+			if (format_indent == -1)
+				newline = ""
+			else
+				newline = fill(" ", format_indent + 2)
+			first_word = 1
+		}
+
+		if (first_word) {
+			newline = newline word
+			first_word = 0
+		} else
+			newline = newline " " word
+			
+		line = substr(line, RSTART + RLENGTH)
+	}
+	if (newline ~ /[^\t ]/) {
+		print newline
+	}
+}
+
