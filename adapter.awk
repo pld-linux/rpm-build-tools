@@ -412,6 +412,8 @@ function use_macros()
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sysconfdir "/cron.d")
 			continue;
+		if ($c ~ sysconfdir "/crontab.d")
+			continue;
 		if ($c ~ sysconfdir "/logrotate.d")
 			continue;
 		if ($c ~ sysconfdir "/pam.d")
