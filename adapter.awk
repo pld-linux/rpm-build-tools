@@ -273,9 +273,11 @@ defattr == 1 {
 	has_changelog = 1
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 1) {
-		if (!/$.*Log.*$/)
-			print "$" "Log:$" > changelog_file
-		boc = 0
+		if (!/^$/) {
+			if (!/\$.*Log:.*\$/)
+				print "$x" "Log:$" > changelog_file
+			boc = 0
+		}
 	}
 	if (boc == 2) {
 		if (!/All persons listed below/) {
