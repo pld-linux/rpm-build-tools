@@ -22,6 +22,7 @@ QUIET=""
 CLEAN=""
 DEBUG=""
 NOURLS=""
+NOCVS=""
 CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 CHMOD="yes"
@@ -75,10 +76,11 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 	-l, --logtofile	- log all to file,
 	-m, --mr-proper - only remove all files relayted to spec file and
 			  all work resources,
+	-nc, --no-cvs	- don't download from CVS, if source URL is given,
+	-nu, --no-urls	- don't try to download from FTP/HTTP location,
 	-q, --quiet	- be quiet,
 	-r, --cvstag	- build package using resources from specified CVS
 			  tag,
-	-u, --no-urls	- try to get sources only from CVS repo,
 	-v, --verbose	- be verbose,
 
 "
@@ -196,24 +198,31 @@ get_all_files()
 	else
 	    OPTIONS="$OPTIONS -A"
 	fi
-
-	cvs $OPTIONS `nourl $SOURCES $PATCHES $ICONS`
-	
-	if [ -z "$NOURLS" ]; then
-		for i in $SOURCES $PATCHES $ICONS; do
-			if [ ! -f "`nourl $i`" ]&&\
-			[ `echo $i | grep 'ftp://\|http://'` ]; then
-				wget -c -t0 "$i"
-			fi
-		done
-	fi
-	
 	for i in $SOURCES $PATCHES $ICONS; do
+		if 
+			echo $i | grep -v '^\(http\|ftp\)://' |\
+			grep -q '\.\(gz\|bz2\)$'
+		then
+			echo "Warning: no URL given for $i"
+		fi
+		
+		if	[ -z "$NOCVS" ]||\
+			[ `echo $i | grep -v 'ftp://\|http://'` ]
+		then
+			cvs $OPTIONS `nourl $SOURCES $PATCHES $ICONS`
+		fi
+		
+		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
+			[ `echo $i | grep 'ftp://\|http://'` ]
+		then
+			wget -c -t0 "$i"
+		fi
+
 		if [ ! -f "`nourl $i`" ]; then
 			Exit_error err_no_source_in_repo;
 		fi
 	done
-
+	
 	if [ "$CHMOD" = "yes" ]; then
 	    chmod 444 `nourl $SOURCES $PATCHES $ICONS`
 	fi
@@ -280,14 +289,16 @@ while test $# -gt 0 ; do
 	    shift; LOGFILE="${1}"; shift ;;
 	-m | --mr-proper )
 	    COMMAND="mr-proper"; shift ;;
+	-nc | --no-cvs )
+	    NOCVS="yes"; shift ;;
+	-nu | --no-urls )
+	    NOURLS="yes"; shift ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
-	-u | --no-urls )
-	    NOURLS="yes"; shift ;;
 	* )
 	    SPECFILE="${1}"; shift ;;
     esac
