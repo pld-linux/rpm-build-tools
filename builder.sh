@@ -24,6 +24,7 @@ DEBUG=""
 NOURLS=""
 NOCVS=""
 NOCVSSPEC=""
+NODIST=""
 ALLWAYS_CVSUP=${ALLWAYS_CVSUP:-"yes"}
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
@@ -128,6 +129,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			  given,
 	-ncs, --no-cvs-specs
 			- don't check specs in CVS
+	-nd, --no-distfiles
+			- don't download from distfiles
 	-nm, --no-mirrors - don't download from mirror, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
 	-ns, --no-srcs  - don't download Sources
@@ -381,7 +384,7 @@ get_files()
 		    echo "Warning: no URL given for $i"
 		fi
 
-		if [ -n "$(src_md5 "$i")" ] ; then
+		if [ -n "$(src_md5 "$i")" ] && [ -z "$NODIST" ]; then
 		    target=$(nourl "$i")
 		    url=$(distfiles_url "$i")
 		    if [ -z "$NOMIRRORS" ] ; then
@@ -409,12 +412,14 @@ get_files()
 		    done
 		fi
 
-		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
+		if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
 		    if [ -z "$NOMIRRORS" ] ; then
 			i="`find_mirror "$i"`"
 		    fi
 		    ${GETURI} "$i" || \
 			if [ `echo $i | grep -E 'ftp://'` ]; then ${GETURI2} "$i" ; fi
+#		    echo -n "#Source$(src_no $i)-md5:	" >> $SPECS_DIR/$SPECFILE.md5
+#		    md5sum `echo $i | perl -ne '/.*\/(.*)/; print "$1\n"'` | cut -f1 -d' ' >> $SPECS_DIR/$SPECFILE.md5
 		fi
 
 		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
@@ -657,6 +662,8 @@ while test $# -gt 0 ; do
 	    NOCVS="yes"; shift ;;
 	-ncs | --no-cvs-specs )
 	    NOCVSSPEC="yes"; shift ;;
+	-nd | --no-distfiles )
+	    NODIST="yes"; shift ;;
 	-nm | --no-mirrors )
 	    NOMIRRORS="yes"; shift ;;
 	-nu | --no-urls )
