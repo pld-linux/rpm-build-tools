@@ -275,7 +275,7 @@ defattr == 1 {
 	if (boc == 1) {
 		if (!/^$/) {
 			if (!/\$.*Log:.*\$/)
-				print "$x" "Log:$" > changelog_file
+				print "$" "Log:$" > changelog_file
 			boc = 0
 		}
 	}
