@@ -93,17 +93,6 @@ fi
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
 POLDEK_SOURCE="cvs"
 
-# Example grep cvs /etc/poldek.conf:
-# source = cvs /home/users/yoshi/rpm/RPMS/
-if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-	POLDEK_SOURCE_VALIDITY="`grep ${POLDEK_SOURCE} /etc/poldek.conf|grep -v ^#`"
-	if [ "${POLDEK_SOURCE_VALIDITY}" = "" ]; then 
-		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
-		echo "Fix it and try to continue"
-		exit 7
-	fi
-fi
-
 if [ -f ~/etc/builderrc ]; then
     . ~/etc/builderrc
 fi
@@ -115,6 +104,17 @@ else
 fi
 
 [ -f $USER_CFG ] && . $USER_CFG        
+
+# Example grep cvs /etc/poldek.conf:
+# source = cvs /home/users/yoshi/rpm/RPMS/
+if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
+	POLDEK_SOURCE_VALIDITY="`grep ${POLDEK_SOURCE} /etc/poldek.conf|grep -v ^#`"
+	if [ "${POLDEK_SOURCE_VALIDITY}" = "" ]; then 
+		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
+		echo "Fix it and try to continue"
+		exit 7
+	fi
+fi
 
 #---------------------------------------------
 # functions
@@ -920,7 +920,7 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 	    echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 	    for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,perl\(,perl-,g -e s,::,-,g -e s,\(.*\),,g -e s,%{,,g -e s,},,g|grep -v OpenGL-devel|sed -e s,sh-utils,coreutils,g -e s,fileutils,coreutils,g -e s,kgcc_package,gcc,g -e s,\),,g`
 	    do
-		package_item="`echo $package_item|sed -e s,rpmbuild,rpm-build,g |sed -e s,__perl,perl,g |sed -e s,gasp,binutils-gasp,g |sed -e s,apxs,apache,g|sed -e s,apache\(EAPI\)-devel,apache-devel,g`"
+		package_item="`echo $package_item|sed -e s,rpmbuild,rpm-build,g |sed -e s,__perl,perl,g |sed -e s,gasp,binutils-gasp,g -e s,binutils-binutils,binutils,g -e s,apxs,apache,g|sed -e s,apache\(EAPI\)-devel,apache-devel,g -e s,kernel-headers\(netfilter\),kernel-headers,g -e s,awk,mawk,g -e s,mmawk,mawk,g -e s,motif,openmotif,g -e s,openopenmotif,openmotif,g`"
                 GO="yes"
                 package=`basename "$package_item"|sed -e "s/}$//g"`
                 COND_ARCH_TST="`cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g"`"
@@ -1002,6 +1002,18 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 	                                	*)
 							echo "Attempting to run spawn sub - builder..."
 							run_sub_builder $package_name 
+							if [ $? -eq 0 ]; then
+								poldek -i $package_name
+								case $? in
+									0)
+										INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
+										echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
+										;;
+									*)
+										NOT_INSTALLED_PACKAGES="$package_name $NOT_INSTALLED_PACKAGES"
+										;;
+								esac
+							fi
 	                        	                ;;
         		                        esac
 					done
@@ -1009,6 +1021,19 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 				else
 					echo "Attempting to run spawn sub - builder..."
 					run_sub_builder $package
+					if [ $? -eq 0 ]; then
+						poldek -i $package_name
+                                                case $? in
+                                                	0)
+                                                        	INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
+                                                        	echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
+                                                        	;;
+                                                        *)
+                                               	        	NOT_INSTALLED_PACKAGES="$package_name $NOT_INSTALLED_PACKAGES"
+                                                                ;;
+                                                esac    
+
+					fi      
 				fi
                         else
                                 echo "Package $package is already installed. BuildRequirement satisfied."
