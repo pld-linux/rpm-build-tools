@@ -1,12 +1,13 @@
 #!/bin/awk -f
 #
-# This is adapter v0.2. Adapter adapts .spec files for PLD.
+# This is adapter v0.3. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
 	preamble = 1;
 	bof = 1;	# Beggining of file
 	boc = 2;	# Beggining of %changelog
+	tw = 77;	# Descriptions width
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -19,12 +20,41 @@ bof == 1 {
 # descriptions:
 /%description/, (/^%[a-z]+/ && !/%description/) {
 	preamble = 0;
-
+	
 	# Define _prefix and _mandir if it is X11 application
 	if (/^%description$/ && x11 == 1) {
 		print "%define\t\t_prefix\t\t/usr/X11R6";
 		print "%define\t\t_mandir\t\t%{_prefix}/man\n";
 		x11 == 2;
+	}
+
+	# Collect whole text of description
+	if (description == 1 && !/^%[a-z]+/ && !/%description/) {
+		description_text = description_text $0 " ";
+		noprint = 1;
+	}
+	
+	# Formt description to the length of tw (default == 77)
+	if (/^%[a-z]+/ && !/%description/) {
+		n = split(description_text, dt, / /);
+		for (i = 1; i <= n; i++) {
+			if (length(line) + length(dt[i]) + 1 < tw) {
+				line = line dt[i] " ";
+			} else {
+				print line;
+				line = "";
+				i--;
+			}
+		}
+		
+		print line "\n";
+		line = "";
+		delete dt;
+		description_text = "";
+
+		description = 0;
+	} else {
+		description = 1;
 	}
 }
 
@@ -82,6 +112,7 @@ bof == 1 {
 	
 	if (/%defattr/)
 		$0 = "%defattr(644,root,root,755)";
+
 }
 
 # %changelog section:
@@ -98,8 +129,12 @@ bof == 1 {
 		boc = 0;
 	}
 	
-	if (boc == 2)
+	# Define date macro.
+	if (boc == 2 && date == 0) {
+		printf "%%define date\t%%(echo `LC_ALL=\"C\"";
+	       	print " date +\"%a %b %d %Y\"`)"
 		boc--;
+	}
 }
 
 # preambles:
@@ -153,6 +188,11 @@ preamble == 1 {
 # but set the redundant_line to 0.
 {
 	preamble = 1;
+	
+	# Macro 'date' already defined.
+	if (/%define date/)
+		date = 1;
+	
 	if (noprint == 0)
 		print;
 	else
