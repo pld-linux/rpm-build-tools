@@ -401,7 +401,7 @@ preamble == 1 {
 		$1 = "Epoch:"
 
 	# Use %{name} and %{version} in the filenames in "Source:"
-	if (field ~ /source/ || field ~ /patch/) {
+	if (field ~ /^source/ || field ~ /patch/) {
 		n = split($2, url, /\//)
 		if (url[n] ~ /\.gz$/) {
 			url[n+1] = ".gz" url[n+1]
@@ -439,7 +439,7 @@ preamble == 1 {
 		$2 = fixedsub(filename, url[n], $2)
 	}
 
-	if (field ~ /source:/)
+	if (field ~ /^source:/)
 		$1 = "Source0:"	
 
 	if (field ~ /patch:/)
