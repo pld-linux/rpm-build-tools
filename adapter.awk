@@ -708,6 +708,30 @@ function use_files_macros(	i, n, t, a)
 		$0 = "%attr(755,root,root) " $0
 	}
 
+	# /etc/sysconfig files
+	# %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
+	if (/\/etc\/sysconfig\// && !/%attr.*/) {
+		$0 = "%attr(640,root,root) " $0
+	}
+
+	if (/\/etc\/sysconfig\// && /%config/ && !/%config\(noreplace\)/) {
+		gsub("%config", "%config(noreplace)")
+	}
+
+	if (/\/etc\/sysconfig\// && !/%config\(noreplace\)/) {
+		gsub("%attr\(%config\s", "%config(noreplace)")
+	}
+
+	if (/\/etc\/sysconfig\// && !/%verify/) {
+		gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig");
+	}
+
+	if (/\/etc\/sysconfig\// && !/%attr\(640/) {
+		gsub("^%attr\(... *,", "%attr(640,");
+	}
+
+
+	# kill leading zeros
 	gsub("%attr\(0", "%attr(")
 
 	# sort %verify attrs
