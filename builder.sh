@@ -41,12 +41,13 @@ ICONS=""
 PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
+WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 
 DEF_NICE_LEVEL=0
 
 FAIL_IF_NO_SOURCES="yes"
 
-GETURI="wget -c -nd -t0"
+GETURI="wget -c -nd -t$WGET_RETRIES"
 
 if [ -f ~/etc/builderrc ]; then
   . ~/etc/builderrc
@@ -462,6 +463,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.81  2001/07/06 16:52:30  misiek
+# - by default use CVSroot from CVS/Root and if it doesn't exist use from CVSROOT variable
+#
 # Revision 1.80  2001/06/22 18:52:39  misiek
 # - added support for --with/--without options
 #
