@@ -130,7 +130,8 @@ function subst_defines(var,defs) {
 
 function find_mirror(url) {
 
-	while (getline line < "mirrors") {
+	while (succ = (getline line < "mirrors")) {
+	    if (succ==-1) { return url }
 		nf=split(line,fields,"|")
 		if (nf>1){
 			origin=fields[1]
@@ -184,6 +185,9 @@ function process_source(number,lurl,name,version) {
 	if ( DEBUG ) print "Przed numerkiem: " prever
 	if ( DEBUG ) print "i po: " postver
 	newurl=find_mirror(acc "://" host dir)	
+	#print acc "://" host dir
+	#newurl=url[1]"://"url[2]url[3]url[4]
+	#newurl=acc "://" host dir filename
 	if ( DEBUG ) print "Zagl±dam na " newurl 
 	
 	references=0
