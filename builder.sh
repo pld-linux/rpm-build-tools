@@ -586,6 +586,9 @@ tag_files()
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
 	TAGVER=$TAG_PREFIX$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
+	# Remove #kernel.version_release from TAGVER because tagging sources
+	# could occur with different kernel-headers than kernel-headers used at build time.
+	TAGVER=$(echo "$TAGVER" | sed -e 's/#.*//g')
 	if [ "$TAG_VERSION" = "yes" ]; then
 	    echo "CVS tag: $TAGVER"
 	fi
