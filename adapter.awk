@@ -317,9 +317,10 @@ preamble == 1 {
 	sub(/[ \t]*:/, ":")
 	
 	field = tolower($1)
+	fieldnlower = $1
 	if (Byla_grupa == 1 && field ~ /^#/)
 		next
-	if (Byla_grupa == 1 && field !~ /group(\(..\))?:/) {
+	if (Byla_grupa == 1 && field !~ /group(\([^)]+\))?:/) {
 		Byla_grupa = 0
 		print "Group:\t\t" Grupa["en"]
 		if (Grupa["en"] ~ /^X11/ && x11 == 0)	# Is it X11 application?
@@ -364,7 +365,7 @@ preamble == 1 {
 	if (field ~ /buildroot:/)
 		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
 
-	if (field ~ /group(\(..\))?:/) {
+	if (field ~ /group(\([^)]+\))?:/) {
 		format_preamble()
 		sub(/^Utilities\//,"Applications/",$2)
 		sub(/^Games/,"Applications/Games",$2)
@@ -376,10 +377,10 @@ preamble == 1 {
 		sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy",$2)
 		sub(/^Shells/,"Applications/Shells",$2)
 
-		if (!match(field,/\(..\):/))
+		if (!match(fieldnlower,/\([^)]+\):/))
 			glang="en"
 		else
-			glang=substr(field,RSTART+1,2)
+			glang=substr(fieldnlower,RSTART+1,RLENGTH-3)
 		sub(/^[^ \t]*[ \t]*/,"")
 		Grupa[glang] = $0
 		Byla_grupa = 1
@@ -528,7 +529,7 @@ function fixedsub(s1,s2,t,      ind) {
 function format_preamble()
 {
 	sub(/:[ \t]*/, ":")
-	if (match($0, /[A-Za-z0-9()# \t]+[ \t]*:[ \t]*/) == 1) {
+	if (match($0, /[A-Za-z0-9()#_ \t]+[ \t]*:[ \t]*/) == 1) {
 		if (RLENGTH < 8)
 			sub(/:/, ":\t\t")
 		else
