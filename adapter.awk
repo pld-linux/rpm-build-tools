@@ -603,8 +603,11 @@ function use_macros()
 	gsub("%{PACKAGE_VERSION}", "%{version}")
 	gsub("%{PACKAGE_NAME}", "%{name}")
 
-	gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
-	gsub("%{_datadir}/applnk", "%{_applnkdir}")
+	# we can move files between tge dirs below
+	if ($0 !~ "%{_applnkdir}") {
+		gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
+		gsub("%{_datadir}/applnk", "%{_applnkdir}")
+	}
 
 	gsub("^make$", "%{__make}")
 	gsub("^make ", "%{__make} ")
