@@ -149,7 +149,7 @@ get_spec()
     OPTIONS="up "
 
     if [ -n "$CVSROOT" ]; then
-	OPTIONS="-d $CVSROOT"
+	OPTIONS="$OPTIONS -d $CVSROOT"
     fi
     if [ -n "$CVSTAG" ]; then
 	OPTIONS="$OPTIONS -r $CVSTAG"
