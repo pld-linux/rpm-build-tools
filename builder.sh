@@ -269,7 +269,7 @@ get_spec()
 	    result=$?
 	    [ -n "$output" ] && echo "$output"
 	    if [ "$result" -ne "0" ]; then
-		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer)") && [ "$retries_counter" -le "$CVS_RETRIES" ]; then
+		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out)") && [ "$retries_counter" -le "$CVS_RETRIES" ]; then
 		    echo "Trying again [$SPECFILE]... ($retries_counter)"
 		    sleep 2
 		    continue
@@ -355,7 +355,7 @@ get_files()
 			output=$(LC_ALL=C cvs $OPTIONS `nourl $i` 2>&1)
          		result=$?
 			[ -n "$output" ] && echo "$output"
-			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
+			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
 				echo "Trying again [`nourl $i`]... ($retries_counter)"
 				sleep 2
 				continue
