@@ -392,6 +392,8 @@ function use_macros()
 	gsub("%{prefix}/info", "%{_infodir}")
 	gsub("%{_prefix}/info", "%{_infodir}")
 
+	gsub("%{_datadir}/aclocal", "%{_aclocaldir}")
+
 	if (prefix != "/") {
 		gsub(prefix, "%{_prefix}")
 		gsub("%{prefix}", "%{_prefix}")
