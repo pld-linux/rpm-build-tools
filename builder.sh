@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 # -----------
 # Exit codes:
 #	0 - succesful
@@ -26,19 +26,6 @@ ICON=""
 PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
-
-dumb_spec="\
-Summary:	-
-Name:		dumb
-Version:	dumb
-Release:	dumb
-Copyright:	dumb
-Group:		-
-%description
-
-%prep
-echo SOURCE_DIR=%{_sourcedir}
-echo SPECS_DIR=%{_specdir}"
 
 #---------------------------------------------
 # functions
@@ -116,8 +103,22 @@ Exit_error()
 init_builder()
 {
     DUMB_SPEC_FILE=`mktemp -q /tmp/bilder.XXXXXX`
-    echo $dumb_spec > $DUMB_SPEC_FILE
-    `rpm -bp $DUMB_SPEC_FILE | egrep -e "SOURCE_DIR|SPECS_DIR"`
+    echo "\
+Summary:	-
+Name:		dumb
+Version:	dumb
+Release:	dumb
+Copyright:	dumb
+Group:		-
+%description
+
+%prep
+echo SOURCE_DIR=%{_sourcedir}
+echo SPECS_DIR=%{_specdir}" > $DUMB_SPEC_FILE
+
+    SOURCE_DIR=`rpm -bp $DUMB_SPEC_FILE | grep "SOURCE_DIR"`
+    SPEC_DIR=`rpm -bp $DUMB_SPEC_FILE | grep "SPECS_DIR"`
+
     rm -f $DUMB_SPEC_FILE
 
     __PWD=`pwd`
