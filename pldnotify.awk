@@ -76,7 +76,7 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 			odp=(odp " " oneline)
 		if ( DEBUG ) print "Odpowiedz: " odp
 	}
-		
+	
 	close(tmpfile)
 	system("rm -f " tmpfile)
 	if ( errno==0) {
@@ -85,22 +85,28 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 				match(tolower(odp),/<frame[ \t][^>]*>/)
 				ramka=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,RSTART+RLENGTH)
+				sub(/[sS][rR][cC]=[ \t]+/,"src=",ramka);
 				match(tolower(ramka),/src="[^"]+"/)
 				newurl=substr(ramka,RSTART+5,RLENGTH-6)
 				if (DEBUG) print "Ramka: " newurl
 				retval=(retval " " get_links(newurl))
-			} else if (tolower(odp) ~ /href="[^"]+"/) {
+			} else if (tolower(odp) ~ /href=[ \t]*"[^"]+"/) {
+				sub(/[hH][rR][eE][fF]=[ \t]+/,"href=",odp)
 				match(tolower(odp),/href="[^"]+"/)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
 				retval=(retval " " link)
-			} else {
+			} else if (tolower(odp) ~ /href=[ \t]*[^ \t>]+/) {
+				sub(/[hH][rR][eE][fF]=[ \t]+/,"href=",odp)
 				match(tolower(odp),/href=[^ \t>]+/)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,RSTART+RLENGTH)
 				link=substr(link,6,length(link)-5)
 				retval=(retval " " link)
+			} else {
+				retval=(retval " INTERNAL_ERROR")
+				break
 			}
 		}
 	} else {
