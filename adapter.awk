@@ -65,7 +65,7 @@ defattr == 1 {
 }
 
 # Comments
-/^#/ {
+/^#/ && (description == 0) {
 	if (/This file does not like to be adapterized!/) {
 		print			# print this message
 		while (getline)		# print the rest of spec as it is
