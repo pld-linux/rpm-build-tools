@@ -101,7 +101,7 @@ POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
 POLDEK_SOURCE="cvs"
 POLDEK_CMD="/usr/bin/poldek"
 
-# Here we load saved user environment used to 
+# Here we load saved user environment used to
 # predefine options set above, or passed to builder
 # in command line.
 # This one reads global system environment settings:
@@ -124,16 +124,16 @@ else
 	USER_CFG=~/.builderrc
 fi
 
-[ -f $USER_CFG ] && . $USER_CFG        
+[ -f $USER_CFG ] && . $USER_CFG
 
 run_poldek()
 {
 	RES_FILE=~/tmp/poldek-exit-status.$RANDOM
 	if [ -n "$LOGFILE" ]; then
-   	LOG=`eval echo $LOGFILE`
-      if [ -n "$LASTLOG_FILE" ]; then
-      	echo "LASTLOG=$LOG" > $LASTLOG_FILE
-      fi
+		LOG=`eval echo $LOGFILE`
+		if [ -n "$LASTLOG_FILE" ]; then
+			echo "LASTLOG=$LOG" > $LASTLOG_FILE
+		fi
 		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee $LOG
 		return $exit_pldk
 	else
@@ -147,7 +147,7 @@ run_poldek()
 # source = cvs /home/users/yoshi/rpm/RPMS/
 if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
 	run_poldek -l -n ${POLDEK_SOURCE} 1>&2 > /dev/null
-	if [ ! "$?" == "0" ]; then 
+	if [ ! "$?" == "0" ]; then
 		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
 		echo "Fix it and try to continue"
 		exit 7
@@ -168,7 +168,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [-h|--help] [--http] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
 [-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
-[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version] 
+[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>]
 [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
@@ -180,13 +180,13 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -a, --as_anon       - get files via pserver as cvs@$CVS_SERVER,
 -b, -ba, --build    - get all files from CVS repo or HTTP/FTP and build package
                       from <package>.spec,
--bb, --build-binary - get all files from CVS repo or HTTP/FTP and build binary 
+-bb, --build-binary - get all files from CVS repo or HTTP/FTP and build binary
                       only package from <package>.spec,
--bs, --build-source - get all files from CVS repo or HTTP/FTP and only pack 
+-bs, --build-source - get all files from CVS repo or HTTP/FTP and only pack
                       them into src.rpm,
 -bp, --build-prep   - execute the %prep phase of <package>.spec,
 -B, --branch        - add branch
--c, --clean         - clean all temporarily created files (in BUILD, SOURCES, 
+-c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
                       SPECS and \$RPM_BUILD_ROOT),
 -d <cvsroot>, --cvsroot <cvsroot>	
                     - setup \$CVSROOT,
@@ -199,7 +199,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 --http              - use http instead of ftp,
 -l <logfile>, --logtofile <logfile>
                     - log all to file,
--m, --mr-proper     - only remove all files related to spec file and all work 
+-m, --mr-proper     - only remove all files related to spec file and all work
                       resources,
 -nc, --no-cvs       - don't download sources from CVS, if source URL is given,
 -ncs, --no-cvs-specs
@@ -241,12 +241,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -un, --try-upgrade-with-float-version
                     - as above, but allow float version
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
--Upi, --update-poldek-indexes 
+-Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
-                      %_without_<feature> macro switch.  You may now use 
-                      --with feat1 feat2 feat3 --without feat4 feat5 --with feat6 
+                      %_without_<feature> macro switch.  You may now use
+                      --with feat1 feat2 feat3 --without feat4 feat5 --with feat6
                       constructions. Set GROUP_BCONDS to yes to make use of it.
 "
 }
@@ -255,10 +255,10 @@ cache_rpm_dump () {
 rpm_dump_cache=`
 	case "$RPMBUILD" in
 		rpm )
-			rpm -bp --nodeps --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+			rpm -bp --nodeps --define 'prep %dump' $BCOND $SPECFILE 2>&1
 			;;
 		rpmbuild )
-			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1
 			;;
 	esac`
 }
@@ -579,7 +579,7 @@ get_files()
 						im="$i"
 					fi
 					${GETURI} "$im" || \
-					if [ `echo $im | grep -E 'ftp://'` ]; then 
+					if [ `echo $im | grep -E 'ftp://'` ]; then
 						${GETURI2} "$im"
 			  		fi
 				fi
@@ -598,7 +598,7 @@ get_files()
 				md5=$(md5sum `nourl $i` | cut -f1 -d' ')
 				perl -i -ne '
 				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
-				print "# Source'$srcno'-md5:\t'$md5'\n" 
+				print "# Source'$srcno'-md5:\t'$md5'\n"
 				if /^Source'$srcno'\s*:\s+/;
 				' \
 				$SPECS_DIR/$SPECFILE
@@ -867,7 +867,7 @@ set_bconds_values()
 						;;
 					_with)
 						cond_type="with"
-		  				;;
+						;;
 					*)
 						case "$cond_type" in
 							with)
@@ -908,7 +908,7 @@ run_sub_builder()
 	#
 	# Update: Poprawi³em parê rzeczy i zaczê³o generowaæ pakiety spoza zadanej listy.
 	#         Jednym s³owem budowanie niespoldkowanych zale¿no¶ci dzia³a w paru przypadkach.
-	#         
+	#
 	#
 	# y0shi.
 
@@ -1032,7 +1032,7 @@ fetch_build_requires()
 					fi	
 				fi
 				RESULT="${COND_STATE}-${COND_ARGV}"
-				case "$RESULT" in 
+				case "$RESULT" in
 					"with-wout" | "wout-with" )
 						GO=""
 						;;
@@ -1052,7 +1052,7 @@ fetch_build_requires()
 					run_poldek -t -i $package --dumpn=".$package-req.txt"
 					if [ -f ".$package-req.txt" ]; then
 						for package_name in `cat ".$package-req.txt"|grep -v ^#`
-						do 
+						do
 							if [ "$package_name" = "$package" ]; then
 								echo -ne "Installing BuildRequired package:\t$package_name\n"
 								export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing BuildRequired package: ${package_name}\007"`
@@ -1069,7 +1069,7 @@ fetch_build_requires()
 									;;
 								*)
 									echo "Attempting to run spawn sub - builder..."
-									run_sub_builder $package_name 
+									run_sub_builder $package_name
 									if [ $? -eq 0 ]; then
 										install_required_packages $package_name;
 										case $? in
@@ -1099,8 +1099,8 @@ fetch_build_requires()
 								*)
 									NOT_INSTALLED_PACKAGES="$package_name $NOT_INSTALLED_PACKAGES"
 									;;
-							esac    
-						fi      
+							esac
+						fi
 					fi
 				else
 					echo "Package $package is already installed. BuildRequirement satisfied."
@@ -1285,7 +1285,7 @@ do
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
 		* )
-			SPECFILE="`basename ${1} .spec`.spec"; 
+			SPECFILE="`basename ${1} .spec`.spec";
 			export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
 			shift ;;
 	esac
