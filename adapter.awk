@@ -693,6 +693,7 @@ function use_files_macros(	i, n, t, a)
 
 	gsub("%{_sysconfdir}\/rc\.d\/init.d", "/etc/rc.d/init.d")
 	gsub("%{_sysconfdir}\/init.d", "/etc/rc.d/init.d")
+	gsub("%{_sysconfdir}\/sysconfig", "/etc/sysconfig")
 
 	if (/\/etc\/rc\.d\/init\.d/) {
 		if (!/%attr.*\/etc\/rc\.d\/init\.d/) {
