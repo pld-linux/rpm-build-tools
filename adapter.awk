@@ -415,6 +415,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/security")
 			continue;
+		if ($c ~ sysconfdir "/skel")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
