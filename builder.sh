@@ -120,12 +120,12 @@ fi
 #LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 #
 if [ -n "$HOME_ETC" ]; then
-	USER_CFG=$HOME_ETC/.builderrc
+	USER_CFG="$HOME_ETC/.builderrc"
 else
 	USER_CFG=~/.builderrc
 fi
 
-[ -f $USER_CFG ] && . $USER_CFG
+[ -f "$USER_CFG" ] && . "$USER_CFG"
 
 run_poldek()
 {
@@ -363,14 +363,14 @@ get_spec()
 		set -v;
 	fi
 
-	CWD=$(pwd)
-	cd $SPECS_DIR
+	CWD="$(pwd)"
+	cd "$SPECS_DIR"
 	if [ \! -f "$SPECFILE" ]; then
 		SPECFILE="`basename $SPECFILE .spec`.spec";
 	fi
-	cd $CWD
+	cd "$CWD"
 	if [ "$NOCVSSPEC" != "yes" ]; then
-		cd $SPECS_DIR
+		cd "$SPECS_DIR"
 
 		OPTIONS="up "
 
@@ -505,7 +505,7 @@ get_files()
 	fi
 
 	if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
-		cd $SOURCE_DIR
+		cd "$SOURCE_DIR"
 
 		OPTIONS="up "
 		if [ -n "$CVSROOT" ]; then
@@ -704,7 +704,7 @@ tag_files()
 			OPTIONS="-d $CVSROOT $OPTIONS"
 		fi
 
-		cd $SOURCE_DIR
+		cd "$SOURCE_DIR"
 		for i in $TAG_FILES
 		do
 			# don't tag files stored on distfiles
@@ -721,7 +721,7 @@ tag_files()
 			fi
 		done
 
-		cd $SPECS_DIR
+		cd "$SPECS_DIR"
 		if [ "$TAG_VERSION" = "yes" ]; then
 			cvs $OPTIONS $TAGVER $SPECFILE
 		fi
@@ -752,7 +752,7 @@ branch_files()
 		if [ -n "$CVSROOT" ]; then
 			OPTIONS="-d $CVSROOT $OPTIONS"
 		fi
-		cd $SOURCE_DIR
+		cd "$SOURCE_DIR"
 		for i in $TAG_FILES
 		do
 			if [ -f `nourl $i` ]; then
@@ -761,7 +761,7 @@ branch_files()
 				Exit_error err_no_source_in_repo $i
 			fi
 		done
-		cd $SPECS_DIR
+		cd "$SPECS_DIR"
 		cvs $OPTIONS $TAG $SPECFILE
 
 		unset OPTIONS
@@ -777,7 +777,7 @@ build_package()
 		set -v;
 	fi
 
-	cd $SPECS_DIR
+	cd "$SPECS_DIR"
 
 	if [ -n "$TRY_UPGRADE" ]; then
 		if [ -n "$FLOAT_VERSION" ]; then
@@ -800,7 +800,7 @@ build_package()
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
 	fi
-	cd $SPECS_DIR
+	cd "$SPECS_DIR"
 
 	case "$COMMAND" in
 		build )
