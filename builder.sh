@@ -11,6 +11,9 @@
 #	6 - spec file with errors
 #	7 - wrong source in /etc/poldek.conf
 #  8 - Failed installing buildrequirements and subrequirements
+#  9 - Requested tag already exist
+# 10 - Refused to build fractional release
+#100 - Unknown error (should not happen)
 
 # Notes (todo):
 #	- builder -u fetches current version first
@@ -244,6 +247,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                     - add <prefix> to NAME-VERSION-RELEASE tags,
 -tt, --test-tag <prefix>
                     - fail if tag is already present,
+-ir, --integer-release-only
+                    - allow only integer and snapshot releases
 -v, --verbose       - be verbose,
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
@@ -348,7 +353,18 @@ Exit_error()
 			remove_build_requires
 			echo "Error: package build failed. (${2:-no more info})";
 			exit 5 ;;
+	   "err_tag_exists" )
+			remove_build_requires
+			echo "Tag ${2} already exists (spec release: ${3}).";
+			exit 9 ;;
+	   "err_fract_rel" )
+			remove_build_requires
+			echo "Release ${2} not integer and not a snapshot.";
+			exit 10 ;;
+
 	esac
+   echo "Unknown error."
+   exit 100 
 }
 
 init_builder()
@@ -1365,6 +1381,9 @@ do
 			TAG="$1"
 			TAG_VERSION="no"
 			shift;;
+		-ir | --integer-release-only )
+			INTEGER_RELEASE="yes"
+			shift;;
 		-U | --update )
 			COMMAND="get"
 			UPDATE="yes"
@@ -1413,14 +1432,19 @@ case "$COMMAND" in
 		display_bconds;
 		fetch_build_requires;
 		parse_spec;
-
+	   if [ "$INTEGER_RELEASE" = "yes" ]; then
+		  echo "Checking release $PACKAGE_RELEASE..."
+		  if echo $PACKAGE_RELEASE | grep -q '^[^.]*\.[^.]*$' 2>/dev/null ; then
+			  Exit_error err_fract_rel "$PACKAGE_RELEASE"
+		  fi
+	   fi
+		
 		if [ -n "$TEST_TAG" ]; then
 			TAGVER=`make_tagver`
 			echo "Searching for tag $TAGVER..."
 			TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
-
 			if [ -n "$TAGREL" ]; then
-				Exit_error err_build_fail "Tag $TAGVER already present (spec release: $TAGREL)"
+				Exit_error err_tag_exists "$TAGVER" "$TAGREL"
 			fi
 		fi
 
@@ -1481,6 +1505,12 @@ case "$COMMAND" in
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
 			parse_spec;
+			if [ "$INTEGER_RELEASE" = "yes" ]; then
+		      echo "Checking release $PACKAGE_RELEASE..."
+				if echo $PACKAGE_RELEASE | grep -q '[^.]*\.[^.]*' 2>/dev/null ; then
+					Exit_error err_fract_rel "$PACKAGE_RELEASE"
+				fi
+			fi
 			if [ -n "$ICONS" ]; then
 				get_files $ICONS
 				parse_spec;
