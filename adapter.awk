@@ -167,7 +167,7 @@ comment_block == 1 {
 			split($0, tmp, "LDFLAGS=")
 			count = split(tmp[2], flags, "\"")
 			if (flags[1] != "" && flags[1] !~ "!?debug") {
-				sub(/-s[" ]?/, "%{!?debug:-s} ", flags[1])
+				sub(/-s[" ]?/, "%{rpmldflags} ", flags[1])
 				$0 = tmp[1] line[1] "LDFLAGS=" flags[1] "\""
 				for (i = 2; i < count; i++)
 					$0 = $0 flags[i] "\""
@@ -661,7 +661,7 @@ function cflags(var)
 	}
 		
 	if (!/!\?debug/)
-		sub("\$RPM_OPT_FLAGS", "%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g}")
+		sub("\$RPM_OPT_FLAGS", "%{rpmcflags}")
 	return 1
 }
 
