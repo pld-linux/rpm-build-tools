@@ -248,7 +248,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
                     - as above, but allow float version
--U, --update        - refetch sources, don't use distfiles, and update md5 comments
+-U, --update        - refetch sources, don't use distfiles, and update md5 and size comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
 --with/--without <feature>
