@@ -515,13 +515,11 @@ src_md5 ()
 	if [ X"$md5" = X"" ] ; then
 		source_md5=`grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
 		if [ ! -z "$source_md5" ] ; then
-			 echo "nie mam source$no-md5" >> /tmp/blog2
 			 echo $source_md5;
 		else
 			 # we have empty SourceX-md5, but it is still possible
 			 # that we have NoSourceX-md5 AND NoSource: X
 			 nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
-			 echo "nosource-d5  $nosource_md5" >> /tmp/blog2
 			 if [ ! -z "$nosource_md5" -a ! X"`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" = X"" ] ; then
 				  echo $nosource_md5;
 			 fi;
