@@ -20,6 +20,22 @@ PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
 
+dumb_spec="\
+Summary:	-
+Name:		dumb
+Version:	dumb
+Release:	dumb
+Copyright:	dumb
+Group:		-
+%description
+
+%prep
+echo SOURCEDIR=%{_sourcedir}
+echo SPECS=%{_specdir}"
+
+#---------------------------------------------
+# functions
+
 usage()
 {
 echo "\
@@ -84,6 +100,15 @@ build_package()
 {
     echo "build_package"
 }
+
+
+#---------------------------------------------
+# main()
+
+if [ "$#" == 0 ]; then
+    usage;
+    exit
+fi
 
 while test $# -gt 0 ; do
     case "${1}" in
