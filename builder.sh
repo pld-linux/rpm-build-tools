@@ -201,7 +201,7 @@ done
 case "$COMMAND" in
     "build" )
 	init_builder;
-	if [ "$SPECFILE" != "" ]; then
+	if [ -n "$SPECFILE" ]; then
 	    get_spec;
 	    parse_spec;
 	    get_all_files;
@@ -212,7 +212,7 @@ case "$COMMAND" in
 	;;
     "get" )
 	init_builder;
-	if [ "$SPECFILE" != "" ]; then
+	if [ -n "$SPECFILE" ]; then
 	    get_spec;
 	    parse_spec;
 	    get_all_files;
