@@ -282,7 +282,7 @@ defattr == 1 {
 			printf "All persons listed below can be reached at " > changelog_file
 			print "<cvs_login>@pld.org.pl\n" > changelog_file
 		}
-		boc = 0
+		boc = 1
 	}
 	if (boc == 3) {
 		if (!/PLD Team/)
