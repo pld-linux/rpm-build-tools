@@ -320,7 +320,7 @@ tag_files()
 branch_files()
 {
 	TAG=$1
-	echo "CVS tag: $TAG"
+	echo "CVS branch tag: $TAG"
 	shift;
 
 	TAG_FILES="$@"
@@ -517,6 +517,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.85  2001/11/19 23:02:06  blues
+# - added raw branching support
+#
 # Revision 1.84  2001/11/07 22:08:48  ankry
 # - make builder's chmod configurable
 #
