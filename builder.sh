@@ -176,7 +176,7 @@ get_spec()
 
     cd $SPECS_DIR
 
-    OPTIONS="-z9 up "
+    OPTIONS="-z3 up "
 
     if [ -n "$CVSROOT" ]; then
 	OPTIONS="-d $CVSROOT $OPTIONS"
@@ -211,7 +211,7 @@ get_all_files()
     if [ -n "$SOURCES$PATCHES$ICONS" ]; then
 	cd $SOURCE_DIR
 
-	OPTIONS="-z9 up "
+	OPTIONS="-z3 up "
 	if [ -n "$CVSROOT" ]; then
 	    OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
@@ -234,6 +234,9 @@ get_all_files()
 			[ `echo $i | grep -vE '(ftp|http|https)://'` ]
 		then
 			cvs $OPTIONS `nourl $i`
+			if [ "$?" -ne "0" ]; then
+				Exit_error err_no_source_in_repo;
+			fi
 		fi
 		
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
