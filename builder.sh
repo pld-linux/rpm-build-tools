@@ -79,7 +79,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper] [-q|--quiet]
 	[-r <cvstag>] [{-T--tag <cvstag>] [-Tvs|--tag-version-stable]
 	[-Tvd|--tag-version-devel] [-Ts|--tag-stable] [-Td|--tag-devel]
-	[-Tv|--tag-version] [-u|--no-urls] [-v|--verbose] [--opts <rpm opts>] 
+	[-Tv|--tag-version] [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] 
 	[--with/--without pkg] [--define <macro> <value>] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
