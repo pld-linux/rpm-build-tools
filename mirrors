@@ -10,7 +10,7 @@ http://www.cpan.org/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
 ftp://ftp.perl.org/pub/CPAN/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
 ftp://ftp.cpan.org/pub/CPAN/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
 http://www.cpan.org/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
-ftp://alpha.gnu.org/gnu/|ftp://ftp.icm.edu.pl/mirrors/alpha.gnu.org/gnu/|ICM
+ftp://alpha.gnu.org/gnu/|ftp://sunsite.icm.edu.pl/mirrors/alpha.gnu.org/gnu/|ICM
 ftp://ftp.troll.no/qt/source/|ftp://ftp.planetmirror.com.au/pub/trolltech/qt/source/|PlanetMirror
 ftp://ftp.troll.no/qt/source/|ftp://ftp.bero.org/pub/qt/source/|Bero
 ftp://ftp.mutt.org/|ftp://sunsite.icm.edu.pl/mirrors/ftp.mutt.org/|ICM
@@ -18,7 +18,7 @@ ftp://ftp.apache.org/|ftp://sunsite.icm.edu.pl/mirrors/ftp.apache.org/|ICM
 http://www.apache.org/dist/httpd/|http://sunsite.icm.edu.pl/pub/www/apache/dist/httpd/|ICM
 http://www.apache.org/dist/httpd/|ftp://sunsite.icm.edu.pl/pub/www/apache/dist/httpd/|ICM
 http://www.apache.org/dist/httpd/|ftp://ftp.task.gda.pl/pub/www/apache/dist/httpd/|TASK
-ftp://ftp.dante.de/tex-archive/|ftp://ftp.icm.edu.pl/pub/tex/|ICM
+ftp://ftp.dante.de/tex-archive/|ftp://sunsite.icm.edu.pl/pub/tex/|ICM
 http://www.exploits.org/nut/|http://penguin.harrison.k12.co.us/mirrors/nut/|US
 ftp://ftp.postgresql.org/pub/|ftp://ftp2.pl.postgresql.org/mirrors/ftp.postgresql.org/|amu.edu.pl
 ftp://ftp.gnupg.org/gcrypt/alpha/|http://mirrors.sunsite.dk/gnupg/alpha/|sunsite-dk
