@@ -119,22 +119,15 @@ parse_spec()
 
     cd $SPECS_DIR
 
-    # NOTE:  "--define 'prep '" causes an error (Macro %prep has empty body)
-    #        but rpm output is still useful.
-    # NOTE2: Redefining %prep to %dump isn't best solution because at least
-    #        six packages do not containt this section. All packages have
-    #        %install section.
-    DEFINE_AS_DUMP="--define 'prep ' --define 'install %dump'"
-
     if [ "$NOSRCS" != "yes" ]; then
-        SOURCES="`eval rpm -bp --nobuild $BCOND $DEFINE_AS_DUMP $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
     if (rpm -bp --nobuild $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
 
-    PATCHES="`eval rpm -bp --nobuild $DEFINE_AS_DUMP $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -538,87 +531,3 @@ case "$COMMAND" in
 esac
 
 cd $__PWD
-
-# $Log$
-# Revision 1.92  2002/01/19 14:54:45  mkochano
-# - Typos fixed.
-#
-# Revision 1.91  2002/01/19 14:41:25  mkochano
-# - Default value for LOGFILE with note about type of quotes to use.
-# - Modified method of getting list of sources and patches. Now %%install
-#   section is redefined instead of %%prep. This is because not all
-#   packages have %%prep section.
-# - Tab replaced with space in "- Patches :" message. This fixes list of
-#   patches placed too far right.
-# - Logging implemented. And it's really cool ;)
-# - Fixed "nourl" function. It returned only last argument.
-#
-# Revision 1.90  2002/01/15 17:03:14  misiek
-# - use grep instead of head
-#
-# Revision 1.89  2002/01/15 13:20:08  misiek
-# - display spec revision and date
-#
-# Revision 1.88  2001/11/23 15:07:05  zagrodzki
-# - fixed shifting arguments at --define
-# - use eval when starting rpm
-#
-# Revision 1.87  2001/11/23 13:53:01  zagrodzki
-# - added --define option
-#
-# Revision 1.86  2001/11/20 01:38:01  blues
-# - small cosmetic fix
-#
-# Revision 1.85  2001/11/19 23:02:06  blues
-# - added raw branching support
-#
-# Revision 1.84  2001/11/07 22:08:48  ankry
-# - make builder's chmod configurable
-#
-# Revision 1.83  2001/10/10 08:41:32  misiek
-# - allow more bconds than one
-#
-# Revision 1.82  2001/09/18 10:55:37  ankry
-# - added support for limitting number of wget retries when fetching a file
-#   from ftp/http server via environment variable MAX_WGET_RETRIES.
-#   Defaults to infinite (0).
-#
-# Revision 1.81  2001/07/06 16:52:30  misiek
-# - by default use CVSroot from CVS/Root and if it doesn't exist use from CVSROOT variable
-#
-# Revision 1.80  2001/06/22 18:52:39  misiek
-# - added support for --with/--without options
-#
-# Revision 1.79  2001/05/28 14:44:16  baggins
-# - if file is not in repo TELL which fucking file it is!
-#
-# Revision 1.78  2001/05/13 19:04:44  misiek
-# fixes for ksh93
-#
-# Revision 1.77  2001/05/13 10:51:30  misiek
-# don't fail if no sources found (hack to allow build nosrc packages)
-#
-# Revision 1.76  2001/04/19 23:24:06  misiek
-# fix chmod again
-#
-# Revision 1.75  2001/04/19 23:14:25  misiek
-# redirect errors from query to /dev/null
-#
-# Revision 1.74  2001/04/02 15:39:29  misiek
-# fix problems with get_files when no files passed
-#
-# Revision 1.73  2001/03/30 14:06:10  wiget
-# massive typo by kloczek
-#
-# Revision 1.72  2001/03/26 22:16:22  kloczek
-# - fixed grabbing name, version and release in parse_spec(),
-# - added -T option (tag) (temporary it tags also additional STABLE tag - must
-#   be added -Ts for separate tagging as STABLE).
-#
-# Revision 1.71  2001/03/05 14:12:27  misiek
-# fix chmod
-#
-# Revision 1.70  2001/03/03 19:55:42  misiek
-# workaround for problems with rpm when icons isn't cvs up'ed
-#
-#
