@@ -176,11 +176,32 @@ defattr == 1 {
 }
 
 # Scripts
-/^%pre /, (/^[a-z]+$/ && !/^%pre /) { preamble = 0 }
-/^%preun/, (/^[a-z]+$/ && !/^%preun/) { preamble = 0 }
-/^%post /, (/^[a-z]+$/ && !/^%post /) {	preamble = 0 }
-/^%postun/, (/^[a-z]+$/ && !/^%postun/) { preamble = 0 }
-	
+script = 0
+/^%pre/, (/^[a-z]+$/ && !/^%pre/) { script = 1 }
+/^%preun/, (/^[a-z]+$/ && !/^%preun/) { script = 1 }
+/^%post/, (/^[a-z]+$/ && !/^%post/) {	script = 1 }
+/^%postun/, (/^[a-z]+$/ && !/^%postun/) { script = 1 }
+script == 1 {
+	preamble = 0
+	if ($1 ~ /^mv$/) {
+		if ($2 ~ /^-/)
+			sub(/-[A-Za-z0-9]+ /, "", $0)
+		sub($1, "mv -f")
+	}
+	if ($1 ~ /^rm$/) {
+		recursive = 0
+		if ($2 ~ /^-/) {
+			if (match($2, "r"))
+				recursive = 1
+			sub(/-[A-Za-z0-9]+ /, "", $0)
+		}
+		if (recursive)
+			sub($1, "rm -rf")
+		else
+			sub($1, "rm -f")
+	}
+}
+
 # %files section:
 /^%files/, (/^%[a-z \-]+$/ && !/^%files/) {
 	preamble = 0
