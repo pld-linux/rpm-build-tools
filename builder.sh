@@ -1312,7 +1312,11 @@ do
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
 		* )
-			SPECFILE="`basename ${1} .spec`.spec";
+		   if [ -f "${1}" ]; then
+				 SPECFILE="${1}"
+			else
+	 			 SPECFILE="`basename ${1} .spec`.spec";
+			fi
 			export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
 			shift ;;
 	esac
