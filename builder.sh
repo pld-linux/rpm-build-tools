@@ -807,6 +807,11 @@ build_package()
 	esac
 	if [ -n "$LOGFILE" ]; then
 		LOG=`eval echo $LOGFILE`
+		if [ -d "$LOG" ]; then
+			echo "Log file $LOG is a directory."
+			echo "Parse error in the spec?"
+			Exit_error err_build_fail;
+		fi
 		if [ -n "$LASTLOG_FILE" ]; then
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
