@@ -440,5 +440,8 @@ function use_macros()
 
 	gsub("%{PACKAGE_VERSION}", "%{version}")
 	gsub("%{PACKAGE_NAME}", "%{name}")
+
+	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
+	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 }
 
