@@ -25,7 +25,7 @@ DEBUG=""
 NOURLS=""
 NOCVS=""
 NOCVSSPEC=""
-ALLWAYS_CVSUP="yes"
+ALLWAYS_CVSUP=${ALLWAYS_CVSUP:-"yes"}
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
 else
