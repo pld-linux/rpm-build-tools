@@ -586,6 +586,10 @@ tag_files()
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
+        # Check whether first character of PACKAGE_NAME is legal for tag name
+	if [ -z "${PACKAGE_NAME##[_0-9]*}" -a -z "$TAG_PREFIX" ]; then
+	    TAG_PREFIX=tag_
+	fi
 	TAGVER=$TAG_PREFIX$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
 	# Remove #kernel.version_release from TAGVER because tagging sources
 	# could occur with different kernel-headers than kernel-headers used at build time.
