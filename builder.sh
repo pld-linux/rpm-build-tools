@@ -74,7 +74,7 @@ usage()
     if [ -n "$DEBUG" ]; then set -xv; fi
     echo "\
 Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
-	[-bb|--build-binary] [-bs|--build-source] [-U|--try-upgrade] 
+	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade] 
 	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get] 
 	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper] [-q|--quiet]
 	[-r <cvstag>] [{-T--tag <cvstag>] [-Tvs|--tag-version-stable]
@@ -131,7 +131,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-Tv, --tag-version
 			- add cvs tag NAME-VERSION-RELESE for files,
 	-v, --verbose	- be verbose,
-	-U, --try-upgrade - check version, and try to upgrade package
+	-u, --try-upgrade - check version, and try to upgrade package
 	--define	- define a macro
 
 "
@@ -412,7 +412,7 @@ build_package()
 	
 	TNEWVER=`echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }'`
 	
-	if [ -n $TNEWVER ]; then
+	if [ -n "$TNEWVER" ]; then
 	
 	    TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
 	    
@@ -455,15 +455,13 @@ build_package()
     if [ "$?" -ne "0" ]; then
     
 	if [ -n "$TRY_UPGRADE" ]; then 
-
 	    echo "\n!!! Package with new version cannot be build automagically\n"
-
 	    mv -f $SPECFILE.bak $SPECFILE
-
 	fi
 	
 	Exit_error err_build_fail;
     fi
+    
     unset BUILD_SWITCH
 }
 
@@ -559,7 +557,7 @@ while test $# -gt 0 ; do
 	    shift;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
-	-U | --try-upgrade)
+	-u | --try-upgrade )
 	    TRY_UPGRADE="1"; shift ;;
 	--define)
 	    shift
