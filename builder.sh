@@ -30,8 +30,8 @@ Group:		-
 %description
 
 %prep
-echo SOURCEDIR=%{_sourcedir}
-echo SPECS=%{_specdir}"
+echo SOURCE_DIR=%{_sourcedir}
+echo SPECS_DIR=%{_specdir}"
 
 #---------------------------------------------
 # functions
@@ -84,6 +84,12 @@ parse_spec()
 	echo -e "- Version : " $PACKAGE_VERSION
 	echo -e "- Release : " $PACKAGE_RELEASE
     fi
+
+    DUMB_SPEC_FILE=`mktemp -q /tmp/bilder.XXXXXX`
+    echo $dumb_spec > $DUMB_SPEC_FILE
+    `rpm -bp $DUMB_SPEC_FILE | egrep -e "SOURCE_DIR|SPECS_DIR"`
+    rm -f $DUMB_SPEC_FILE
+
 }
 
 get_spec()
