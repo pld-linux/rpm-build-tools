@@ -1003,11 +1003,11 @@ remove_build_requires()
 display_bconds()
 {
 	if [ "$AVAIL_BCONDS_WITH" != "" ] || [ "$AVAIL_BCONDS_WITHOUT" != "" ]; then
-		echo -ne "We are going to build $SPECFILE with the following conditional flags:\n"
 		if [ "$BCOND" != "" ]; then
+			echo -ne "You are going to build $SPECFILE with the following conditional flags:\n"
 			echo -ne "$BCOND"
 		else
-			echo -ne "No --with || --without conditions passed to $0"
+			echo -ne "No conditional flags passed"
 		fi
 		echo -ne "\n\nfrom available:\n\n"
 		echo -ne "--with   :\t$AVAIL_BCONDS_WITH\n--without:\t$AVAIL_BCONDS_WITHOUT\n\n"
