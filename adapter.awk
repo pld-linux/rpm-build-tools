@@ -194,10 +194,6 @@ defattr == 1 {
 	# No lines contain 'chmod' if it sets the modes to '644'
 	if ($1 ~ /chmod/ && $2 ~ /644/)
 		next
-	
-	# 'gzip -9nf' for compressing
-	if ($1 ~ /gzip|bzip2/)
-		next
 }
 
 
