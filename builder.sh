@@ -462,29 +462,29 @@ get_files()
 		fi
 
 
-		srcno=$(src_no $i)
-		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
-		    Exit_error err_no_source_in_repo $i;
-		elif [ -n "$UPDATE5" ] && \
-		     ( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
-		         [ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
-		       grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
-		then
-		    echo "Updating source-$srcno md5."
-		    md5=$(md5sum `nourl $i` | cut -f1 -d' ')
-		    perl -i -ne 'print "# Source'$srcno'-md5:\t'$md5'\n" 
-		    		 if /^Source'$srcno'\s*:\s+/;
-			      	 print unless /^\s*#\s*Source'$srcno'-md5\s*:/i' \
-				 $SPECS_DIR/$SPECFILE
-		fi
-		
-		if good_md5 "$i"; then
-		  :
-		else
-		  echo "MD5 sum mismatch.  Use -U to refetch sources,"
-		  echo "or -5 to update md5 sums, if you're sure files are correct."
-		  Exit_error err_no_source_in_repo $i
-		fi
+	    fi
+	    srcno=$(src_no $i)
+	    if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
+		Exit_error err_no_source_in_repo $i;
+	    elif [ -n "$UPDATE5" ] && \
+		( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
+		    [ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
+		grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
+	    then
+		echo "Updating source-$srcno md5."
+		md5=$(md5sum `nourl $i` | cut -f1 -d' ')
+		perl -i -ne 'print "# Source'$srcno'-md5:\t'$md5'\n" 
+				if /^Source'$srcno'\s*:\s+/;
+				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i' \
+				$SPECS_DIR/$SPECFILE
+	    fi
+
+	    if good_md5 "$i"; then
+		:
+	    else
+		echo "MD5 sum mismatch.  Use -U to refetch sources,"
+		echo "or -5 to update md5 sums, if you're sure files are correct."
+		Exit_error err_no_source_in_repo $i
 	    fi
 	done
 
