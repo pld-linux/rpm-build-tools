@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.25. Adapter adapts .spec files for PLD.
+# This is adapter v0.26. Adapter adapts .spec files for PLD.
 #
 # Copyright (C) 1999-2001 PLD-Team <pld-list@pld.org.pl>
 # Authors:
@@ -64,18 +64,19 @@ defattr == 1 {
 	defattr = 0
 }
 
-# Do not touch commented sections!
-/^#%/ {
-	comment_block = 1
-}
+# Comments
+/^#/ {
+	if (/This file does not like to be adapterized!/) {
+		print			# print this message
+		while (getline)		# print the rest of spec as it is
+			print
+		do_not_touch_anything = 1 # do not touch anything in END()
+		exit 0
+	}
 
-comment_block == 1 {
-	if (/^#/) {
-		# Print as is
-		print $0
-		next
-	} else
-		comment_block = 0
+	# Generally, comments are printed without touching
+	print $0
+	next
 }
 
 # Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
@@ -254,6 +255,7 @@ comment_block == 1 {
 		defattr = 1
 	
 	use_macros()
+	use_files_macros()
 }
 
 ##############
@@ -485,6 +487,9 @@ preamble == 1 {
 
 
 END {
+	if (do_not_touch_anything)
+		exit 0
+	
 	close(changelog_file)
 	while ((getline < changelog_file) > 0)
 		print
@@ -606,14 +611,17 @@ function use_macros()
 	gsub("%{PACKAGE_VERSION}", "%{version}")
 	gsub("%{PACKAGE_NAME}", "%{name}")
 
-	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
-	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
-
 	gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
 	gsub("%{_datadir}/applnk", "%{_applnkdir}")
 
 	gsub("^make$", "%{__make}")
 	gsub("^make ", "%{__make} ")
+}
+	
+function use_files_macros()
+{
+	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
+	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 }
 
 function fill(ch, n, i) {
