@@ -148,7 +148,8 @@ get_spec()
 
 get_all_files()
 {
-    if [ -n "$CVSROOT$PATCHES$ICONS" ]; then
+set -xv
+    if [ -n "$SOURCES$PATCHES$ICONS" ]; then
 	cd $SOURCE_DIR
 
 	if [ -n "$CVSROOT" ]; then
