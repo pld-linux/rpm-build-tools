@@ -824,6 +824,62 @@ do
 done
 }
 
+run_sub_builder()
+{
+						package_name="${1}"
+                                                echo -ne "Package installation failed:\t$package_name\n"
+                                                #
+                                                # No i tutaj bym chcia³ zrobiæ sztuczn± inteligencjê, która spróbuje tego
+						# pakieta zbudowaæ. Aktualnie niewiele dziala, bo generalnie nie widze do
+						# konca algorytmu... Ale damy rade. :) Na razie po prostu sie wyjebie tak samo
+						# jakby nie bylo tego kawalka kodu.
+                                                #
+                                                # y0shi.
+
+                                                parent_spec_name=''
+
+                                                # Istnieje taki spec? ${package}.spec
+                                                if [ -f "${POLDEK_INDEX_DIR}/SPECS/${package}.spec" ]; then
+                                                        parent_spec_name=${package}.spec
+                                                else            
+                                                        minus_pos=`echo $package_name | sed 's/[^-]//g' |tr -d "\n" | wc -c|awk '{print $1}'`
+							if [ "${minus_pos}" != "" ]; then
+								if [ "${minus_pos}" != "0" ]; then
+		                                                        parent_pkg_name=`echo $package_name|cut -d - -f $minus_pos`
+        	                                                	if [ -f "${POLDEK_INDEX_DIR}/SPECS/${parent_pkg_name}.spec" ]; then
+	        	                                                        parent_spec_name="${parent_pkg_name}.spec"
+        	        	                                        fi
+								fi
+							else
+								for provides_line in `grep ^Provides:.*$package  ${POLDEK_INDEX_DIR}/ -R`
+								do
+									echo $provides_line
+								done
+							fi
+                                                fi
+
+                                                if [ "${parent_spec_name}" != "" ]; then
+                                                        sub_builder_opts=''
+                                                        if [ "${FETCH_BUILD_REQUIRES}" == "yes" ]; then
+                                                                sub_builder_opts="${sub_builder_opts} -R"
+                                                        fi
+                                                        if [ "${REMOVE_BUILD_REQUIRES}" == "nice" ]; then
+                                                                sub_builder_opts="${sub_builder_opts} -RB"
+                                                        elif [ "${REMOVE_BUILD_REQUIRES}" == "force" ]; then
+                                                                sub_builder_opts="${sub_builder_opts} -FRB"
+                                                        fi
+                                                        if [ "${UPDATE_POLDEK_INDEXES}" == "yes" ]; then
+                                                                sub_builder_opts="${sub_builder_opts} -Upi"
+                                                        fi
+                                                        cd "${POLDEK_INDEX_DIR}/SPECS"
+                                                        ./builder ${sub_builder_opts} ${parent_spec_name}
+                                                fi
+
+
+                                                NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package_name"
+
+}
+
 remove_build_requires()
 {
     if [ "$INSTALLED_PACKAGES" != "" ]; then
@@ -867,7 +923,7 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 	    echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
             for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,\(.*\),,g -e s,%{,,g`
             do
-		package_item=`echo $package_item|sed -e s,rpmbuild,rpm-build,g`
+		package_item=`echo $package_item|sed -e s,rpmbuild,rpm-build,g -e s,__perl,perl,g -e s,gasp,binutils-gasp,g`
                 GO="yes"
                 package=`basename "$package_item"|sed -e "s/}$//g"`
                 COND_ARCH_TST="`cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g"`"
@@ -928,36 +984,38 @@ if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
                         if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
                                 echo "Testing if $package has subrequirements..."
 				poldek -t -i $package --dumpn=".$package-req.txt"
-				for package_name in `cat ".$package-req.txt"|grep -v ^#`
-				do 
-					if [ "$package_name" = "$package" ]; then
-						echo -ne "Installing BuildRequired package:\t$package_name\n"
-						poldek -i $package_name
-					else
-						echo -ne "Installing (sub)Required package:\t$package_name\n"
-						poldek -i $package_name
-					fi
-                                	case $? in
-	                                1)
-        	                                echo -ne "Package installation failed:\t$package_name\n"
-						#
-						# No i tutaj bym chcia³ zrobiæ sztuczn± inteligencjê, która spróbuje tego
-						# pakieta zbudowaæ. 
-						#
-                	                        NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package_name"
-                        	                ;;
-                                	0)
-						INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
-						echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
-	                                        ;;
-        	                        esac
-				done
-				rm ".$package-req.txt"
+				if [ -f ".$package-req.txt" ]; then
+					for package_name in `cat ".$package-req.txt"|grep -v ^#`
+					do 
+						if [ "$package_name" = "$package" ]; then
+							echo -ne "Installing BuildRequired package:\t$package_name\n"
+							export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing BuildRequired package: ${package_name}\007"`
+							poldek -i $package_name
+						else
+							echo -ne "Installing (sub)Required package:\t$package_name\n"
+							export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing (sub)Required package: ${package_name}\007"`
+							uoldek -i $package_name
+						fi
+	                                	case $? in
+        	                        	0)
+							INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
+							echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
+	                        	                ;;
+	                                	*)
+							run_sub_builder $package_name
+	                        	                ;;
+        		                        esac
+					done
+					rm -f ".$package-req.txt"
+				else
+					run_sub_builder $package
+				fi
                         else
                                 echo "Package $package is already installed. BuildRequirement satisfied."
                         fi
                 fi
             done
+	    export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
             if [ "$NOT_INSTALLED_PACKAGES" != "" ]; then
                     echo "Nie uda³o siê zainstalowaæ nastêpuj±cych pakietów i ich zale¿no¶ci:"
                     for pkg in "$NOT_INSTALLED_PACKAGES"
@@ -1135,7 +1193,9 @@ while test $# -gt 0 ; do
 	    RPMOPTS="${RPMOPTS} --nodeps"
 	    ;;
 	* )
-	    SPECFILE="`basename ${1} .spec`.spec"; shift ;;
+	    SPECFILE="`basename ${1} .spec`.spec"; 
+	    export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
+	    shift ;;
     esac
 done
 
