@@ -443,5 +443,6 @@ function use_macros()
 
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
-}
 
+	gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
+}
