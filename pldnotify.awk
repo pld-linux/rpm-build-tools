@@ -37,19 +37,19 @@ function compare_ver(v1,v2) {
 				return 1
 			else if (v1a[i]>v2a[i])
 				return 0
-		} else if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"^b$"))
+		} else if ((v1a[i]~"pre")||(v1a[i]~"beta"))
 			return 1
 		else
 			return 0
 	}
 	if ((count2==mincount)&&(count!=count2)) {
 		for (i=count2+1; i<=count; i++)
-			if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"^b$")) 
+			if ((v1a[i]~"pre")||(v1a[i]~"beta")) 
 				return 1
 		return 0
 	} else if (count!=count2) {
 		for (i=count+1; i<=count2; i++)
-			if ((v2a[i]~"pre")||(v2a[i]~"beta")||(v2a[i]~"^b$"))
+			if ((v2a[i]~"pre")||(v2a[i]~"beta"))
 				return 0
 		return 1
 	}
@@ -60,22 +60,16 @@ function get_http_links(host,dir,port,	errno,link,oneline,retval,odp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
-	errno=system("echo -e \"GET " dir "\\n\" | nc " host " " port " | tr -d '\\r' > " tmpfile )
+	if (DEBUG) print "Retrieving HTML : http://" host ":" port dir
+	errno=system("wget -O - \"http://" host ":" port dir "\" > " tmpfile " 2>/dev/null" )
 	
 	if (errno==0) {
-		getline oneline < tmpfile
-		if ( oneline ~ "200" ) {
-			while (getline oneline < tmpfile)
-				odp=(odp " " oneline)
-			if ( DEBUG ) print "Odpowiedz: " odp
-		} else {
-			match(oneline,"[0-9][0-9][0-9]")
-			errno=substr(oneline,RSTART,RLENGTH)
-		}
+		while (getline oneline < tmpfile)
+			odp=(odp " " oneline)
+		if ( DEBUG ) print "Odpowiedz: " odp
 	}
 		
 	close(tmpfile)
-		
 	if ( errno==0) {
 		while (tolower(odp) ~ /href=/) {
 			match(tolower(odp),/href="[^"]+"/)
@@ -100,6 +94,7 @@ function get_ftp_links(host,dir,port,	tmpfile,link,retval) {
 	
 	errno=system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"pldnotifier@pld.org.pl\" FTP_USERNAME=\"anonymous\" FTP_HOST=\"" host "\" DEBUG=\"" DEBUG "\" ; nc -e \"./ftplinks.sh\" " host " " port)
 	
+	if (DEBUG) print "Skonczylem sciagac"
 	if (errno==0) {
 		while (getline link < tmpfile)
 			retval=(retval " " link)
