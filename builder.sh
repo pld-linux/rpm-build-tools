@@ -79,7 +79,7 @@ parse_spec()
 	fi
 	echo "- Name    : $PACKAGE_NAME"
 	echo "- Version : $PACKAGE_VERSION"
-	echo  "- Release : $PACKAGE_RELEASE"
+	echo "- Release : $PACKAGE_RELEASE"
     fi
 }
 
