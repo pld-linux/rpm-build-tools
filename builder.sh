@@ -93,8 +93,7 @@ else
     RPMBUILD="rpmbuild"
 fi
 
-#POLDEK_INDEX_DIR="/home/users/yoshi/rpm/RPMS/"
-POLDEK_INDEX_DIR="/home/users/$USER/rpm/RPMS/"
+POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
 POLDEK_SOURCE="cvs"
 
 # Example grep cvs /etc/poldek.conf:
