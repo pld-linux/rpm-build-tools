@@ -47,8 +47,13 @@ defattr == 1 {
 	defattr = 0
 }
 
+/^%define/ {
+	if ($2 == "_applnkdir")
+		next					
+}
+
 # descriptions:
-/%description/, (/^%[a-z]+/ && !/%description/) {
+/^%description/, (/^%[a-z]+/ && !/^%description/) {
 	preamble = 0
 
 	if (/^%description/)
@@ -63,13 +68,13 @@ defattr == 1 {
 	}
 
         # Collect whole text of description
-	if (description == 1 && !/^%[a-z]+/ && !/%description/) {
+	if (description == 1 && !/^%[a-z]+/ && !/^%description/) {
 		description_text = description_text $0 " "
 		next
 	}
  
 	# Formt description to the length of tw (default == 77)
-	if (/^%[a-z]+/ && (!/%description/ || bod == 2)) {
+	if (/^%[a-z]+/ && (!/^%description/ || bod == 2)) {
 		n = split(description_text, dt, / /)
 		for (i = 1; i <= n; i++) {
 			if (length(line) + length(dt[i]) + 1 < tw)
@@ -99,23 +104,23 @@ defattr == 1 {
 }
 
 # %prep section:
-/%prep/, (/^%[a-z]+$/ && !/%prep/) {
+/^%prep/, (/^%[a-z]+$/ && !/^%prep/) {
 	preamble = 0
 	
 	# Add '-q' to %setup
-	if (/%setup/ && !/-q/)
-		sub(/%setup/, "%setup -q")
+	if (/^%setup/ && !/-q/)
+		sub(/^%setup/, "%setup -q")
 }
 
 # %build section:
-/%build/, (/^%[a-z]+$/ && !/%build/) {
+/^%build/, (/^%[a-z]+$/ && !/^%build/) {
 	preamble = 0
 
 	use_macros()
 }
 
 # %install section:
-/%install/, (/^[a-z]+$/ && !/%install/) {
+/^%install/, (/^[a-z]+$/ && !/^%install/) {
 	preamble = 0
 	
 	use_macros()
@@ -149,17 +154,17 @@ defattr == 1 {
 }
 
 # %files section:
-/%files/, (/^%[a-z \-]+$/ && !/%files/) {
+/^%files/, (/^%[a-z \-]+$/ && !/^%files/) {
 	preamble = 0
 	
-	if ($0 ~ /%files/)
+	if ($0 ~ /^%files/)
 		defattr = 1
 	
 	use_macros()
 }
 
 # %changelog section:
-/%changelog/, (/^%[a-z]+$/ && !/%changelog/) {
+/^%changelog/, (/^%[a-z]+$/ && !/^%changelog/) {
 	preamble = 0
 	
 	# There should be some CVS keywords on the first line of %changelog.
