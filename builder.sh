@@ -199,7 +199,7 @@ get_spec()
 	Exit_error err_no_spec_in_repo;
 	fi
     
-    if [ "$CHMOD" = "yes" ]; then
+    if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
         chmod 444 $SPECFILE
     fi
     unset OPTIONS
@@ -255,7 +255,10 @@ get_files()
 	done
 	
 	if [ "$CHMOD" = "yes" ]; then
-	    chmod 444 `nourl $GET_FILES`
+	    CHMOD_FILES="`nourl $GET_FILES`"
+	    if [ -n "$CHMOD_FILES" ]; then
+		    chmod 444 $CHMOD_FILES
+	    fi
 	fi
 	unset OPTIONS
     fi
@@ -446,6 +449,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.75  2001/04/19 23:14:25  misiek
+# redirect errors from query to /dev/null
+#
 # Revision 1.74  2001/04/02 15:39:29  misiek
 # fix problems with get_files when no files passed
 #
