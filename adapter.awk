@@ -396,7 +396,12 @@ function use_macros()
 	gsub("%{_prefix}/bin", "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
 
-	gsub(sbindir, "%{_sbindir}")
+	for (c = 1; c <= NF; c++) {
+		if ($c ~ sbindir "/fix-info-dir")
+			continue;
+		gsub(sbindir, "%{_sbindir}", $c)
+	}
+
 	gsub("%{prefix}/sbin", "%{_sbindir}")
 	gsub("%{_prefix}/sbib", "%{_sbindir}")
 
@@ -405,6 +410,8 @@ function use_macros()
 	gsub("%{_prefix}/lib", "%{_libdir}")
 
 	for (c = 1; c <= NF; c++) {
+		if ($c ~ sysconfdir "/cron.d")
+			continue;
 		if ($c ~ sysconfdir "/logrotate.d")
 			continue;
 		if ($c ~ sysconfdir "/pam.d")
@@ -444,7 +451,11 @@ function use_macros()
 	gsub("%{_datadir}/aclocal", "%{_aclocaldir}")
 
 	if (prefix != "/") {
-		gsub(prefix, "%{_prefix}")
+		for (c = 1; c <= NF; c++) {
+			if ($c ~ prefix "/sbin/fix-info-dir")
+				continue;
+			gsub(prefix, "%{_prefix}", $c)
+		}
 		gsub("%{prefix}", "%{_prefix}")
 	}
 
