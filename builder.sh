@@ -24,6 +24,22 @@ Usage: builder [-h] [--help] [-q] <package>.spec
 "
 }
 
+parse_spec()
+{
+}
+
+get_spec()
+{
+}
+
+get_all_files()
+{
+}
+
+build_package()
+{
+}
+
 while test $# -gt 0 ; do
     case "${1}" in
 	-V | --version )
@@ -45,16 +61,30 @@ while test $# -gt 0 ; do
 	-v | --verbose )
 	    shift ;;
 	* )
-	    SPECFILE="${1}";;
+	    SPECFILE="${1}"; shift ;;
     esac
 done
 
 case "$COMMAND" in
-    "get" )
-	if [ "$SPECFILE" == "" ]; then
-
+    "build" )
+	if [ "$SPECFILE" != "" ]; then
+	    get_spec;
+	    parse_spec;
+	    get_all_files;
+	    build_package;
 	else
-
+	    echo "ERROR: spec file name not specified.";
+	    usage;
+	fi
+	;;
+    "get" )
+	if [ "$SPECFILE" != "" ]; then
+	    get_spec;
+	    parse_spec;
+	    get_all_files;
+	else
+	    echo "ERROR: spec file name not specified.";
+	    usage;
 	fi
 	;;
     "usage" )
