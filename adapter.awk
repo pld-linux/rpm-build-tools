@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.5. Adapter adapts .spec files for PLD.
+# This is adapter v0.6. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -54,10 +54,10 @@ bof == 1 {
 		
 	# no '-u root' or '-g root' for 'install'
 	if (/^install/ && /-[ug][ \t]*root/)
-		gsub(/-[ug][ \t]*root/, "\b");
+		gsub(/-[ug][ \t]*root /, "");
 	
 	if (/^install/ && /-m[ \t]*644/)
-		gsub(/-m[ \t]*644/, "\b");
+		gsub(/-m[ \t]*644 /, "");
 	
 	# no lines contain 'chown' or 'chgrp', which changes
 	# owner/group to 'root'
@@ -71,7 +71,7 @@ bof == 1 {
 	# 'gzip -9nf' for compressing
 	if ($1 ~ /gzip|bzip2/) {
 		if ($2 ~ /^-/)
-			sub($2, "\b");
+			sub(/-[A-Za-z0-9]+ /, "", $0);
 		sub($1, "gzip -9nf");
 	}
 }
