@@ -1,5 +1,12 @@
 #!/bin/awk -f
 # $Revision$, $Date$
+function fixedsub(s1,s2,t,	ind) {
+# substitutes fixed strings (not regexps)
+	if (ind = index(t,s1)) {
+		t = substr(t, 1, ind-1) s2 substr(t, ind+length(s1))
+	}
+	return t
+}
 
 function compare_ver(v1,v2) {
 # compares version numbers
@@ -168,8 +175,8 @@ function process_source(number,lurl,name,version) {
 				match(addr,filenameexp)
 				newfilename=substr(addr,RSTART,RLENGTH)
 				if (DEBUG) print "Hipotetyczny nowy: " newfilename
-				sub(prever,"",newfilename)
-				sub(postver,"",newfilename)
+				newfilename=fixedsub(prever,"",newfilename)
+				newfilename=fixedsub(postver,"",newfilename)
 				if (DEBUG) print "Wersja: " newfilename
 				if ( compare_ver(version, newfilename)==1 ) {
 					if (DEBUG) print "Tak, jest nowa"
