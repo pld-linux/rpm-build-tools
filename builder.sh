@@ -34,6 +34,8 @@ PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
 
+DEF_NICE_LEVEL=0
+
 if [ -f ~/etc/builderrc ]; then
   . ~/etc/builderrc
 elif [ -f ~/.builderrc ]; then
@@ -214,6 +216,8 @@ get_all_files()
 	    OPTIONS="$OPTIONS -A"
 	fi
 	for i in $SOURCES $PATCHES $ICONS; do
+	    if ! [ -r `nourl $i` ]
+	      then
 		if 
 			echo $i | grep -vE '(http|ftp|https|cvs)://' |\
 			grep -qE '\.(gz|bz2)$'
@@ -236,6 +240,7 @@ get_all_files()
 		if [ ! -f "`nourl $i`" ]; then
 			Exit_error err_no_source_in_repo;
 		fi
+	    fi
 	done
 	
 	if [ "$CHMOD" = "yes" ]; then
@@ -261,7 +266,7 @@ build_package()
 	build-source )
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
-    rpm $BUILD_SWITCH -v $QUIET $CLEAN $SPECFILE
+    nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $SPECFILE 
 
     if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
@@ -305,6 +310,8 @@ while test $# -gt 0 ; do
 	    COMMAND="usage"; shift ;;
 	-l | --logtofile )
 	    shift; LOGFILE="${1}"; shift ;;
+	-ni| --nice )
+	    shift; DEF_NICE_LEVEL=${1}; shift ;;
 	-m | --mr-proper )
 	    COMMAND="mr-proper"; shift ;;
 	-nc | --no-cvs )
