@@ -131,7 +131,6 @@ else
 fi
 
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
-POLDEK_SOURCE="cvs"
 POLDEK_CMD="/usr/bin/poldek --noask"
 
 run_poldek()
@@ -150,17 +149,6 @@ run_poldek()
 		rm -rf ${RES_FILE}
 	fi
 }
-
-# Example grep cvs /etc/poldek.conf:
-# source = cvs /home/users/yoshi/rpm/RPMS/
-if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-	run_poldek -l -n ${POLDEK_SOURCE} 1>&2 > /dev/null
-	if [ ! "$?" == "0" ]; then
-		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
-		echo "Fix it and try to continue"
-		exit 7
-	fi
-fi
 
 #---------------------------------------------
 # functions
@@ -1540,8 +1528,7 @@ case "$COMMAND" in
 			get_files "$SOURCES $PATCHES";
 			build_package;
 			if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-				run_poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
-				run_poldek --sn ${POLDEK_SOURCE} --up
+				run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
 			fi
 			remove_build_requires;
 		else
