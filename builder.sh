@@ -17,6 +17,7 @@
 #	- doesn't get sources for specs with %include /usr/lib/rpm/macros.python
 #	  when there's no rpm-pythonprov (rpm's fault, but it's ugly anyway)
 #	- as above with %include /usr/lib/rpm/macros.perl and no rpm-perlprov
+#	- when Icon: field is present, -5 and -a5 doesn't work
 
 VERSION="\
 Build package utility from PLD CVS repository
