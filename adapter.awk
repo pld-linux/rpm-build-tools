@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.23. Adapter adapts .spec files for PLD.
+# This is adapter v0.24. Adapter adapts .spec files for PLD.
 #
 # Copyright (C) 1999-2001 PLD-Team <pld-list@pld.org.pl>
 # Authors:
@@ -16,6 +16,11 @@ BEGIN {
 	boc = 2			# Beggining of %changelog
 	bod = 0			# Beggining of %description
 	tw = 70        		# Descriptions width
+	
+	# If variable removed, then 1 (for removing it from export)
+	removed["LDFLAGS"] = 0
+	removed["CFLAGS"] = 0
+	removed["CXXFLAGS"] = 0
 
 	# File with rpm groups
 	"rpm --eval %_sourcedir" | getline groups_file
@@ -132,15 +137,18 @@ defattr == 1 {
 		sub(/$/, " -a -c")
 
 	if (/LDFLAGS/) {
-		if (/LDFLAGS="-s"/)
-			sub(/LDFLAGS="-s"[ ]*/, "")
-		else {
-			split($0, tmp, "LDFLAGS=\"")
+		if (/LDFLAGS="-s"/) {
+			removed["LDFLAGS"] = 1
+			next
+		} else {
+			split($0, tmp, "LDFLAGS=")
 			count = split(tmp[2], flags, "\"")
-			sub(/-s[" ]?/, "%{!?debug:-s} ", flags[1])
-			$0 = tmp[1] line[1] "LDFLAGS=\"" flags[1] "\""
-			for (i = 2; i < count; i++)
-				$0 = $0 flags[i] "\""
+			if (flags[1] != "" && flags[1] !~ "!?debug") {
+				sub(/-s[" ]?/, "%{!?debug:-s} ", flags[1])
+				$0 = tmp[1] line[1] "LDFLAGS=" flags[1] "\""
+				for (i = 2; i < count; i++)
+					$0 = $0 flags[i] "\""
+			}
 		}
 	}
 
@@ -151,6 +159,19 @@ defattr == 1 {
 	if (/CXXFLAGS=/)
 		if (cflags("CXXFLAGS") == 0)
 			next
+	
+	if (/^export /) {
+		if (removed["LDFLAGS"])
+			sub(" LDFLAGS", "")
+		if (removed["CFLAGS"])
+			sub(" CFLAGS", "")
+		if (removed["CXXFLAGS"])
+			sub(" CXXFLAGS", "")
+		# Is there still something?
+		if (/^export[ ]*$/)
+			next
+	}
+			
 }
 
 # %clean section:
@@ -586,8 +607,10 @@ function format_flush(line, indent, newline, word, first_word) {
 
 function cflags(var)
 {
-	if ($0 == var "=\"$RPM_OPT_FLAGS\"")
+	if ($0 == var "=\"$RPM_OPT_FLAGS\"") {
+		removed[var] = 1
 		return 0
+	}
 		
 	sub("\$RPM_OPT_FLAGS", "%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O0 -g}")
 	return 1
