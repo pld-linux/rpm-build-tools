@@ -638,6 +638,9 @@ case "$COMMAND" in
 	    	get_files $ICONS;
 	    	parse_spec;
 	    fi
+	    if [ -n "$NOSOURCE0" ] ; then
+		SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
+	    fi
 	    get_files "$SOURCES $PATCHES";
 	    build_package;
 	else
