@@ -20,11 +20,7 @@ BEGIN {
 	# File with rpm groups
 	"rpm --eval %_sourcedir" | getline groups_file
 	groups_file = groups_file "/rpm.groups"
-	if (!getline < groups_file) {
-		system("cd `rpm --eval %_sourcedir`; cvs up rpm.groups")
-	} else {
-		close(groups_file)
-	}
+	system("cd `rpm --eval %_sourcedir`; cvs up rpm.groups")
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
