@@ -627,10 +627,41 @@ function use_macros()
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
 }
 
-function use_files_macros()
+
+# insertion sort of A[1..n]
+# copied from mawk manual
+function isort(A,n,		i,j,hold) {
+	for (i = 2; i <= n; i++) {
+		hold = A[j = i]
+		while (A[j-1] > hold) {
+		   	j-- ; A[j+1] = A[j]
+	   	}
+		A[j] = hold
+	}
+	# sentinel A[0] = "" will be created if needed
+}
+
+
+function use_files_macros(	i, n, t, a)
 {
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
+
+	# sort %verify attrs
+	if (match($0, /%verify\(not (.*)\)/)) {
+		t = substr($0, RSTART, RLENGTH)
+		gsub(/^%verify\(not |\)$/, "", t)
+		n = split(t, a, / /)
+		isort(a, n)
+
+		s = "%verify(not"
+		for (i = 1 ; i <= n; i++) {
+			s = s " " a[i]
+		}
+		s = s ")"
+
+		gsub(/%verify\(not .*\)/, s)
+	}
 }
 
 function fill(ch, n, i) {
