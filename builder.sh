@@ -3,11 +3,12 @@
 # $Id$
 # Exit codes:
 #	0 - succesful
-#	1 - help dispayed
+#	1 - help displayed
 #	2 - no spec file name in cmdl parameters
 #	3 - spec file not stored in repo
 #	4 - some source, patch or icon files not stored in repo
 #	5 - package build failed
+#	6 - spec file with errors
 
 # Notes (todo):
 #	- builder -u fetches current version first
@@ -199,6 +200,10 @@ cache_rpm_dump () {
     		rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1 
 		;;
 	esac`
+    if [ $? -ne 0 ]; then
+        echo $rpm_dump_cache
+	exit 6
+    fi
 }
 
 rpm_dump () {
