@@ -256,24 +256,61 @@ preamble == 1 {
 	sub(/[ \t]*:/, ":")
 	
 	field = tolower($1)
+	
+	if (Byla_grupa == 1 && field !~ /group(\(..\))?:/) {
+		Byla_grupa = 0
+		print "Group:\t\t" Grupa["en"]
+		if (Grupa["en"] ~ /^X11/ && x11 == 0)	# Is it X11 application?
+		       x11 = 1
 
+		byl_plik_z_grupami = 0
+		byl_opis_grupy = 0
+		while ((getline linia_grup < groups_file) > 0) {
+			byl_plik_z_grupami = 1
+			if (linia_grup == Grupa["en"]) {
+				byl_opis_grupy = 1
+				break
+			}
+		}
+
+		if (!byl_plik_z_grupami)
+			print "######\t\t" groups_file ": no such file"
+		else if (!byl_opis_grupy)
+			print "######\t\t" "Unknown group!"
+		else
+			while (getline linia_grup < groups_file) {
+				if (linia_grup == "")
+					break
+				split(linia_grup, g, /[\[\]:]/)
+				sub(/^[ \t]*/,"",g[4])
+				Grupa[g[2]]=g[4]
+			}
+		
+		close(groups_file)
+
+		delete Grupa["en"]
+		for (jezyk in Grupa) {
+			print "Group(" jezyk "):\t" Grupa[jezyk]
+			delete Grupa[jezyk]
+		}
+	}
+	
 	if (field ~ /packager:|distribution:|docdir:|prefix:/)
 		next
 	
 	if (field ~ /buildroot:/)
 		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
 
-	if (field ~ /group:/) {
+	if (field ~ /group(\(..\))?:/) {
 		format_preamble()
-		print $0
 		
-		sub($1 "[ \t]*","")
-		translate_group($0)
-		close(groups_file)
+		if (!match(field,/\(..\):/))
+			glang="en"
+		else
+			glang=substr(field,RSTART+1,2)
+		Grupa[glang] = $2
+		Byla_grupa = 1
 		
-		if ($0 ~ /^X11/ && x11 == 0)	# Is it X11 application?
-		       x11 = 1
-
 		next	# Line is already formatted and printed
 	}
 		
@@ -386,39 +423,6 @@ function is_there_line(line, l)
 		return 1
 	else
 		return 0
-}
-
-# This function prints translated names of groups.
-function translate_group(group)
-{
-	for(;;) {
-		result = getline line < groups_file
-		
-		if (result == -1) {
-			print "######\t\t" groups_file ": no such file"
-			return
-		}
-
-		if (result == 0) {
-			print "######\t\t" "Unknown group!"
-			return
-		}
-		
-		if (line == group) {
-			found = 1
-			continue
-		}
-
-		if (found == 1)
-			if (line ~ /\[[a-z][a-z]\]:/) {
-				split(line, g, /\[|\]|\:/)
-				if (!is_there_line("^Group(" g[2] "):"))
-						printf("Group(%s):%s\n", g[2], g[4])
-			} else {
-				found = 0
-				return
-			}
-	}
 }
 
 # There should be one or two tabs after the colon.
