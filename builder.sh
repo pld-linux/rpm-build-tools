@@ -188,13 +188,13 @@ parse_spec()
 
     cd $SPECS_DIR
     if [ "$NOSRCS" != "yes" ]; then
-	SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`$RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if ($RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+    if ($RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
-    PATCHES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`$RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -340,7 +340,7 @@ find_mirror(){
 src_no ()
 {
     cd $SPECS_DIR
-    $RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | \
+    $RPMBUILD -bs  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | \
 	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
 	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
 	head -1 | xargs
