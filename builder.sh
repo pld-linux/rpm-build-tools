@@ -232,6 +232,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -FRB, --force-remove-build-requires
                     - remove all you fetched with -R or --fetch-build-requires
                       remember, this option works without confirmation,
+-sf, --source-files - list sources - bare filenames (intended for offline
+                      operations; does not work when Icon field is present
+							 but icon file is absent),
+-sp, --source-paths - list sources - filenames with full local paths (intended for
+                      offline operations; does not work when Icon field is present
+							 but icon file is absent),
 -T <cvstag> , --tag <cvstag>
                     - add cvs tag <cvstag> for files,
 -Tvs, --tag-version-stable
@@ -456,7 +462,7 @@ get_spec()
 		chmod $CHMOD_MODE $SPECFILE
 	fi
 	unset OPTIONS
-	grep -E -m 1 "^#.*Revision:.*Date" $SPECFILE
+	[ -n "$DONT_PRINT_REVISION" ] || grep -E -m 1 "^#.*Revision:.*Date" $SPECFILE
 }
 
 find_mirror()
@@ -1361,6 +1367,12 @@ do
 		-FRB | --force-remove-build-requires)
 			REMOVE_BUILD_REQUIRES="force"
 			shift ;;
+		-sf | --sources-files)
+			COMMAND="list-sources-files"
+			shift ;;	
+		-sp | --sources-paths)
+			COMMAND="list-sources-local-paths"
+			shift ;;	
 		-Tvs | --tag-version-stable )
 			COMMAND="tag";
 			TAG="STABLE"
@@ -1551,6 +1563,28 @@ case "$COMMAND" in
 		;;
 	"mr-proper" )
 		$RPM --clean --rmsource --rmspec --force --nodeps $SPECFILE
+		;;
+	"list-sources-files" )
+		init_builder
+		NOCVSSPEC="yes"
+		DONT_PRINT_REVISION="yes"
+		get_spec
+		parse_spec
+		SAPS="$SOURCES $PATCHES"
+		for SAP in $SAPS ; do
+			 echo $SAP | awk '{gsub(/.*\//,"") ; print}'
+		done
+		;;
+	"list-sources-local-paths" )
+		init_builder
+		NOCVSSPEC="yes"
+		DONT_PRINT_REVISION="yes"
+		get_spec
+		parse_spec
+		SAPS="$SOURCES $PATCHES"
+		for SAP in $SAPS ; do
+			 echo $SOURCE_DIR/$(echo $SAP | awk '{gsub(/.*\//,"") ; print }')
+		done
 		;;
 	"usage" )
 		usage;;
