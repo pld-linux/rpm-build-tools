@@ -513,7 +513,19 @@ src_md5 ()
 	sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
 	grep -E '^[0-9a-f]{32}$')
 	if [ X"$md5" = X"" ] ; then
-		grep -i -E "#[ 	]*(No)?Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
+		source_md5=`grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+		if [ ! -z "$source_md5" ] ; then
+			 echo "nie mam source$no-md5" >> /tmp/blog2
+			 echo $source_md5;
+		else
+			 # we have empty SourceX-md5, but it is still possible
+			 # that we have NoSourceX-md5 AND NoSource: X
+			 nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
+			 echo "nosource-d5  $nosource_md5" >> /tmp/blog2
+			 if [ ! -z "$nosource_md5" -a ! X"`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" = X"" ] ; then
+				  echo $nosource_md5;
+			 fi;
+		fi;
 	else
 		if [ $(echo "$md5" | wc -l) != 1 ] ; then
 			echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
