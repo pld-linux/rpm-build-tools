@@ -1,5 +1,11 @@
 ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 ftp://ftp.cpan.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
+ftp://ftp.perl.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
+ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
+ftp://ftp.perl.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
+ftp://ftp.cpan.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
+ftp://ftp.perl.org/pub/CPAN/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
+ftp://ftp.cpan.org/pub/CPAN/|http://download.sourceforge.net/mirrors/CPAN/|SourceForge
 -- ftp://ftp.perl.org/pub/CPAN/|ftp://ftp/vol/vol1/ftp.cpan.org/CPAN/|FTP
 -- ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp/vol/vol1/ftp.cpan.org/CPAN/|FTP
 ftp://ftp.gnome.org/pub/gnome/pre-gnome2/sources/|ftp://ftp.icm.edu.pl/mirrors/ftp.gnome.org/pub/GNOME/pre-gnome2/sources/|ICM
