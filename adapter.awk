@@ -1,8 +1,8 @@
 #!/bin/awk -f
 #
-# This is adapter v0.21. Adapter adapts .spec files for PLD.
+# This is adapter v0.22. Adapter adapts .spec files for PLD.
 #
-# Copyright (C) 1999, 2000 PLD-Team <pld-list@pld.org.pl>
+# Copyright (C) 1999-2001 PLD-Team <pld-list@pld.org.pl>
 # Authors:
 # 	Micha³ Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -127,6 +127,27 @@ defattr == 1 {
 	preamble = 0
 
 	use_macros()
+	
+	if (/LDFLAGS/) {
+		if (/LDFLAGS="-s"/)
+			sub(/LDFLAGS="-s"[ ]*/, "")
+		else {
+			split($0, tmp, "LDFLAGS=\"")
+			count = split(tmp[2], flags, "\"")
+			sub(/-s[" ]?/, "%{!?debug:-s} ", flags[1])
+			$0 = tmp[1] line[1] "LDFLAGS=\"" flags[1] "\""
+			for (i = 2; i < count; i++)
+				$0 = $0 flags[i] "\""
+		}
+	}
+
+	if (/CFLAGS=/)
+		if (cflags("CFLAGS") == 0)
+			next
+
+	if (/CXXFLAGS=/)
+		if (cflags("CXXFLAGS") == 0)
+			next
 }
 
 # %clean section:
@@ -172,46 +193,10 @@ defattr == 1 {
 		next
 	
 	# 'gzip -9nf' for compressing
-	if ($1 ~ /gzip|bzip2/) {
-		if ($2 ~ /^-/)
-			sub(/-[A-Za-z0-9]+ /, "", $0)
-		sub($1, "gzip -9nf")
-	}
+	if ($1 ~ /gzip|bzip2/)
+		next
 }
 
-# Scripts
-{
-	if (/^automake$/) {
-	        sub(/$/, " -a -c")
-	}
-	if (/LDFLAGS/) {
-		gsub(/LDFLAGS="?.*?"?[ \t]*;?/,"");
-		if (/export/) {
-			gsub(/LDFLAGS(="?.*?"?)?[ \t]*/,"");
-			gsub("export[ \t]*(;|$)","");
-		}
-		if (/^[ \t]*$/)
-			next
-	}
-
-	if ($1 ~ /^mv$/) {
-		if ($2 ~ /^-/)
-			sub(/-[A-Za-z0-9]+ /, "", $0)
-		sub($1, "mv -f")
-	}
-	if ($1 ~ /^rm$/) {
-		recursive = 0
-		if ($2 ~ /^-/) {
-			if (match($2, "r"))
-				recursive = 1
-			sub(/-[A-Za-z0-9]+ /, "", $0)
-		}
-		if (recursive)
-			sub($1, "rm -rf")
-		else
-			sub($1, "rm -f")
-	}
-}
 
 # %files section:
 /^%files/, (/^%[a-z \-]+$/ && !/^%files/) {
@@ -598,5 +583,14 @@ function format_flush(line, indent, newline, word, first_word) {
 	if (newline ~ /[^\t ]/) {
 		print newline
 	}
+}
+
+function cflags(var)
+{
+	if ($0 == var "=\"$RPM_OPT_FLAGS\"")
+		return 0
+		
+	sub("\$RPM_OPT_FLAGS", "%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O -g}")
+	return 1
 }
 
