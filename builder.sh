@@ -362,8 +362,8 @@ tag_files()
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
 	echo $PACKAGE_VERSION
 	echo $PACKAGE_RELEASE
-	TAG=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
-	echo "CVS tag: $TAG"
+	TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g"`
+	echo "CVS tag: $TAGVER"
 
 	OPTIONS="tag -F"
 	if [ -n "$CVSROOT" ]; then
@@ -373,14 +373,24 @@ tag_files()
 	cd $SOURCE_DIR
 	for i in $TAG_FILES; do
 	    if [ -f `nourl $i` ]; then
-		cvs $OPTIONS $TAG `nourl $i`
+		if [ "$TAG_VERSION" = "yes" ]; then
+		    cvs $OPTIONS $TAGVER `nourl $i`
+		fi
+		if [ -n "$TAG" ]; then
+		    cvs $OPTIONS $TAG `nourl $i`
+		fi
 	    else
 		Exit_error err_no_source_in_repo $i
 	    fi
 	done
 
 	cd $SPECS_DIR
-	cvs $OPTIONS $TAG $SPECFILE
+	if [ "$TAG_VERSION" = "yes" ]; then
+	    cvs $OPTIONS $TAGVER $SPECFILE
+	fi
+	if [ -n "$TAG" ]; then
+	    cvs $OPTIONS $TAG $SPECFILE
+	fi
 
 	unset OPTIONS
     fi
@@ -572,6 +582,7 @@ while test $# -gt 0 ; do
 	    shift;;
 	-Tv | --tag-version )
 	    COMMAND="tag";
+	    TAG=""
 	    TAG_VERSION="yes"
 	    shift;;
 	-T | --tag )
