@@ -108,14 +108,14 @@ parse_spec()
     cd $SPECS_DIR
 
     if [ "$NOSRCS" != "yes" ]; then
-        SOURCES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+        SOURCES="`rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if (rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+    if (rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
 
-    PATCHES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -171,8 +171,8 @@ init_builder()
 	set -v; 
     fi
 
-    SOURCE_DIR="`rpm --eval "%{_sourcedir}"`"
-    SPECS_DIR="`rpm --eval "%{_specdir}"`"
+    SOURCE_DIR="`rpm --eval '%{_sourcedir}'`"
+    SPECS_DIR="`rpm --eval '%{_specdir}'`"
 
     __PWD=`pwd`
 }
@@ -455,6 +455,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.77  2001/05/13 10:51:30  misiek
+# don't fail if no sources found (hack to allow build nosrc packages)
+#
 # Revision 1.76  2001/04/19 23:24:06  misiek
 # fix chmod again
 #
