@@ -111,9 +111,9 @@ parse_spec()
 
     PATCHES="`rpm -bp --nobuild --define "prep %dump" $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-    PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} | head -1`"
-    PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} | head -1`"
-    PACKAGE_RELEASE="`rpm -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} | head -1`"
+    PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
+    PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
+    PACKAGE_RELEASE="`rpm -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
 
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  `nourl $SOURCES`" 
@@ -446,6 +446,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.74  2001/04/02 15:39:29  misiek
+# fix problems with get_files when no files passed
+#
 # Revision 1.73  2001/03/30 14:06:10  wiget
 # massive typo by kloczek
 #
