@@ -10,6 +10,7 @@
 #	5 - package build failed
 #	6 - spec file with errors
 #	7 - wrong source in /etc/poldek.conf
+#  8 - Failed installing buildrequirements and subrequirements
 
 # Notes (todo):
 #	- builder -u fetches current version first
@@ -1115,7 +1116,7 @@ fetch_build_requires()
 				echo $pkg
 			done
 			remove_build_requires
-			exit 1
+			exit 8
 		fi
 	fi
 }
