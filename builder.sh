@@ -94,7 +94,7 @@ else
 fi
 
 #POLDEK_INDEX_DIR="/home/users/yoshi/rpm/RPMS/"
-POLDEK_INDEX_DIR="~/rpm/RPMS/"
+POLDEK_INDEX_DIR="/home/users/$USER/rpm/RPMS/"
 POLDEK_SOURCE="cvs"
 
 # Example grep cvs /etc/poldek.conf:
@@ -868,15 +868,15 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
 			fi
 			RESULT="${COND_STATE}-${COND_ARGV}"
 			case "$RESULT" in 
-				with-wout|wout-with )
-				GO=""
-				;;
-				wout-wout|with-with )
-				GO="yes"
-				;;
-				*)
-				echo "Action '$RESULT' was not defined for package '$package_item'"
-				;;
+				"with-wout" | "wout-with" )
+					GO=""
+					;;
+				"wout-wout" | "with-with" )
+					GO="yes"
+					;;
+				* )
+					echo "Action '$RESULT' was not defined for package '$package_item'"
+					;;
 			esac
 
                 fi
@@ -995,6 +995,7 @@ while test $# -gt 0 ; do
 	    shift; CVSTAG="${1}"; shift ;;
         -R | --fetch-build-requires)
             FETCH_BUILD_REQUIRES="yes"
+	    UPDATE_POLDEK_INDEXES="yes"
             NOT_INSTALLED_PACKAGES=
             shift ;;
 	-Tvs | --tag-version-stable )
@@ -1097,7 +1098,7 @@ case "$COMMAND" in
 	    fi
 	    get_files "$SOURCES $PATCHES";
 	    build_package;
-	    if [ $_ -eq 0 ] && [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
+	    if [ $? -eq 0 ] && [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
 	            poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
         	    poldek --sn ${POLDEK_SOURCE} --up
 	    fi
