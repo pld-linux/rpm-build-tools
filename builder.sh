@@ -99,9 +99,9 @@ POLDEK_SOURCE="cvs"
 
 # Example grep cvs /etc/poldek.conf:
 # source = cvs /home/users/yoshi/rpm/RPMS/
-if [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
+if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
 	POLDEK_SOURCE_VALIDITY="`grep ${POLDEK_SOURCE} /etc/poldek.conf|grep -v ^#`"
-	if [ "${POLDEK_SOURCE_VALIDITY}" == "" ]; then 
+	if [ "${POLDEK_SOURCE_VALIDITY}" = "" ]; then 
 		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
 		echo "Fix it and try to contiune"
 		exit 7
@@ -853,7 +853,7 @@ fi
 
 fetch_build_requires()
 {
-if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
+if [ "$FETCH_BUILD_REQUIRES" = "yes" ]; then
 	    echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
 	    echo -ne "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES\n"
 	    echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
@@ -918,13 +918,13 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
 
                 fi
 	       
-                if [ "$GO" == "yes" ]; then
+                if [ "$GO" = "yes" ]; then
                         if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
                                 echo "Testing if $package has subrequirements..."
 				poldek -t -i $package --dumpn=".$package-req.txt"
 				for package_name in `cat ".$package-req.txt"|grep -v ^#`
 				do 
-					if [ "$package_name" == "$package" ]; then
+					if [ "$package_name" = "$package" ]; then
 						echo -ne "Installing BuildRequired package:\t$package_name\n"
 						poldek -i $package_name
 					else
@@ -1039,7 +1039,7 @@ while test $# -gt 0 ; do
 		"yes")
 			COND=${1}
 		        shift
-		        while [ "`echo ${1}|grep ^-`" == "" ] && [ "`echo ${1}|grep spec`" == "" ]
+		        while [ "`echo ${1}|grep ^-`" = "" ] && [ "`echo ${1}|grep spec`" = "" ]
 		        do
 		        	BCOND="$BCOND $COND $1"
 	                	shift
@@ -1165,7 +1165,7 @@ case "$COMMAND" in
 	    fi
 	    get_files "$SOURCES $PATCHES";
 	    build_package;
-	    if [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
+	    if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
 	            poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
         	    poldek --sn ${POLDEK_SOURCE} --up
 	    fi
