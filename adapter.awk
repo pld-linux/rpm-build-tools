@@ -727,7 +727,7 @@ function use_files_macros(	i, n, t, a)
 		gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig");
 	}
 
-	if (/\/etc\/sysconfig\// && !/%attr\(640/) {
+	if (/\/etc\/sysconfig\// && /%attr\(755/) {
 		gsub("^%attr\(... *,", "%attr(640,");
 	}
 
