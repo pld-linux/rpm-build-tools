@@ -831,6 +831,7 @@ remove_build_requires()
 		    *)
 			    echo You may want to manually remove following BuildRequires fetched:
 			    echo $INSTALLED_PACKAGES
+			    echo Try poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`
 		    ;;
 	    esac
     fi
@@ -853,6 +854,11 @@ fi
 fetch_build_requires()
 {
 if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
+	    echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
+	    echo -ne "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES\n"
+	    echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
+	    echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`\n\n"
+	    echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
             for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,\(.*\),,g -e s,%{,,g`
             do
 		package_item=`echo $package_item|sed -e s,rpmbuild,rpm-build,g`
@@ -914,15 +920,15 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
 	       
                 if [ "$GO" == "yes" ]; then
                         if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
-                                echo "$package [package not installed. installing]"
-				poldek -t -i $package --dumpn="$package-req.txt"
-				for package_name in `cat "$package-req.txt"|grep -v ^#`
+                                echo "Testing if $package has subrequirements..."
+				poldek -t -i $package --dumpn=".$package-req.txt"
+				for package_name in `cat ".$package-req.txt"|grep -v ^#`
 				do 
 					if [ "$package_name" == "$package" ]; then
 						echo -ne "Installing BuildRequired package:\t$package_name\n"
 						poldek -i $package_name
 					else
-						echo -ne "Installing Required package:\t$package_name\n"
+						echo -ne "Installing (sub)Required package:\t$package_name\n"
 						poldek -i $package_name
 					fi
                                 	case $? in
@@ -936,10 +942,11 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
                         	                ;;
                                 	0)
 						INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
+						echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 	                                        ;;
         	                        esac
 				done
-				rm "$package-req.txt"
+				rm ".$package-req.txt"
                         else
                                 echo "Package $package is already installed. BuildRequirement satisfied."
                         fi
