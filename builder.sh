@@ -10,7 +10,7 @@ PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 SPECFILE=""
 BE_VERBOSE=""
 QUIET=""
-CVSROOT=${$CVSROOT:-""}
+CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 
 PATCHES=""
