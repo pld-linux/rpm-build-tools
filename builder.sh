@@ -351,7 +351,19 @@ src_md5 ()
     no=$(src_no "$1")
     [ -z "$no" ] && return
     cd $SPECS_DIR
-    grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
+    spec="$SPECFILE,$(head -1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
+    md5=$(grep -v '^#' additional-md5sums | \
+          grep -E "[ 	]$(basename "$1")[ 	]*[ 	]${spec}([ 	]|\$)" | \
+	  sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
+	  grep -E '^[0-9a-f]{32}$')
+    if [ X"$md5" = X"" ] ; then
+      grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
+    else
+      if [ $(echo "$md5" | wc -l) != 1 ] ; then
+        echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
+      fi
+      echo "$md5" | tail -1
+    fi
 }
 
 distfiles_url ()
@@ -455,7 +467,7 @@ get_files()
 		    Exit_error err_no_source_in_repo $i;
 		elif [ -n "$UPDATE5" ] && \
 		     ( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
-		         [ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'[^0-9]' $SPECS_DIR/$SPECFILE)" ] ) || \
+		         [ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
 		       grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
 		then
 		    echo "Updating source-$srcno md5."
