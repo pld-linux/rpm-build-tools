@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.16. Adapter adapts .spec files for PLD.
+# This is adapter v0.17. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -210,7 +210,7 @@ preamble == 1 {
 		next
 	
 	if (field ~ /buildroot:/)
-		$2 = "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
+		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
 
 	if (field ~ /group:/) {
 		format_preamble()
