@@ -211,7 +211,7 @@ cache_rpm_dump () {
 
 rpm_dump () {
     if [ -z "$rpm_dump_cache" ] ; then
-        echo "internal error: cache_rpm_dump not called!" 1>&2
+	echo "internal error: cache_rpm_dump not called!" 1>&2
     fi
     echo "$rpm_dump_cache"
 }
@@ -586,7 +586,7 @@ tag_files()
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
-        # Check whether first character of PACKAGE_NAME is legal for tag name
+	# Check whether first character of PACKAGE_NAME is legal for tag name
 	if [ -z "${PACKAGE_NAME##[_0-9]*}" -a -z "$TAG_PREFIX" ]; then
 	    TAG_PREFIX=tag_
 	fi
