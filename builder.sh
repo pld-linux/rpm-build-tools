@@ -378,7 +378,7 @@ build_package()
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
     if [ -n "$LOGFILE" ]; then
-	LOG=`echo $LOGFILE`
+	LOG=`eval echo $LOGFILE`
 	eval nice -n ${DEF_NICE_LEVEL} /bin/sh -c "time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE" 2>&1 | tee $LOG
     else
 	eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
