@@ -215,20 +215,20 @@ get_all_files()
 	fi
 	for i in $SOURCES $PATCHES $ICONS; do
 		if 
-			echo $i | egrep -v '(http|ftp|https|cvs)://' |\
-			egrep -q '\.(gz|bz2)$'
+			echo $i | grep -vE '(http|ftp|https|cvs)://' |\
+			grep -qE '\.(gz|bz2)$'
 		then
 			echo "Warning: no URL given for $i"
 		fi
 		
 		if	[ -z "$NOCVS" ]||\
-			[ `echo $i | egrep -v '(ftp|http|https|cvs)://'` ]
+			[ `echo $i | grep -vE '(ftp|http|https|cvs)://'` ]
 		then
 			cvs $OPTIONS `nourl $i`
 		fi
 		
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
-			[ `echo $i | egrep 'ftp://|http://|https://'` ]
+			[ `echo $i | grep -E 'ftp://|http://|https://'` ]
 		then
 			wget -c -nd -t0 "$i"
 		fi
