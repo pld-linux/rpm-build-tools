@@ -101,12 +101,12 @@ defattr == 1 {
 	}
 
 	# Define _prefix and _mandir if it is X11 application
-	if (/^%description$/ && x11 == 1) {
-		print "%define\t\t_prefix\t\t/usr/X11R6"
-		print "%define\t\t_mandir\t\t%{_prefix}/man\n"
-		prefix = "/usr/X11R6"
-		x11 = 2
-	}
+#	if (/^%description$/ && x11 == 1) {
+#		print "%define\t\t_prefix\t\t/usr/X11R6"
+#		print "%define\t\t_mandir\t\t%{_prefix}/man\n"
+#		prefix = "/usr/X11R6"
+#		x11 = 2
+#	}
 	
 	# Format description
 	if (description == 1 && !/^%[a-z]+/ && !/^%description/) {
