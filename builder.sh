@@ -480,8 +480,8 @@ get_files()
 			    fi
 			test -s "$target" || rm -f "$target"
 		    fi
-		elif [ -z "$(src_md5 "$i")" ] && \
-		     ( [ -z "$NOCVS" ] || echo $i | grep -qvE '(ftp|http|https)://' ); then
+		elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ] && \
+			( echo $i | grep -qvE '(ftp|http|https)://' ); then
 		    result=1
 		    retries_counter=0
 		    while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
