@@ -128,8 +128,7 @@ fi
 # Example grep cvs /etc/poldek.conf:
 # source = cvs /home/users/yoshi/rpm/RPMS/
 if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-	POLDEK_SOURCE_VALIDITY="`grep ${POLDEK_SOURCE} /etc/poldek.conf|grep -v ^#`"
-	if [ "${POLDEK_SOURCE_VALIDITY}" = "" ]; then 
+	if [ ! $(poldek -l -n ${POLDEK_SOURCE} >/dev/null) ]; then 
 		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
 		echo "Fix it and try to continue"
 		exit 7
@@ -805,14 +804,12 @@ set_bconds_values()
 {
 	AVAIL_BCONDS_WITHOUT=""
 	AVAIL_BCONDS_WITH=""
-	TEST_BCOND_VERSION="`grep ^%bcond ${SPECFILE}`"
-	if [ "${TEST_BCOND_VERSION}" == "" ]; then
-		 TEST_BCOND_VERSION="`grep bcond ${SPECFILE}`"
-		 if [ "${TEST_BCOND_VERSION}" == "" ]; then
-		 	BCOND_VERSION="NONE"
-	  fi
+	if `grep -q ^%bcond ${SPECFILE}`; then
+		BCOND_VERSION="NEW"
+	elif `grep -q bcond ${SPECFILE}`; then
+		BCOND_VERSION="OLD"
 	else
-		 BCOND_VERSION="NEW"
+		BCOND_VERSION="NONE"
 	fi
 	case "${BCOND_VERSION}" in
 		 NONE)
@@ -823,7 +820,7 @@ set_bconds_values()
 			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
 			do
 				AVAIL_BCOND_WITHOUT=`echo $opt|sed -e "s/^_without_//g"`
-				if [ "`echo $BCOND|grep -- "--without $AVAIL_BCOND_WITHOUT"`" != "" ];then
+				if `echo $BCOND|grep -q -- "--without $AVAIL_BCOND_WITHOUT"`;then
 					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
 				else
 					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
@@ -833,7 +830,7 @@ set_bconds_values()
 			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_with_`
 			do
 				AVAIL_BCOND_WITH=`echo $opt|sed -e "s/^_with_//g"`
-				if [ "`echo $BCOND|grep -- "--with $AVAIL_BCOND_WITH"`" != "" ];then
+				if `echo $BCOND|grep -q -- "--with $AVAIL_BCOND_WITH"`;then
 					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
 				else
 					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
@@ -856,7 +853,7 @@ set_bconds_values()
 							with)
 								cond_type=''
 								AVAIL_BCOND_WITH="$opt"
-								if [ "`echo $BCOND|grep -- "--with $AVAIL_BCOND_WITH"`" != "" ];then
+								if `echo $BCOND|grep -q -- "--with $AVAIL_BCOND_WITH"`;then
 									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
 								else
 									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
@@ -865,7 +862,7 @@ set_bconds_values()
 							without)
 								cond_type=''
 								AVAIL_BCOND_WITHOUT="$opt"
-								if [ "`echo $BCOND|grep -- "--without $AVAIL_BCOND_WITHOUT"`" != "" ];then
+								if `echo $BCOND|grep -q -- "--without $AVAIL_BCOND_WITHOUT"`;then
 									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
 								else
 									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
@@ -979,7 +976,7 @@ fetch_build_requires()
 			mach=`uname -m`
 		
 			COND_TST=`cat $SPECFILE|grep BuildRequires|grep "$package"`
-			if [ "`echo $COND_TST|grep '^BuildRequires:'`" != "" ]; then
+			if `echo $COND_TST|grep -q '^BuildRequires:'`; then
 				if [ "$COND_ARCH_TST" != "" ] && [ "`echo $COND_ARCH_TST|sed -e "s/i.86/ix86/g"`" != "`echo $mach|sed -e "s/i.86/ix86/g"`" ]; then
 					GO="yes"
 				fi
@@ -988,27 +985,27 @@ fetch_build_requires()
 				COND_NAME=`echo $COND_TST|sed -e s,:BuildRequires:.*$,,g`
 				GO=""
 				# %{without}
-				if [ "`echo $COND_TST|grep 'without_'`" != "" ]; then
+				if `echo $COND_TST|grep -q 'without_'`; then
 					COND_NAME=`echo $COND_NAME|sed -e s,^.*_without_,,g`
-					if [ "`echo $COND_TST|grep !`" != "" ]; then
+					if `echo $COND_TST|grep -q !`; then
 						COND_STATE="with"
 					else
 						COND_STATE="wout"
 					fi
-					if [ "`echo $AVAIL_BCONDS_WITHOUT|grep "<$COND_NAME>"`" != "" ]; then
+					if `echo $AVAIL_BCONDS_WITHOUT|grep -q "<$COND_NAME>"`; then
 						COND_ARGV="wout"
 					else
 						COND_ARGV="with"
 					fi
 				# %{with}
-				elif [ "`echo $COND_TST|grep 'with_'`" != "" ]; then
+				elif `echo $COND_TST|grep -q 'with_'`; then
 					COND_NAME=`echo $COND_NAME|sed -e s,^.*_with_,,g`
-					if [ "`echo $COND_TST|grep !`" != "" ]; then
+					if `echo $COND_TST|grep -q !`; then
 						COND_STATE="wout"
 					else
 						COND_STATE="with"
 					fi					
-					if [ "`echo $AVAIL_BCONDS_WITH|grep "<$COND_NAME>"`" != "" ]; then
+					if `echo $AVAIL_BCONDS_WITH|grep -q "<$COND_NAME>"`; then
 						COND_ARGV="with"
 					else
 						COND_ARGV="wout"
@@ -1181,7 +1178,7 @@ do
 				"yes")
 					COND=${1}
 					shift
-					while [ "`echo ${1}|grep ^-`" = "" ] && [ "`echo ${1}|grep spec`" = "" ]
+					while ! `echo ${1}|grep -qE '(^-|spec)'`
 					do
 						BCOND="$BCOND $COND $1"
 						shift
