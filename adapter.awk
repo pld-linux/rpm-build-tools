@@ -29,9 +29,10 @@ BEGIN {
 FNR == 1 {
 	if (!/# \$Revision:/)		# If this line is already OK?
 		print "# $" "Revision:$, " "$" "Date:$";	# No
-	print $0;						# Yes
-
-	next;				# It is enough for first line
+	else {
+		print $0;						# Yes
+		next;				# It is enough for first line
+	}
 }
 
 # If the latest line matched /%files/
@@ -187,7 +188,7 @@ preamble == 1 {
 	
 	field = tolower($1);
 
-	if (field ~ /packager:|distribution:|prefix:/)
+	if (field ~ /packager:|distribution:|prefix:|vendor:/)
 		next;
 	
 	if (field ~ /buildroot:/)
