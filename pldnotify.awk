@@ -253,8 +253,8 @@ function process_source(number,lurl,name,version) {
 
 	filenameexp=filename
 	gsub("\+","\\+",filenameexp)
+	sub(version,"[A-Za-z0-9.]+",filenameexp)
 	gsub("\.","\\.",filenameexp)
-	sub(version,"[A-Za-z0-9\\.]+",filenameexp)
 	if ( DEBUG ) print "Wzorzec: " filenameexp
 	match(filename,version)
 	prever=substr(filename,1,RSTART-1)
