@@ -27,7 +27,7 @@ BEGIN {
 	# Is 'date' macro already defined?
 	if (is_there_line("%define date"))
 		date = 1
-	
+
 	# Load rpm macros
 	"rpm --eval %_prefix"	| getline prefix
 	"rpm --eval %_bindir"	| getline bindir
@@ -232,8 +232,9 @@ script == 1 {
 		if (date == 0) {
 			printf "%%define date\t%%(echo `LC_ALL=\"C\"" > changelog_file
 			print " date +\"%a %b %d %Y\"`)" > changelog_file
+			date = 1
 		}
-	boc--
+		boc = 1
 	}
 
 	if (!/^%[a-z]+$/ || /changelog/)
@@ -347,9 +348,11 @@ END {
 		print ""
 		print "%define date\t%(echo `LC_ALL=\"C\" date +\"%a %b %d %Y\"`)"
 	}
+	
+	if (has_changelog == 0)
+		print "%changelog"
 
 	if (boc > 0) {
-		print "%changelog"
 		print "* %{date} PLD Team <pld-list@pld.org.pl>"
 		printf "All persons listed below can be reached at "
 		print "<cvs_login>@pld.org.pl\n"
