@@ -1165,7 +1165,7 @@ case "$COMMAND" in
 	    fi
 	    get_files "$SOURCES $PATCHES";
 	    build_package;
-	    if [ $? -eq 0 ] && [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
+	    if [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
 	            poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
         	    poldek --sn ${POLDEK_SOURCE} --up
 	    fi
