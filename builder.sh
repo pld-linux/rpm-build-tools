@@ -884,7 +884,7 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
                 if [ "$GO" == "yes" ]; then
                         if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
                                 echo "Package $package is not installed. Attempting to install..."
-                                poldek ${POLDEK_SOURCE} -i $package
+                                poldek -i $package
                                 case $? in
                                 1)
                                         echo "Unable to install $package package! Still trying to fetch rest..."
