@@ -678,8 +678,16 @@ function use_files_macros(	i, n, t, a)
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
-	if (/^%attr.*\/etc\/rc\.d\/init\.d/ && !/^%attr\(754 *,/) {
-		gsub("^%attr\(... *,", "%attr(754,");
+	gsub("%{_sysconfdir}\/rc\.d\/init.d", "/etc/rc.d/init.d")
+	gsub("%{_sysconfdir}\/init.d", "/etc/rc.d/init.d")
+
+	if (/\/etc\/rc\.d\/init\.d/) {
+		if (!/%attr.*\/etc\/rc\.d\/init\.d/) {
+			$0 = "%attr(754,root,root) " $0
+		}
+		if (/^%attr.*\/etc\/rc\.d\/init\.d/ && !/^%attr\(754 *,/) {
+			gsub("^%attr\(... *,", "%attr(754,");
+		}
 	}
 
 	# sort %verify attrs
