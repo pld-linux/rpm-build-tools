@@ -596,6 +596,8 @@ function use_macros()
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ datadir "/automake")
 			continue;
+		if ($c ~ datadir "/unsermake")
+			continue;
 		gsub(datadir, "%{_datadir}", $c)
 	}
 
@@ -629,6 +631,8 @@ function use_macros()
 			if ($c ~ prefix "/sbin/fix-info-dir")
 				continue;
 			if ($c ~ prefix "/share/automake")
+				continue;
+			if ($c ~ prefix "/share/unsermake")
 				continue;
 			gsub(prefix, "%{_prefix}", $c)
 		}
