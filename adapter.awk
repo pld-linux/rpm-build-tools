@@ -434,6 +434,7 @@ preamble == 1 {
 
 		# sourceforge urls
 		sub("^http://dl.sourceforge.net/sourceforge/", "http://dl.sourceforge.net/", $2)
+		sub("^http://dl.sourceforge.net/%{name}/", "http://dl.sourceforge.net/"  name "/", $2)
 	}
 
 
