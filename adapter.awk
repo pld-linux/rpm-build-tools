@@ -188,7 +188,7 @@ preamble == 1 {
 	
 	field = tolower($1);
 
-	if (field ~ /packager:|distribution:|prefix:|vendor:/)
+	if (field ~ /packager:|distribution:|prefix:/)
 		next;
 	
 	if (field ~ /buildroot:/)
