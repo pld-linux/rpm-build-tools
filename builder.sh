@@ -128,7 +128,7 @@ fi
 # Example grep cvs /etc/poldek.conf:
 # source = cvs /home/users/yoshi/rpm/RPMS/
 if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-	poldek -l -n ${POLDEK_SOURCE} >/dev/null
+	(time nice -n ${DEF_NICE_LEVEL} poldek -l -n ${POLDEK_SOURCE}; echo $? > $RES_FILE) 2>&1 |tee $LOG
 	if [ ! "$?" == "0" ]; then 
 		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
 		echo "Fix it and try to continue"
@@ -797,7 +797,7 @@ nourl()
 
 install_required_packages()
 {
-	poldek -vi $1
+	(time nice -n ${DEF_NICE_LEVEL} poldek -vi $1; echo $? > $RES_FILE) 2>&1 |tee $LOG
 	return $?
 }
 
@@ -932,10 +932,10 @@ remove_build_requires()
 	if [ "$INSTALLED_PACKAGES" != "" ]; then
 		case "$REMOVE_BUILD_REQUIRES" in
 			"force")
-				poldek --noask -ve $INSTALLED_PACKAGES
+				(time nice -n ${DEF_NICE_LEVEL} poldek --noask -ve $INSTALLED_PACKAGES; echo $? > $RES_FILE) 2>&1 |tee $LOG
 				;;
 			"nice")
-				poldek --ask -ve $INSTALLED_PACKAGES
+				(time nice -n ${DEF_NICE_LEVEL} poldek --ask -ve $INSTALLED_PACKAGES; echo $? > $RES_FILE) 2>&1 |tee $LOG
 				;;
 			*)
 				echo You may want to manually remove following BuildRequires fetched:
@@ -1030,7 +1030,7 @@ fetch_build_requires()
 			if [ "$GO" = "yes" ]; then
 				if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
 					echo "Testing if $package has subrequirements..."
-					poldek -t -i $package --dumpn=".$package-req.txt"
+					(time nice -n ${DEF_NICE_LEVEL} poldek -t -i $package --dumpn=".$package-req.txt"; echo $? > $RES_FILE) 2>&1 |tee $LOG
 					if [ -f ".$package-req.txt" ]; then
 						for package_name in `cat ".$package-req.txt"|grep -v ^#`
 						do 
@@ -1307,8 +1307,8 @@ case "$COMMAND" in
 		get_files "$SOURCES $PATCHES";
 		build_package;
 		if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-			poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
-			poldek --sn ${POLDEK_SOURCE} --up
+			(time nice -n ${DEF_NICE_LEVEL} poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"; echo $? > $RES_FILE) 2>&1 |tee $LOG
+			(time nice -n ${DEF_NICE_LEVEL} poldek --sn ${POLDEK_SOURCE} --up; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		fi
 		remove_build_requires;
 	else
@@ -1381,4 +1381,4 @@ esac
 test -f `pwd`/.${SPECFILE}_INSTALLED_PACKAGES && rm `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 cd "$__PWD"
 
-# vi:syntax=sh:tw=80:ts=3:sw=4
+# vi:syntax=sh:ts=3:sw=4
