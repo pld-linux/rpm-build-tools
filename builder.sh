@@ -25,7 +25,7 @@ LOGFILE=""
 
 PATCHES=""
 SOURCES=""
-ICON=""
+ICONS=""
 PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
@@ -64,7 +64,7 @@ parse_spec()
 
     SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
     PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
-    ICON="`awk '/^Icon:/ {print $2}' ${SPECFILE} |sed -e 's#.*/##g'`"
+    ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE} |sed -e 's#.*/##g'`"
     PACKAGE_NAME="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
     PACKAGE_VERSION="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
     PACKAGE_RELEASE="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
@@ -74,8 +74,8 @@ parse_spec()
     if [ -n "$BE_VERBOSE" ]; then
 	echo "- Sources :  $SOURCES"
 	echo "- Patches :  $PATCHES"
-	if [ -n "$ICON" ]; then
-	    echo "- Icon    :  $ICON"
+	if [ -n "$ICONS" ]; then
+	    echo "- Icon    :  $ICONS"
 	else
 	    echo "- Icon    :  *no package icon*"
 	fi
@@ -148,18 +148,21 @@ get_spec()
 
 get_all_files()
 {
-    cd $SOURCE_DIR
-    if [ -n "$CVSROOT" ]; then
-	cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICON
-    else
-	cvs up $SOURCES $PATCHES $ICON
-    fi
+    if [ "$CVSROOT $PATCHES $ICONS" -ne "  " ]; then
+	cd $SOURCE_DIR
 
-    if [ "$?" -ne "0" ]; then
-	Exit_error err_no_source_in_repo;
-    fi
+	if [ -n "$CVSROOT" ]; then
+	    cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICONS
+	else
+	    cvs up $SOURCES $PATCHES $ICONS
+	fi
 
-    chmod 444 $SOURCES $PATCHES $ICON
+	if [ "$?" -ne "0" ]; then
+	    Exit_error err_no_source_in_repo;
+	fi
+
+	chmod 444 $SOURCES $PATCHES $ICONS
+    fi
 }
 
 build_package()
