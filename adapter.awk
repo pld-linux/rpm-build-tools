@@ -475,6 +475,9 @@ function use_macros()
 
 	gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
 	gsub("%{_datadir}/applnk", "%{_applnkdir}")
+
+	gsub("^make$", "%{__make}")
+	gsub("^make ", "%{__make} ")
 }
 
 function fill(ch, n, i) {
