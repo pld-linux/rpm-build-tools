@@ -29,8 +29,7 @@ BEGIN {
 FNR == 1 {
 	if (!/# \$Revision:/)		# If this line is already OK?
 		print "# $" "Revision:$, " "$" "Date:$";	# No
-	else
-		print $0;					# Yes
+	print $0;						# Yes
 
 	next;				# It is enough for first line
 }
