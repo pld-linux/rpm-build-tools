@@ -174,7 +174,7 @@ get_spec()
 	Exit_error err_no_spec_in_repo;
 	fi
     
-    if [ "$CHMODE" = "yes" ]; then
+    if [ "$CHMOD" = "yes" ]; then
         chmod 444 $SPECFILE
     fi
     unset OPTIONS
