@@ -245,6 +245,9 @@ preamble == 1 {
 
 	if (field ~ /patch:/)
 		$1 = "Patch0:"
+	
+	if (fiels ~ /buildroot:/)
+		$2 = "%{tmpdir}/%{name}-%{dir}"
 
 	format_preamble()
 	
