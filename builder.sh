@@ -46,6 +46,7 @@ PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
+CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
 
 DEF_NICE_LEVEL=0
 
@@ -253,10 +254,21 @@ get_spec()
 	    OPTIONS="$OPTIONS -A"
 	fi
 
-	cvs $OPTIONS $SPECFILE
-	if [ "$?" -ne "0" ]; then
-	    Exit_error err_no_spec_in_repo;
-	fi
+	result=1
+	retries_counter=0
+	while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
+	    retries_counter=$(( $retries_counter + 1 ))
+	    output=$(LC_ALL=C cvs $OPTIONS $SPECFILE 2>&1)
+	    result=$?
+	    echo $output
+	    if [ "$result" -ne "0" ]; then
+		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed)") && [ "$retries_counter" -le "$CVS_RETRIES" ]; then
+		    echo "Trying again... ($retries_counter)"
+		    continue
+		 fi
+	    	Exit_error err_no_spec_in_repo;
+	    fi
+	done
     fi
     if [ ! -f "$SPECFILE" ]; then
 	Exit_error err_no_spec_in_repo;
@@ -323,7 +335,18 @@ get_files()
 		fi
 
 		if [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
-		    cvs $OPTIONS `nourl $i`
+		    result=1
+        	    retries_counter=0
+	            while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
+		  	retries_counter=$(( $retries_counter + 1 ))
+			output=$(LC_ALL=C cvs $OPTIONS `nourl $i` 2>&1)
+         		result=$?
+			echo $output
+			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
+				echo "Trying again... ($retries_counter)"
+				continue
+			fi
+		    done
 		fi
 
 		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
