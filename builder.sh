@@ -1099,6 +1099,8 @@ fetch_build_requires()
 			done
 			remove_build_requires
 			exit 1
+	   else
+			rm `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 		fi
 	fi
 }
