@@ -91,11 +91,11 @@ GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
 GETLOCAL="cp -a"
 
 if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
-    RPM="rpm"
-    RPMBUILD="rpm"
+	RPM="rpm"
+	RPMBUILD="rpm"
 else
-    RPM="rpm"
-    RPMBUILD="rpmbuild"
+	RPM="rpm"
+	RPMBUILD="rpmbuild"
 fi
 
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
@@ -107,7 +107,7 @@ POLDEK_CMD="/usr/bin/poldek"
 # in command line.
 # This one reads global system environment settings:
 if [ -f ~/etc/builderrc ]; then
-    . ~/etc/builderrc
+	. ~/etc/builderrc
 fi
 # And this one cascades settings using user personal
 # builder settings.
@@ -555,8 +555,8 @@ get_files()
 							${GETURI2} -O "$target" "$url"
 						fi
 					fi
-				   if ! test -s "$target"; then
-					   rm -f "$target"
+					if ! test -s "$target"; then
+						rm -f "$target"
 						if [ `echo $url_attic | grep -E '^(\.|/)'` ]; then
 							${GETLOCAL} $url_attic $target
 						else
@@ -569,10 +569,10 @@ get_files()
 							fi
 						fi
 					fi
-				   if ! test -s "$target"; then
-					  rm -f "$target"
-					  FROM_DISTFILES=0
-				   fi
+					if ! test -s "$target"; then
+						rm -f "$target"
+						FROM_DISTFILES=0
+					fi
 				elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
 					# ( echo $i | grep -qvE '(ftp|http|https)://' ); -- if CVS should be used, but URLs preferred
 					result=1
@@ -592,7 +592,7 @@ get_files()
 						fi
 					done
 				fi
-	
+
 				if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" -o -n "$UPDATE" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
 					if [ -z "$NOMIRRORS" ]; then
 						im="`find_mirror "$i"`"
@@ -604,7 +604,6 @@ get_files()
 						${GETURI2} "$im"
 			  		fi
 				fi
-
 
 			fi
 			srcno=$(src_no $i)
@@ -701,9 +700,8 @@ tag_files()
 		cd $SOURCE_DIR
 		for i in $TAG_FILES
 		do
-			# don't tag non cvs files (ie. stored on distfiles)
-# FIXME! file_has_url != file_is_on_distfiles
-#			[ "`nourl $i`" != "$i" ] && continue
+			# don't tag files stored on distfiles
+			[ -n "`src_md5 $i`" ] && continue
 			if [ -f "`nourl $i`" ]; then
 				if [ "$TAG_VERSION" = "yes" ]; then
 					cvs $OPTIONS $TAGVER `nourl $i`
@@ -1396,6 +1394,8 @@ case "$COMMAND" in
 		fi
 		;;
 	"tag" )
+		NOURLS=1
+		NODIST=1
 		init_builder;
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
@@ -1408,7 +1408,7 @@ case "$COMMAND" in
 			new_SOURCES=""
 			for file in $SOURCES
 			do
-				[ "`nourl $file`" != "$file" ] && continue
+				[ -n "`src_md5 $file`" ] && continue
 				new_SOURCES="$new_SOURCES $file"
 			done
 			SOURCES="$new_SOURCES"
