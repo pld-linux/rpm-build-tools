@@ -9,6 +9,11 @@
 #	4 - some source, patch or icon files not stored in repo
 #	5 - package build failed
 
+# Notes (todo):
+#	- builder -u fetches current version first
+#	- tries to get new version from distfiles without new md5
+#	- after fetching new version doesn't update md5
+
 VERSION="\
 Build package utility from PLD CVS repository
 V 0.11 (C) 1999-2003 Free Penguins".
