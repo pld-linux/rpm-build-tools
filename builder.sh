@@ -74,7 +74,7 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
 	-l, --logtofile	- log all to file,
-	-m, --mr-proper - only remove all files relayted to spec file and
+	-m, --mr-proper - only remove all files related to spec file and
 			  all work resources,
 	-nc, --no-cvs	- don't download from CVS, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
