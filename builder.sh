@@ -862,6 +862,7 @@ while test $# -gt 0 ; do
 	-U | --update )
 	    COMMAND="get"
 	    UPDATE="yes"
+	    NOCVSSPEC="yes"
 	    NODIST="yes"
 	    UPDATE5="yes"
 	    shift ;;
