@@ -119,9 +119,9 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			- don't check specs in CVS
 	-nm, --no-mirrors - don't download from mirror, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
-	-ns, --no-srcs  - don't downland Sources
+	-ns, --no-srcs  - don't download Sources
 	-ns0, --no-source0
-			- don't downland Source0
+			- don't download Source0
 	--opts <rpm opts>
 			- additional options for rpm
 	-q, --quiet	- be quiet,
