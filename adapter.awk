@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.11. Adapter adapts .spec files for PLD.
+# This is adapter v0.12. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -9,7 +9,10 @@ BEGIN {
 	bod = 0			# Beggining of %description
 	tw = 77        		# Descriptions width
 	groups_file = ENVIRON["HOME"] "/rpm/groups" # File with rpm groups
-	
+
+	# Temporary file for changelog section
+	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
+
 	# Is 'date' macro already defined?
 	if (is_there_line("%define date"))
 		date = 1
@@ -162,10 +165,10 @@ defattr == 1 {
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 1) {
 		if (!/PLD Team/) {
-			print "* %{date} PLD Team <pld-list@pld.org.pl>"
-			printf "All below listed persons can be reached on "
-			print "<cvs_login>@pld.org.pl\n"
-			print "$" "Log:$"
+			print "* %{date} PLD Team <pld-list@pld.org.pl>" > changelog_file
+			printf "All below listed persons can be reached on " > changelog_file
+			print "<cvs_login>@pld.org.pl\n" > changelog_file
+			print "$" "Log:$" > changelog_file
 		}
 		boc = 0
 	}
@@ -173,11 +176,17 @@ defattr == 1 {
 	# Define date macro.
 	if (boc == 2) {
 		if (date == 0) {
-			printf "%%define date\t%%(echo `LC_ALL=\"C\""
-			print " date +\"%a %b %d %Y\"`)"
+			printf "%%define date\t%%(echo `LC_ALL=\"C\"" > changelog_file
+			print " date +\"%a %b %d %Y\"`)" > changelog_file
 		}
 	boc--
 	}
+
+	if (!/^%[a-z]+$/ || /%changelog/)
+		print > changelog_file
+	else
+		print
+	next
 }
 
 # preambles:
@@ -266,12 +275,21 @@ preamble == 1 {
 }
 
 END {
+	if (changelog_file)
+		close(changelog_file)
+			
 	if (boc == 1) {
 		print "* %{date} PLD Team <pld-list@pld.org.pl>"
 		printf "All below listed persons can be reached on "
 		print "<cvs_login>@pld.org.pl\n"
 		print "$" "Log:$"
+	} else {
+		while ((getline < changelog_file) > 0)
+			print
 	}
+
+	if (changelog_file)
+		system("rm -f " changelog_file)
 }
 
 # This function uses grep to determine if there is line (in the current file)
