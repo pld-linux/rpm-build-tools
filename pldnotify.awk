@@ -62,7 +62,7 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 	close("mktemp /tmp/XXXXXX")
 	
 	if (DEBUG) print "Retrieving: " url
-	errno=system("wget -O - \"" url "\" > " tmpfile " 2>/dev/null" )
+	errno=system("wget --inet -O - \"" url "\" > " tmpfile " 2>/dev/null" )
 	
 	if (errno==0) {
 		while (getline oneline < tmpfile)
@@ -179,7 +179,7 @@ function process_source(number,lurl,name,version) {
 			}
 		}
 		if (finished==0)
-			print name "(" number ") seems ok"
+			print name "(" number ") seems ok: " oldversion
 		else
 			print name "(" number ") [OLD] " oldversion " [NEW] " version
 	}
