@@ -141,7 +141,7 @@ defattr == 1 {
 		next
 	}
 
-	if (!/^$/ && !/^%install/ && did_clean==0) {
+	if (!/^(#?[ \t]*)$/ && !/^%install/ && did_clean==0) {
 		print "rm -rf $RPM_BUILD_ROOT"
 		did_clean=1
 	}
