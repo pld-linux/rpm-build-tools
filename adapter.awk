@@ -306,7 +306,8 @@ preamble == 1 {
 			glang="en"
 		else
 			glang=substr(field,RSTART+1,2)
-		Grupa[glang] = $2
+		sub(/^[^ \t]*[ \t]*/,"")
+		Grupa[glang] = $0
 		Byla_grupa = 1
 		
 		next	# Line is already formatted and printed
