@@ -271,25 +271,29 @@ defattr == 1 {
 /^%changelog/, (/^%[a-z]+$/ && !/^%changelog/) {
 	preamble = 0
 	has_changelog = 1
+	skip = 0
 	# There should be some CVS keywords on the first line of %changelog.
-	if (boc == 1) {
+	if (boc == 3) {
+		if (!/PLD Team/)
+			print "* %{date} PLD Team <feedback@pld.org.pl>" > changelog_file
+		else
+			skip = 1
+		boc = 2
+	}
+	if (boc == 2 && !skip) {
+		if (!/All persons listed below/) {
+			printf "All persons listed below can be reached at " > changelog_file
+			print "<cvs_login>@pld.org.pl\n" > changelog_file
+		} else
+			skip = 1
+		boc = 1
+	}
+	if (boc == 1 && !skip) {
 		if (!/^$/) {
 			if (!/\$.*Log:.*\$/)
 				print "$" "Log:$" > changelog_file
 			boc = 0
 		}
-	}
-	if (boc == 2) {
-		if (!/All persons listed below/) {
-			printf "All persons listed below can be reached at " > changelog_file
-			print "<cvs_login>@pld.org.pl\n" > changelog_file
-		}
-		boc = 1
-	}
-	if (boc == 3) {
-		if (!/PLD Team/)
-			print "* %{date} PLD Team <feedback@pld.org.pl>" > changelog_file
-		boc = 2
 	}
 	# Define date macro.
 	if (boc == 4) {
