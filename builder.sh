@@ -21,6 +21,7 @@ BE_VERBOSE=""
 QUIET=""
 CLEAN=""
 DEBUG=""
+NOURLS=""
 CVSROOT=${CVSROOT:-""}
 LOGFILE=""
 CHMOD="yes"
@@ -51,27 +52,28 @@ Usage: builder [-D] [--debug] [-V] [--version] [-a] [--as_anon] [-b] [-ba]
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
-	-a, --as_anon	- get files via pserver as cvs@cvs.pld.org.pl,
+	-a, --as_anon	- get files via pserver as cvs@anoncvs.pld.org.pl,
 	-b, -ba,
-	--build		- get all files from CVS repo and build
+	--build		- get all files from CVS repo or HTTP/FTP and build
 			  package from <package>.spec,
 	-bb,
-	--build-binary	- get all files from CVS repo and build
+	--build-binary	- get all files from CVS repo or HTTP/FTP and build
 			  binary only package from <package>.spec,
 	-bs,
-	--build-source	- get all files from CVS repo and only pack them into
-			  src.rpm,
+	--build-source	- get all files from CVS repo or HTTP/FTP and only
+			  pack them into src.rpm,
 	-c, --clean     - clean all temporarily created files (in BUILD,
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 	-d, --cvsroot	- setup \$CVSROOT,
 	-g, --get       - get <package>.spec and all related files from
-			  CVS repo,
+			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
 	-l, --logtofile	- log all to file,
 	-q, --quiet	- be quiet,
 	-r, --cvstag	- build package using resources from specified CVS
 			  tag,
+	-u, --no_urls	- try to get sources only from CVS repo,
 	-v, --verbose	- be verbose,
 
 "
@@ -83,9 +85,9 @@ parse_spec()
 
     sed -e "s#%prep#%dump#I" $SPECFILE | grep -v -i "^Icon\:" > $SPECFILE.__
 
-    SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCE[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
-    PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCH[0-9]+/ {print $3}'|sed -e 's#.*/##g'`"
-    ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE} |sed -e 's#.*/##g'`"
+    SOURCES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ SOURCEURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PATCHURL[0-9]+/ {print $3}'`"
+    ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ name/ {print $3}'`"
     PACKAGE_VERSION="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_VERSION/ {print $3}'`"
     PACKAGE_RELEASE="`rpm -bp --test $SPECFILE.__ 2>&1 | awk '/ PACKAGE_RELEASE/ {print $3}'`"
@@ -93,10 +95,14 @@ parse_spec()
     rm -f $SPECFILE.__
 
     if [ -n "$BE_VERBOSE" ]; then
-	echo "- Sources :  $SOURCES"
-	echo "- Patches :  $PATCHES"
+	echo "- Sources :  `nourl $SOURCES`" 
+	if [ -n "$PATCHES" ]; then
+		echo "- Patches :  `nourl $PATCHES`"
+	else
+		echo "- Patches	:  *no patches needed*"
+	fi
 	if [ -n "$ICONS" ]; then
-	    echo "- Icon    :  $ICONS"
+	    echo "- Icon    :  `nourl $ICONS`"
 	else
 	    echo "- Icon    :  *no package icon*"
 	fi
@@ -120,7 +126,7 @@ Exit_error()
 	echo "Error: spec file not stored in CVS repo.";
 	exit 3 ;;
     "err_no_source_in_repo" )
-	echo "Error: some source, apatch or icon files not stored in CVS repo.";
+	echo "Error: some source, patch or icon files not stored in CVS repo.";
 	exit 4 ;;
     "err_build_fail" )
 	echo "Error: package build failed.";
@@ -186,13 +192,25 @@ get_all_files()
 	    OPTIONS="$OPTIONS -A"
 	fi
 
-	cvs $OPTIONS $SOURCES $PATCHES $ICONS
-	if [ "$?" -ne "0" ]; then
-	    Exit_error err_no_source_in_repo;
+	cvs $OPTIONS `nourl $SOURCES $PATCHES $ICONS`
+	
+	if [ -z "$NOURLS" ]; then
+		for i in $SOURCES $PATCHES $ICONS; do
+			if [ ! -f "`nourl $i`" ]&&\
+			[ `echo $i | grep 'ftp://\|http://'` ]; then
+				wget -c -t0 "$i"
+			fi
+		done
 	fi
 	
+	for i in $SOURCES $PATCHES $ICONS; do
+		if [ ! -f "`nourl $i`" ]; then
+			Exit_error err_no_source_in_repo;
+		fi
+	done
+
 	if [ "$CHMOD" = "yes" ]; then
-	    chmod 444 $SOURCES $PATCHES $ICONS
+	    chmod 444 `nourl $SOURCES $PATCHES $ICONS`
 	fi
 	unset OPTIONS
     fi
@@ -219,7 +237,10 @@ build_package()
     unset BUILD_SWITCH
 }
 
-
+nourl()
+{
+	echo "$@" | sed 's#\<\(ftp\|http\)://.*/##g'
+}
 #---------------------------------------------
 # main()
 
@@ -235,7 +256,7 @@ while test $# -gt 0 ; do
 	-V | --version )
 	    COMMAND="version"; shift ;;
 	-a | --as_anon )
-	    CVSROOT=":pserver:cvs@cvs.pld.org.pl:/cvsroot"; shift ;;
+	    CVSROOT=":pserver:cvs@anoncvs.pld.org.pl:/cvsroot"; shift ;;
 	-b | -ba | --build )
 	    COMMAND="build"; shift ;;
 	-bb | --build-binary )
@@ -258,6 +279,8 @@ while test $# -gt 0 ; do
 	    shift; CVSTAG="${1}"; shift ;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
+	-u | --no_urls )
+	    NOURLS="yes"; shift ;;
 	* )
 	    SPECFILE="${1}"; shift ;;
     esac
