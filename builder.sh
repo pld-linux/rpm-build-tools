@@ -353,7 +353,7 @@ src_md5 ()
 
 distfiles_url ()
 {
-    echo "$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')"
+    echo "$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
 }
 
 get_files()
