@@ -297,7 +297,7 @@ preamble == 1 {
 
 	if (field ~ /group(\(..\))?:/) {
 		format_preamble()
-		sub(/^Utilities\//,"Applications\/",$2)
+		sub(/^Utilities\//,"Applications/",$2)
 		if (!match(field,/\(..\):/))
 			glang="en"
 		else
