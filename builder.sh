@@ -146,12 +146,18 @@ parse_spec()
 
     if [ "$NOSRCS" != "yes" ]; then
 	SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	if [ -z "$SOURCES" ]; then
+		SOURCES="`$RPMBUILD -bp  $BCOND --define 'setup %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	fi
     fi
     if ($RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
     PATCHES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    if [ -z "$PATCHES" ]; then
+	    PATCHES="`$RPMBUILD -bp  $BCOND --define 'setup %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    fi
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
