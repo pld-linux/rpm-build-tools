@@ -52,21 +52,22 @@ function compare_ver(v1,v2) {
 				return 0
 		return 1
 	}
-return 0
+	return 0
 }
 
 function get_http_links(host,dir,port) {
 # get all <A HREF=..> tags from specified URL
-	cmd=("nc " host " " port " > .tmp")
-	finished=0
+	"mktemp /tmp/XXXXXX" | getline tmpfile
+	close("mktemp /tmp/XXXXXX")
 	
-	print ("GET " dir) | cmd
-	close(cmd)
+	print ("GET " dir) | ( "nc " host " " port " > " tmpfile )
+	close("nc " host " " port " > " tmpfile)
 	
-	while (getline reply < ".tmp") {
-		odp=(odp reply)
+	while (getline reply < tmpfile ) {
+		odp=(odp " " reply)
 	}
-	system("rm -f .tmp")
+
+	system("rm -f " tmpfile)
 	
 	if ( DEBUG ) print "Odpowiedz: " odp
 	while (tolower(odp) ~ /href=/) {
@@ -74,8 +75,26 @@ function get_http_links(host,dir,port) {
 		link=substr(odp,RSTART,RLENGTH)
 		odp=substr(odp,RSTART+RLENGTH)
 		link=substr(link,7,length(link)-7)
-		print link
+		retval=(retval " " link)
 	}
+	return retval
+}
+
+function get_ftp_links(host,dir,port) {
+	"mktemp /tmp/XXXXXX" | getline tmpfile
+	close("mktemp /tmp/XXXXXX")
+	
+	system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"sebek@sith\" FTP_USERNAME=\"anonymous\" ; nc -e \"ftplinks.sh\" " host " " port)
+	
+	while (getline link < tmpfile)
+		retval=(retval " " link)
+		
+	close(tmpfile)
+	system("rm -f " tmpfile)
+	
+	if (DEBUG) print "Odpowiedz: " retval
+	
+	return retval
 }
 
 function subst_defines(var,defs) {
@@ -128,30 +147,35 @@ function process_source(lurl,name,version) {
 	
 	references=0
 	finished=0
-	while (("lynx --dump " acc "://" host dir) | getline result) {
-		if (result ~ "References") references=1
-		if ((result ~ "[0-9]+\. (ftp|http)://")&&(references==1)) {
-			split(result,links)
-			addr=links[2]
-			if (DEBUG) print "Znaleziony link: " addr
-			if (addr ~ filenameexp) {
-				match(addr,filenameexp)
-				newfilename=substr(addr,RSTART,RLENGTH)
-				if (DEBUG) print "Hipotetyczny nowy: " newfilename
-				sub(prever,"",newfilename)
-				sub(postver,"",newfilename)
-				if (DEBUG) print "Wersja: " newfilename
-				if ( compare_ver(version, newfilename)==1 ) {
-					if (DEBUG) print "Tak, jest nowa"
-					print name " : [OLD] " version " [NEW] " newfilename
-					finished=1
-				}
+	oldversion=version
+	if (acc=="http") 
+		odp=get_http_links(host,dir,80)
+	else {
+		odp=get_ftp_links(host,dir,21)
+	}
+	c=split(odp,linki)
+	for (nr=1; nr<=c; nr++) {
+		addr=linki[nr]
+		if (DEBUG) print "Znaleziony link: " addr
+		if (addr ~ filenameexp) {
+			match(addr,filenameexp)
+			newfilename=substr(addr,RSTART,RLENGTH)
+			if (DEBUG) print "Hipotetyczny nowy: " newfilename
+			sub(prever,"",newfilename)
+			sub(postver,"",newfilename)
+			if (DEBUG) print "Wersja: " newfilename
+			if ( compare_ver(version, newfilename)==1 ) {
+				if (DEBUG) print "Tak, jest nowa"
+				version=newfilename
+				finished=1
 			}
 		}
 	}
-	if (finished==0) ptiny name " : seems ok"
-	close("lynx --dump " acc "://" host dir)
-return 0
+	if (finished==0)
+		print name " : seems ok"
+	else
+		print name " : [OLD] " oldversion " [NEW] " version
+		
 }
 	
 function process_data(name,ver,rel,src) {
