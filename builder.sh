@@ -977,10 +977,10 @@ set_bconds_values()
 
 					# use only flags which are in this package.
 					if [[ $AVAIL = *${opt}* ]]; then
-						if [[ $flag == -* ]]; then
-							BCOND="$BCOND --without ${opt#-}"
+						if [[ $flag = -* ]]; then
+							BCOND="$BCOND --without $opt"
 						else
-							BCOND="$BCOND --with ${opt#+}"
+							BCOND="$BCOND --with $opt"
 						fi
 					fi
 				done
