@@ -63,6 +63,68 @@ function compare_ver(v1,v2) {
 	return 0
 }
 
+function compare_ver_dec(v1,v2) {
+# compares version numbers
+	while (match(v1,/[0-9][a-zA-Z]/))
+		v1=(substr(v1,1,RSTART) "." substr(v1,RSTART+RLENGTH-1))
+	while (match(v2,/[0-9][a-zA-Z]/))
+		v2=(substr(v2,1,RSTART) "." substr(v2,RSTART+RLENGTH-1))
+	sub("^0*","",v1)
+	sub("^0*","",v2)
+	if (DEBUG) print "v1 == " v1
+	if (DEBUG) print "v2 == " v2
+	count=split(v1,v1a,"\.")
+	count2=split(v2,v2a,"\.")
+	
+	if (count<count2) mincount=count 
+	else mincount=count2
+	
+	for (i=1; i<=mincount; i++) {
+		if (v1a[i]=="") v1a[i]=0
+		if (v2a[i]=="") v2a[i]=0
+		if (DEBUG) print "i == " i
+		if (DEBUG) print "v1[i] == " v1a[i]
+		if (DEBUG) print "v2[i] == " v2a[i]
+		if ((v1a[i]~/[0-9]/)&&(v2a[i]~/[0-9]/)) {
+			if (i==2) {
+				if (0+("." v2a[i])>0+("." v1a[i]))
+					return 1
+				else if (0+("." v1a[i])>0+("." v2a[i]))
+					return 0
+			} else {
+				if (length(v2a[i])>length(v1a[i]))
+					return 1
+				else if (v2a[i]>v1a[i])
+					return 1
+				else if (length(v1a[i])>length(v2a[i]))
+					return 0
+				else if (v1a[i]>v2a[i])
+					return 0
+			}
+		} else if ((v1a[i]~/[A-Za-z]/)&&(v2a[i]~/[A-Za-z]/)) {
+			if (v2a[i]>v1a[i])
+				return 1
+			else if (v1a[i]>v2a[i])
+				return 0
+		} else if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"alpha"))
+			return 1
+		else
+			return 0
+	}
+	if ((count2==mincount)&&(count!=count2)) {
+		for (i=count2+1; i<=count; i++)
+			if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"alpha")) 
+				return 1
+		return 0
+	} else if (count!=count2) {
+		for (i=count+1; i<=count2; i++)
+			if ((v2a[i]~"pre")||(v2a[i]~"beta")||(v2a[i]~"alpha"))
+				return 0
+		return 1
+	}
+	return 0
+}
+
 function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
@@ -221,7 +283,13 @@ function process_source(number,lurl,name,version) {
 				newfilename=fixedsub(prever,"",newfilename)
 				newfilename=fixedsub(postver,"",newfilename)
 				if (DEBUG) print "Wersja: " newfilename
-				if ( compare_ver(version, newfilename)==1 ) {
+				if (NUMERIC) {
+					if ( compare_ver_dec(version, newfilename)==1 ) {
+						if (DEBUG) print "Tak, jest nowa"
+						version=newfilename
+						finished=1
+					}
+				} else if ( compare_ver(version, newfilename)==1 ) {
 					if (DEBUG) print "Tak, jest nowa"
 					version=newfilename
 					finished=1
@@ -257,6 +325,11 @@ BEGIN {
 	if (errno) {
 		print "No wget installed!"
 		exit 1
+	}
+	if (ARGC>=3 && ARGV[2]=="-n") {
+		NUMERIC=1
+		for (i=3; i<ARGC; i++) ARGV[i-1]=ARGV[i] 
+		ARGC=ARGC-1
 	}
 }
 
