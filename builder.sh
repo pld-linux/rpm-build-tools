@@ -1,9 +1,16 @@
-#!/bin/bash -xv
-# 
+#!/bin/sh -xv
+# -----------
+# Exit codes:
+#	0 - succesful
+#	1 - help dispayed
+#	2 - no spec file name in cmdl parameters
+#	3 - spec file not stored in repo
+#	4 - some source, apatch or icon files not stored in repo
+#	5 - build package no succed
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.1 (C) 1999 Tomasz K³oczko".
+V 0.5 (C) 1999 Tomasz K³oczko".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -84,27 +91,75 @@ parse_spec()
 	echo -e "- Version : " $PACKAGE_VERSION
 	echo -e "- Release : " $PACKAGE_RELEASE
     fi
+}
 
+Exit_error()
+{
+    cd $__PWD
+
+    case "$@" in
+    "err_no_spec_in_cmdl" )
+	echo "ERROR: spec file name not specified.";
+	exit 2 ;;
+    "err_no_spec_in_repo" )
+	echo "Error: spec file not stored in CVS repo.";
+	exit 3 ;;
+    "err_no_source_in_repo" )
+	echo "Error: some source, apatch or icon files not stored in CVS repo.";
+	exit 4 ;;
+    "err_build_fail" )
+	echo "Error: package build failed.";
+	exit 5 ;;
+    esac
+}
+
+init_builder()
+{
     DUMB_SPEC_FILE=`mktemp -q /tmp/bilder.XXXXXX`
     echo $dumb_spec > $DUMB_SPEC_FILE
     `rpm -bp $DUMB_SPEC_FILE | egrep -e "SOURCE_DIR|SPECS_DIR"`
     rm -f $DUMB_SPEC_FILE
 
+    __PWD=`pwd`
 }
 
 get_spec()
 {
-    echo "get_spec"
+    cd $SPECS_DIR
+    if [ "$CVSROOT" != ""[; then
+	cvs -d "$CVSROOT" up $SPECFILE
+    else
+	cvs up $SPECFILE
+    fi
+
+    if [ "$?" != 0 ]; then
+	Exit_error err_no_spec_in_repo;
+    fi
 }
 
 get_all_files()
 {
-    echo "get_all_files"
+    cd $SOURCE_DIR
+    if [ "$CVSROOT" != ""[; then
+	cvs -d "$CVSROOT" up $SOURCES $PATCHES $ICON
+    else
+	cvs up $SPECFILE
+    fi
+
+
+    if [ "$?" != 0 ]; then
+	Exit_error err_no_source_in_repo;
+    fi
 }
 
 build_package()
 {
-    echo "build_package"
+    cd $SPECS_DIR
+    rpm -ba -v $QUIET $SPECFILE
+
+    if [ "$?" != 0 ]; then
+	Exit_error err_build_fail;
+    fi
 }
 
 
@@ -133,7 +188,7 @@ while test $# -gt 0 ; do
 	-l | --logtofile )
 	    shift; LOGFILE="${1}"; shift ;;
 	-q | --quiet )
-	    QUIET="1"; shift ;;
+	    QUIET="--quiet"; shift ;;
 	-v | --verbose )
 	    BE_VERBOSE="1"; shift ;;
 	* )
@@ -143,26 +198,24 @@ done
 
 case "$COMMAND" in
     "build" )
+	init_builder;
 	if [ "$SPECFILE" != "" ]; then
 	    get_spec;
 	    parse_spec;
 	    get_all_files;
 	    build_package;
 	else
-	    echo "ERROR: spec file name not specified.";
-	    usage;
-	    exit 1;
+	    Exit_error err_no_spec_in_cmdl;
 	fi
 	;;
     "get" )
+	init_builder;
 	if [ "$SPECFILE" != "" ]; then
 	    get_spec;
 	    parse_spec;
 	    get_all_files;
 	else
-	    echo "ERROR: spec file name not specified.";
-	    usage;
-	    exit 1;
+	    Exit_error err_no_spec_in_cmdl;
 	fi
 	;;
     "usage" )
