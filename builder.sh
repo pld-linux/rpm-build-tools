@@ -3,16 +3,24 @@
 # $Id$
 # Exit codes:
 #	0 - succesful
-#	1 - help dispayed
+#	1 - help displayed
 #	2 - no spec file name in cmdl parameters
 #	3 - spec file not stored in repo
 #	4 - some source, patch or icon files not stored in repo
 #	5 - package build failed
+#	6 - spec file with errors
+
+# Notes (todo):
+#	- builder -u fetches current version first
+#	- tries to get new version from distfiles without new md5
+#	- after fetching new version doesn't update md5
+#	- doesn't get sources for specs with %include /usr/lib/rpm/macros.python
+#	  when there's no rpm-pythonprov (rpm's fault, but it's ugly anyway)
+#	- as above with %include /usr/lib/rpm/macros.perl and no rpm-perlprov
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.10 (C) 1999-2001 Tomasz K³oczko".
-
+V 0.11 (C) 1999-2003 Free Penguins".
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
@@ -25,7 +33,11 @@ DEBUG=""
 NOURLS=""
 NOCVS=""
 NOCVSSPEC=""
-ALLWAYS_CVSUP=${ALLWAYS_CVSUP:-"yes"}
+NODIST=""
+UPDATE=""
+UPDATE5=""
+ADD5=""
+ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
 else
@@ -34,7 +46,12 @@ fi
 # Example: LOGFILE='../log.$PACKAGE_NAME'
 # Yes, you can use variable name! Note _single_ quotes!
 LOGFILE=''
-CHMOD="yes"
+
+LOGDIR=""
+LOGDIROK=""
+LOGDIRFAIL=""
+LASTLOG_FILE=""
+CHMOD="no"
 CHMOD_MODE="0444"
 RPMOPTS=""
 BCOND=""
@@ -45,7 +62,15 @@ ICONS=""
 PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
+PROTOCOL="ftp"
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
+CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
+
+CVSTAG=""
+RES_FILE=""
+
+CVS_SERVER="cvs.pld-linux.org"
+DISTFILES_SERVER="://distfiles.pld-linux.org"
 
 DEF_NICE_LEVEL=0
 
@@ -53,6 +78,7 @@ FAIL_IF_NO_SOURCES="yes"
 
 GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES --inet"
 GETURI2="wget -c -nd -t$WGET_RETRIES --inet"
+GETLOCAL="cp -a"
 
 if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
     RPM="rpm"
@@ -79,16 +105,20 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
 	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
-	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
-	[-q|--quiet] [-r <cvstag>] [{-T--tag <cvstag>]
+	[-h|--help] [--http] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
+	[-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
 	[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
-	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
+	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version] 
+	[{-Tp|--tag-prefix} <prefix>]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 	[--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
+	-5, --update-md5
+			- update md5 comments in spec, implies -nd -ncs
+	-a5, --add-md5	- add md5 comments to URL sources, implies -nc -nd -ncs
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
-	-a, --as_anon	- get files via pserver as cvs@anoncvs.pld.org.pl,
+	-a, --as_anon	- get files via pserver as cvs@$CVS_SERVER,
 	-b, -ba,
 	--build		- get all files from CVS repo or HTTP/FTP and build
 			  package from <package>.spec,
@@ -108,6 +138,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-g, --get	- get <package>.spec and all related files from
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
+	--http		- use http instead of ftp,
 	-l <logfile>, --logtofile <logfile>
 			- log all to file,
 	-m, --mr-proper - only remove all files related to spec file and
@@ -116,14 +147,19 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			  given,
 	-ncs, --no-cvs-specs
 			- don't check specs in CVS
+	-nd, --no-distfiles
+			- don't download from distfiles
 	-nm, --no-mirrors - don't download from mirror, if source URL is given,
 	-nu, --no-urls	- don't try to download from FTP/HTTP location,
-	-ns, --no-srcs  - don't downland Sources
+	-ns, --no-srcs  - don't download Sources
 	-ns0, --no-source0
-			- don't downland Source0
+			- don't download Source0
 	--opts <rpm opts>
 			- additional options for rpm
 	-q, --quiet	- be quiet,
+	--date yyyy-mm-dd
+			- build package using resources from specified CVS
+			  date,
 	-r <cvstag>, --cvstag <cvstag>
 			- build package using resources from specified CVS
 			  tag,
@@ -139,14 +175,40 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			- add cvs tag NEST for files,
 	-Tv, --tag-version
 			- add cvs tag NAME-VERSION-RELESE for files,
+	-Tp, --tag-prefix <prefix>
+			- add <prefix> to NAME-VERSION-RELEASE tags,
 	-v, --verbose	- be verbose,
 	-u, --try-upgrade
 			- check version, and try to upgrade package
+	-un, --try-upgrade-with-float-version
+			- as above, but allow float version
+	-U, --update
+			- refetch sources, don't use distfiles, and update md5 
+			  comments
 	--with/--without <feature>
 			- conditional build package depending on
 			  %_with_<feature>/%_without_<feature> macro
 			  switch
 "
+}
+
+cache_rpm_dump () {
+   rpm_dump_cache=`
+	case "$RPMBUILD" in
+	rpm )
+    		rpm -bp --nodeps --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+		;;
+	rpmbuild )
+    		rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+		;;
+	esac`
+}
+
+rpm_dump () {
+    if [ -z "$rpm_dump_cache" ] ; then
+        echo "internal error: cache_rpm_dump not called!" 1>&2
+    fi
+    echo "$rpm_dump_cache"
 }
 
 parse_spec()
@@ -158,21 +220,23 @@ parse_spec()
 
     cd $SPECS_DIR
 
+    cache_rpm_dump
+
     if [ "$NOSRCS" != "yes" ]; then
-	SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+	SOURCES="`rpm_dump | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
-    if ($RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
+    if (rpm_dump | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
-    PATCHES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
     PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
 
     if [ -n "$BE_VERBOSE" ]; then
-	echo "- Sources :  `nourl $SOURCES`" 
+	echo "- Sources :  `nourl $SOURCES`"
 	if [ -n "$PATCHES" ]; then
 	    echo "- Patches :  `nourl $PATCHES`"
 	else
@@ -191,9 +255,9 @@ parse_spec()
 
 Exit_error()
 {
-    if [ -n "$DEBUG" ]; then 
-    	set -x;
-	set -v; 
+    if [ -n "$DEBUG" ]; then
+	set -x;
+	set -v;
     fi
 
     cd $__PWD
@@ -216,9 +280,9 @@ Exit_error()
 
 init_builder()
 {
-    if [ -n "$DEBUG" ]; then 
-    	set -x;
-	set -v; 
+    if [ -n "$DEBUG" ]; then
+	set -x;
+	set -v;
     fi
 
     SOURCE_DIR="`$RPM --eval '%{_sourcedir}'`"
@@ -229,9 +293,9 @@ init_builder()
 
 get_spec()
 {
-    if [ -n "$DEBUG" ]; then 
-    	set -x;
-	set -v; 
+    if [ -n "$DEBUG" ]; then
+	set -x;
+	set -v;
     fi
 
     if [ "$NOCVSSPEC" != "yes" ]; then
@@ -247,16 +311,34 @@ get_spec()
 		NOCVSSPEC="yes"
 	    fi
 	fi
-	if [ -n "$CVSTAG" ]; then
-	    OPTIONS="$OPTIONS -r $CVSTAG"
-	else
+
+	if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -A"
+	else
+	    if [ -n "$CVSDATE" ]; then
+		OPTIONS="$OPTIONS -D $CVSDATE"
+	    fi
+	    if [ -n "$CVSTAG" ]; then
+		OPTIONS="$OPTIONS -r $CVSTAG"
+	    fi
 	fi
 
-	cvs $OPTIONS $SPECFILE
-	if [ "$?" -ne "0" ]; then
-	    Exit_error err_no_spec_in_repo;
-	fi
+	result=1
+	retries_counter=0
+	while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
+	    retries_counter=$(( $retries_counter + 1 ))
+	    output=$(LC_ALL=C cvs $OPTIONS $SPECFILE 2>&1)
+	    result=$?
+	    [ -n "$output" ] && echo "$output"
+	    if [ "$result" -ne "0" ]; then
+		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out)") && [ "$retries_counter" -le "$CVS_RETRIES" ]; then
+		    echo "Trying again [$SPECFILE]... ($retries_counter)"
+		    sleep 2
+		    continue
+		fi
+		Exit_error err_no_spec_in_repo;
+	    fi
+	done
     fi
     if [ ! -f "$SPECFILE" ]; then
 	Exit_error err_no_spec_in_repo;
@@ -272,14 +354,14 @@ get_spec()
 find_mirror(){
 
     cd "$SPECS_DIR"
-    url="$1"	
-    if [ ! -f "mirrors" ] ; then 
-	cvs update mirrors >&2 
+    url="$1"
+    if [ ! -f "mirrors" -a "$NOCVSSPEC" != "yes" ] ; then
+	cvs update mirrors >&2
     fi
 
     IFS="|"
     while read origin mirror name rest; do
-	ol=`echo -n "$origin"|wc -c`    
+	ol=`echo -n "$origin"|wc -c`
 	prefix="`echo -n "$url" | head -c $ol`"
 	if [ "$prefix" = "$origin" ] ; then
 	    suffix="`echo "$url"|cut -b $ol-`"
@@ -290,13 +372,58 @@ find_mirror(){
     echo "$url"
 }
 
+src_no ()
+{
+    cd $SPECS_DIR
+    rpm_dump | \
+	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
+	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
+	head -1 | xargs
+}
+
+src_md5 ()
+{
+    no=$(src_no "$1")
+    [ -z "$no" ] && return
+    cd $SPECS_DIR
+    spec_rev=$(grep $SPECFILE CVS/Entries | sed -e s:/$SPECFILE/:: -e s:/.*::)
+    if [ -z "$spec_rev" ]; then
+	spec_rev="$(head -1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
+    fi
+    spec="$SPECFILE[0-9.,]*,$(echo $spec_rev | sed 's/\./\\./g')"
+    md5=$(grep -s -v '^#' additional-md5sums | \
+	grep -E "[ 	]$(basename "$1")[ 	]+${spec}([ 	,]|\$)" | \
+	sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
+	grep -E '^[0-9a-f]{32}$')
+    if [ X"$md5" = X"" ] ; then
+	grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
+    else
+	if [ $(echo "$md5" | wc -l) != 1 ] ; then
+	    echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
+	fi
+	echo "$md5" | tail -1
+    fi
+}
+
+distfiles_url ()
+{
+    echo "$PROTOCOL$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+}
+
+good_md5 ()
+{
+    md5=$(src_md5 "$1")
+    [ "$md5" = "" ] || \
+    [ "$md5" = "$(md5sum $(nourl "$1") 2> /dev/null | sed -e 's/ .*//')" ]
+}
+
 get_files()
 {
     GET_FILES="$@"
 
-    if [ -n "$DEBUG" ]; then 
-    	set -x;
-	set -v; 
+    if [ -n "$DEBUG" ]; then
+	set -x;
+	set -v;
     fi
 
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
@@ -311,32 +438,124 @@ get_files()
 		NOCVS="yes"
 	    fi
 	fi
-	if [ -n "$CVSTAG" ]; then
-	    OPTIONS="$OPTIONS -r $CVSTAG"
-	else
+	if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -A"
+	else
+	    if [ -n "$CVSDATE" ]; then
+		OPTIONS="$OPTIONS -D $CVSDATE"
+	    fi
+	    if [ -n "$CVSTAG" ]; then
+		OPTIONS="$OPTIONS -r $CVSTAG"
+	    fi
 	fi
 	for i in $GET_FILES; do
-	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ]; then
+	    if [ -n "$UPDATE5" ]; then
+	 	if [ -n "$ADD5" ]; then
+		    [ `nourl $i` = "$i" ] && continue
+		    grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
+		else
+		    grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
+		fi
+	    fi
+	    FROM_DISTFILES=0
+	    if [ ! -f `nourl $i` ] || [ $ALWAYS_CVSUP = "yes" ]; then
 		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 		    echo "Warning: no URL given for $i"
 		fi
 
-		if [ -z "$NOCVS" ]|| [ `echo $i | grep -vE '(ftp|http|https)://'` ]; then
-		    cvs $OPTIONS `nourl $i`
-		fi
-
-		if [ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
-		    if [ -z "$NOMIRRORS" ] ; then 
-			i="`find_mirror "$i"`"
+		if [ -n "$(src_md5 "$i")" ] && [ -z "$NODIST" ]; then
+		    if good_md5 "$i"; then
+			echo "$(nourl "$i") having proper md5sum already exists"
+			continue
 		    fi
-		    ${GETURI} "$i" || \
-			if [ `echo $i | grep -E 'ftp://'` ]; then ${GETURI2} "$i" ; fi
+		    target=$(nourl "$i")
+		    url=$(distfiles_url "$i")
+		    if [ `echo $url | grep -E '^(\.|/)'` ]; then
+			${GETLOCAL} $url $target
+		    else
+			FROM_DISTFILES=1
+			if [ -z "$NOMIRRORS" ]; then
+			    url="`find_mirror "$url"`"
+			fi
+			${GETURI} -O "$target" "$url" || \
+			    if [ `echo $url | grep -E 'ftp://'` ]; then
+				${GETURI2} -O "$target" "$url"
+			    fi
+			if ! test -s "$target"; then
+			    rm -f "$target"
+			    FROM_DISTFILES=0
+			fi
+		    fi
+		elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
+		    # ( echo $i | grep -qvE '(ftp|http|https)://' ); -- if CVS should be used, but URLs preferred
+		    result=1
+		    retries_counter=0
+		    while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
+			retries_counter=$(( $retries_counter + 1 ))
+			output=$(LC_ALL=C cvs $OPTIONS `nourl $i` 2>&1)
+			result=$?
+			[ -n "$output" ] && echo "$output"
+			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
+				echo "Trying again [`nourl $i`]... ($retries_counter)"
+				sleep 2
+				continue
+			else
+				break
+			fi
+		    done
 		fi
 
-		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
-		    Exit_error err_no_source_in_repo $i;
+		if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" -o -n "$UPDATE" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
+		    if [ -z "$NOMIRRORS" ]; then
+			im="`find_mirror "$i"`"
+		    else
+			im="$i"
+		    fi
+		    ${GETURI} "$im" || \
+			if [ `echo $im | grep -E 'ftp://'` ]; then ${GETURI2} "$im" ; fi
 		fi
+
+
+	    fi
+	    srcno=$(src_no $i)
+	    if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
+		Exit_error err_no_source_in_repo $i;
+	    elif [ -n "$UPDATE5" ] && \
+		( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
+		    [ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
+		grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
+	    then
+		echo "Updating source-$srcno md5."
+		md5=$(md5sum `nourl $i` | cut -f1 -d' ')
+		perl -i -ne '
+				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
+				print "# Source'$srcno'-md5:\t'$md5'\n" 
+					if /^Source'$srcno'\s*:\s+/;
+				' \
+				$SPECS_DIR/$SPECFILE
+	    fi
+
+	    if good_md5 "$i"; then
+		:
+	    elif [ "$FROM_DISTFILES" = 1 ]; then
+		# wrong md5 from distfiles: remove the file and try again
+		# but only once ...
+		echo "MD5 sum mismatch. Trying full fetch."
+		FROM_DISTFILES=2
+		rm -f $target
+		${GETURI} -O "$target" "$url" || \
+		    if [ `echo $url | grep -E 'ftp://'` ]; then
+			${GETURI2} -O "$target" "$url"
+		    fi
+		test -s "$target" || rm -f "$target"
+	    fi
+
+	    if good_md5 "$i"; then
+		:
+	    else
+		echo "MD5 sum mismatch.  Use -U to refetch sources,"
+		echo "or -5 to update md5 sums, if you're sure files are correct."
+		Exit_error err_no_source_in_repo $i
 	    fi
 	done
 
@@ -354,15 +573,15 @@ tag_files()
 {
     TAG_FILES="$@"
 
-    if [ -n "$DEBUG" ]; then 
-    	set -x;
-	set -v; 
+    if [ -n "$DEBUG" ]; then
+	set -x;
+	set -v;
     fi
 
     if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
-	echo $PACKAGE_VERSION
-	echo $PACKAGE_RELEASE
-	TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
+	echo "Version: $PACKAGE_VERSION"
+	echo "Release: $PACKAGE_RELEASE"
+	TAGVER=$TAG_PREFIX$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
 	if [ "$TAG_VERSION" = "yes" ]; then
 	    echo "CVS tag: $TAGVER"
 	fi
@@ -435,16 +654,18 @@ branch_files()
     fi
 }
 
+
+
 build_package()
 {
-    if [ -n "$DEBUG" ]; then 
+    if [ -n "$DEBUG" ]; then
 	set -x;
-	set -v; 
+	set -v;
     fi
 
     cd $SPECS_DIR
 
-    if [ -n "$TRY_UPGRADE" ]; then 
+    if [ -n "$TRY_UPGRADE" ]; then
 
 	if [ -n "FLOAT_VERSION" ]; then
 	    TNOTIFY=`./pldnotify.awk $SPECFILE -n`
@@ -473,7 +694,7 @@ build_package()
 
 	    unset TOLDVER TNEWVER TNOTIFY
 	fi
-	
+
     fi
 
 
@@ -489,14 +710,28 @@ build_package()
     esac
     if [ -n "$LOGFILE" ]; then
 	LOG=`eval echo $LOGFILE`
-	eval nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
+	if [ -n "$LASTLOG_FILE" ]; then
+	    echo "LASTLOG=$LOG" > $LASTLOG_FILE
+	fi
+	RES_FILE=~/tmp/$RPMBUILD-exit-status.$RANDOM
+	(nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+	RETVAL=`cat $RES_FILE`
+	rm $RES_FILE
+	if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
+	    if [ "$RETVAL" -eq "0" ]; then
+		mv $LOG $LOGDIROK
+	    else
+		mv $LOG $LOGDIRFAIL
+	    fi
+	fi
     else
 	eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
+	RETVAL=$?
     fi
 
-    if [ "$?" -ne "0" ]; then
+    if [ "$RETVAL" -ne "0" ]; then
 
-	if [ -n "$TRY_UPGRADE" ]; then 
+	if [ -n "$TRY_UPGRADE" ]; then
 	    echo "\n!!! Package with new version cannot be build automagically\n"
 	    mv -f $SPECFILE.bak $SPECFILE
 	fi
@@ -511,6 +746,7 @@ nourl()
 {
     echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
+
 #---------------------------------------------
 # main()
 
@@ -521,12 +757,26 @@ fi
 
 while test $# -gt 0 ; do
     case "${1}" in
+	-5 | --update-md5 )
+	    COMMAND="get";
+	    NODIST="yes"
+	    NOCVSSPEC="yes"
+	    UPDATE5="yes"
+	    shift ;;
+	-a5 | --add-md5 )
+	    COMMAND="get";
+	    NODIST="yes"
+	    NOCVS="yes"
+	    NOCVSSPEC="yes"
+	    UPDATE5="yes"
+	    ADD5="yes"
+	    shift ;;
 	-D | --debug )
 	    DEBUG="yes"; shift ;;
 	-V | --version )
 	    COMMAND="version"; shift ;;
 	-a | --as_anon )
-	    CVSROOT=":pserver:cvs@anoncvs.pld.org.pl:/cvsroot"; shift ;;
+	    CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"; shift ;;
 	-b | -ba | --build )
 	    COMMAND="build"; shift ;;
 	-bb | --build-binary )
@@ -543,6 +793,8 @@ while test $# -gt 0 ; do
 	    COMMAND="get"; shift ;;
 	-h | --help )
 	    COMMAND="usage"; shift ;;
+	--http )
+	    PROTOCOL="http"; shift ;;
 	-l | --logtofile )
 	    shift; LOGFILE="${1}"; shift ;;
 	-ni| --nice )
@@ -551,8 +803,10 @@ while test $# -gt 0 ; do
 	    COMMAND="mr-proper"; shift ;;
 	-nc | --no-cvs )
 	    NOCVS="yes"; shift ;;
-	-ncs | --no-cvs-spec )
+	-ncs | --no-cvs-specs )
 	    NOCVSSPEC="yes"; shift ;;
+	-nd | --no-distfiles )
+	    NODIST="yes"; shift ;;
 	-nm | --no-mirrors )
 	    NOMIRRORS="yes"; shift ;;
 	-nu | --no-urls )
@@ -567,6 +821,8 @@ while test $# -gt 0 ; do
 	    BCOND="$BCOND $1 $2" ; shift 2 ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
+	--date )
+	    CVSDATE="${2}"; shift 2 ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
 	-Tvs | --tag-version-stable )
@@ -594,18 +850,28 @@ while test $# -gt 0 ; do
 	    TAG=""
 	    TAG_VERSION="yes"
 	    shift;;
+	-Tp | --tag-prefix )
+	    TAG_PREFIX="$2"
+	    shift 2;;
 	-T | --tag )
 	    COMMAND="tag";
 	    shift
 	    TAG="$1"
 	    TAG_VERSION="no"
 	    shift;;
-	-v | --verbose )
-	    BE_VERBOSE="1"; shift ;;
+	-U | --update )
+	    COMMAND="get"
+	    UPDATE="yes"
+	    NOCVSSPEC="yes"
+	    NODIST="yes"
+	    UPDATE5="yes"
+	    shift ;;
 	-u | --try-upgrade )
 	    TRY_UPGRADE="1"; shift ;;
 	-un | --try-upgrade-with-float-version )
 	    TRY_UPGRADE="1"; FLOAT_VERSION="1"; shift ;;
+	-v | --verbose )
+	    BE_VERBOSE="1"; shift ;;
 	--define)
 	    shift
 	    MACRO="${1}"
@@ -618,9 +884,9 @@ while test $# -gt 0 ; do
     esac
 done
 
-if [ -n "$DEBUG" ]; then 
+if [ -n "$DEBUG" ]; then
     set -x;
-    set -v; 
+    set -v;
 fi
 
 case "$COMMAND" in
@@ -641,8 +907,8 @@ case "$COMMAND" in
 	    fi
 
 	    if [ -n "$ICONS" ]; then
-	    	get_files $ICONS;
-	    	parse_spec;
+		get_files $ICONS;
+		parse_spec;
 	    fi
 	    if [ -n "$NOSOURCE0" ] ; then
 		SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
@@ -654,7 +920,7 @@ case "$COMMAND" in
 	fi
 	;;
     "branch" )
-    	init_builder;
+	init_builder;
 	if [ -n "$SPECFILE" ]; then
 		get_spec;
 		parse_spec;
@@ -667,7 +933,7 @@ case "$COMMAND" in
 	else
 		Exit_error err_no_spec_in_cmdl;
 	fi
-    	;;
+	;;
     "get" )
 	init_builder;
 	if [ -n "$SPECFILE" ]; then
