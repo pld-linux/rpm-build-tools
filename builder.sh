@@ -56,8 +56,8 @@ CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
 CVSTAG=""
 RES_FILE=""
 
-CVS_SERV_NAME=cvs.pld-linux.org
-FTP_SERV_NAME=distfiles.pld-ppc.org
+CVS_SERVER="cvs.pld-linux.org"
+DISTFILES_SERVER="ftp://distfiles.pld-ppc.org"
 
 DEF_NICE_LEVEL=0
 
@@ -100,7 +100,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
-	-a, --as_anon	- get files via pserver as cvs@$CVS_SERV_NAME,
+	-a, --as_anon	- get files via pserver as cvs@$CVS_SERVER,
 	-b, -ba,
 	--build		- get all files from CVS repo or HTTP/FTP and build
 			  package from <package>.spec,
@@ -341,7 +341,7 @@ src_md5 ()
 
 distfiles_url ()
 {
-    echo "ftp://$FTP_SERV_NAME/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')"
+    echo "$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')"
 }
 
 get_files()
@@ -630,7 +630,7 @@ while test $# -gt 0 ; do
 	-V | --version )
 	    COMMAND="version"; shift ;;
 	-a | --as_anon )
-	    CVSROOT=":pserver:cvs@$CVS_SERV_NAME:/cvsroot"; shift ;;
+	    CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"; shift ;;
 	-b | -ba | --build )
 	    COMMAND="build"; shift ;;
 	-bb | --build-binary )
