@@ -295,6 +295,7 @@ function process_source(number,lurl,name,version) {
 				newfilename=fixedsub(prever,"",newfilename)
 				newfilename=fixedsub(postver,"",newfilename)
 				if (DEBUG) print "Wersja: " newfilename
+				if (newfilename ~ /\.pkg$/) continue
 				if (NUMERIC) {
 					if ( compare_ver_dec(version, newfilename)==1 ) {
 						if (DEBUG) print "Tak, jest nowa"
