@@ -91,7 +91,7 @@ defattr == 1 {
 ################
 # %description #
 ################
-/^%description/, (/^%[a-z]+/ && !/^%description/) {
+/^%description/, (/^%[a-z]+/ && !/^%description/ && !/^%((end)?if|else)/) {
 	preamble = 0
 
 	if (/^%description/) {
@@ -140,7 +140,7 @@ defattr == 1 {
 #########
 # %prep #
 #########
-/^%prep/, (/^%[a-z]+$/ && !/^%prep/) {
+/^%prep/, (/^%[a-z]+$/ && !/^%prep/ && !/^%((end)?if|else)/) {
 	preamble = 0
 
 	# Add '-q' to %setup
@@ -151,7 +151,7 @@ defattr == 1 {
 ##########
 # %build #
 ##########
-/^%build/, (/^%[a-z]+$/ && !/^%build/) {
+/^%build/, (/^%[a-z]+$/ && !/^%build/ && !/^%((end)?if|else)/) {
 	preamble = 0
 
 	use_macros()
@@ -200,14 +200,14 @@ defattr == 1 {
 ##########
 # %clean #
 ##########
-/^%clean/, (/^%[a-z]+$/ && !/^%clean/) {
+/^%clean/, (/^%[a-z]+$/ && !/^%clean/ && !/^%((end)?if|else)/) {
 	did_clean = 1
 }
 
 ############
 # %install #
 ############
-/^%install/, (/^%[a-z]+$/ && !/^%install/) {
+/^%install/, (/^%[a-z]+$/ && !/^%install/ && !/^%((end)?if|else)/) {
 
 	preamble = 0
 
@@ -251,7 +251,7 @@ defattr == 1 {
 ##########
 # %files #
 ##########
-/^%files/, (/^%[a-z \-]+$/ && !/^%files/) {
+/^%files/, (/^%[a-z \-]+$/ && !/^%files/ && !/^%((end)?if|else)/) {
 	preamble = 0
 
 	if ($0 ~ /^%files/)
