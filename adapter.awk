@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.9+. Adapter adapts .spec files for PLD.
+# This is adapter v1.0. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -13,6 +13,16 @@ BEGIN {
 	# Is 'date' macro already defined?
 	if (is_there_line("%define date"))
 		date = 1;
+	
+	"rpm --eval %_prefix"	| getline prefix
+	"rpm --eval %_bindir"	| getline bindir
+	"rpm --eval %_sbindir"	| getline sbindir
+	"rpm --eval %_libdir"	| getline libdir
+	"rpm --eval %_sysconfdir" | getline sysconfdir
+	"rpm --eval %_datadir"	| getline datadir
+	"rpm --eval %_includedir" | getline includedir
+	"rpm --eval %_mandir"	| getline mandir
+	"rpm --eval %_infodir"	| getline infodir
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -23,6 +33,15 @@ FNR == 1 {
 		print $0;					# Yes
 
 	next;				# It is enough for first line
+}
+
+# If the latest line matched /%files/
+defattr == 1 {
+	if ($0 !~ /defattr/)	# If no %defattr
+		print "%defattr(644,root,root,755)";	# Add it
+	else
+		$0 = "%defattr(644,root,root,755)";	# Correct mistakes (if any)
+	defattr = 0;
 }
 
 # descriptions:
@@ -36,7 +55,8 @@ FNR == 1 {
 	if (/^%description$/ && x11 == 1) {
 		print "%define\t\t_prefix\t\t/usr/X11R6";
 		print "%define\t\t_mandir\t\t%{_prefix}/man\n";
-		x11 == 2;
+		prefix = "/usr/X11R6";
+		x11 = 2;
 	}
 
         # Collect whole text of description
@@ -79,7 +99,7 @@ FNR == 1 {
 /%prep/, (/^%[a-z]+$/ && !/%prep/) {
 	preamble = 0;
 	
-	# add '-q' to %setup
+	# Add '-q' to %setup
 	if (/%setup/ && !/-q/)
 		sub(/%setup/, "%setup -q");
 }
@@ -88,30 +108,32 @@ FNR == 1 {
 /%build/, (/^%[a-z]+$/ && !/%build/) {
 	preamble = 0;
 
-	# Any ideas?
+	use_macros();
 }
 
 # %install section:
 /%install/, (/^[a-z]+$/ && !/%install/) {
 	preamble = 0;
 	
+	use_macros();
+
 	# 'install -d' instead 'mkdir -p'
 	if (/mkdir -p/)
 		sub(/mkdir -p/, "install -d");
 		
-	# no '-u root' or '-g root' for 'install'
+	# No '-u root' or '-g root' for 'install'
 	if (/^install/ && /-[ug][ \t]*root/)
 		gsub(/-[ug][ \t]*root /, "");
 	
 	if (/^install/ && /-m[ \t]*644/)
 		gsub(/-m[ \t]*644 /, "");
 	
-	# no lines contain 'chown' or 'chgrp', which changes
+	# No lines contain 'chown' or 'chgrp', which changes
 	# owner/group to 'root'
-	if ($1 ~ /chown|chgrp/ && $2 ~ /root|root.root/)
+	if (($1 ~ /chown/ && $2 ~ /root\.root/) || ($1 ~ /chgrp/ && $2 ~ /root/))
 		next;
 	
-	# no lines contain 'chmod' if it sets the modes to '644'
+	# No lines contain 'chmod' if it sets the modes to '644'
 	if ($1 ~ /chmod/ && $2 ~ /644/)
 		next;
 	
@@ -124,11 +146,13 @@ FNR == 1 {
 }
 
 # %files section:
-/%files/, (/^%[a-z]+$/ && !/%files/) {
+/%files/, (/^%[a-z \-]+$/ && !/%files/) {
 	preamble = 0;
 	
-	if (/%defattr/)
-		$0 = "%defattr(644,root,root,755)";
+	if ($0 ~ /%files/)
+		defattr = 1;
+	
+	use_macros();
 }
 
 # %changelog section:
@@ -204,10 +228,29 @@ preamble == 1 {
 
 	format_preamble();
 	
-	# Do not add %define of _prefix if it already is.
-	if ($1 ~ /%define/ && $2 ~ /_prefix/)
-		x11 = 2;
-			
+	if ($1 ~ /%define/) {
+		# Do not add %define of _prefix if it already is.
+	       	if ($2 ~ /_prefix/) {
+			prefix = $3;
+			x11 = 2;
+		}
+		if ($2 ~ /_bindir/ && !/_sbindir/)
+			bindir = $3;
+		if ($2 ~ /_sbindir/)
+			sbindir = $3;
+		if ($2 ~ /_libdir/)
+			libdir = $3;
+		if ($2 ~ /_sysconfdir/)
+			sysconfdir = $3;
+		if ($2 ~ /_datadir/)
+			datadir = $3;
+		if ($2 ~ /_includedir/)
+			includedir = $3;
+		if ($2 ~ /_mandir/)
+			mandir = $3;
+		if ($2 ~ /_infodir/)
+			infodir = $3;
+	}
 }
 
 {
@@ -282,5 +325,19 @@ function format_preamble()
 		else
 			sub(/:/, ":\t");
 	}
+}
+
+# Replace directly specified directories with macros
+function use_macros()
+{
+	gsub(bindir, "%{_bindir}");
+	gsub(sbindir, "%{_sbindir}");
+	gsub(libdir, "%{_libdir}");
+	gsub(sysconfdir, "%{_sysconfdir}");
+	gsub(datadir, "%{_datadir}");
+	gsub(includedir, "%{_includedir}");
+	gsub(mandir, "%{_mandir}");
+	gsub(infodir, "%{_infodir}");
+	gsub(prefix, "%{_prefix}");
 }
 
