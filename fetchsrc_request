@@ -2,11 +2,11 @@
 # $Id$
 #
 # Sending via 
+VIA="SENDMAIL"
 #VIA="localhost"
-VIA="/usr/sbin/sendmail"
 #
 # DISTFILES EMAIL
-DMAIL="plddist@ep09.kernel.pl"
+DMAIL="djrzulf@knycz.net"
 #
 # CVS LOGIN or fill it by hand :)
 LOGIN=`cat CVS/Root | awk -F: '{ print $3; }' | perl -pi -e "s/@.+//"`
@@ -14,6 +14,7 @@ LOGIN=`cat CVS/Root | awk -F: '{ print $3; }' | perl -pi -e "s/@.+//"`
 #
 # HOST
 HOST=`hostname -f`
+#HOST="knycz.net"
 #
 # functions
 
@@ -36,8 +37,11 @@ else
 	BRANCH="HEAD"
 fi
 
-MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch: $BRANCH\nX-Flags: force-reply\n.\n
-"
-
-echo $MAIL | $VIA
+if [ "$VIA" = "SENDMAIL" ]; then
+	MAIL="To: $DMAIL\nFrom: $LOGIN <$LOGIN@$HOST>\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:	$BRANCH\nX-Flags: force-reply\n.\n"
+	echo $MAIL | `which sendmail`
+else
+	MAIL="EHLO $HOST\nMAIL FROM: $LOGIN <$LOGIN@$HOST>\nRCPT TO: $DMAIL\nDATA\nSubject: cvs to df notify\nX-CVS-Module: SPECS\nX-distfiles-request: yes\nX-Login: $LOGIN\nX-Spec: $1\nX-Branch:$BRANCH\nX-Flags: force-reply\n.\nQUIT\n"
+	echo $MAIL | `which nc` $VIA 25
+fi
 
