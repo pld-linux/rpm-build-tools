@@ -176,7 +176,7 @@ get_spec()
 
     cd $SPECS_DIR
 
-    OPTIONS="up "
+    OPTIONS="-z9 up "
 
     if [ -n "$CVSROOT" ]; then
 	OPTIONS="-d $CVSROOT $OPTIONS"
@@ -211,7 +211,7 @@ get_all_files()
     if [ -n "$SOURCES$PATCHES$ICONS" ]; then
 	cd $SOURCE_DIR
 
-	OPTIONS="up "
+	OPTIONS="-z9 up "
 	if [ -n "$CVSROOT" ]; then
 	    OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
