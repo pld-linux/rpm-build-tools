@@ -235,15 +235,15 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -T <cvstag> , --tag <cvstag>
                     - add cvs tag <cvstag> for files,
 -Tvs, --tag-version-stable
-                    - add cvs tags STABLE and NAME-VERSION-RELESE for files,
+                    - add cvs tags STABLE and NAME-VERSION-RELAESE for files,
 -Tvn, --tag-version-nest
-                    - add cvs tags NEST and NAME-VERSION-RELESE for files,
+                    - add cvs tags NEST and NAME-VERSION-RELEASE for files,
 -Ts, --tag-stable
                     - add cvs tag STABLE for files,
 -Tn, --tag-nest
                     - add cvs tag NEST for files,
 -Tv, --tag-version
-                    - add cvs tag NAME-VERSION-RELESE for files,
+                    - add cvs tag NAME-VERSION-RELEASE for files,
 -Tp, --tag-prefix <prefix>
                     - add <prefix> to NAME-VERSION-RELEASE tags,
 -tt, --test-tag <prefix>
