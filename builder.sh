@@ -9,6 +9,8 @@
 #	4 - some source, patch or icon files not stored in repo
 #	5 - package build failed
 
+# TODO: "NoSource: N" should disallow adding "SourceN-md5:" tag
+
 VERSION="\
 Build package utility from PLD CVS repository
 V 0.11 (C) 1999-2003 Free Penguins".
