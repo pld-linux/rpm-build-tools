@@ -456,8 +456,10 @@ preamble == 1 {
 		$2 = fixedsub(filename, url[n], $2)
 
 		# sourceforge urls
-		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
+		sub("[?]use_mirror=.*$", "", $2);
 		sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
+
+		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 		sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", $2)
 	}
 
@@ -699,6 +701,11 @@ function use_files_macros(	i, n, t, a)
 		if (/^%attr.*\/etc\/rc\.d\/init\.d/ && !/^%attr\(754 *,/) {
 			gsub("^%attr\(... *,", "%attr(754,");
 		}
+	}
+
+
+	if (/\.so$/ && !/^%attr.*/) {
+		$0 = "%attr(755,root,root) " $0
 	}
 
 	# sort %verify attrs
