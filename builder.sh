@@ -28,7 +28,7 @@ NODIST=""
 UPDATE=""
 UPDATE5=""
 ADD5=""
-ALLWAYS_CVSUP=${ALLWAYS_CVSUP:-"yes"}
+ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
 else
@@ -410,7 +410,7 @@ get_files()
             fi
         fi
 	for i in $GET_FILES; do
-	    if [ ! -f `nourl $i` ] || [ $ALLWAYS_CVSUP = "yes" ]; then
+	    if [ ! -f `nourl $i` ] || [ $ALWAYS_CVSUP = "yes" ]; then
 		if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 		    echo "Warning: no URL given for $i"
 		fi
