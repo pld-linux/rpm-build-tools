@@ -38,6 +38,8 @@ PACKAGE_NAME=""
 
 DEF_NICE_LEVEL=0
 
+GETURI="wget -c -nd -t0"
+
 if [ -f ~/etc/builderrc ]; then
   . ~/etc/builderrc
 elif [ -f ~/.builderrc ]; then
@@ -237,7 +239,7 @@ get_all_files()
 		if 	[ -z "$NOURLS" ]&&[ ! -f "`nourl $i`" ]&&\
 			[ `echo $i | grep -E 'ftp://|http://|https://'` ]
 		then
-			wget -c -nd -t0 "$i"
+			${GETURI} "$i"
 		fi
 
 		if [ ! -f "`nourl $i`" ]; then
