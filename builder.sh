@@ -323,7 +323,7 @@ src_no ()
 {
     cd $SPECS_DIR
     $RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | \
-       grep "SOURCEURL[0-9]*[  ]*$1""[         ]*$" | \
+       grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
        sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
        xargs
 }
