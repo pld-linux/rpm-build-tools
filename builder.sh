@@ -483,6 +483,15 @@ src_md5 ()
 	fi
 }
 
+src_size ()
+{
+	 [ X"$NO5" = X"yes" ] && return
+	 no=$(src_no "$1")
+	 [ -z "$no" ] && return
+	 cd $SPECS_DIR
+	 grep -i "#[ 	]*Source$no-size[ 	]*:" $SPECFILE | sed -e 's/.*://' | xargs
+}
+
 distfiles_url ()
 {
 	echo "$PROTOCOL$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
@@ -498,6 +507,13 @@ good_md5 ()
 	md5=$(src_md5 "$1")
 	[ "$md5" = "" ] || \
 	[ "$md5" = "$(md5sum $(nourl "$1") 2> /dev/null | sed -e 's/ .*//')" ]
+}
+
+good_size ()
+{
+	 size=$(src_size "$1")
+	 [ "$size" = "" ] || \
+	 [ "$size" = "$(find $(nourl "$1") -printf "%s" 2>/dev/null)" ]
 }
 
 cvsignore_df ()
@@ -559,8 +575,8 @@ get_files()
 				fi
 
 				if [ -n "$(src_md5 "$i")" ] && [ -z "$NODIST" ]; then
-					if good_md5 "$i"; then
-						echo "$(nourl "$i") having proper md5sum already exists"
+					if good_md5 "$i" && good_size "$i"; then
+						echo "$(nourl "$i") having proper md5sum and size already exists"
 						continue
 					fi
 					target=$(nourl "$i")
@@ -641,20 +657,21 @@ get_files()
 			then
 				echo "Updating source-$srcno md5."
 				md5=$(md5sum `nourl $i` | cut -f1 -d' ')
+				size=$(find $(nourl "$1") -printf "%s" 2>/dev/null)
 				perl -i -ne '
-				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
-				print "# Source'$srcno'-md5:\t'$md5'\n"
+				print unless /^\s*#\s*Source'$srcno'-(md5|size)\s*:/i;
+				print "# Source'$srcno'-md5:\t'$md5'\n# Source'$srcno'-size:\t'$size'\n"
 				if /^Source'$srcno'\s*:\s+/;
 				' \
 				$SPECS_DIR/$SPECFILE
 			fi
 	
-			if good_md5 "$i"; then
+			if good_md5 "$i" && good_size "$i"; then
 				:
 			elif [ "$FROM_DISTFILES" = 1 ]; then
-				# wrong md5 from distfiles: remove the file and try again
+				# wrong md5 or size from distfiles: remove the file and try again
 				# but only once ...
-				echo "MD5 sum mismatch. Trying full fetch."
+				echo "MD5 sum or size mismatch. Trying full fetch."
 				FROM_DISTFILES=2
 				rm -f $target
 				${GETURI} -O "$target" "$url" || \
@@ -671,11 +688,11 @@ get_files()
 				test -s "$target" || rm -f "$target"
 			fi
 
-			if good_md5 "$i"; then
+			if good_md5 "$i" && good_size "$i" ; then
 				:
 			else
-				echo "MD5 sum mismatch.  Use -U to refetch sources,"
-				echo "or -5 to update md5 sums, if you're sure files are correct."
+				echo "MD5 sum or size mismatch.  Use -U to refetch sources,"
+				echo "or -5 to update md5 sums and size info, if you're sure files are correct."
 				Exit_error err_no_source_in_repo $i
 			fi
 		done
