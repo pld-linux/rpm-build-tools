@@ -171,7 +171,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
 [-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
 [-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
-[{-Tp|--tag-prefix} <prefix>]
+[{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
 [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 	
@@ -240,6 +240,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                     - add cvs tag NAME-VERSION-RELESE for files,
 -Tp, --tag-prefix <prefix>
                     - add <prefix> to NAME-VERSION-RELEASE tags,
+-tt, --test-tag <prefix>
+                    - fail if tag is already present,
 -v, --verbose       - be verbose,
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
@@ -671,6 +673,18 @@ get_files()
 	fi
 }
 
+make_tagver() {
+		# Check whether first character of PACKAGE_NAME is legal for tag name
+		if [ -z "${PACKAGE_NAME##[_0-9]*}" -a -z "$TAG_PREFIX" ]; then
+			TAG_PREFIX=tag_
+		fi
+		TAGVER=$TAG_PREFIX$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
+		# Remove #kernel.version_release from TAGVER because tagging sources
+		# could occur with different kernel-headers than kernel-headers used at build time.
+		TAGVER=$(echo "$TAGVER" | sed -e 's/#.*//g')
+		echo -n "$TAGVER"
+}
+
 tag_files()
 {
 	TAG_FILES="$@"
@@ -683,14 +697,9 @@ tag_files()
 	if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
 		echo "Version: $PACKAGE_VERSION"
 		echo "Release: $PACKAGE_RELEASE"
-		# Check whether first character of PACKAGE_NAME is legal for tag name
-		if [ -z "${PACKAGE_NAME##[_0-9]*}" -a -z "$TAG_PREFIX" ]; then
-			TAG_PREFIX=tag_
-		fi
-		TAGVER=$TAG_PREFIX$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
-		# Remove #kernel.version_release from TAGVER because tagging sources
-		# could occur with different kernel-headers than kernel-headers used at build time.
-		TAGVER=$(echo "$TAGVER" | sed -e 's/#.*//g')
+
+		TAGVER=`make_tagver`
+
 		if [ "$TAG_VERSION" = "yes" ]; then
 			echo "CVS tag: $TAGVER"
 		fi
@@ -1317,6 +1326,9 @@ do
 		-Tp | --tag-prefix )
 			TAG_PREFIX="$2"
 			shift 2;;
+		-tt | --test-tag )
+			TEST_TAG="yes"
+			shift;;
 		-T | --tag )
 			COMMAND="tag";
 			shift
@@ -1372,13 +1384,13 @@ case "$COMMAND" in
 		fetch_build_requires;
 		parse_spec;
 
-		if [ -n "$FAIL_IF_CHANGED_BUT_NOT_BUMPED" ]; then
-			TAGVER=$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
-			CURTAGREL=$(cvs status $SPECFILE | grep "Working revision:" | awk '{ print $3 }')
+		if [ -n "$TEST_TAG" ]; then
+			TAGVER=`make_tagver`
+			echo "Searching for tag $TAGVER..."
 			TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
 
-			if [ -n "$TAGREL" -a "$TAGREL" != "$CURTAGREL" ]; then
-				Exit_error err_build_fail "not bumped ver-rel - was already used in rev $TAGREL"
+			if [ -n "$TAGREL" ]; then
+				Exit_error err_build_fail "Tag $TAGVER already present (spec release: $TAGREL)"
 			fi
 		fi
 
