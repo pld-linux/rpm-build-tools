@@ -74,13 +74,15 @@ usage()
     if [ -n "$DEBUG" ]; then set -xv; fi
     echo "\
 Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
-	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade] 
-	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get] 
-	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper] [-q|--quiet]
-	[-r <cvstag>] [{-T--tag <cvstag>] [-Tvs|--tag-version-stable]
-	[-Tvd|--tag-version-devel] [-Ts|--tag-stable] [-Td|--tag-devel]
-	[-Tv|--tag-version] [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] 
-	[--with/--without pkg] [--define <macro> <value>] <package>.spec
+
+	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
+	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
+	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
+	[-q|--quiet] [-r <cvstag>] [{-T--tag <cvstag>]
+	[-Tvs|--tag-version-stable] [-Tvd|--tag-version-devel]
+	[-Ts|--tag-stable] [-Td|--tag-devel] [-Tv|--tag-version]
+	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
+	[--with/--without <feacture>] [--define <macro> <value>] <package>.spec
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -99,6 +101,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 	-d <cvsroot>, --cvsroot	<cvsroot>
 			- setup \$CVSROOT,
+	--define <macro> <value>]
+			- define a macro <macro> with value <value>,
 	-g, --get	- get <package>.spec and all related files from
 			  CVS repo or HTTP/FTP,
 	-h, --help	- this message,
@@ -131,9 +135,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	-Tv, --tag-version
 			- add cvs tag NAME-VERSION-RELESE for files,
 	-v, --verbose	- be verbose,
-	-u, --try-upgrade - check version, and try to upgrade package
-	--define	- define a macro
-
+	-u, --try-upgrade
+			- check version, and try to upgrade package
+	--with/--without <feacture>
+			- conditional build package depending on
+			  %_with_<feacture>/%_without_<feacture> macro
+			  switch
 "
 }
 
