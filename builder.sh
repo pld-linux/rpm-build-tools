@@ -26,6 +26,7 @@ NOCVS=""
 NOCVSSPEC=""
 NODIST=""
 UPDATE=""
+UPDATE5=""
 ALLWAYS_CVSUP=${ALLWAYS_CVSUP:-"yes"}
 if [ -s CVS/Root ]; then
     CVSROOT=$(cat CVS/Root)
@@ -100,6 +101,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 	[--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
+	-5		- update md5 comments in spec
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
 	-a, --as_anon	- get files via pserver as cvs@$CVS_SERVER,
@@ -429,12 +431,19 @@ get_files()
 		    fi
 		    ${GETURI} "$i" || \
 			if [ `echo $i | grep -E 'ftp://'` ]; then ${GETURI2} "$i" ; fi
-#		    echo -n "#Source$(src_no $i)-md5:	" >> $SPECS_DIR/$SPECFILE.md5
-#		    md5sum `echo $i | perl -ne '/.*\/(.*)/; print "$1\n"'` | cut -f1 -d' ' >> $SPECS_DIR/$SPECFILE.md5
 		fi
 
 		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
 		    Exit_error err_no_source_in_repo $i;
+		else
+		if [ -n "$UPDATE5" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
+		    tmp_spec=`mktemp ${TMPDIR:-/tmp}/$SPECFILE.XXXXXX`
+		    srcno=$(src_no $i)
+		    md5=$(md5sum `echo $i | perl -ne '/.*\/(.*)/; print "$1\n"'` | cut -f1 -d' ')
+		    perl -ne 'print "# Source'$srcno'-md5:	'$md5'\n" if /^Source'$srcno':[ 	]*/;
+				print unless /^#[ 	]*Source'$srcno'-md5:[ 	]*/' < $SPECS_DIR/$SPECFILE > $tmp_spec
+		    mv -f $tmp_spec $SPECS_DIR/$SPECFILE
+		fi
 		fi
 	    fi
 	done
@@ -641,6 +650,11 @@ fi
 
 while test $# -gt 0 ; do
     case "${1}" in
+	-5 )
+	    COMMAND="get";
+	    NODIST="yes"
+	    UPDATE5="yes"
+	    shift ;;
 	-D | --debug )
 	    DEBUG="yes"; shift ;;
 	-V | --version )
