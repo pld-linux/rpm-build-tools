@@ -655,7 +655,7 @@ get_files()
 				[ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
 				grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
 			then
-				echo "Updating source-$srcno md5."
+				echo "Updating source-$srcno md5 and size."
 				md5=$(md5sum `nourl $i` | cut -f1 -d' ')
 				size=$(find $(nourl "$i") -printf "%s" 2>/dev/null)
 				perl -i -ne '
