@@ -23,6 +23,7 @@ CLEAN=""
 DEBUG=""
 CVSROOT=${CVSROOT:-""}
 LOGFILE=""
+CHMOD="yes"
 
 PATCHES=""
 SOURCES=""
@@ -30,6 +31,10 @@ ICONS=""
 PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
+
+if [ -f ~/.builderrc ]; then
+  . ~/.builderrc
+fi
 
 #---------------------------------------------
 # functions
@@ -127,24 +132,8 @@ init_builder()
 {
     if [ -n "$DEBUG" ]; then set -xv; fi
 
-    DUMB_SPEC_FILE=`mktemp -q /tmp/bilder.XXXXXX`
-    echo "\
-Summary:	-
-Name:		dumb
-Version:	dumb
-Release:	dumb
-Copyright:	dumb
-Group:		-
-%description
-
-%prep
-echo SOURCE_DIR=%{_sourcedir}
-echo SPECS_DIR=%{_specdir}" > $DUMB_SPEC_FILE
-
-    SOURCE_DIR=`rpm -bp $DUMB_SPEC_FILE 2>&1 | grep "^SOURCE_DIR" | sed "s/SOURCE_DIR\=//"`
-    SPECS_DIR=`rpm -bp $DUMB_SPEC_FILE 2>&1 | grep "^SPECS_DIR" |sed "s/SPECS_DIR\=//"`
-
-    rm -f $DUMB_SPEC_FILE
+    SOURCE_DIR="`rpm --eval "%{_sourcedir}"`"
+    SPECS_DIR="`rpm --eval "%{_specdir}"`"
 
     __PWD=`pwd`
 }
@@ -170,8 +159,10 @@ get_spec()
     if [ "$?" -ne "0" ]; then
 	Exit_error err_no_spec_in_repo;
     fi
-
-    chmod 444 $SPECFILE
+    
+    if [ "$CHMODE" = "yes" ]; then
+        chmod 444 $SPECFILE
+    fi
     unset OPTIONS
 }
 
@@ -196,8 +187,10 @@ get_all_files()
 	if [ "$?" -ne "0" ]; then
 	    Exit_error err_no_source_in_repo;
 	fi
-
-	chmod 444 $SOURCES $PATCHES $ICONS
+	
+	if [ "$CHMOD" = "yes" ]; then
+	    chmod 444 $SOURCES $PATCHES $ICONS
+	fi
 	unset OPTIONS
     fi
 }
