@@ -13,6 +13,8 @@
 #	- builder -u fetches current version first
 #	- tries to get new version from distfiles without new md5
 #	- after fetching new version doesn't update md5
+#	- doesn't get sources for specs with %include  /usr/lib/rpm/macros.python
+#	  when there's no rpm-pythonprov (rpm's fault, but it's ugly anyway)
 
 VERSION="\
 Build package utility from PLD CVS repository
