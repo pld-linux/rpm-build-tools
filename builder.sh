@@ -1024,6 +1024,7 @@ fetch_build_requires()
 			 DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk ' { print $3 } ' | xargs)
 			 if [ -n "$DEPS" ]; then
 				  echo "Trying to install dependencies ($DEPS):"
+				  /usr/bin/poldek --update; /usr/bin/poldek --upa
 				  /usr/bin/poldek -uGv $DEPS
 			 fi
 			 return
