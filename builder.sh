@@ -52,8 +52,11 @@ parse_spec()
     if [ "$BE_VERBOSE" != "" ]; then
 	echo -e "- Sources :\n  " $SOURCES
 	echo -e "- Patches :\n  " $PATCHES
-	if [ "$ICON" != ""
-	echo -e "- Icon    :\n  " $ICON
+	if [ "$ICON" != "" ]; then
+	    echo -e "- Icon    :\n  " $ICON
+	else
+	    echo -e "- Icon    :  *no package icon*"
+	fi
 	echo -e "- Name    : " $PACKAGE_NAME
 	echo -e "- Version : " $PACKAGE_VERSION
 	echo -e "- Release : " $PACKAGE_RELEASE
