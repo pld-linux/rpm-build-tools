@@ -20,6 +20,11 @@ BEGIN {
 	# File with rpm groups
 	"rpm --eval %_sourcedir" | getline groups_file
 	groups_file = groups_file "/rpm.groups"
+	if (!getline < groups_file) {
+		system("cd `rpm --eval %_sourcedir`; cvs up rpm.groups")
+	} else {
+		close(groups_file)
+	}
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
@@ -179,13 +184,7 @@ defattr == 1 {
 }
 
 # Scripts
-script = 0
-/^%pre/, (/^[a-z]+$/ && !/^%pre/) { script = 1 }
-/^%preun/, (/^[a-z]+$/ && !/^%preun/) { script = 1 }
-/^%post/, (/^[a-z]+$/ && !/^%post/) {	script = 1 }
-/^%postun/, (/^[a-z]+$/ && !/^%postun/) { script = 1 }
-script == 1 {
-	preamble = 0
+{
 	if ($1 ~ /^mv$/) {
 		if ($2 ~ /^-/)
 			sub(/-[A-Za-z0-9]+ /, "", $0)
@@ -254,7 +253,8 @@ preamble == 1 {
 	sub(/[ \t]*:/, ":")
 	
 	field = tolower($1)
-	
+	if (Byla_grupa == 1 && field ~ /^#/)
+		next
 	if (Byla_grupa == 1 && field !~ /group(\(..\))?:/) {
 		Byla_grupa = 0
 		print "Group:\t\t" Grupa["en"]
@@ -301,7 +301,7 @@ preamble == 1 {
 
 	if (field ~ /group(\(..\))?:/) {
 		format_preamble()
-		
+		sub(/^Utilities\//,"Applications\/",$2)
 		if (!match(field,/\(..\):/))
 			glang="en"
 		else
