@@ -90,7 +90,7 @@ while test $# -gt 0 ; do
 	-V | --version )
 	    COMMAND="version"; shift ;;
 	-a | --as_anon )
-	    CVSROOT=":pserver:anonymous@cvspld.org.pl:/cvsroot"; shift ;;
+	    CVSROOT=":pserver:cvs@cvs.pld.org.pl:/cvsroot"; shift ;;
 	-b | --build )
 	    COMMAND="build"; shift ;;
 	-d | --cvsroot )
