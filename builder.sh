@@ -219,6 +219,7 @@ get_spec()
         chmod $CHMOD_MODE $SPECFILE
     fi
     unset OPTIONS
+    head -n 1 $SPECFILE
 }
 
 get_files()
@@ -525,6 +526,10 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.88  2001/11/23 15:07:05  zagrodzki
+# - fixed shifting arguments at --define
+# - use eval when starting rpm
+#
 # Revision 1.87  2001/11/23 13:53:01  zagrodzki
 # - added --define option
 #
