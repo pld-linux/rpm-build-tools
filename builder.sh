@@ -81,8 +81,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
 	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
 	[-q|--quiet] [-r <cvstag>] [{-T--tag <cvstag>]
-	[-Tvs|--tag-version-stable] [-Tvd|--tag-version-devel]
-	[-Ts|--tag-stable] [-Td|--tag-devel] [-Tv|--tag-version]
+	[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
+	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
 	[--with/--without <feature>] [--define <macro> <value>] <package>.spec
 
@@ -131,12 +131,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			- add cvs tag <cvstag> for files,
 	-Tvs, --tag-version-stable
 			- add cvs tags STABLE and NAME-VERSION-RELESE for files,
-	-Tvd, --tag-version-devel
-			- add cvs tags DEVEL and NAME-VERSION-RELESE for files,
+	-Tvn, --tag-version-nest
+			- add cvs tags NEST and NAME-VERSION-RELESE for files,
 	-Ts, --tag-stable
 			- add cvs tag STABLE for files,
-	-Td, --tag-devel
-			- add cvs tag DEVEL for files,
+	-Tn, --tag-nest
+			- add cvs tag NEST for files,
 	-Tv, --tag-version
 			- add cvs tag NAME-VERSION-RELESE for files,
 	-v, --verbose	- be verbose,
@@ -570,9 +570,9 @@ while test $# -gt 0 ; do
 	    TAG="STABLE"
 	    TAG_VERSION="yes"
 	    shift;;
-	-Tvd | --tag-version-devel )
+	-Tvn | --tag-version-nest )
 	    COMMAND="tag";
-	    TAG="DEVEL"
+	    TAG="NEST"
 	    TAG_VERSION="yes"
 	    shift;;
 	-Ts | --tag-stable )
@@ -580,9 +580,9 @@ while test $# -gt 0 ; do
 	    TAG="STABLE"
 	    TAG_VERSION="no"
 	    shift;;
-	-Td | --tag-devel )
+	-Tn | --tag-nest )
 	    COMMAND="tag";
-	    TAG="DEVEL"
+	    TAG="NEST"
 	    TAG_VERSION="no"
 	    shift;;
 	-Tv | --tag-version )
