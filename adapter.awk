@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.17. Adapter adapts .spec files for PLD.
+# This is adapter v0.18. Adapter adapts .spec files for PLD.
 # Copyright (C) 1999 Micha³ Kuratczyk <kura@pld.org.pl>
 
 BEGIN {
@@ -125,7 +125,7 @@ defattr == 1 {
 }
 
 # %install section:
-/^%install/, (/^[a-z]+$/ && !/^%install/) {
+/^%install/, (/^%[a-z]+$/ && !/^%install/) {
 	preamble = 0
 	
 	use_macros()
@@ -157,6 +157,12 @@ defattr == 1 {
 	}
 }
 
+# Scripts
+/^%pre /, (/^[a-z]+$/ && !/^%pre /) { preamble = 0 }
+/^%preun/, (/^[a-z]+$/ && !/^%preun/) { preamble = 0 }
+/^%post /, (/^[a-z]+$/ && !/^%post /) {	preamble = 0 }
+/^%postun/, (/^[a-z]+$/ && !/^%postun/) { preamble = 0 }
+	
 # %files section:
 /^%files/, (/^%[a-z \-]+$/ && !/^%files/) {
 	preamble = 0
