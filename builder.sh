@@ -1004,12 +1004,12 @@ display_bconds()
 {
 	if [ "$AVAIL_BCONDS_WITH" != "" ] || [ "$AVAIL_BCONDS_WITHOUT" != "" ]; then
 		if [ "$BCOND" != "" ]; then
-			echo -ne "You are going to build $SPECFILE with the following conditional flags:\n"
+			echo -ne "\nYou are going to build $SPECFILE with the following conditional flags:\n"
 			echo -ne "$BCOND"
 		else
-			echo -ne "No conditional flags passed"
+			echo -ne "\nNo conditional flags passed"
 		fi
-		echo -ne "\n\nfrom available:\n\n"
+		echo -ne "\n\nfrom available:\n"
 		echo -ne "--with   :\t$AVAIL_BCONDS_WITH\n--without:\t$AVAIL_BCONDS_WITHOUT\n\n"
 	fi
 }
