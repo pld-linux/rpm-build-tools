@@ -30,9 +30,11 @@ if [ -s CVS/Root ]; then
 else
     CVSROOT=${CVSROOT:-""}
 fi
-LOGFILE=""
-CHMOD=${CHMOD:-"yes"}
-CHMOD_MODE=${CHMOD_MODE:-444}
+# Example: LOGFILE='../log.$PACKAGE_NAME'
+# Yes, you can use variable name! Note _single_ quotes!
+LOGFILE=''
+CHMOD="yes"
+CHMOD_MODE="0444"
 RPMOPTS=""
 BCOND=""
 
@@ -117,15 +119,22 @@ parse_spec()
 
     cd $SPECS_DIR
 
+    # NOTE:  "--define 'prep '" causes an error (Macro %prep has empty body)
+    #        but rpm output is still useful.
+    # NOTE2: Redefining %prep to %dump isn't best solution because at least
+    #        six packages do not containt this section. All packages have
+    #        %install section.
+    DEFINE_AS_DUMP="--define 'prep ' --define 'install %dump'"
+
     if [ "$NOSRCS" != "yes" ]; then
-        SOURCES="`rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+        SOURCES="`eval rpm -bp --nobuild $DEFINE_AS_DUMP $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
     if (rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | grep -qEi ":.*nosource.*1"); then
 	FAIL_IF_NO_SOURCES="no"
     fi
 
 
-    PATCHES="`rpm -bp --nobuild --define 'prep %dump' $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
+    PATCHES="`eval rpm -bp --nobuild $DEFINE_AS_DUMP $SPECFILE 2>&1 | awk '/PATCHURL[0-9]+/ {print $3}'`"
     ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
     PACKAGE_NAME="`rpm -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -1`"
     PACKAGE_VERSION="`rpm -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -1`"
@@ -136,7 +145,7 @@ parse_spec()
 	if [ -n "$PATCHES" ]; then
 		echo "- Patches :  `nourl $PATCHES`"
 	else
-		echo "- Patches	:  *no patches needed*"
+		echo "- Patches :  *no patches needed*"
 	fi
 	if [ -n "$ICONS" ]; then
 	    echo "- Icon    :  `nourl $ICONS`"
@@ -369,7 +378,12 @@ build_package()
 	build-source )
 	    BUILD_SWITCH="-bs --nodeps" ;;
     esac
-    eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 
+    if [ -n "$LOGFILE" ]; then
+    	LOG=`eval echo $LOGFILE`
+ 	eval nice -n ${DEF_NICE_LEVEL} /bin/sh -c "time rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE" 2>&1 | tee $LOG
+    else
+        eval nice -n ${DEF_NICE_LEVEL} rpm $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
+    fi
 
     if [ "$?" -ne "0" ]; then
 	Exit_error err_build_fail;
@@ -379,7 +393,7 @@ build_package()
 
 nourl()
 {
-	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\)://.*/##g'
+	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\)://[^ ]*/##g'
 }
 #---------------------------------------------
 # main()
@@ -526,6 +540,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.90  2002/01/15 17:03:14  misiek
+# - use grep instead of head
+#
 # Revision 1.89  2002/01/15 13:20:08  misiek
 # - display spec revision and date
 #
