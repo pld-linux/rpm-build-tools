@@ -260,7 +260,7 @@ get_spec()
 	    retries_counter=$(( $retries_counter + 1 ))
 	    output=$(LC_ALL=C cvs $OPTIONS $SPECFILE 2>&1)
 	    result=$?
-	    echo $output
+	    [ -n "$output" ] && echo "$output"
 	    if [ "$result" -ne "0" ]; then
 		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed)") && [ "$retries_counter" -le "$CVS_RETRIES" ]; then
 		    echo "Trying again... ($retries_counter)"
@@ -341,7 +341,7 @@ get_files()
 		  	retries_counter=$(( $retries_counter + 1 ))
 			output=$(LC_ALL=C cvs $OPTIONS `nourl $i` 2>&1)
          		result=$?
-			echo $output
+			[ -n "$output" ] && echo "$output"
 			if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
 				echo "Trying again... ($retries_counter)"
 				continue
