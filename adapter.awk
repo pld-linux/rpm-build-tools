@@ -719,7 +719,7 @@ function use_files_macros(	i, n, t, a)
 	}
 
 	if (/\/etc\/sysconfig\// && !/%config\(noreplace\)/) {
-		gsub("%attr\(%config\s", "%config(noreplace)")
+		 $1 = $1 " %config(noreplace)"
 	}
 
 	if (/\/etc\/sysconfig\// && !/%verify/) {
