@@ -200,10 +200,6 @@ cache_rpm_dump () {
     		rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1 
 		;;
 	esac`
-    if [ $? -ne 0 ]; then
-        echo $rpm_dump_cache
-	exit 6
-    fi
 }
 
 rpm_dump () {
