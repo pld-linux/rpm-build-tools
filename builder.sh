@@ -1164,7 +1164,7 @@ fetch_build_requires()
 		done
 		export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
 		if [ "$NOT_INSTALLED_PACKAGES" != "" ]; then
-			echo "Nie uda³o siê zainstalowaæ nastêpuj±cych pakietów i ich zale¿no¶ci:"
+			echo "Unable to install following packages and their dependencies:"
 			for pkg in "$NOT_INSTALLED_PACKAGES"
 			do
 				echo $pkg
