@@ -84,7 +84,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
 	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
-	[--with/--without <feature>] [--define <macro> <value>] <package>.spec
+	[--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
 	-D, --debug	- enable script debugging mode,
 	-V, --version	- output builder version
@@ -608,7 +608,7 @@ while test $# -gt 0 ; do
 	    RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
 	    ;;
 	* )
-	    SPECFILE="${1}"; shift ;;
+	    SPECFILE="`basename ${1} .spec`.spec"; shift ;;
     esac
 done
 
