@@ -128,6 +128,26 @@ function subst_defines(var,defs) {
 	return var
 }
 
+function find_mirror(url) {
+
+	while (getline line < "mirrors") {
+		nf=split(line,fields,"|")
+		if (nf>0){
+			origin=fields[1]
+			mirror=fields[2]
+			mname=fields[3]
+			prefix=substr(url,1,length(origin))
+			if (prefix==origin){
+				if ( DEBUG ) print "Mirror znaleziony na " mname
+				close("mirrors")
+				return mirror substr(url,length(origin))
+			}
+		}
+	}
+
+	return url
+}
+
 function process_source(number,lurl,name,version) {
 # fetches file list, and compares version numbers
 	if ( DEBUG ) print "Przetwarzam " lurl
@@ -163,13 +183,13 @@ function process_source(number,lurl,name,version) {
 	postver=substr(filename,RSTART+RLENGTH)
 	if ( DEBUG ) print "Przed numerkiem: " prever
 	if ( DEBUG ) print "i po: " postver
-	
-	if ( DEBUG ) print "Zagl±dam na " acc "://" host dir 
+	newurl=find_mirror(acc "://" host dir)	
+	if ( DEBUG ) print "Zagl±dam na " newurl 
 	
 	references=0
 	finished=0
 	oldversion=version
-	odp=get_links(acc "://" host dir)
+	odp=get_links(newurl)
 	if( odp ~ "ERROR: ") {
 		print name "(" number ") " odp
 	} else {
