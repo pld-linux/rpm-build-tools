@@ -219,7 +219,7 @@ get_spec()
         chmod $CHMOD_MODE $SPECFILE
     fi
     unset OPTIONS
-    head -n 1 $SPECFILE
+    grep -E -m 1 "^#.*Revision:.*Date" $SPECFILE
 }
 
 get_files()
@@ -526,6 +526,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.89  2002/01/15 13:20:08  misiek
+# - display spec revision and date
+#
 # Revision 1.88  2001/11/23 15:07:05  zagrodzki
 # - fixed shifting arguments at --define
 # - use eval when starting rpm
