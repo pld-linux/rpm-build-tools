@@ -99,11 +99,13 @@ POLDEK_SOURCE="cvs"
 
 # Example grep cvs /etc/poldek.conf:
 # source = cvs /home/users/yoshi/rpm/RPMS/
-POLDEK_SOURCE_VALIDITY="`grep ${POLDEK_SOURCE} /etc/poldek.conf|grep -v ^#`"
-if [ "${POLDEK_SOURCE_VALIDITY}" == "" ]; then 
-	echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
-	echo "Fix it and try to contiune"
-	exit 7
+if [ "$UPDATE_POLDEK_INDEXES" == "yes" ]; then
+	POLDEK_SOURCE_VALIDITY="`grep ${POLDEK_SOURCE} /etc/poldek.conf|grep -v ^#`"
+	if [ "${POLDEK_SOURCE_VALIDITY}" == "" ]; then 
+		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
+		echo "Fix it and try to contiune"
+		exit 7
+	fi
 fi
 
 if [ -f ~/etc/builderrc ]; then
@@ -891,6 +893,7 @@ if [ "$FETCH_BUILD_REQUIRES" == "yes" ]; then
                                         NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package"
                                         ;;
                                 0)
+					INSTALLED_PACKAGES="$package $INSTALLED_PACKAGES"
                                         ;;
                                 esac
                         else
