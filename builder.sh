@@ -128,16 +128,18 @@ fi
 
 run_poldek()
 {
+	RES_FILE=~/tmp/poldek-exit-status.$RANDOM
 	if [ -n "$LOGFILE" ]; then
    	LOG=`eval echo $LOGFILE`
       if [ -n "$LASTLOG_FILE" ]; then
       	echo "LASTLOG=$LOG" > $LASTLOG_FILE
       fi
-		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; exit_pldk=$?)|tee $LOG
+		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee $LOG
 		return $exit_pldk
 	else
-		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; exit_pldk=$?) 1>&2 >/dev/null
-		return $exit_pldk
+		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE}) 1>&2 >/dev/null
+		return `cat ${RES_FILE}`
+		rm -rf ${RES_FILE}
 	fi
 }
 
