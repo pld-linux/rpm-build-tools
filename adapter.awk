@@ -17,7 +17,9 @@ BEGIN {
 	bod = 0			# Beggining of %description
 	tw = 75        		# Descriptions width
 
-	groups_file = ENVIRON["HOME"] "/rpm/groups"	# File with rpm groups
+	# File with rpm groups
+	"rpm --eval %_topdir" | getline groups_file
+	groups_file = groups_file "/groups"
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
