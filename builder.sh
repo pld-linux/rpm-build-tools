@@ -11,7 +11,7 @@
 
 VERSION="\
 Build package utility from PLD CVS repository
-V 0.11 (C) 1999-2001 Free Penguins".
+V 0.11 (C) 1999-2003 Free Penguins".
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
@@ -60,7 +60,7 @@ CVSTAG=""
 RES_FILE=""
 
 CVS_SERVER="cvs.pld-linux.org"
-DISTFILES_SERVER="ftp://distfiles.pld-ppc.org"
+DISTFILES_SERVER="ftp://distfiles.pld-linux.org"
 
 DEF_NICE_LEVEL=0
 
