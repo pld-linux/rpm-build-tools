@@ -172,7 +172,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
 -n5, --no-md5       - ignore md5 comments in spec
--D, --debug         - enable script debugging mode,
+-D, --debug         - enable builder script debugging mode,
+-debug              - produce rpm debug package (same as --opts -debug)
 -V, --version       - output builder version
 -a, --as_anon       - get files via pserver as cvs@$CVS_SERVER,
 -b, -ba, --build    - get all files from CVS repo or HTTP/FTP and build package
@@ -1364,7 +1365,7 @@ do
 			NOSRCS="yes"
 			shift;;
 		--opts )
-			shift; RPMOPTS="${1}"; shift ;;
+			shift; RPMOPTS="$RPM_OPTS ${1}"; shift ;;
 		--with | --without )
 			case $GROUP_BCONDS in
 				"yes")
@@ -1472,6 +1473,8 @@ do
 			shift
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
+		-debug)
+			RPMOPTS="${RPMOPTS} -debug"; shift ;;
 		* )
 			SPECFILE="${1}"
 			export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
