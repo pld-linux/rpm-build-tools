@@ -8,6 +8,15 @@ function fixedsub(s1,s2,t,	ind) {
 	return t
 }
 
+function ispre(s) {
+	if ((s~"pre")||(s~"PRE")||(s~"beta")||(s~"BETA")||(s~"alpha")||(s~"ALPHA")||(s~"rc")||(s~"RC")) {
+		if (DEBUG) print "pre-version"
+		return 1
+	} else {
+		return 0
+	}
+}
+	
 function compare_ver(v1,v2) {
 # compares version numbers
 	while (match(v1,/[a-zA-Z][0-9]|[0-9][a-zA-Z]/))
@@ -46,19 +55,19 @@ function compare_ver(v1,v2) {
 				return 1
 			else if (v1a[i]>v2a[i])
 				return 0
-		} else if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"alpha")||(v1a[i]~"rc"))
+		} else if (ispre(v1a[i]) == 1)
 			return 1
 		else
 			return 0
 	}
 	if ((count2==mincount)&&(count!=count2)) {
 		for (i=count2+1; i<=count; i++)
-			if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"alpha")||(v1a[i]~"rc")) 
+			if (ispre(v1a[i]) == 1)
 				return 1
 		return 0
 	} else if (count!=count2) {
 		for (i=count+1; i<=count2; i++)
-			if ((v2a[i]~"pre")||(v2a[i]~"beta")||(v2a[i]~"alpha")||(v2a[i]~"rc"))
+			if (ispre(v2a[i]) == 1)
 				return 0
 		return 1
 	}
@@ -108,19 +117,19 @@ function compare_ver_dec(v1,v2) {
 				return 1
 			else if (v1a[i]>v2a[i])
 				return 0
-		} else if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"alpha")||(v1a[i]~"rc"))
+		} else if (ispre(v1a[i]) == 1)
 			return 1
 		else
 			return 0
 	}
 	if ((count2==mincount)&&(count!=count2)) {
 		for (i=count2+1; i<=count; i++)
-			if ((v1a[i]~"pre")||(v1a[i]~"beta")||(v1a[i]~"alpha")||(v1a[i]~"rc")) 
+			if (ispre(v1a[i]) == 1)
 				return 1
 		return 0
 	} else if (count!=count2) {
 		for (i=count+1; i<=count2; i++)
-			if ((v2a[i]~"pre")||(v2a[i]~"beta")||(v2a[i]~"alpha")||(v2a[i]~"rc"))
+			if (ispre(v2a[i]) == 1)
 				return 0
 		return 1
 	}
