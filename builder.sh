@@ -81,7 +81,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
 	[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
 	[-h|--help] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
-	[-q|--quiet] [-r <cvstag>] [{-T--tag <cvstag>]
+	[-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>] 
 	[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
 	[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
 	[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
@@ -125,6 +125,9 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 	--opts <rpm opts>
 			- additional options for rpm
 	-q, --quiet	- be quiet,
+	--date yyyy-mm-dd
+			- build package using resources from specified CVS
+			  date,
 	-r <cvstag>, --cvstag <cvstag>
 			- build package using resources from specified CVS
 			  tag,
@@ -158,7 +161,6 @@ parse_spec()
     fi
 
     cd $SPECS_DIR
-
     if [ "$NOSRCS" != "yes" ]; then
 	SOURCES="`$RPMBUILD -bp  $BCOND --define 'prep %dump' $SPECFILE 2>&1 | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
@@ -248,7 +250,9 @@ get_spec()
 		NOCVSSPEC="yes"
 	    fi
 	fi
-	if [ -n "$CVSTAG" ]; then
+	if [ -n "$CVSDATE" ]; then
+	    OPTIONS="$OPTIONS -D $CVSDATE"
+	elif [ -n "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -r $CVSTAG"
 	else
 	    OPTIONS="$OPTIONS -A"
@@ -323,7 +327,9 @@ get_files()
 		NOCVS="yes"
 	    fi
 	fi
-	if [ -n "$CVSTAG" ]; then
+	if [ -n "$CVSDATE" ]; then
+	    OPTIONS="$OPTIONS -D $CVSDATE"
+	elif [ -n "$CVSTAG" ]; then
 	    OPTIONS="$OPTIONS -r $CVSTAG"
 	else
 	    OPTIONS="$OPTIONS -A"
@@ -592,6 +598,8 @@ while test $# -gt 0 ; do
 	    BCOND="$BCOND $1 $2" ; shift 2 ;;
 	-q | --quiet )
 	    QUIET="--quiet"; shift ;;
+	--date )
+	    CVSDATE="${2}"; shift 2 ;;
 	-r | --cvstag )
 	    shift; CVSTAG="${1}"; shift ;;
 	-Tvs | --tag-version-stable )
