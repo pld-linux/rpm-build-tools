@@ -546,7 +546,7 @@ function use_macros()
 		gsub("%{_prefix}/lib", "%{_libdir}")
 
 	for (c = 1; c <= NF; c++) {
-		if ($c ~ sysconfdir "/{?cron.d")
+		if ($c ~ sysconfdir "/{?cron.")
 			continue;
 		if ($c ~ sysconfdir "/{?crontab.d")
 			continue;
@@ -589,7 +589,9 @@ function use_macros()
 	gsub("%{prefix}/info", "%{_infodir}")
 	gsub("%{_prefix}/info", "%{_infodir}")
 
-	gsub("%{_datadir}/aclocal", "%{_aclocaldir}")
+	if (prefix !~ "/X11R6") {
+		gsub("%{_datadir}/aclocal", "%{_aclocaldir}")
+	}
 
 	if (prefix != "/") {
 		for (c = 1; c <= NF; c++) {
