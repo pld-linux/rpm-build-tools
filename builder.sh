@@ -101,7 +101,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 			  SOURCES, SPECS and \$RPM_BUILD_ROOT),
 	-d <cvsroot>, --cvsroot	<cvsroot>
 			- setup \$CVSROOT,
-	--define <macro> <value>]
+	--define <macro> <value>
 			- define a macro <macro> with value <value>,
 	-g, --get	- get <package>.spec and all related files from
 			  CVS repo or HTTP/FTP,
