@@ -559,7 +559,7 @@ function use_macros()
 
 	gsub("%{prefix}/sbin", "%{_sbindir}")
 	if(prefix"/sbin" == sbindir)
-		gsub("%{_prefix}/sbib", "%{_sbindir}")
+		gsub("%{_prefix}/sbin", "%{_sbindir}")
 
 	gsub(libdir, "%{_libdir}")
 	gsub("%{prefix}/lib", "%{_libdir}")
@@ -599,7 +599,8 @@ function use_macros()
 		gsub("%{_prefix}/include", "%{_includedir}")
 
 	gsub(mandir, "%{_mandir}")
-	gsub("%{_datadir}/man", "%{_mandir}")
+	if ($0 !~ "%{_datadir}/manual")
+		gsub("%{_datadir}/man", "%{_mandir}")
 	gsub("%{_prefix}/share/man", "%{_mandir}")
 	gsub("%{prefix}/share/man", "%{_mandir}")
 	gsub("%{prefix}/man", "%{_mandir}")
