@@ -12,7 +12,6 @@
 VERSION="\
 Build package utility from PLD CVS repository
 V 0.10 (C) 1999-2001 Tomasz K³oczko".
-
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
@@ -475,6 +474,8 @@ branch_files()
     fi
 }
 
+
+
 build_package()
 {
     if [ -n "$DEBUG" ]; then 
@@ -529,12 +530,16 @@ build_package()
     esac
     if [ -n "$LOGFILE" ]; then
 	LOG=`eval echo $LOGFILE`
-	eval nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE 2>&1 | tee $LOG
+	mknod ~/tmp/builder_log_fifo p
+	cat ~/tmp/builder_log_fifo | tee $LOG & eval nice -n ${DEF_NICE_LEVEL} time $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE > ~/tmp/builder_log_fifo 2>&1 
+	RETVAL=$?
+	rm ~/tmp/builder_log_fifo
     else
 	eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $SPECFILE
+	RETVAL=$?
     fi
 
-    if [ "$?" -ne "0" ]; then
+    if [ "$RETVAL" -ne "0" ]; then
 
 	if [ -n "$TRY_UPGRADE" ]; then 
 	    echo "\n!!! Package with new version cannot be build automagically\n"
