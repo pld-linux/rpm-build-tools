@@ -64,6 +64,7 @@ CHMOD_MODE="0444"
 RPMOPTS=""
 BCOND=""
 GROUP_BCONDS="no"
+CVSIGNORE_DF="no"
 
 PATCHES=""
 SOURCES=""
@@ -499,6 +500,17 @@ good_md5 ()
 	[ "$md5" = "$(md5sum $(nourl "$1") 2> /dev/null | sed -e 's/ .*//')" ]
 }
 
+cvsignore_df ()
+{
+	if [ "$CVSIGNORE_DF" != "yes" ]; then
+		return
+	fi
+	cvsignore=${SOURCE_DIR}/.cvsignore
+	if ! grep -q "^$1\$" $cvsignore 2> /dev/null; then
+		echo "$1" >> $cvsignore
+	fi
+}
+
 get_files()
 {
 	GET_FILES="$@"
@@ -580,7 +592,9 @@ get_files()
 							fi
 						fi
 					fi
-					if ! test -s "$target"; then
+					if test -s "$target"; then
+						cvsignore_df $target
+					else
 						rm -f "$target"
 						FROM_DISTFILES=0
 					fi
