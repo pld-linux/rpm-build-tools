@@ -8,7 +8,7 @@
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
 # 	Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
 # 	Artur Frysiak <wiget@pld.org.pl>
-# 	Michal Kochanowicz <mkochano@ee.pw.edu.pl>
+# 	Michal Kochanowicz <mkochano@pld.org.pl>
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 BEGIN {
@@ -326,54 +326,9 @@ preamble == 1 {
 	
 	field = tolower($1)
 	fieldnlower = $1
-	if (Byla_grupa == 1 && field ~ /^#/)
+	if (field ~ /group(\([^)]+\)):/)
 		next
-	if (Byla_grupa == 1 && field !~ /group(\([^)]+\))?:/) {
-		Byla_grupa = 0
-		print "Group:\t\t" Grupa["en"]
-		if (Grupa["en"] ~ /^X11/ && x11 == 0)	# Is it X11 application?
-		       x11 = 1
-
-		byl_plik_z_grupami = 0
-		byl_opis_grupy = 0
-		while ((getline linia_grup < groups_file) > 0) {
-			byl_plik_z_grupami = 1
-			if (linia_grup == Grupa["en"]) {
-				byl_opis_grupy = 1
-				break
-			}
-		}
-
-		if (!byl_plik_z_grupami)
-			print "######\t\t" groups_file ": no such file"
-		else if (!byl_opis_grupy)
-			print "######\t\t" "Unknown group!"
-		else
-			while (getline linia_grup < groups_file) {
-				if (linia_grup == "")
-					break
-				split(linia_grup, g, /[\[\]:]/)
-				sub(/^[ \t]*/,"",g[4])
-				Grupa[g[2]]=g[4]
-			}
-		
-		close(groups_file)
-
-		delete Grupa["en"]
-		for (jezyk in Grupa) {
-			print "Group(" jezyk "):\t" Grupa[jezyk] | "sort"
-			delete Grupa[jezyk]
-		}
-		close ("sort")
-	}
-	
-	if (field ~ /packager:|distribution:|docdir:|prefix:/)
-		next
-	
-	if (field ~ /buildroot:/)
-		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
-
-	if (field ~ /group(\([^)]+\))?:/) {
+	if (field ~ /group:/) {
 		format_preamble()
 		sub(/^Utilities\//,"Applications/",$2)
 		sub(/^Games/,"Applications/Games",$2)
@@ -385,17 +340,38 @@ preamble == 1 {
 		sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy",$2)
 		sub(/^Shells/,"Applications/Shells",$2)
 
-		if (!match(fieldnlower,/\([^)]+\):/))
-			glang="en"
-		else
-			glang=substr(fieldnlower,RSTART+1,RLENGTH-3)
 		sub(/^[^ \t]*[ \t]*/,"")
-		Grupa[glang] = $0
-		Byla_grupa = 1
+		Grupa = $0
+
+		print "Group:\t\t" Grupa
+		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
+		       x11 = 1
+
+		byl_plik_z_grupami = 0
+		byl_opis_grupy = 0
+		while ((getline linia_grup < groups_file) > 0) {
+			byl_plik_z_grupami = 1
+			if (linia_grup == Grupa) {
+				byl_opis_grupy = 1
+				break
+			}
+		}
+
+		if (!byl_plik_z_grupami)
+			print "######\t\t" groups_file ": no such file"
+		else if (!byl_opis_grupy)
+			print "######\t\t" "Unknown group!"
 		
-		next	# Line is already formatted and printed
+		close(groups_file)
+		next
 	}
-		
+	
+	if (field ~ /packager:|distribution:|docdir:|prefix:/)
+		next
+	
+	if (field ~ /buildroot:/)
+		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
+
 	# Use "License" instead of "Copyright" if it is (L)GPL or BSD
 	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/)
 		$1 = "License:"
