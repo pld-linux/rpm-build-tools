@@ -593,9 +593,14 @@ function use_macros()
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
-	gsub(datadir, "%{_datadir}")
+	for (c = 1; c <= NF; c++) {
+		if ($c ~ datadir "/automake")
+			continue;
+		gsub(datadir, "%{_datadir}", $c)
+	}
+
 	gsub("%{prefix}/share", "%{_datadir}")
-	if(prefix"/share" == datadir)
+	if (prefix"/share" == datadir)
 		gsub("%{_prefix}/share", "%{_datadir}")
 
 	gsub(includedir, "%{_includedir}")
@@ -622,6 +627,8 @@ function use_macros()
 	if (prefix != "/") {
 		for (c = 1; c <= NF; c++) {
 			if ($c ~ prefix "/sbin/fix-info-dir")
+				continue;
+			if ($c ~ prefix "/share/automake")
 				continue;
 			gsub(prefix, "%{_prefix}", $c)
 		}
