@@ -99,6 +99,7 @@ fi
 
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
 POLDEK_SOURCE="cvs"
+POLDEK_CMD="/usr/bin/poldek"
 
 # Here we load saved user environment used to 
 # predefine options set above, or passed to builder
@@ -125,10 +126,25 @@ fi
 
 [ -f $USER_CFG ] && . $USER_CFG        
 
+run_poldek()
+{
+	if [ -n "$LOGFILE" ]; then
+   	LOG=`eval echo $LOGFILE`
+      if [ -n "$LASTLOG_FILE" ]; then
+      	echo "LASTLOG=$LOG" > $LASTLOG_FILE
+      fi
+		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; exit_pldk=$?)|tee $LOG
+		return $exit_pldk
+	else
+		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; exit_pldk=$?) 1>&2 >/dev/null
+		return $exit_pldk
+	fi
+}
+
 # Example grep cvs /etc/poldek.conf:
 # source = cvs /home/users/yoshi/rpm/RPMS/
 if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-	(time nice -n ${DEF_NICE_LEVEL} poldek -l -n ${POLDEK_SOURCE}; echo $? > $RES_FILE) 2>&1 |tee $LOG
+	run_poldek -l -n ${POLDEK_SOURCE} 1>&2 > /dev/null
 	if [ ! "$?" == "0" ]; then 
 		echo "Using improper source '${POLDEK_SOURCE}' in /etc/poldek.conf"
 		echo "Fix it and try to continue"
@@ -795,9 +811,10 @@ nourl()
 	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
 
+
 install_required_packages()
 {
-	(time nice -n ${DEF_NICE_LEVEL} poldek -vi $1; echo $? > $RES_FILE) 2>&1 |tee $LOG
+	run_poldek -vi $1
 	return $?
 }
 
@@ -897,12 +914,12 @@ run_sub_builder()
 
 
 	# Istnieje taki spec? ${package}.spec
-	if [ -f "${POLDEK_INDEX_DIR}/../SPECS/${package}.spec" ]; then
+	if [ -f "${SPECS_DIR}${package}.spec" ]; then
 		parent_spec_name=${package}.spec
-	elif [ -f "${POLDEK_INDEX_DIR}/../SPECS/`echo ${package_name}|sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
+	elif [ -f "${SPECS_DIR}`echo ${package_name}|sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
 		parent_spec_name="`echo ${package_name}|sed -e s,-devel.*,,g -e s,-static,,g`.spec"
 	else
-		for provides_line in `grep ^Provides:.*$package  ${POLDEK_INDEX_DIR}/../SPECS/ -R`
+		for provides_line in `grep ^Provides:.*$package  ${SPECS_DIR} -R`
 		do
 			echo $provides_line
 		done
@@ -921,7 +938,7 @@ run_sub_builder()
 		if [ "${UPDATE_POLDEK_INDEXES}" == "yes" ]; then
 			sub_builder_opts="${sub_builder_opts} -Upi"
 		fi
-		cd "${POLDEK_INDEX_DIR}/../SPECS"
+		cd "${SPECS_DIR}"
 		./builder ${sub_builder_opts} ${parent_spec_name}
 	fi
 	NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package_name"
@@ -932,10 +949,10 @@ remove_build_requires()
 	if [ "$INSTALLED_PACKAGES" != "" ]; then
 		case "$REMOVE_BUILD_REQUIRES" in
 			"force")
-				(time nice -n ${DEF_NICE_LEVEL} poldek --noask -ve $INSTALLED_PACKAGES; echo $? > $RES_FILE) 2>&1 |tee $LOG
+				run_poldek --noask -ve $INSTALLED_PACKAGES
 				;;
 			"nice")
-				(time nice -n ${DEF_NICE_LEVEL} poldek --ask -ve $INSTALLED_PACKAGES; echo $? > $RES_FILE) 2>&1 |tee $LOG
+				run_poldek --ask -ve $INSTALLED_PACKAGES
 				;;
 			*)
 				echo You may want to manually remove following BuildRequires fetched:
@@ -1030,7 +1047,7 @@ fetch_build_requires()
 			if [ "$GO" = "yes" ]; then
 				if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
 					echo "Testing if $package has subrequirements..."
-					(time nice -n ${DEF_NICE_LEVEL} poldek -t -i $package --dumpn=".$package-req.txt"; echo $? > $RES_FILE) 2>&1 |tee $LOG
+					run_poldek -t -i $package --dumpn=".$package-req.txt"
 					if [ -f ".$package-req.txt" ]; then
 						for package_name in `cat ".$package-req.txt"|grep -v ^#`
 						do 
@@ -1307,8 +1324,8 @@ case "$COMMAND" in
 		get_files "$SOURCES $PATCHES";
 		build_package;
 		if [ "$UPDATE_POLDEK_INDEXES" = "yes" ]; then
-			(time nice -n ${DEF_NICE_LEVEL} poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"; echo $? > $RES_FILE) 2>&1 |tee $LOG
-			(time nice -n ${DEF_NICE_LEVEL} poldek --sn ${POLDEK_SOURCE} --up; echo $? > $RES_FILE) 2>&1 |tee $LOG
+			run_poldek --sn ${POLDEK_SOURCE} --mkidx="${POLDEK_INDEX_DIR}/packages.dir.gz"
+			run_poldek --sn ${POLDEK_SOURCE} --up
 		fi
 		remove_build_requires;
 	else
