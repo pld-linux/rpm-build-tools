@@ -85,11 +85,13 @@ function get_ftp_links(host,dir,port) {
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
 	
-	system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"sebek@sith\" FTP_USERNAME=\"anonymous\" FTP_HOST=\"" host "\" ; nc -e \"./ftplinks.sh\" " host " " port)
+	errno=system("export PLIKTMP=\"" tmpfile "\" FTP_DIR=\"" dir "\" FTP_PASS=\"sebek@sith\" FTP_USERNAME=\"anonymous\" FTP_HOST=\"" host "\" ; nc -e \"./ftplinks.sh\" " host " " port)
 	
-	while (getline link < tmpfile)
-		retval=(retval " " link)
-		
+	if (errno==0) {
+		while (getline link < tmpfile)
+			retval=(retval " " link)
+	} else { retval=("ERROR:" errno) }
+
 	close(tmpfile)
 	system("rm -f " tmpfile)
 	
@@ -154,29 +156,32 @@ function process_source(number,lurl,name,version) {
 	else {
 		odp=get_ftp_links(host,dir,21)
 	}
-	c=split(odp,linki)
-	for (nr=1; nr<=c; nr++) {
-		addr=linki[nr]
-		if (DEBUG) print "Znaleziony link: " addr
-		if (addr ~ filenameexp) {
-			match(addr,filenameexp)
-			newfilename=substr(addr,RSTART,RLENGTH)
-			if (DEBUG) print "Hipotetyczny nowy: " newfilename
-			sub(prever,"",newfilename)
-			sub(postver,"",newfilename)
-			if (DEBUG) print "Wersja: " newfilename
-			if ( compare_ver(version, newfilename)==1 ) {
-				if (DEBUG) print "Tak, jest nowa"
-				version=newfilename
-				finished=1
+	if(odp ~ "ERROR:") {
+		print retval
+	} else {
+		c=split(odp,linki)
+		for (nr=1; nr<=c; nr++) {
+			addr=linki[nr]
+			if (DEBUG) print "Znaleziony link: " addr
+			if (addr ~ filenameexp) {
+				match(addr,filenameexp)
+				newfilename=substr(addr,RSTART,RLENGTH)
+				if (DEBUG) print "Hipotetyczny nowy: " newfilename
+				sub(prever,"",newfilename)
+				sub(postver,"",newfilename)
+				if (DEBUG) print "Wersja: " newfilename
+				if ( compare_ver(version, newfilename)==1 ) {
+					if (DEBUG) print "Tak, jest nowa"
+					version=newfilename
+					finished=1
+				}
 			}
 		}
+		if (finished==0)
+			print name "(" number ") seems ok"
+		else
+			print name "(" number ") [OLD] " oldversion " [NEW] " version
 	}
-	if (finished==0)
-		print name "(" number ") seems ok"
-	else
-		print name "(" number ") [OLD] " oldversion " [NEW] " version
-		
 }
 	
 function process_data(name,ver,rel,src) {
