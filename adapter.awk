@@ -1,6 +1,6 @@
 #!/bin/awk -f
 #
-# This is adapter v0.26. Adapter adapts .spec files for PLD.
+# This is adapter v0.27. Adapter adapts .spec files for PLD.
 #
 # Copyright (C) 1999-2001 PLD-Team <feedback@pld.org.pl>
 # Authors:
@@ -75,6 +75,7 @@ defattr == 1 {
 	}
 
 	# Generally, comments are printed without touching
+	sub(/[ \t]+$/, "")
 	print $0
 	next
 }
@@ -291,6 +292,7 @@ defattr == 1 {
 		boc = 1
 	}
 
+	sub(/[ \t]+$/, "")
 	if (!/^%[a-z]+$/ || /changelog/)
 		print > changelog_file
 	else
@@ -489,6 +491,7 @@ preamble == 1 {
 {
 	preamble = 1
 	
+	sub(/[ \t]+$/, "")
 	print
 }
 
