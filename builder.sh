@@ -31,7 +31,8 @@ else
     CVSROOT=${CVSROOT:-""}
 fi
 LOGFILE=""
-CHMOD="yes"
+CHMOD=${CHMOD:-"yes"}
+CHMOD_MODE=${CHMOD_MODE:-444}
 RPMOPTS=""
 BCOND=""
 
@@ -212,7 +213,7 @@ get_spec()
 	fi
     
     if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
-        chmod 444 $SPECFILE
+        chmod $CHMOD_MODE $SPECFILE
     fi
     unset OPTIONS
 }
@@ -269,7 +270,7 @@ get_files()
 	if [ "$CHMOD" = "yes" ]; then
 	    CHMOD_FILES="`nourl $GET_FILES`"
 	    if [ -n "$CHMOD_FILES" ]; then
-		    chmod 444 $CHMOD_FILES
+		    chmod $CHMOD_MODE $CHMOD_FILES
 	    fi
 	fi
 	unset OPTIONS
@@ -463,6 +464,9 @@ esac
 cd $__PWD
 
 # $Log$
+# Revision 1.83  2001/10/10 08:41:32  misiek
+# - allow more bconds than one
+#
 # Revision 1.82  2001/09/18 10:55:37  ankry
 # - added support for limitting number of wget retries when fetching a file
 #   from ftp/http server via environment variable MAX_WGET_RETRIES.
