@@ -708,6 +708,8 @@ function use_files_macros(	i, n, t, a)
 		$0 = "%attr(755,root,root) " $0
 	}
 
+	gsub("%attr\(0", "%attr(")
+
 	# sort %verify attrs
 	if (match($0, /%verify\(not (.*)\)/)) {
 		t = substr($0, RSTART, RLENGTH)
