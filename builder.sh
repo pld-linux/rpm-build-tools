@@ -189,17 +189,21 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 "
 }
 
-rpm_dump () {
-    if [ "$rpm_dump_cache" = "" ] ; then
-        rpm_dump_cache=`
+cache_rpm_dump () {
+   rpm_dump_cache=`
 	case "$RPMBUILD" in
 	rpm )
     		rpm -bp --nodeps --define 'prep %dump' $BCOND $SPECFILE 2>&1 
 		;;
 	rpmbuild )
-    		rpmbuild --define 'prep %dump' $BCOND $SPECFILE 2>&1 
+    		rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1 
 		;;
 	esac`
+}
+
+rpm_dump () {
+    if [ -z "$rpm_dump_cache" ] ; then
+        echo "internal error: cache_rpm_dump not called!" 1>&2
     fi
     echo "$rpm_dump_cache"
 }
@@ -212,6 +216,9 @@ parse_spec()
     fi
 
     cd $SPECS_DIR
+
+    cache_rpm_dump
+
     if [ "$NOSRCS" != "yes" ]; then
 	SOURCES="`rpm_dump | awk '/SOURCEURL[0-9]+/ {print $3}'`"
     fi
