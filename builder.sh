@@ -9,8 +9,6 @@
 #	4 - some source, patch or icon files not stored in repo
 #	5 - package build failed
 
-# TODO: "NoSource: N" should disallow adding "SourceN-md5:" tag
-
 VERSION="\
 Build package utility from PLD CVS repository
 V 0.11 (C) 1999-2003 Free Penguins".
@@ -452,13 +450,14 @@ get_files()
 		fi
 
 
+		srcno=$(src_no $i)
 		if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
 		    Exit_error err_no_source_in_repo $i;
 		elif [ -n "$UPDATE5" ] && \
-		     ( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' ) || \
+		     ( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
+		         [ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'[^0-9]' $SPECS_DIR/$SPECFILE)" ] ) || \
 		       grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
 		then
-		    srcno=$(src_no $i)
 		    echo "Updating source-$srcno md5."
 		    md5=$(md5sum `nourl $i` | cut -f1 -d' ')
 		    perl -i -ne 'print "# Source'$srcno'-md5:\t'$md5'\n" 
