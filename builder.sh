@@ -479,7 +479,10 @@ get_files()
 			    if [ `echo $url | grep -E 'ftp://'` ]; then
 				${GETURI2} -O "$target" "$url"
 			    fi
-			test -s "$target" || rm -f "$target"
+			if ! test -s "$target"; then
+			    rm -f "$target"
+			    FROM_DISTFILES=0
+			fi
 		    fi
 		elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
 		    # ( echo $i | grep -qvE '(ftp|http|https)://' ); -- if CVS should be used, but URLs preferred
