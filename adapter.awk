@@ -568,8 +568,12 @@ function use_macros()
 	}
 
 	gsub("%{prefix}/sbin", "%{_sbindir}")
-	if(prefix"/sbin" == sbindir)
+	if (prefix"/sbin" == sbindir)
 		gsub("%{_prefix}/sbin", "%{_sbindir}")
+
+	gsub("%{prefix}/lib", "%{_libdir}")
+	if (prefix"/lib" == libdir)
+		gsub("%{_prefix}/lib", "%{_libdir}")
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sysconfdir "/{?cron.")
