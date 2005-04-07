@@ -678,8 +678,8 @@ function isort(A,n,		i,j,hold) {
 	for (i = 2; i <= n; i++) {
 		hold = A[j = i]
 		while (A[j-1] > hold) {
-		   	j-- ; A[j+1] = A[j]
-	   	}
+			j-- ; A[j+1] = A[j]
+		}
 		A[j] = hold
 	}
 	# sentinel A[0] = "" will be created if needed
@@ -717,7 +717,7 @@ function use_files_macros(	i, n, t, a)
 	}
 
 	if (/\/etc\/sysconfig\// && !/%config\(noreplace\)/) {
-		 $NF = "%config(noreplace) " $NF
+		$NF = "%config(noreplace) " $NF
 	}
 
 	if (/\/etc\/sysconfig\// && /%attr\(755/) {
