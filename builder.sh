@@ -534,12 +534,12 @@ src_md5 ()
 
 distfiles_url ()
 {
-	echo "$PROTOCOL$DISTFILES_SERVER/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+	echo "$PROTOCOL$DISTFILES_SERVER/distfiles/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
 }
 
 distfiles_attic_url ()
 {
-	echo "$PROTOCOL$ATTICDISTFILES_SERVER/Attic/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+	echo "$PROTOCOL$ATTICDISTFILES_SERVER/distfiles/Attic/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
 }
 
 good_md5 ()
