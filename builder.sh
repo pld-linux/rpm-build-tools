@@ -153,7 +153,7 @@ run_poldek()
 		if [ -n "$LASTLOG_FILE" ]; then
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
-		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee $LOG
+		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee -a $LOG
 		return $exit_pldk
 	else
 		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE}) 1>&2 >/dev/null
