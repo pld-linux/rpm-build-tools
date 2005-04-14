@@ -733,7 +733,7 @@ function use_files_macros(	i, n, t, a)
 	gsub("%attr\(0", "%attr(")
 
 	# sort %verify attrs
-	if (match($0, /%verify\(not (.*)\)/)) {
+	if (match($0, /%verify\(not([^)]+)\)/)) {
 		t = substr($0, RSTART, RLENGTH)
 		gsub(/^%verify\(not |\)$/, "", t)
 		n = split(t, a, / /)
@@ -745,7 +745,7 @@ function use_files_macros(	i, n, t, a)
 		}
 		s = s ")"
 
-		gsub(/%verify\(not .*\)/, s)
+		gsub(/%verify\(not[^)]+\)/, s)
 	}
 }
 
