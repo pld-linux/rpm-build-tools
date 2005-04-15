@@ -766,6 +766,10 @@ function use_files_macros(	i, n, t, a)
 
 		gsub(/%verify\(not[^)]+\)/, s)
 	}
+
+	if (/%{_mandir}/) {
+		gsub("\.gz$", "")
+	}
 }
 
 function fill(ch, n, i) {
