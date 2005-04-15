@@ -49,6 +49,15 @@ BEGIN {
 	"rpm --eval %_includedir" | getline includedir
 	"rpm --eval %_mandir"	| getline mandir
 	"rpm --eval %_infodir"	| getline infodir
+
+	"rpm --eval %perl_sitearch" | getline perl_sitearch
+	"rpm --eval %perl_archlib" | getline perl_archlib
+	"rpm --eval %perl_privlib" | getline perl_privlib
+	"rpm --eval %perl_archlib" | getline perl_archlib
+	"rpm --eval %perl_vendorlib" | getline perl_vendorlib
+	"rpm --eval %perl_vendorarch" | getline perl_vendorarch
+	"rpm --eval %perl_sitelib" | getline perl_sitelib
+	"rpm --eval %perl_sitearch" | getline perl_sitearch
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -573,6 +582,15 @@ function format_preamble()
 # Replace directly specified directories with macros
 function use_macros()
 {
+	gsub(perl_sitearch, "%{perl_sitearch}")
+	gsub(perl_archlib, "%{perl_archlib}")
+	gsub(perl_privlib, "%{perl_privlib}")
+	gsub(perl_archlib, "%{perl_archlib}")
+	gsub(perl_vendorlib, "%{perl_vendorlib}")
+	gsub(perl_vendorarch, "%{perl_vendorarch}")
+	gsub(perl_sitelib, "%{perl_sitelib}")
+	gsub(perl_sitearch, "%{perl_sitearch}")
+
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
 	if(prefix"/bin" == bindir)
@@ -618,13 +636,14 @@ function use_macros()
 		gsub(datadir, "%{_datadir}", $c)
 	}
 
+
 	gsub("%{prefix}/share", "%{_datadir}")
 	if (prefix"/share" == datadir)
 		gsub("%{_prefix}/share", "%{_datadir}")
 
 	gsub(includedir, "%{_includedir}")
 	gsub("%{prefix}/include", "%{_includedir}")
-	if(prefix"/include" == includedir)
+	if (prefix"/include" == includedir)
 		gsub("%{_prefix}/include", "%{_includedir}")
 
 	gsub(mandir, "%{_mandir}")
