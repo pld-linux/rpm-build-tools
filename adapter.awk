@@ -768,7 +768,7 @@ function use_files_macros(	i, n, t, a)
 	}
 
 	if (/%{_mandir}/) {
-		gsub("\.gz$", "")
+		gsub("\.gz$", "*")
 	}
 }
 
