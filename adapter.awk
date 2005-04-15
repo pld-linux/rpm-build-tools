@@ -164,8 +164,13 @@ defattr == 1 {
 	preamble = 0
 
 	# Add '-q' to %setup
-	if (/^%setup/ && !/-q/)
+	if (/^%setup/ && !/-q/) {
 		sub(/^%setup/, "%setup -q")
+	}
+
+	if (/^%setup -q -n %{name}-%{version}$/) {
+		$0 = "%setup"
+	}
 }
 
 ##########
