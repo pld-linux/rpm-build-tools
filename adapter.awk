@@ -168,8 +168,8 @@ defattr == 1 {
 		sub(/^%setup/, "%setup -q")
 	}
 
-	if (/^%setup -q -n %{name}-%{version}$/) {
-		$0 = "%setup"
+	if (/^%setup/ && /-n %{name}-%{version}( |$)/) {
+		sub(/ -n %{name}-%{version}/, "")
 	}
 }
 
