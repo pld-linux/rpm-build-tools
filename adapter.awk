@@ -261,8 +261,8 @@ defattr == 1 {
 	if (/^install/ && /-[ug][ \t]*root/)
 		gsub(/-[ug][ \t]*root /, "")
 
-	if (/^install/ && /-m[ \t]*644/)
-		gsub(/-m[ \t]*644 /, "")
+	if (/^install/ && /-m[ \t]*[0-9]+/)
+		gsub(/-m[ \t]*[0-9]+ /, "")
 
 	# No lines contain 'chown' or 'chgrp' if owner/group is 'root'
 	if (($1 ~ /chown/ && $2 ~ /root\.root/) || ($1 ~ /chgrp/ && $2 ~ /root/))
