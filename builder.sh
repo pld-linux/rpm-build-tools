@@ -107,6 +107,7 @@ fi
 #GROUP_BCONDS="yes"
 #LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 #
+SU_SUDO=""
 if [ -n "$HOME_ETC" ]; then
 	USER_CFG="$HOME_ETC/.builderrc"
 else
@@ -143,7 +144,7 @@ else
 fi
 
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
-POLDEK_CMD="/usr/bin/poldek --noask"
+POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
 
 run_poldek()
 {
@@ -1153,15 +1154,15 @@ fetch_build_requires()
 			 CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print "@" $3 } ' | xargs)
 			 DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print "@" $3 } ' | xargs)
 			 if [ -n "$CONF" -o -n "$DEPS" ]; then
-				  /usr/bin/poldek --update; /usr/bin/poldek --upa
+				  $SU_SUDO /usr/bin/poldek --update; $SU_SUDO /usr/bin/poldek --upa
 			 fi
 			 if [ -n "$CONF" ]; then
 				  echo "Trying to uninstall conflicting packages ($CONF):"
-				  /usr/bin/poldek --noask --nofollow -ev $CONF
+				  $SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
 			 fi
 			 if [ -n "$DEPS" ]; then
 				  echo "Trying to install dependencies ($DEPS):"
-				  /usr/bin/poldek --caplookup -uGv $DEPS
+				  $SU_SUDO /usr/bin/poldek --caplookup -uGv $DEPS
 			 fi
 			 return
 		fi
