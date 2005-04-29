@@ -117,20 +117,20 @@ fi
 [ -f "$USER_CFG" ] && . "$USER_CFG"
 
 if [ -n "$USE_PROZILLA" ]; then
-	 GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
-	 GETURI2="$GETURI"
-	 OUTFILEOPT="-O"
+	GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
+	GETURI2="$GETURI"
+	OUTFILEOPT="-O"
 elif [ -n "$USE_AXEL" ]; then
-	 GETURI="axel -n 4 -a $AXEL_OPTS"
-	 GETURI2="$GETURI"
-	 OUTFILEOPT="-o"
+	GETURI="axel -n 4 -a $AXEL_OPTS"
+	GETURI2="$GETURI"
+	OUTFILEOPT="-o"
 else
-	 wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
-	 wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
+	wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
+	wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
 	 
-	 GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
-	 GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
-	 OUTFILEOPT="-O"
+	GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
+	GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
+	OUTFILEOPT="-O"
 fi
 
 GETLOCAL="cp -a"
@@ -516,14 +516,14 @@ src_md5 ()
 	if [ X"$md5" = X"" ] ; then
 		source_md5=`grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
 		if [ ! -z "$source_md5" ] ; then
-			 echo $source_md5;
+			echo $source_md5;
 		else
-			 # we have empty SourceX-md5, but it is still possible
-			 # that we have NoSourceX-md5 AND NoSource: X
-			 nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
-			 if [ ! -z "$nosource_md5" -a ! X"`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" = X"" ] ; then
-				  echo $nosource_md5;
-			 fi;
+			# we have empty SourceX-md5, but it is still possible
+			# that we have NoSourceX-md5 AND NoSource: X
+			nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
+			if [ ! -z "$nosource_md5" -a ! X"`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" = X"" ] ; then
+				echo $nosource_md5;
+			fi;
 		fi;
 	else
 		if [ $(echo "$md5" | wc -l) != 1 ] ; then
@@ -683,7 +683,7 @@ get_files()
 					${GETURI} "$im" || \
 					if [ `echo $im | grep -E 'ftp://'` ]; then
 						${GETURI2} "$im"
-			  		fi
+					fi
 				fi
 
 			fi
@@ -1002,9 +1002,9 @@ set_bconds_values()
 
 	case "${BCOND_VERSION}" in
 		 NONE)
-		 	:
+			:
 			;;
-		 OLD)
+		OLD)
 			echo "Warning: This spec has old style bconds. Fix it || die."
 			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
 			do
@@ -1047,7 +1047,7 @@ set_bconds_values()
 								else
 									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
 								fi
-							 	;;
+								;;
 							without)
 								cond_type=''
 								AVAIL_BCOND_WITHOUT="$opt"
@@ -1151,20 +1151,20 @@ fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
-			 CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print "@" $3 } ' | xargs)
-			 DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print "@" $3 } ' | xargs)
-			 if [ -n "$CONF" -o -n "$DEPS" ]; then
-				  $SU_SUDO /usr/bin/poldek --update; $SU_SUDO /usr/bin/poldek --upa
-			 fi
-			 if [ -n "$CONF" ]; then
-				  echo "Trying to uninstall conflicting packages ($CONF):"
-				  $SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
-			 fi
-			 if [ -n "$DEPS" ]; then
-				  echo "Trying to install dependencies ($DEPS):"
-				  $SU_SUDO /usr/bin/poldek --caplookup -uGv $DEPS
-			 fi
-			 return
+			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print "@" $3 } ' | xargs)
+			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print "@" $3 } ' | xargs)
+			if [ -n "$CONF" -o -n "$DEPS" ]; then
+				$SU_SUDO /usr/bin/poldek --update; $SU_SUDO /usr/bin/poldek --upa
+			fi
+			if [ -n "$CONF" ]; then
+				echo "Trying to uninstall conflicting packages ($CONF):"
+				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
+			fi
+			if [ -n "$DEPS" ]; then
+				echo "Trying to install dependencies ($DEPS):"
+				$SU_SUDO /usr/bin/poldek --caplookup -uGv $DEPS
+			fi
+			return
 		fi
 
 		echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
@@ -1191,26 +1191,30 @@ fetch_build_requires()
 				GO=""
 				# %{without}
 				if `echo $COND_TST|grep -q 'without_'`; then
-					COND_NAME=`echo $COND_NAME|sed -e s,^.*_without_,,g`
+					COND_NAME=`echo $COND_NAME|sed -e s,^.*without_,,g`
 					if `echo $COND_TST|grep -q !`; then
 						COND_STATE="with"
 					else
 						COND_STATE="wout"
 					fi
-					if `echo $AVAIL_BCONDS_WITHOUT|grep -q "<$COND_NAME>"`; then
+					COND_WITH=`echo $AVAIL_BCONDS_WITH|grep "<$COND_NAME>"`
+					COND_WITHOUT=`echo $AVAIL_BCONDS_WITHOUT|grep "<$COND_NAME>"`
+					if [ -n "$COND_WITHOUT" ] || [ -z "$COND_WITH" ]; then
 						COND_ARGV="wout"
 					else
 						COND_ARGV="with"
 					fi
 				# %{with}
 				elif `echo $COND_TST|grep -q 'with_'`; then
-					COND_NAME=`echo $COND_NAME|sed -e s,^.*_with_,,g`
+					COND_NAME=`echo $COND_NAME|sed -e s,^.*with_,,g`
 					if `echo $COND_TST|grep -q !`; then
 						COND_STATE="wout"
 					else
 						COND_STATE="with"
 					fi
-					if `echo $AVAIL_BCONDS_WITH|grep -q "<$COND_NAME>"`; then
+					COND_WITH=`echo $AVAIL_BCONDS_WITH|grep "<$COND_NAME>"`
+					COND_WITHOUT=`echo $AVAIL_BCONDS_WITHOUT|grep "<$COND_NAME>"`
+					if [ -n "$COND_WITH" ] || [ -z "$COND_WITHOUT" ]; then
 						COND_ARGV="with"
 					else
 						COND_ARGV="wout"
