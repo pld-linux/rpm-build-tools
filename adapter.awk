@@ -630,6 +630,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?sysconfig")
 			continue;
+		if ($c ~ sysconfdir "/{?certs")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
