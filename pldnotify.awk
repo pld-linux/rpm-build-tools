@@ -149,7 +149,7 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 	if (errno==0) {
 		while (getline oneline < tmpfile)
 			odp=(odp " " oneline)
-		if ( DEBUG ) print "Odpowiedz: " odp
+		if ( DEBUG ) print "Response: " odp
 	}
 	
 	close(tmpfile)
@@ -165,10 +165,10 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 				sub(/[sS][rR][cC]=[ \t]*/,"src=",ramka);
 				match(ramka,/src="[^"]+"/)
 				newurl=substr(ramka,RSTART+5,RLENGTH-6)
-				if (DEBUG) print "Ramka: " newurl
+				if (DEBUG) print "Frame: " newurl
 				if (newurl !~ /\//) {
 					newurl=(urldir newurl)
-					if (DEBUG) print "Ramka->: " newurl
+					if (DEBUG) print "Frame->: " newurl
 				}
 				retval=(retval " " get_links(newurl))
 			} else if (tolower(odp) ~ /href=[ \t]*"[^"]*"/) {
@@ -205,7 +205,7 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 	}
 	
 	
-	if (DEBUG) print "Zwracane: " retval
+	if (DEBUG) print "Returning: " retval
 	return retval
 }
 
@@ -236,7 +236,7 @@ function find_mirror(url) {
 			mname=fields[3]
 			prefix=substr(url,1,length(origin))
 			if (prefix==origin){
-				if ( DEBUG ) print "Mirror znaleziony na " mname
+				if ( DEBUG ) print "Mirror fount at " mname
 				close("mirrors")
 				return mirror substr(url,length(origin)+1)
 			}
@@ -248,10 +248,10 @@ function find_mirror(url) {
 
 function process_source(number,lurl,name,version) {
 # fetches file list, and compares version numbers
-	if ( DEBUG ) print "Przetwarzam " lurl
+	if ( DEBUG ) print "Processing " lurl
 
 	if ( index(lurl,version)==0 ) {
-		if (DEBUG) print "Nie ma numeru wersji."
+		if (DEBUG) print "There is no version number."
 		return 0
 	}
 
@@ -268,25 +268,25 @@ function process_source(number,lurl,name,version) {
 		dir=substr(dir,1,index(dir,version)-1)
 		sub("[^/]*$","",dir)
 		sub("(\.tar\.(bz|bz2|gz)|zip)$","",filename)
-		if ( DEBUG ) print "Sprawdze katalog: " dir
-		if ( DEBUG ) print "i plik: " filename
+		if ( DEBUG ) print "Will check a directory: " dir
+		if ( DEBUG ) print "and a file: " filename
 	}
 
 	filenameexp=filename
 	gsub("\+","\\+",filenameexp)
 	sub(version,"[A-Za-z0-9.]+",filenameexp)
 	gsub("\.","\\.",filenameexp)
-	if ( DEBUG ) print "Wzorzec: " filenameexp
+	if ( DEBUG ) print "Expression: " filenameexp
 	match(filename,version)
 	prever=substr(filename,1,RSTART-1)
 	postver=substr(filename,RSTART+RLENGTH)
-	if ( DEBUG ) print "Przed numerkiem: " prever
-	if ( DEBUG ) print "i po: " postver
+	if ( DEBUG ) print "Before number: " prever
+	if ( DEBUG ) print "and after: " postver
 	newurl=find_mirror(acc "://" host dir)	
 	#print acc "://" host dir
 	#newurl=url[1]"://"url[2]url[3]url[4]
 	#newurl=acc "://" host dir filename
-	if ( DEBUG ) print "Zagl±dam na " newurl 
+	if ( DEBUG ) print "Looking at " newurl 
 	
 	references=0
 	finished=0
@@ -295,27 +295,27 @@ function process_source(number,lurl,name,version) {
 	if( odp ~ "ERROR: ") {
 		print name "(" number ") " odp
 	} else {
-		if (DEBUG) print "Sciagnieta strona"
+		if (DEBUG) print "WebPage downloaded"
 		c=split(odp,linki)
 		for (nr=1; nr<=c; nr++) {
 			addr=linki[nr]
-			if (DEBUG) print "Znaleziony link: " addr
+			if (DEBUG) print "Found link: " addr
 			if ((addr ~ filenameexp) && !(addr ~ "[-_.0-9A-Za-z~]" filenameexp)) {
 				match(addr,filenameexp)
 				newfilename=substr(addr,RSTART,RLENGTH)
-				if (DEBUG) print "Hipotetyczny nowy: " newfilename
+				if (DEBUG) print "Hipotetical new: " newfilename
 				newfilename=fixedsub(prever,"",newfilename)
 				newfilename=fixedsub(postver,"",newfilename)
-				if (DEBUG) print "Wersja: " newfilename
+				if (DEBUG) print "Version: " newfilename
 				if (newfilename ~ /\.(pkg|bin|binary|built)$/) continue
 				if (NUMERIC) {
 					if ( compare_ver_dec(version, newfilename)==1 ) {
-						if (DEBUG) print "Tak, jest nowa"
+						if (DEBUG) print "Yes, there is new one"
 						version=newfilename
 						finished=1
 					}
 				} else if ( compare_ver(version, newfilename)==1 ) {
-					if (DEBUG) print "Tak, jest nowa"
+					if (DEBUG) print "Yes, there is new one"
 					version=newfilename
 					finished=1
 				}
@@ -333,7 +333,7 @@ function process_data(name,ver,rel,src) {
 # processes each URL and tries to get current file list
 	for (i in src) {
 		if ( src[i] !~ /%{.*}/ && src[i] !~ /%[A-Za-z0-9_]/ )  {
-			if ( DEBUG ) print "Zrodlo: " src[i]
+			if ( DEBUG ) print "Source: " src[i]
 			process_source(i,src[i],name,ver)
 		} else {
 			print FNAME ":" i ": niemozliwe podstawienie: " src[i]
