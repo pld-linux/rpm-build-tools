@@ -145,8 +145,6 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 
 	if (url ~ /^http:\/\/dl.sourceforge.net\//) {
 		p = substr(url, 1 + length("http://dl.sourceforge.net/"))
-		s1 = substr(p, 1, 1)
-		s2 = substr(p, 1, 2)
 		url = "http://prdownloads.sourceforge.net/" substr(p, 1, 1) "/" substr(p, 1, 2) "/" p
 		if (DEBUG) print "sf url, mungled url to: " url
 	}
