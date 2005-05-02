@@ -142,6 +142,14 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
+
+	if (url ~ /^http:\/\/dl.sourceforge.net\//) {
+		p = substr(url, 1 + length("http://dl.sourceforge.net/"))
+		s1 = substr(p, 1, 1)
+		s2 = substr(p, 1, 2)
+		url = "http://prdownloads.sourceforge.net/" substr(p, 1, 1) "/" substr(p, 1, 2) "/" p
+		if (DEBUG) print "sf url, mungled url to: " url
+	}
 	
 	if (DEBUG) print "Retrieving: " url
 	errno=system("wget -O - \"" url "\" -t 3 -T 300 --passive-ftp > " tmpfile " 2>/dev/null" )
