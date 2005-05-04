@@ -143,8 +143,8 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
 
-	if (url ~ /^http:\/\/dl.(sf|sourceforge).net\//) {
-		gsub("^http://dl.(sf|sourceforge).net/", "", url)
+	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
+		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
 		url = "http://prdownloads.sourceforge.net/" substr(url, 1, 1) "/" substr(url, 1, 2) "/" url
 		if (DEBUG) print "sf url, mungled url to: " url
 	}
