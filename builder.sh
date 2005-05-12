@@ -1654,8 +1654,8 @@ case "$COMMAND" in
 	"version" )
 		echo "$VERSION";;
 esac
-if [ -f `pwd`/.${SPECFILE}_INSTALLED_PACKAGES -a "$REMOVE_BUILD_REQUIRES" != "" ]; then
-	rm `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
+if [ -f "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES" -a "$REMOVE_BUILD_REQUIRES" != "" ]; then
+	rm "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES"
 fi
 cd "$__PWD"
 
