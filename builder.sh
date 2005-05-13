@@ -121,7 +121,7 @@ if [ -n "$USE_PROZILLA" ]; then
 	GETURI2="$GETURI"
 	OUTFILEOPT="-O"
 elif [ -n "$USE_AXEL" ]; then
-	GETURI="axel -n 4 -a $AXEL_OPTS"
+	GETURI="axel -a $AXEL_OPTS"
 	GETURI2="$GETURI"
 	OUTFILEOPT="-o"
 else
