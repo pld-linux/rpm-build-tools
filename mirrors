@@ -4,9 +4,6 @@ http://www.cpan.org/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 #ftp://ftp.perl.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 #ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 #http://www.cpan.org/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
-ftp://ftp.perl.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
-ftp://ftp.cpan.org/pub/CPAN/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
-http://www.cpan.org/|ftp://cpan.nas.nasa.gov/pub/perl/CPAN/|NASA
 ftp://ftp.perl.org/pub/CPAN/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
 ftp://ftp.cpan.org/pub/CPAN/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
 http://www.cpan.org/|http://dl.sourceforge.net/mirrors/CPAN/|SourceForge
