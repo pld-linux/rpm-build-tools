@@ -53,11 +53,11 @@ BEGIN {
 	"rpm --eval %perl_sitearch" | getline perl_sitearch
 	"rpm --eval %perl_archlib" | getline perl_archlib
 	"rpm --eval %perl_privlib" | getline perl_privlib
-	"rpm --eval %perl_archlib" | getline perl_archlib
 	"rpm --eval %perl_vendorlib" | getline perl_vendorlib
 	"rpm --eval %perl_vendorarch" | getline perl_vendorarch
 	"rpm --eval %perl_sitelib" | getline perl_sitelib
-	"rpm --eval %perl_sitearch" | getline perl_sitearch
+
+	"rpm --eval %py_sitescriptdir" | getline py_sitescriptdir
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -590,11 +590,11 @@ function use_macros()
 	gsub(perl_sitearch, "%{perl_sitearch}")
 	gsub(perl_archlib, "%{perl_archlib}")
 	gsub(perl_privlib, "%{perl_privlib}")
-	gsub(perl_archlib, "%{perl_archlib}")
 	gsub(perl_vendorlib, "%{perl_vendorlib}")
 	gsub(perl_vendorarch, "%{perl_vendorarch}")
 	gsub(perl_sitelib, "%{perl_sitelib}")
-	gsub(perl_sitearch, "%{perl_sitearch}")
+	
+	gsub(py_sitescriptdir, "%{py_sitescriptdir}")
 
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
