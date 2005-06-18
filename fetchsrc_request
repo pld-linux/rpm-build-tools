@@ -4,6 +4,7 @@
 # Sending via 
 VIA="SENDMAIL"
 #VIA="localhost"
+SENDMAIL=/usr/bin/msmtp
 VIA_ARGS=""
 #VIA_ARGS="some additional flags"
 #
@@ -15,7 +16,7 @@ LOGIN=`cat CVS/Root | awk -F: '{ print $3; }' | perl -pi -e "s/@.+//"`
 #LOGIN="djrzulf"
 #
 # HOST
-HOST=`hostname -f`
+HOST=pld-linux.org
 #HOST="knycz.net"
 #
 # functions
@@ -40,7 +41,7 @@ else
 fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
-	cat <<EOF | /usr/sbin/sendmail -t $VIA_ARGS 
+	cat <<EOF | $SENDMAIL -t $VIA_ARGS 
 To: $DMAIL
 From: $LOGIN <$LOGIN@$HOST>
 Subject: fetchsrc_request notify 
