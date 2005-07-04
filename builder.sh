@@ -45,6 +45,7 @@ UPDATE=""
 UPDATE5=""
 ADD5=""
 NO5=""
+ADAPTERIZE=""
 ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 CVSROOT=""
 
@@ -183,6 +184,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
+-a, --adapter[ize]  - run adapter.awk on SPECFILE
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
 -n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable builder script debugging mode,
@@ -1309,6 +1311,57 @@ fetch_build_requires()
 	fi
 }
 
+diffcol()
+{
+	 # vim like diff colourization, glen@pld-linux.org
+	 sed -e '
+	 s,,[44m^[[49m,g;
+	 s,,[44m^G[49m,g;
+	 s,^\(Index:\|diff\|---\|+++\) .*$,[32m&,;
+	 s,^@@ ,[33m&,g;
+	 s,^-,[35m&,;
+	 s,^+,[36m&,;
+	 s,,[44m^M[49m,g;
+	 s,	,    ,g;
+	 s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
+	 s,$,[0m,
+	 ' "$@"
+}
+
+adapterize()
+{
+	 cd "$SPECS_DIR"
+	 local tmpdir
+	 tmpdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
+	 awk -f adapter.awk $SPECFILE > $tmpdir/$SPECFILE
+
+	 if [ "`diff --brief $SPECFILE $tmpdir/$SPECFILE`" ] ; then
+		  diff -u $SPECFILE $tmpdir/$SPECFILE > $tmpdir/$SPECFILE.diff
+		  diffcol $tmpdir/$SPECFILE.diff | less -r
+		  (
+				while : ; do
+					 echo -n "Accept? [yn] "
+					 read ans
+					 case "$ans" in
+					 [yYoO]) # y0 mama
+						  mv -f $tmpdir/$SPECFILE $SPECFILE
+						  echo "Ok, adapterized."
+						  break
+					 ;;
+					 n | N )
+						  echo "Ok, exiting."
+						  break
+					 ;;
+					 esac
+				done
+		  )
+	 else
+		  echo "The SPEC is perfect ;)"
+	 fi
+
+	 rm -rf $tmpdir
+}
+
 #---------------------------------------------
 # main()
 
@@ -1325,6 +1378,12 @@ do
 			NODIST="yes"
 			NOCVSSPEC="yes"
 			UPDATE5="yes"
+			shift ;;
+		-a | --adapter | --adapterize )
+			COMMAND="adapterize";
+			NODIST="yes"
+			NOCVSSPEC="yes"
+			ADAPTERIZE="yes"
 			shift ;;
 		-a5 | --add-md5 )
 			COMMAND="get";
@@ -1648,6 +1707,9 @@ case "$COMMAND" in
 		for SAP in $SAPS ; do
 			 echo $SOURCE_DIR/$(echo $SAP | awk '{gsub(/.*\//,"") ; print }')
 		done
+		;;
+	"adapterize" )
+		adapterize
 		;;
 	"usage" )
 		usage;;
