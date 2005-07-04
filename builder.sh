@@ -1348,7 +1348,7 @@ adapterize()
 						  echo "Ok, adapterized."
 						  break
 					 ;;
-					 n | N )
+					 [nNsS])
 						  echo "Ok, exiting."
 						  break
 					 ;;
