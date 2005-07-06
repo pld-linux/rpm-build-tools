@@ -227,6 +227,7 @@ defattr == 1 {
 ##########
 /^%clean/, (/^%[a-z]+$/ && !/^%clean/ && !/^%((end)?if|else)/) {
 	did_clean = 1
+	use_macros()
 }
 
 ############
@@ -692,6 +693,14 @@ function use_macros()
 
 	gsub("^make$", "%{__make}")
 	gsub("^make ", "%{__make} ")
+
+	# mandrake specs
+	gsub("^%make$", "%{__make}")
+	gsub("^%make ", "%{__make} ")
+	gsub("^%makeinstall_std", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
+	gsub("^%{__rm} -rf %{buildroot}", "rm -rf $RPM_BUILD_ROOT")
+	gsub("%optflags", "%{rpmcflags}")
+	gsub("%{compat_perl_vendorarch}", "%{perl_vendorarch}")
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
