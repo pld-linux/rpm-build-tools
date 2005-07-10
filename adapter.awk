@@ -702,6 +702,8 @@ function use_macros()
 	gsub("%optflags", "%{rpmcflags}")
 	gsub("%{compat_perl_vendorarch}", "%{perl_vendorarch}")
 
+	gsub("^%{__make} install DESTDIR=\$RPM_BUILD_ROOT", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
+
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
 }
