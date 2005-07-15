@@ -343,6 +343,7 @@ defattr == 1 {
 }
 /^%post/, (/^%[a-z]+$/ && !/^%post/) {
 	preamble = 0
+	use_macros()
 }
 /^%preun/, (/^%[a-z]+$/ && !/^%preun/) {
 	preamble = 0
@@ -703,6 +704,7 @@ function use_macros()
 	gsub("%{compat_perl_vendorarch}", "%{perl_vendorarch}")
 
 	gsub("^%{__make} install DESTDIR=\$RPM_BUILD_ROOT", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
+	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\&1")
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
