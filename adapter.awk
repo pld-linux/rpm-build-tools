@@ -468,12 +468,23 @@ preamble == 1 {
 
 		filename = url[n]
 		url[n] = fixedsub(name, "%{name}", url[n])
-		if (field ~ /source/)
+		if (field ~ /source/) {
 			url[n] = fixedsub(version, "%{version}", url[n])
+			if (_beta) {
+				url[n] = fixedsub(_beta, "%{_beta}", url[n])
+			}
+			if (_rc) {
+				url[n] = fixedsub(_rc, "%{_rc}", url[n])
+			}
+			if (_snap) {
+				url[n] = fixedsub(_snap, "%{_snap}", url[n])
+			}
+		}
 		$2 = fixedsub(filename, url[n], $2)
 
 		# sourceforge urls
 		sub("[?]use_mirror=.*$", "", $2);
+		sub("[?]download$", "", $2);
 		sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 
 		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
@@ -515,6 +526,13 @@ preamble == 1 {
 			mandir = $3
 		if ($2 ~ /_infodir/)
 			infodir = $3
+
+		if ($2 ~ /_beta/)
+			_beta = $3
+		if ($2 ~ /_rc/)
+			_rc = $3
+		if ($2 ~ /_snap/)
+			_snap = $3
 	}
 
 	if (field ~ /buildrequires:/) {
