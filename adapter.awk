@@ -49,6 +49,7 @@ BEGIN {
 	"rpm --eval %_includedir" | getline includedir
 	"rpm --eval %_mandir"	| getline mandir
 	"rpm --eval %_infodir"	| getline infodir
+	"rpm --eval %_examplesdir"	| getline examplesdir
 
 	"rpm --eval %perl_sitearch" | getline perl_sitearch
 	"rpm --eval %perl_archlib" | getline perl_archlib
@@ -670,6 +671,8 @@ function use_macros()
 	if (prefix !~ "/X11R6") {
 		gsub("%{_datadir}/aclocal", "%{_aclocaldir}")
 	}
+
+	gsub(examplesdir, "%{_examplesdir}")
 
 	if (prefix != "/") {
 		for (c = 1; c <= NF; c++) {
