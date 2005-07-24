@@ -164,6 +164,8 @@ defattr == 1 {
 /^%prep/, (/^%[a-z]+$/ && !/^%prep/ && !/^%((end)?if|else)/) {
 	preamble = 0
 
+	use_macros()
+
 	# Add '-q' to %setup
 	if (/^%setup/ && !/-q/) {
 		sub(/^%setup/, "%setup -q")
@@ -172,6 +174,9 @@ defattr == 1 {
 	if (/^%setup/ && /-n %{name}-%{version}( |$)/) {
 		sub(/ -n %{name}-%{version}/, "")
 	}
+
+	# invalid in %prep
+	sub("^rm -rf \$RPM_BUILD_ROOT.*", "");
 }
 
 ##########
@@ -726,6 +731,10 @@ function use_macros()
 
 	gsub("^%{__make} install DESTDIR=\$RPM_BUILD_ROOT", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
 	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\&1")
+	gsub("%buildroot", "$RPM_BUILD_ROOT")
+	gsub("%_bindir", "%{_bindir}")
+	gsub("%_datadir", "%{_datadir}")
+	gsub("%_iconsdir", "%{_iconsdir}")
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
