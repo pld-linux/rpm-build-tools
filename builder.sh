@@ -184,7 +184,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
--a, --adapter[ize]  - run adapter.awk on SPECFILE
+--adapter[ize]      - run adapter.awk on SPECFILE
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
 -n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable builder script debugging mode,
@@ -1379,7 +1379,7 @@ do
 			NOCVSSPEC="yes"
 			UPDATE5="yes"
 			shift ;;
-		-a | --adapter | --adapterize )
+		--adapter | --adapterize )
 			COMMAND="adapterize";
 			NODIST="yes"
 			NOCVSSPEC="yes"
