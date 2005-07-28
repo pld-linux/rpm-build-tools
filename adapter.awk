@@ -760,11 +760,17 @@ function use_files_macros(	i, n, t, a)
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
-	gsub("%{_sysconfdir}\/rc\.d\/init.d", "/etc/rc.d/init.d")
-	gsub("%{_sysconfdir}\/init.d", "/etc/rc.d/init.d")
+	# replace back
+	gsub("%{_sysconfdir}/rc\.d/init.d", "/etc/rc.d/init.d")
+	gsub("%{_sysconfdir}/init.d", "/etc/init.d")
 	gsub("%{_sysconfdir}\/sysconfig", "/etc/sysconfig")
 
-	if (/\/etc\/rc\.d\/init\.d/) {
+	# /etc/init.d -> /etc/rc.d/init.d
+	if (!/^\/etc\/init\.d$/) {
+		 gsub("/etc/init.d", "/etc/rc.d/init.d")
+	}
+
+	if (/\/etc\/rc\.d\/init\.d\// && !/functions/) {
 		if (!/%attr.*\/etc\/rc\.d\/init\.d/) {
 			$0 = "%attr(754,root,root) " $0
 		}
@@ -773,7 +779,6 @@ function use_files_macros(	i, n, t, a)
 		}
 	}
 
-
 	if (/lib.+\.so/ && !/^%attr.*/) {
 		$0 = "%attr(755,root,root) " $0
 	}
@@ -781,20 +786,22 @@ function use_files_macros(	i, n, t, a)
 	# /etc/sysconfig files
 	# %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
 	# attr not required, allow default 644 attr
-	if (/\/etc\/sysconfig\// && /%config/ && !/%config\(noreplace\)/) {
-		gsub("%config", "%config(noreplace)")
-	}
+	if (!/network-scripts/) {
+		if (/\/etc\/sysconfig\// && /%config/ && !/%config\(noreplace\)/) {
+			gsub("%config", "%config(noreplace)")
+		}
 
-	if (/\/etc\/sysconfig\// && !/%config\(noreplace\)/) {
-		$NF = "%config(noreplace) " $NF
-	}
+		if (/\/etc\/sysconfig\// && !/%config\(noreplace\)/) {
+			$NF = "%config(noreplace) " $NF
+		}
 
-	if (/\/etc\/sysconfig\// && /%attr\(755/) {
-		gsub("^%attr\(... *,", "%attr(640,");
-	}
+		if (/\/etc\/sysconfig\// && /%attr\(755/) {
+			gsub("^%attr\(... *,", "%attr(640,");
+		}
 
-	if (/\/etc\/sysconfig\// && !/%verify/) {
-		gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig");
+		if (/\/etc\/sysconfig\// && !/%verify/) {
+			gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig");
+		}
 	}
 
 
