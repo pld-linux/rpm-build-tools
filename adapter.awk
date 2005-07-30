@@ -761,9 +761,17 @@ function use_files_macros(	i, n, t, a)
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
 	# replace back
-	gsub("%{_sysconfdir}/rc\.d/init.d", "/etc/rc.d/init.d")
+	gsub("%{_sysconfdir}/cron\.d", "/etc/cron.d")
+	gsub("%{_sysconfdir}/crontab\.d", "/etc/cron.d")
+	gsub("%{_sysconfdir}/logrotate\.d", "/etc/logrotate.d")
+	gsub("%{_sysconfdir}/pam\.d", "/etc/pam.d")
+	gsub("%{_sysconfdir}/profile\.d", "/etc/profile.d")
+	gsub("%{_sysconfdir}/rc\.d", "/etc/rc.d")
+	gsub("%{_sysconfdir}/security", "/etc/security")
+	gsub("%{_sysconfdir}/skel", "/etc/skel")
+	gsub("%{_sysconfdir}/sysconfig", "/etc/sysconfig")
+	gsub("%{_sysconfdir}/certs", "/etc/certs")
 	gsub("%{_sysconfdir}/init.d", "/etc/init.d")
-	gsub("%{_sysconfdir}\/sysconfig", "/etc/sysconfig")
 
 	# /etc/init.d -> /etc/rc.d/init.d
 	if (!/^\/etc\/init\.d$/) {
