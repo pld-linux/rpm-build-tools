@@ -1155,13 +1155,52 @@ display_bconds()
 	fi
 }
 
+# checks a given list of packages/files/provides agains current rpmdb.
+# outputs all dependencies whcih current rpmdb doesn't satisfy.
+# input can be either STDIN or parameters
+_rpm_prov_check()
+{
+	 local DEPS
+
+	 if [ "$#" -gt 0 ]; then
+		  DEPS="$@"
+	 else
+		  DEPS=$(cat)
+	 fi
+
+	 DEPS=$(rpm -q --whatprovides $DEPS 2>&1 | awk '/^(error:|no package provides)/ { print }')
+
+	 # packages
+	 echo "$DEPS" | awk '/^no package provides/ { print "@" $NF }'
+
+	 # other deps (files)
+	 echo "$DEPS" | awk -F: '/^error:.*No such file/{o=$2; gsub("^ file ", "", o); print "@" o}'
+}
+
+# checks if given package/files/provides exists in rpmdb.
+# inout can be either stdin or parameters
+# returns packages wchi hare present in the rpmdb
+_rpm_cnfl_check()
+{
+	 local DEPS
+
+	 if [ "$#" -gt 0 ]; then
+		  DEPS="$@"
+	 else
+		  DEPS=$(cat)
+	 fi
+
+	 rpm -q --whatprovides $DEPS 2>/dev/null | awk '!/no package provides/ { print }'
+}
+
 fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
-			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print "@" $3 } ' | xargs)
-			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print "@" $3 } ' | xargs)
-			if [ -n "$CONF" -o -n "$DEPS" ]; then
+			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
+			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
+
+			if [ -n "$CONF" ] || [ -n "$DEPS" ]; then
 				$SU_SUDO /usr/bin/poldek --update || $SU_SUDO /usr/bin/poldek --upa
 			fi
 			if [ -n "$CONF" ]; then
