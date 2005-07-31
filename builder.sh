@@ -91,6 +91,12 @@ DEF_NICE_LEVEL=19
 
 FAIL_IF_NO_SOURCES="yes"
 
+if [ -x /usr/bin/rpm-getdeps ]; then
+	 FETCH_BUILD_REQUIRES_RPMGETDEPS="yes"
+else
+	 FETCH_BUILD_REQUIRES_RPMGETDEPS="no"
+fi
+
 # Here we load saved user environment used to
 # predefine options set above, or passed to builder
 # in command line.
@@ -1156,7 +1162,7 @@ fetch_build_requires()
 			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print "@" $3 } ' | xargs)
 			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print "@" $3 } ' | xargs)
 			if [ -n "$CONF" -o -n "$DEPS" ]; then
-				$SU_SUDO /usr/bin/poldek --update; $SU_SUDO /usr/bin/poldek --upa
+				$SU_SUDO /usr/bin/poldek --update || $SU_SUDO /usr/bin/poldek --upa
 			fi
 			if [ -n "$CONF" ]; then
 				echo "Trying to uninstall conflicting packages ($CONF):"
