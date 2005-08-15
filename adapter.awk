@@ -357,6 +357,21 @@ defattr == 1 {
 /^%postun/, (/^%[a-z]+$/ && !/^%postun/) {
 	preamble = 0
 }
+/^%triggerin/, (/^%[a-z]+$/ && !/^%triggerin/) {
+	preamble = 0
+}
+/^%triggerun/, (/^%[a-z]+$/ && !/^%triggerun/) {
+	preamble = 0
+}
+/^%triggerpostun/, (/^%[a-z]+$/ && !/^%triggerpostun/) {
+	preamble = 0
+}
+/^%pretrans/, (/^%[a-z]+$/ && !/^%pretrans/) {
+	preamble = 0
+}
+/^%posttrans/, (/^%[a-z]+$/ && !/^%posttrans/) {
+	preamble = 0
+}
 
 #############
 # PREAMBLES #
