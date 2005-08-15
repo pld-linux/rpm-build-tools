@@ -23,6 +23,8 @@ BEGIN {
 	bod = 0			# Beggining of %description
 	tw = 70			# Descriptions width
 
+	b_idx = 0		# index of BR/R arrays
+
 	# If variable removed, then 1 (for removing it from export)
 	removed["LDFLAGS"] = 0
 	removed["CFLAGS"] = 0
@@ -78,6 +80,39 @@ defattr == 1 {
 	else
 		$0 = "%defattr(644,root,root,755)"	# Correct mistakes (if any)
 	defattr = 0
+}
+
+function b_makekey(a, b,	s) {
+	s = a "" b;
+	# kill bcond
+	gsub("%{\\?[_a-zA-Z0-9]+:", "", s);
+	return s;
+}
+
+# sort BR/R!
+#
+# NOTES:
+# - mixing BR/R and anything else confuses this (all will be sorted together)
+#   so don't do that.
+# - comments leading the BR/R can not be associated,
+#   so don't adapterize when the BR/R are mixed with comments
+ENVIRON["SORTBR"] == 1 && preamble == 1 && /(Build)?Requires/, /(Build)?Requires/ { # && !/^%/) {
+	b_idx++;
+	b_ktmp = b_makekey($1, $2);
+	b_key[b_idx] = b_ktmp;
+	b_val[b_ktmp] = $0;
+
+	next;
+}
+
+preamble == 1 {
+	if (b_idx > 0) {
+		isort(b_key, b_idx);
+		for (i = 1; i <= b_idx; i++) {
+			print "" b_val[b_key[i]];
+		}
+		b_idx = 0
+	}
 }
 
 # Comments
@@ -349,7 +384,6 @@ defattr == 1 {
 }
 /^%post/, (/^%[a-z]+$/ && !/^%post/) {
 	preamble = 0
-	use_macros()
 }
 /^%preun/, (/^%[a-z]+$/ && !/^%preun/) {
 	preamble = 0
@@ -567,7 +601,6 @@ preamble == 1 {
 		}
 	}
 }
-
 
 # main() ;-)
 {
@@ -803,7 +836,7 @@ function use_files_macros(	i, n, t, a)
 			$0 = "%attr(754,root,root) " $0
 		}
 		if (/^%attr.*\/etc\/rc\.d\/init\.d/ && !/^%attr\(754 *,/) {
-			gsub("^%attr\(... *,", "%attr(754,");
+			gsub("^%attr\\(... *,", "%attr(754,");
 		}
 	}
 
@@ -824,7 +857,7 @@ function use_files_macros(	i, n, t, a)
 		}
 
 		if (/\/etc\/sysconfig\// && /%attr\(755/) {
-			gsub("^%attr\(... *,", "%attr(640,");
+			gsub("^%attr\\(... *,", "%attr(640,");
 		}
 
 		if (/\/etc\/sysconfig\// && !/%verify/) {
@@ -834,7 +867,7 @@ function use_files_macros(	i, n, t, a)
 
 
 	# kill leading zeros
-	gsub("%attr\(0", "%attr(")
+	gsub("%attr\\(0", "%attr(")
 
 	# sort %verify attrs
 	if (match($0, /%verify\(not([^)]+)\)/)) {
