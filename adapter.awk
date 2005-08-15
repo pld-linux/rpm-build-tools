@@ -425,6 +425,7 @@ preamble == 1 {
 
 	if (field ~ /prereq:/) {
 		$1 = "Requires:"
+		$(NF + 1) = " # FIXME add Requires(scriptlet) -adapter.awk"
 	}
 
 	if (field ~ /packager:|distribution:|docdir:|prefix:/)
