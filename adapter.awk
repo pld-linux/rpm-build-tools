@@ -423,6 +423,10 @@ preamble == 1 {
 		next
 	}
 
+	if (field ~ /prereq:/) {
+		$1 = "Requires:"
+	}
+
 	if (field ~ /packager:|distribution:|docdir:|prefix:/)
 		next
 
