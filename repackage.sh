@@ -8,10 +8,15 @@ set -e
 
 rpmbuild() {
 	set -x
+
 	# i'd use ./builder to get all the ~/.bcondrc parsing,
     # but builder doesn't understand -bi
 #	./builder -ncs -nc -nn --opts --short-circuit "$@"
-	command rpmbuild --short-circuit "$@" || exit
+	/usr/bin/rpmbuild --short-circuit  "$@" || exit
 }
-rpmbuild -bi "$@"
-rpmbuild -bb "$@"
+
+# just create the rpm's if -bb is somewhere in the args
+if [[ *$@* != *-bb* ]]; then
+	rpmbuild -bi "$@"
+fi
+rpmbuild -bb --define 'clean %{nil}' "$@"
