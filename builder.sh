@@ -1045,6 +1045,22 @@ set_bconds_values()
 					_with)
 						cond_type="with"
 						;;
+					_without_*)
+						AVAIL_BCOND_WITHOUT="`echo $opt | sed 's/^_without_//g'`"
+						if `echo $BCOND|grep -q -- "--without $AVAIL_BCOND_WITHOUT"`;then
+							AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
+						else
+							AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
+						fi
+						;;
+					_with_*)
+						AVAIL_BCOND_WITH="`echo $opt | sed 's/^_with_//g'`"
+						if `echo $BCOND|grep -q -- "--with $AVAIL_BCOND_WITH"`;then
+							AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
+						else
+							AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
+						fi
+						;;
 					*)
 						case "$cond_type" in
 							with)
