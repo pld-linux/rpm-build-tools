@@ -512,7 +512,7 @@ src_md5 ()
 	no=$(src_no "$1")
 	[ -z "$no" ] && return
 	cd $SPECS_DIR
-	spec_rev=$(grep $SPECFILE CVS/Entries | sed -e s:/$SPECFILE/:: -e s:/.*::)
+	spec_rev=$(grep $SPECFILE CVS/Entries 2>/dev/null | sed -e s:/$SPECFILE/:: -e s:/.*::)
 	if [ -z "$spec_rev" ]; then
 		spec_rev="$(head -n 1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
 	fi
@@ -974,7 +974,7 @@ set_bconds_values()
 	# ---
 	# * -selinux
 	# samba -mysql -pgsql
-	# w32codec license_agreement
+	# w32codec-installer license_agreement
 	# php +mysqli
 	# ---
 	if [ "${BCOND_VERSION}" != "NONE" ] && ( [ -f $HOME/.bcondrc ] || ( [ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] ) ) ; then
