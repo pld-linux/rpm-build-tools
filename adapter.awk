@@ -206,6 +206,11 @@ preamble == 1 {
 		sub(/^%setup/, "%setup -q")
 	}
 
+	if (/^%setup/) {
+		gsub(name, "%{name}");
+		gsub(version, "%{version}");
+	}
+
 	if (/^%setup/ && /-n %{name}-%{version}( |$)/) {
 		sub(/ -n %{name}-%{version}/, "")
 	}
