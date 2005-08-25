@@ -7,9 +7,9 @@
 # 	Micha³ Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
 # 	Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
-# 	Artur Frysiak <wiget@pld.org.pl>
+# 	Artur Frysiak <wiget@pld-linux.org>
 # 	Michal Kochanowicz <mkochano@pld.org.pl>
-#       Elan Ruusamäe <glen@pld-linux.org>
+# 	Elan Ruusamäe <glen@pld-linux.org>
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # TODO
