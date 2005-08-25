@@ -9,6 +9,7 @@
 # 	Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
 # 	Artur Frysiak <wiget@pld.org.pl>
 # 	Michal Kochanowicz <mkochano@pld.org.pl>
+#       Elan Ruusamäe <glen@pld-linux.org>
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # TODO
