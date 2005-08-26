@@ -134,7 +134,7 @@ elif [ -n "$USE_AXEL" ]; then
 else
 	wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
 	wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
-	 
+
 	GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
 	GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
 	OUTFILEOPT="-O"
@@ -1398,8 +1398,8 @@ adapterize()
 
 	 if [ "`diff --brief $SPECFILE $tmpdir/$SPECFILE`" ] ; then
 		  diff -u $SPECFILE $tmpdir/$SPECFILE > $tmpdir/$SPECFILE.diff
-		  diffcol $tmpdir/$SPECFILE.diff | less -r
-		  (
+		  if [ -t 1 ]; then
+				diffcol $tmpdir/$SPECFILE.diff | less -r
 				while : ; do
 					 echo -n "Accept? [yn] "
 					 read ans
@@ -1415,7 +1415,9 @@ adapterize()
 					 ;;
 					 esac
 				done
-		  )
+		  else
+				cat $tmpdir/$SPECFILE.diff
+		  fi
 	 else
 		  echo "The SPEC is perfect ;)"
 	 fi
