@@ -599,13 +599,6 @@ preamble == 1 {
 		if ($2 ~ /_snap/)
 			_snap = $3
 	}
-
-	if (field ~ /buildrequires:/) {
-		# obsolete
-		if ($2 ~ /rpm-pythonprov/) {
-			next
-		}
-	}
 }
 
 # main() ;-)
