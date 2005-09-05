@@ -267,6 +267,9 @@ preamble == 1 {
 			next
 	}
 
+	# atrpms
+	$0 = fixedsub("%perl_configure", "%{__perl} Makefile.PL \\\n\tINSTALLDIRS=vendor", $0);
+	$0 = fixedsub("%perl_makecheck", "%{?with_tests:%{__make} test}", $0);
 }
 
 ##########
@@ -319,6 +322,13 @@ preamble == 1 {
 	# No lines contain 'chmod' if it sets the modes to '644'
 	if ($1 ~ /chmod/ && $2 ~ /644/)
 		next
+
+	# foreign rpms
+	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
+	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
+
+	# atrpms
+	$0 = fixedsub("%perl_makeinstall", "%{__make} pure_install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0);
 }
 
 ##########
@@ -824,7 +834,8 @@ function use_macros()
 
 	gsub("^%{__make} install DESTDIR=\$RPM_BUILD_ROOT", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
 	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\&1")
-	gsub("%buildroot", "$RPM_BUILD_ROOT")
+	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
+	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
 	gsub("%_bindir", "%{_bindir}")
 	gsub("%_datadir", "%{_datadir}")
 	gsub("%_iconsdir", "%{_iconsdir}")
@@ -928,6 +939,11 @@ function use_files_macros(	i, n, t, a)
 	if (/%{_mandir}/) {
 		gsub("\.gz$", "*")
 	}
+
+	# atrpms
+	$0 = fixedsub("%{perl_man1dir}", "%{_mandir}/man1", $0);
+	$0 = fixedsub("%{perl_man3dir}", "%{_mandir}/man3", $0);
+	$0 = fixedsub("%{perl_bin}", "%{_bindir}", $0);
 }
 
 function fill(ch, n, i) {
