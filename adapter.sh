@@ -32,4 +32,4 @@ if [ $# -ne 1 -o ! -f "$1" ]; then
 	exit 1
 fi
 
-./builder --adapter "$1"
+exec ./builder --adapter "$1"
