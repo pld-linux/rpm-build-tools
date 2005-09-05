@@ -532,9 +532,13 @@ preamble == 1 {
 		$2 = s url[n+1]
 
 		filename = url[n]
-		url[n] = fixedsub(name, "%{name}", url[n])
+		if (name) {
+			url[n] = fixedsub(name, "%{name}", url[n])
+		}
 		if (field ~ /source/) {
-			url[n] = fixedsub(version, "%{version}", url[n])
+			if (version) {
+				url[n] = fixedsub(version, "%{version}", url[n])
+			}
 			if (_beta) {
 				url[n] = fixedsub(_beta, "%{_beta}", url[n])
 			}
