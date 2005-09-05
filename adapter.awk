@@ -421,6 +421,12 @@ preamble == 1 {
 	# and before the colon.
 	sub(/[ \t]*:/, ":")
 
+	if (/^%perl_module_wo_prefix/) {
+		name = $2
+		version = $3
+		release = "0." fixedsub(".%{disttag}.at", "", $4)
+	}
+
 	field = tolower($1)
 	fieldnlower = $1
 	if (field ~ /group(\([^)]+\)):/)
@@ -478,11 +484,20 @@ preamble == 1 {
 	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/)
 		$1 = "License:"
 
-	if (field ~ /name:/)
+	if (field ~ /name:/) {
 		name = $2
+		name_seen = 1;
+	}
 
-	if (field ~ /version:/)
+	if (field ~ /version:/) {
 		version = $2
+		version_seen = 1;
+	}
+
+	if (field ~ /release:/) {
+		release = $2
+		release_seen = 1;
+	}
 
 	if (field ~ /serial:/)
 		$1 = "Epoch:"
@@ -611,6 +626,21 @@ preamble == 1 {
 
 	sub(/[ \t]+$/, "")
 	print
+
+	if (name_seen == 0 && name) {
+		print "Name:\t" name
+		name_seen = 1
+	}
+
+	if (version_seen == 0 && version) {
+		print "Version:\t" version
+		version_seen = 1
+	}
+
+	if (release_seen == 0 && release) {
+		print "Release:\t" release
+		release_seen = 1
+	}
 }
 
 
@@ -622,6 +652,8 @@ END {
 	while ((getline < changelog_file) > 0)
 		print
 	system("rm -f " changelog_file)
+
+
 
 	if (did_clean == 0) {
 		print ""
