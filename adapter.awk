@@ -618,6 +618,11 @@ preamble == 1 {
 		if ($2 ~ /_snap/)
 			_snap = $3
 	}
+
+	if (field ~ /requires/) {
+		# atrpms
+		$0 = fixedsub("%{eversion}", "%{epoch}:%{version}-%{release}", $0);
+	}
 }
 
 # main() ;-)
