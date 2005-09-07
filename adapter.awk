@@ -99,7 +99,8 @@ function b_makekey(a, b,	s) {
 #   so don't adapterize when the BR/R are mixed with comments
 ENVIRON["SORTBR"] == 1 && preamble == 1 && /(Build)?Requires/, /(Build)?Requires/ { # && !/^%/) {
 	b_idx++;
-	b_ktmp = b_makekey($1, $2);
+	l = substr($0, index($0, $2));
+	b_ktmp = b_makekey($1, l);
 	b_key[b_idx] = b_ktmp;
 	b_val[b_ktmp] = $0;
 
