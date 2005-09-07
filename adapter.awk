@@ -488,6 +488,16 @@ preamble == 1 {
 		$(NF + 1) = " # FIXME add Requires(scriptlet) -adapter.awk"
 	}
 
+	# split (build)requires on commas
+	if (field ~ /requires:/ && $2 ~ /,/) {
+		l = substr($0, index($0, $2));
+		n = split(l, p, / *, */);
+		for (i in p) {
+			printf("%s\t%s\n", $1, p[i]);
+		}
+		next;
+	}
+
 	if (field ~ /packager:|distribution:|docdir:|prefix:/)
 		next
 
