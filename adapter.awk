@@ -266,6 +266,10 @@ preamble == 1 {
 		if (/^export[ ]*$/)
 			next
 	}
+	
+	# use macros
+	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
+	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0);
 
 	# atrpms
 	$0 = fixedsub("%perl_configure", "%{__perl} Makefile.PL \\\n\tINSTALLDIRS=vendor", $0);
