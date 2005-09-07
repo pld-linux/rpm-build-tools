@@ -489,7 +489,7 @@ preamble == 1 {
 	}
 
 	# split (build)requires on commas
-	if (field ~ /requires:/ && $2 ~ /,/) {
+	if (field ~ /requires:/ && $0 ~ /,/) {
 		l = substr($0, index($0, $2));
 		n = split(l, p, / *, */);
 		for (i in p) {
