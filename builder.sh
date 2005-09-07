@@ -1394,7 +1394,7 @@ adapterize()
 	 cd "$SPECS_DIR"
 	 local tmpdir
 	 tmpdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
-	 awk -f adapter.awk $SPECFILE > $tmpdir/$SPECFILE
+	 awk -f adapter.awk $SPECFILE > $tmpdir/$SPECFILE || exit
 
 	 if [ "`diff --brief $SPECFILE $tmpdir/$SPECFILE`" ] ; then
 		  diff -u $SPECFILE $tmpdir/$SPECFILE > $tmpdir/$SPECFILE.diff
