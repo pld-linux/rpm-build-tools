@@ -211,6 +211,15 @@ preamble == 1 {
 	if (/^%setup/) {
 		gsub(name, "%{name}");
 		gsub(version, "%{version}");
+		if (_beta) {
+			gsub(_beta, "%{_beta}");
+		}
+		if (_rc) {
+			gsub(_rc, "%{_rc}");
+		}
+		if (_snap) {
+			gsub(_snap, "%{_snap}");
+		}
 	}
 
 	if (/^%setup/ && /-n %{name}-%{version}( |$)/) {
