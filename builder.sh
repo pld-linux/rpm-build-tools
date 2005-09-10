@@ -1636,6 +1636,13 @@ if [ -n "$DEBUG" ]; then
 	set -v;
 fi
 
+if [ -n "$SPECFILE" ] && [ -z "$TARGET" ]; then
+	 tmp=$(awk  '/^BuildArch:/ { print $NF}' $SPECFILE)
+	 if [ "$tmp" ]; then
+		  TARGET="$tmp"
+	 fi
+fi
+
 if [ -n "$TARGET" ]; then
 	case "$RPMBUILD" in
 		"rpmbuild")
