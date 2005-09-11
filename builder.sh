@@ -283,17 +283,35 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 "
 }
 
+# set TARGET from BuildArch: from SPECFILE
+set_spec_target() {
+	 if [ -n "$SPECFILE" ] && [ -z "$TARGET" ]; then
+		  tmp=$(awk '/^BuildArch:/ { print $NF}' $SPECFILE)
+		  if [ "$tmp" ]; then
+				TARGET="$tmp"
+				case "$RPMBUILD" in
+				"rpmbuild")
+					 TARGET_SWITCH="--target $TARGET" ;;
+				"rpm")
+					 TARGET_SWITCH="--target=$TARGET" ;;
+				esac
+		  fi
+	 fi
+}
+
 cache_rpm_dump () {
 	 if [ -n "$DEBUG" ]; then
 		  set -x;
 		  set -v;
 	 fi
+
 rpm_dump_cache=`
 	case "$RPMBUILD" in
 		rpm )
 			rpm -bp --nodeps --define 'prep %dump' $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 		rpmbuild )
+		# FIXME: no $TARGET_SWITCH here needed?
 			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1
 			;;
 	esac`
@@ -473,6 +491,8 @@ get_spec()
 	fi
 	unset OPTIONS
 	[ -n "$DONT_PRINT_REVISION" ] || grep -E -m 1 "^#.*Revision:.*Date" $SPECFILE
+
+	 set_spec_target
 }
 
 find_mirror()
@@ -1634,13 +1654,6 @@ done
 if [ -n "$DEBUG" ]; then
 	set -x;
 	set -v;
-fi
-
-if [ -n "$SPECFILE" ] && [ -z "$TARGET" ]; then
-	 tmp=$(awk  '/^BuildArch:/ { print $NF}' $SPECFILE)
-	 if [ "$tmp" ]; then
-		  TARGET="$tmp"
-	 fi
 fi
 
 if [ -n "$TARGET" ]; then
