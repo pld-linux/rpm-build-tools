@@ -34,7 +34,7 @@ BEGIN {
 	# get cvsaddress for changelog section
 	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
 	"rpm --eval '%{?_cvsmaildomain}%{!?_cvsmaildomain:@pld-linux.org}'" | getline _cvsmaildomain
-	"rpm --eval '%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <rpm@cvs.delfi.ee>}'" | getline _cvsmailfeedback
+	"rpm --eval '%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <feedback@pld-linux.org>}'" | getline _cvsmailfeedback
 
 	# If 1, we are inside of comment block (started with /^#%/)
 	comment_block = 0
