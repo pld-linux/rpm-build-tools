@@ -31,6 +31,11 @@ BEGIN {
 	removed["CFLAGS"] = 0
 	removed["CXXFLAGS"] = 0
 
+	# get cvsaddress for changelog section
+	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
+	"rpm --eval '%{?_cvsmaildomain}%{!?_cvsmaildomain:@pld-linux.org}'" | getline _cvsmaildomain
+	"rpm --eval '%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <rpm@cvs.delfi.ee>}'" | getline _cvsmailfeedback
+
 	# If 1, we are inside of comment block (started with /^#%/)
 	comment_block = 0
 
@@ -367,8 +372,8 @@ preamble == 1 {
 	skip = 0
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 3) {
-		if (!/PLD Team/)
-			print "* %{date} PLD Team <feedback@pld-linux.org>" > changelog_file
+		if ($0 !~ _cvsmailfeedback)
+			print "* %{date} " _cvsmailfeedback > changelog_file
 		else
 			skip = 1
 		boc = 2
@@ -376,7 +381,7 @@ preamble == 1 {
 	if (boc == 2 && !skip) {
 		if (!/All persons listed below/) {
 			printf "All persons listed below can be reached at " > changelog_file
-			print "<cvs_login>@pld-linux.org\n" > changelog_file
+			print "<cvs_login>" _cvsmaildomain "\n" > changelog_file
 		} else
 			skip = 1
 		boc = 1
