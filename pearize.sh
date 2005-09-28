@@ -22,7 +22,10 @@ sed -i -e '/^%if !1/,/%endif/d' $template
 # http://info.ccone.at/INFO/Mail-Archives/procmail/Jul-2004/msg00132.html
 sed -i -e '/./,$ !d;/^$/N;/\n$/D' $template
 
-#rpmbuild -bb $spec
+rpm=$(rpm -q --qf '../RPMS/%{name}-%{version}.noarch.rpm' --specfile "$spec")
+if [ ! -f $rpm ]; then
+	rpmbuild -bb $spec
+fi
 
 # prepare original spec
 sed -i -e '
