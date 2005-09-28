@@ -7,6 +7,9 @@ spec="$1"
 tarball=$(rpm -q --qf '../SOURCES/%{name}-%{version}.tgz' --specfile "$spec" | sed -e 's,php-pear-,,')
 template=$(rpm -q --qf '%{name}-%{version}.spec' --specfile "$spec")
 
+if [ ! -f $tarball ]; then
+	./builder -g $spec
+fi
 pear makerpm $tarball
 ls -l $spec $template
 
@@ -34,6 +37,7 @@ s/^%setup -q -c/%pear_package_setup/
 
 /^rm -rf/{p
 a\
+install -d $RPM_BUILD_ROOT%{php_pear_dir}\
 %pear_package_install\
 
 }
@@ -62,5 +66,34 @@ perl -pi -e '
 		$done = 1;
 	}
 ' $spec
+
+if grep -q '^%files tests' $template; then
+	sed -i -e '
+/^%define date/{
+i\
+%files tests\
+%defattr(644,root,root,755)\
+%{php_pear_dir}/tests/*\
+
+}
+
+/^%prep/{
+i\
+%package tests\
+Summary:	Tests for PEAR::%{_pearname}\
+Summary(pl):	Testy dla PEAR::%{_pearname}\
+Group:		Development\
+Requires:	%{name} = %{epoch}:%{version}-%{release}\
+AutoReq:	no\
+\
+%description tests\
+Tests for PEAR::%{_pearname}.\
+\
+%description tests -l pl\
+Testy dla PEAR::%{_pearname}.\
+
+}
+' $spec
+fi
 
 vim -o $spec $template
