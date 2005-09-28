@@ -8,7 +8,7 @@ tarball=$(rpm -q --qf '../SOURCES/%{name}-%{version}.tgz' --specfile "$spec" | s
 template=$(rpm -q --qf '%{name}-%{version}.spec' --specfile "$spec")
 
 pear makerpm $tarball
-ls -l $template
+ls -l $spec $template
 
 # adjust template
 # remove false sectons
@@ -43,23 +43,24 @@ d
 
 ' $spec
 
-instdoc=$(grep '^%doc install' $template)
+instdoc=$(grep '^%doc install' $template || :)
 sed -i -e "
 /%defattr(644,root,root,755)/a\
 $instdoc
 " $spec
 
-doc=$(grep '^%doc docs/%{_pearname}/' $template)
+doc=$(grep '^%doc docs/%{_pearname}/' $template || :)
 if [ "$doc" ]; then
 sed -i -e '/^%doc/a\
 %doc docs/%{_pearname}/*
 ' $spec
 fi
 
-sed -i -e '/^%{php_pear_dir}/i\
-%{php_pear_dir}/.registry/*.reg
+perl -pi -e '
+	if (/^%{php_pear_dir}/ && !$done) {
+		print "%{php_pear_dir}/.registry/*.reg\n";
+		$done = 1;
+	}
 ' $spec
 
 vim -o $spec $template
-
-exit 1
