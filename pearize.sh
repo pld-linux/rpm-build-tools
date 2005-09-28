@@ -26,7 +26,7 @@ sed -i -e '
 # simple changes
 s/^%setup -q -c/%pear_package_setup/
 /^BuildRequires:/s/rpm-php-pearprov >= 4.0.2-98/rpm-php-pearprov >= 4.4.2-11/g
-s#^%doc %{_pearname}-%{version}#%doc docs/%{_pearname}#g
+/^%doc %{_pearname}-%{version}/d
 
 # make new %install section
 /^%install$/,/^%clean$/{
@@ -43,11 +43,23 @@ d
 
 ' $spec
 
-doc=$(grep '^%doc install' $template)
+instdoc=$(grep '^%doc install' $template)
 sed -i -e "
 /%defattr(644,root,root,755)/a\
-$doc
+$instdoc
 " $spec
 
+doc=$(grep '^%doc docs/%{_pearname}/' $template)
+if [ "$doc" ]; then
+sed -i -e '/^%doc/a\
+%doc docs/%{_pearname}/*
+' $spec
+fi
+
+sed -i -e '/^%{php_pear_dir}/i\
+%{php_pear_dir}/.registry/*.reg
+' $spec
+
 vim -o $spec $template
+
 exit 1
