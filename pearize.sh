@@ -22,7 +22,7 @@ sed -i -e '/^%if !1/,/%endif/d' $template
 # http://info.ccone.at/INFO/Mail-Archives/procmail/Jul-2004/msg00132.html
 sed -i -e '/./,$ !d;/^$/N;/\n$/D' $template
 
-rpm=$(rpm -q --qf '../RPMS/%{name}-%{version}.noarch.rpm' --specfile "$spec")
+rpm=$(rpm -q --qf '../RPMS/%{name}-%{version}-%{release}.noarch.rpm' --specfile "$spec")
 if [ ! -f $rpm ]; then
 	rpmbuild -bb $spec
 fi
@@ -97,6 +97,28 @@ Testy dla PEAR::%{_pearname}.\
 
 }
 ' $spec
+fi
+
+_noautoreq=$(grep '%define.*_noautoreq' $template || :)
+if [ "$_noautoreq" ]; then
+	sed -i -e "/^BuildRoot:/{
+a\\
+\\
+# exclude optional dependencies\\
+$_noautoreq
+}
+" $spec
+
+	sed -i -e '/^%files/{
+i\
+%post\
+if [ -f %{_docdir}/%{name}-%{version}/optional-packages.txt ]; then\
+	cat %{_docdir}/%{name}-%{version}/optional-packages.txt\
+fi\
+
+}
+' $spec
+
 fi
 
 vim -o $spec $template
