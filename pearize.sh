@@ -4,8 +4,8 @@
 #
 set -e
 spec="$1"
-tarball=$(rpm -q --qf '../SOURCES/%{name}-%{version}.tgz' --specfile "$spec" | sed -e 's,php-pear-,,')
-template=$(rpm -q --qf '%{name}-%{version}.spec' --specfile "$spec")
+tarball=(rpm -q --qf '../SOURCES/%{name}-%{version}.tgz\n' --specfile "$spec" | head -n 1 | sed -e 's,php-pear-,,')
+template=$(rpm -q --qf '%{name}-%{version}.spec\n' --specfile "$spec" | head -n 1)
 
 if [ ! -f $tarball ]; then
 	./builder -g $spec
@@ -22,7 +22,7 @@ sed -i -e '/^%if !1/,/%endif/d' $template
 # http://info.ccone.at/INFO/Mail-Archives/procmail/Jul-2004/msg00132.html
 sed -i -e '/./,$ !d;/^$/N;/\n$/D' $template
 
-rpm=$(rpm -q --qf '../RPMS/%{name}-%{version}-%{release}.noarch.rpm' --specfile "$spec")
+rpm=$(rpm -q --qf '../RPMS/%{name}-%{version}-%{release}.noarch.rpm\n' --specfile "$spec" | head -n 1)
 if [ ! -f $rpm ]; then
 	rpmbuild -bb $spec
 fi
