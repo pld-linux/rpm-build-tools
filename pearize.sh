@@ -72,7 +72,7 @@ perl -pi -e '
 
 if grep -q '^%files tests' $template; then
 	sed -i -e '
-/^%define.*date/{
+/^%define.*date.*%/{
 i\
 %files tests\
 %defattr(644,root,root,755)\
