@@ -109,7 +109,7 @@ $_noautoreq
 }
 " $spec
 
-	sed -i -e '/^%files/{
+	sed -i -e '/^%files$/{
 i\
 %post\
 if [ -f %{_docdir}/%{name}-%{version}/optional-packages.txt ]; then\
