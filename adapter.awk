@@ -416,7 +416,15 @@ preamble == 1 {
 ###########
 /^%pre/, (/^%[a-z]+$/ && !/^%pre/) {
 	preamble = 0
+
+	# %useradd and %groupadd may not be wrapped
+	if (/%(useradd|groupadd).*\\$/) {
+		a = $0; getline;
+		sub(/^[\s\t]*/, "");
+		$0 = substr(a, 1, length(a) - 1) $0;
+	}
 }
+
 /^%post/, (/^%[a-z]+$/ && !/^%post/) {
 	preamble = 0
 }
