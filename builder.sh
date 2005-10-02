@@ -123,6 +123,8 @@ fi
 
 [ -f "$USER_CFG" ] && . "$USER_CFG"
 
+wget --help 2>&1 | grep -q ' \-\-no-check\-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
+
 if [ -n "$USE_PROZILLA" ]; then
 	GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
 	GETURI2="$GETURI"
