@@ -4,6 +4,7 @@
 #
 set -e
 spec="$1"
+echo "Processing $spec"
 tarball=$(rpm -q --qf '../SOURCES/%{name}-%{version}.tgz\n' --specfile "$spec" | head -n 1 | sed -e 's,php-pear-,,')
 template=$(rpm -q --qf '%{name}-%{version}.spec\n' --specfile "$spec" | head -n 1)
 
