@@ -38,9 +38,10 @@ cat > $stmp <<'EOF'
 @extra_headers@
 Optional: @optional@
 EOF
-template=$(rpm -q --qf "%{name}-%{version}$rc$pre$beta.spec\n" --specfile "$spec" | head -n 1)
-
 pear makerpm --spec-template=$stmp $tarball
+rm -f $stmp
+
+template=$(rpm -q --qf "%{name}-%{version}$rc$pre$beta.spec\n" --specfile "$spec" | head -n 1)
 mv $template .$template~
 template=.$template~
 
@@ -102,5 +103,4 @@ if ! diff -u $bak $spec > $diff; then
 else
 	echo "$spec: No diffs"
 fi
-rm -f $stmp
 #exit 1
