@@ -47,6 +47,14 @@ sed -ne '/^Name:/,/^BuildRoot/p' $spec > $preamble
 add_epoch() {
 	local dep="$@"
 	local pkg="$1"
+	local ver="$3"
+
+	# already have epoch
+	if [[ "$ver" = *:* ]]; then
+		echo "$dep"
+		return
+	fi
+
 	query=$(rpm -q --qf '%{epoch}\n' $pkg || :)
  	epoch=$(echo "$query" | grep -v 'installed' || :)
 	if [ "$epoch" ] && [ "$epoch" -gt 0 ]; then
