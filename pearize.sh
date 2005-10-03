@@ -38,9 +38,11 @@ cat > $stmp <<'EOF'
 @extra_headers@
 Optional: @optional@
 EOF
-template=$(rpm -q --qf "_pearize-%{version}$rc$pre$beta.spec\n" --specfile "$spec" | head -n 1)
+template=$(rpm -q --qf ".pearize-%{version}$rc$pre$beta.spec\n" --specfile "$spec" | head -n 1)
 
-pear makerpm --spec-template=$stmp --rpm-pkgname=_pearize $tarball
+pear makerpm --spec-template=$stmp --rpm-pkgname=.pearize $tarball
+mv $template $template~
+template=$template~
 
 requires=$(grep '^Requires:' $template || :)
 conflicts=$(grep '^Conflicts:' $template || :)
