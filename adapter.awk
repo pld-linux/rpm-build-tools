@@ -861,6 +861,7 @@ function use_macros()
 
 	gsub("^make$", "%{__make}")
 	gsub("^make ", "%{__make} ")
+	gsub("^gcc ", "%{__cc} ")
 
 	# mandrake specs
 	gsub("^%make$", "%{__make}")
