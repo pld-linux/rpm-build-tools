@@ -1,125 +1,84 @@
 #!/bin/sh
-# creates .spec using pear makerpm command.
+# updates php-pear .spec with Requires/Conflicts lines.
+# the items are added randomly to the preamble, but once added their order is left intact.
+# it is still better than nothing. if somebody wishes to add sorting in this
+# script. i'd be just glad :)
+#
+# needs pear makerpm command.
 # requires tarball to exist in ../SOURCES.
 #
+# bugs: will not find tarball for packages with 'beta' and 'alpha' in version.
+#
+# todo: adjust similiarily noautoreqdeps
+#
+# note: old version pf this script which was used to convert to new package format is in CVS branch MIGRATE
+# send blames and beerideas to glen@pld-linux.org
+
 set -e
 spec="$1"
+if [ -z "$spec" ]; then
+	echo >&2 "Usage: $0 SPECFILE"
+	exit 0
+fi
+if [ ! -f "$spec" ]; then
+	echo >&2 "$spec doesn't exist?"
+	exit 1
+fi
 echo "Processing $spec"
 tarball=$(rpm -q --qf '../SOURCES/%{name}-%{version}.tgz\n' --specfile "$spec" | head -n 1 | sed -e 's,php-pear-,,')
 template=$(rpm -q --qf '%{name}-%{version}.spec\n' --specfile "$spec" | head -n 1)
 
-if [ ! -f $tarball ]; then
-	./builder -g $spec
-fi
-pear makerpm $tarball
+pear makerpm --spec-template=template.spec $tarball
 ls -l $spec $template
 
-# adjust template
-# remove false sectons
-sed -i -e '/^%if 0/,/%endif/d' $template
-# and reversed true sections
-sed -i -e '/^%if !1/,/%endif/d' $template
-# kill consequtive blank lines
-# http://info.ccone.at/INFO/Mail-Archives/procmail/Jul-2004/msg00132.html
-sed -i -e '/./,$ !d;/^$/N;/\n$/D' $template
+requires=$(grep '^Requires:' $template || :)
+conflicts=$(grep '^Conflicts:' $template || :)
+preamble=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
+# take just main package preamble, preamble of tests (and other) subpackage(s) just confuses things.
+sed -ne '/^Name:/,/^BuildRoot/p' $spec > $preamble
 
-rpm=$(rpm -q --qf '../RPMS/%{name}-%{version}-%{release}.noarch.rpm\n' --specfile "$spec" | head -n 1)
-if [ ! -f $rpm ]; then
-	rpmbuild -bb $spec
+# take as argument dependency in form NAME EQUALITY VERSION
+# adds rpm epoch to VERSION if the package is installed and has epoch bigger than zero.
+add_epoch() {
+	local dep="$@"
+	local pkg="$1"
+	query=$(rpm -q --qf '%{epoch}\n' $pkg || :)
+ 	epoch=$(echo "$query" | grep -v 'installed' || :)
+	if [ "$epoch" ] && [ "$epoch" -gt 0 ]; then
+		echo "$dep" | sed -e "s, [<>=] ,&$epoch:,"
+	else
+		echo "$dep"
+	fi
+}
+
+# create backup
+bak=$(cp -fbv $spec $spec | awk '{print $NF}' | tr -d "['\`]" )
+
+if [ -n "$requires" ]; then
+	echo "$requires" | while read tag dep; do
+		dep=$(add_epoch $dep)
+		if ! grep -q "^Requires:.*$dep" $preamble; then
+			sed -i -e "/^BuildRoot/iRequires:\t$dep" $spec
+		fi
+	done
 fi
 
-# prepare original spec
-sed -i -e '
-# simple changes
-s/^%setup -q -c/%pear_package_setup/
-/^BuildRequires:/s/rpm-php-pearprov >= 4.0.2-98/rpm-php-pearprov >= 4.4.2-11/g
-/^%doc %{_pearname}-%{version}/d
-
-# make new %install section
-/^%install$/,/^%clean$/{
-/^%\(install\|clean\)/p
-
-/^rm -rf/{p
-a\
-install -d $RPM_BUILD_ROOT%{php_pear_dir}\
-%pear_package_install\
-
-}
-
-d
-}
-
-' $spec
-
-instdoc=$(grep '^%doc install' $template || :)
-sed -i -e "
-/%defattr(644,root,root,755)/a\
-$instdoc
-" $spec
-
-doc=$(grep '^%doc docs/%{_pearname}/' $template || :)
-if [ "$doc" ]; then
-sed -i -e '/^%doc/a\
-%doc docs/%{_pearname}/*
-' $spec
+if [ -n "$conflicts" ]; then
+	echo "$conflicts" | while read tag reqc; do
+		dep=$(add_epoch $dep)
+		if ! grep -q "^Conflicts:.*$req" $preamble; then
+			sed -i -e "/^BuildRoot/iConflicts:\t$dep" $spec
+		fi
+	done
 fi
 
-perl -pi -e '
-	if (/^%{php_pear_dir}/ && !$done) {
-		print "%{php_pear_dir}/.registry/*.reg\n";
-		$done = 1;
-	}
-' $spec
+rm -f $preamble
 
-if grep -q '^%files tests' $template; then
-	sed -i -e '
-/^%define.*date.*%/{
-i\
-%files tests\
-%defattr(644,root,root,755)\
-%{php_pear_dir}/tests/*\
-
-}
-
-/^%prep/{
-i\
-%package tests\
-Summary:	Tests for PEAR::%{_pearname}\
-Summary(pl):	Testy dla PEAR::%{_pearname}\
-Group:		Development\
-Requires:	%{name} = %{epoch}:%{version}-%{release}\
-AutoReq:	no\
-\
-%description tests\
-Tests for PEAR::%{_pearname}.\
-\
-%description tests -l pl\
-Testy dla PEAR::%{_pearname}.\
-
-}
-' $spec
+set -e
+diff=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
+if ! diff -u $bak $spec > $diff; then
+	vim -o $spec $diff
+	rm -f $diff
+else
+	echo "$spec: No diffs"
 fi
-
-_noautoreq=$(grep '%define.*_noautoreq' $template || :)
-if [ "$_noautoreq" ]; then
-	sed -i -e "/^BuildRoot:/{
-a\\
-\\
-# exclude optional dependencies\\
-$_noautoreq
-}
-" $spec
-
-	sed -i -e '/^%files$/{
-i\
-%post\
-if [ -f %{_docdir}/%{name}-%{version}/optional-packages.txt ]; then\
-	cat %{_docdir}/%{name}-%{version}/optional-packages.txt\
-fi\
-
-}
-' $spec
-
-fi
-
-vim -o $spec $template
