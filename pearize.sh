@@ -86,7 +86,7 @@ if [ -n "$requires" ]; then
 fi
 
 if [ -n "$conflicts" ]; then
-	echo "$conflicts" | while read tag reqc; do
+	echo "$conflicts" | while read tag dep; do
 		dep=$(add_epoch $dep)
 		if ! grep -q "^Conflicts:.*$req" $preamble; then
 			sed -i -e "/^BuildRoot/iConflicts:\t$dep" $spec
