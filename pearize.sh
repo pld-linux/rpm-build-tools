@@ -37,6 +37,8 @@ stmp=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
 cat > $stmp <<'EOF'
 @extra_headers@
 Optional: @optional@
+License: @release_license@
+State: @release_state@
 EOF
 pear makerpm --spec-template=$stmp $tarball
 rm -f $stmp
@@ -44,12 +46,6 @@ rm -f $stmp
 template=$(rpm -q --qf "%{name}-%{version}$rc$pre$beta.spec\n" --specfile "$spec" | head -n 1)
 mv $template .$template~
 template=.$template~
-
-requires=$(grep '^Requires:' $template || :)
-conflicts=$(grep '^Conflicts:' $template || :)
-preamble=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
-# take just main package preamble, preamble of tests (and other) subpackage(s) just confuses things.
-sed -ne '/^Name:/,/^BuildRoot/p' $spec > $preamble
 
 # take as argument dependency in form NAME EQUALITY VERSION
 # adds rpm epoch to VERSION if the package is installed and has epoch bigger than zero.
@@ -73,9 +69,15 @@ add_epoch() {
 	fi
 }
 
+preamble=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
+# take just main package preamble, preamble of tests (and other) subpackage(s) just confuses things.
+sed -ne '/^Name:/,/^BuildRoot/p' $spec > $preamble
+
 # create backup
 bak=$(cp -fbv $spec $spec | awk '{print $NF}' | tr -d "['\`]" )
 
+# parse requires
+requires=$(grep '^Requires:' $template || :)
 if [ -n "$requires" ]; then
 	echo "$requires" | while read tag dep; do
 		dep=$(add_epoch $dep)
@@ -85,6 +87,8 @@ if [ -n "$requires" ]; then
 	done
 fi
 
+# parse conflicts
+conflicts=$(grep '^Conflicts:' $template || :)
 if [ -n "$conflicts" ]; then
 	echo "$conflicts" | while read tag dep; do
 		dep=$(add_epoch $dep)
@@ -93,6 +97,12 @@ if [ -n "$conflicts" ]; then
 		fi
 	done
 fi
+
+# parse state
+state=$(awk '/^State:/{print $2}' $template)
+sed -i -e "/^%define.*_status/{
+	/%define.*_status.*$state/!s/.*/%define\t\t_status\t\t$state/
+}" $spec
 
 rm -f $preamble
 
