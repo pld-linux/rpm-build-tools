@@ -6,10 +6,12 @@
 #
 # needs pear makerpm command.
 # requires tarball to exist in ../SOURCES.
-#
-# bugs: will not find tarball for packages with 'beta' and 'alpha' in version.
+# you should have all pear packages installed to get best results
 #
 # todo: adjust similiarily noautoreqdeps
+# bugs: the beta portions in version deps could be wrong (php-4.3.0b1 and alike)
+# see php-pear-DBA_Relational.spec
+# SOmething strange: Requires:	php-common < 4:3:5.1
 #
 # note: old version pf this script which was used to convert to new package format is in CVS branch MIGRATE
 # send blames and beerideas to glen@pld-linux.org
@@ -25,11 +27,14 @@ if [ ! -f "$spec" ]; then
 	exit 1
 fi
 echo "Processing $spec"
-tarball=$(rpm -q --qf '../SOURCES/%{name}-%{version}.tgz\n' --specfile "$spec" | head -n 1 | sed -e 's,php-pear-,,')
-template=$(rpm -q --qf '%{name}-%{version}.spec\n' --specfile "$spec" | head -n 1)
+
+rc=$(awk '/^%define.*_rc/{print $NF}' $spec)
+pre=$(awk '/^%define.*_pre/{print $NF}' $spec)
+beta=$(awk '/^%define.*_beta/{print $NF}' $spec)
+tarball=$(rpm -q --qf "../SOURCES/%{name}-%{version}$rc$pre$beta.tgz\n" --specfile "$spec" | head -n 1 | sed -e 's,php-pear-,,')
+template=$(rpm -q --qf "%{name}-%{version}$rc$pre$beta.spec\n" --specfile "$spec" | head -n 1)
 
 pear makerpm --spec-template=template.spec $tarball
-ls -l $spec $template
 
 requires=$(grep '^Requires:' $template || :)
 conflicts=$(grep '^Conflicts:' $template || :)
@@ -74,7 +79,6 @@ fi
 
 rm -f $preamble
 
-set -e
 diff=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
 if ! diff -u $bak $spec > $diff; then
 	vim -o $spec $diff
@@ -82,3 +86,4 @@ if ! diff -u $bak $spec > $diff; then
 else
 	echo "$spec: No diffs"
 fi
+#exit 1
