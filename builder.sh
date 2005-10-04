@@ -1696,15 +1696,15 @@ case "$COMMAND" in
 				fi
 
 				# - do not allow to build from HEAD when XX-branch exists
-				#TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto-\([a-zA-Z]\+\)-.*#\1#g')
-				#if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
-				#	 TAG_BRANCH="${TREE_PREFIX}-branch"
-				#	 TAG_STATUS=$(cvs status -v $SPECFILE | grep -Ei "${TAG_BRANCH}.+(branch: [0-9.]+)")
-				#	 if [ -n "$TAG_STATUS" -a "$CVSTAG" = "HEAD" ]; then
-				#		  Exit_error err_branch_exists "$TAG_STATUS"
-				#	 fi
-				#
-				#fi
+				TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto-\([a-zA-Z]\+\)-.*#\1#g')
+				if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
+					 TAG_BRANCH="${TREE_PREFIX}-branch"
+					 TAG_STATUS=$(cvs status -v $SPECFILE | grep -Ei "${TAG_BRANCH}.+(branch: [0-9.]+)")
+					 if [ -n "$TAG_STATUS" -a "$CVSTAG" = "HEAD" ]; then
+						  Exit_error err_branch_exists "$TAG_STATUS"
+					 fi
+				
+				fi
 			fi
 
 			if [ -n "$ICONS" ]; then
