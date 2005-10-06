@@ -1251,7 +1251,7 @@ fetch_build_requires()
 			fi
 			if [ -n "$DEPS" ]; then
 				echo "Trying to install dependencies ($DEPS):"
-				$SU_SUDO /usr/bin/poldek --caplookup -iGv $DEPS
+				$SU_SUDO /usr/bin/poldek --caplookup -uGv $DEPS
 			fi
 			return
 		fi
@@ -1577,10 +1577,10 @@ do
 			shift ;;
 		-sf | --sources-files)
 			COMMAND="list-sources-files"
-			shift ;;	
+			shift ;;
 		-sp | --sources-paths)
 			COMMAND="list-sources-local-paths"
-			shift ;;	
+			shift ;;
 		-Tvs | --tag-version-stable )
 			COMMAND="tag";
 			TAG="STABLE"
@@ -1703,7 +1703,7 @@ case "$COMMAND" in
 					 if [ -n "$TAG_STATUS" -a "$CVSTAG" = "HEAD" ]; then
 						  Exit_error err_branch_exists "$TAG_STATUS"
 					 fi
-				
+
 				fi
 			fi
 
