@@ -63,7 +63,7 @@ add_epoch() {
 	query=$(rpm -q --qf '%{epoch}\n' $pkg || :)
  	epoch=$(echo "$query" | grep -v 'installed' || :)
 	if [ "$epoch" ] && [ "$epoch" -gt 0 ]; then
-		echo "$dep" | sed -e "s, [<>=] ,&$epoch:,"
+		echo "$dep" | sed -e "s, [<>=]\+ ,&$epoch:,"
 	else
 		echo "$dep"
 	fi
