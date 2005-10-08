@@ -19,9 +19,6 @@
 #	- builder -u fetches current version first
 #	- tries to get new version from distfiles without new md5
 #	- after fetching new version doesn't update md5
-#	- doesn't get sources for specs with %include /usr/lib/rpm/macros.python
-#	  when there's no rpm-pythonprov (rpm's fault, but it's ugly anyway)
-#	- as above with %include /usr/lib/rpm/macros.perl and no rpm-perlprov
 #	- when Icon: field is present, -5 and -a5 doesn't work
 
 VERSION="\
@@ -313,8 +310,7 @@ rpm_dump_cache=`
 			rpm -bp --nodeps --define 'prep %dump' $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 		rpmbuild )
-		# FIXME: no $TARGET_SWITCH here needed?
-			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $SPECFILE 2>&1
+			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 	esac`
 }
