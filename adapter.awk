@@ -837,6 +837,7 @@ function use_macros()
 	}
 
 	gsub(examplesdir, "%{_examplesdir}")
+	gsub("/usr/lib/pkgconfig", "%{_libdir}/pkgconfig")
 
 	if (prefix != "/") {
 		for (c = 1; c <= NF; c++) {
@@ -853,11 +854,6 @@ function use_macros()
 
 	gsub("%{PACKAGE_VERSION}", "%{version}")
 	gsub("%{PACKAGE_NAME}", "%{name}")
-
-	# we can move files between the dirs below
-	if ($0 !~ "%{_applnkdir}") {
-		gsub("%{_datadir}/gnome/apps", "%{_applnkdir}")
-	}
 
 	gsub("^make$", "%{__make}")
 	gsub("^make ", "%{__make} ")
