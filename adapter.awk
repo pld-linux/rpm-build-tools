@@ -112,6 +112,12 @@ ENVIRON["SORTBR"] == 1 && preamble == 1 && /(Build)?Requires/, /(Build)?Requires
 	next;
 }
 
+/^%bcond_/ {
+	# do nothing
+	print
+	next
+}
+
 preamble == 1 {
 	if (b_idx > 0) {
 		isort(b_key, b_idx);
@@ -807,6 +813,8 @@ function use_macros()
 			continue;
 		if ($c ~ datadir "/unsermake")
 			continue;
+		if ($c ~ datadir "/file/magic.mime")
+			continue;
 		gsub(datadir, "%{_datadir}", $c)
 	}
 
@@ -840,14 +848,19 @@ function use_macros()
 	gsub("/usr/lib/pkgconfig", "%{_libdir}/pkgconfig")
 
 	if (prefix != "/") {
-		for (c = 1; c <= NF; c++) {
-			if ($c ~ prefix "/sbin/fix-info-dir")
-				continue;
-			if ($c ~ prefix "/share/automake")
-				continue;
-			if ($c ~ prefix "/share/unsermake")
-				continue;
-			gsub(prefix, "%{_prefix}", $c)
+		# leave --with-foo=/usr alone
+		if ($0 !~ "--with.*=.*" prefix) {
+			for (c = 1; c <= NF; c++) {
+				if ($c ~ prefix "/sbin/fix-info-dir")
+					continue;
+				if ($c ~ prefix "/share/automake")
+					continue;
+				if ($c ~ prefix "/share/unsermake")
+					continue;
+				if ($c ~ prefix "/lib/sendmail")
+					continue;
+				gsub(prefix, "%{_prefix}", $c)
+			}
 		}
 		gsub("%{prefix}", "%{_prefix}")
 	}
