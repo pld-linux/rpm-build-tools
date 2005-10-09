@@ -1548,7 +1548,14 @@ do
 						shift
 					done;;
 				"no")
-					BCOND="$BCOND $1 $2" ; shift 2 ;;
+					if [[ "$2" = *,* ]]; then
+						 for a in $(echo "$2" | tr , ' '); do
+							  BCOND="$BCOND $1 $a"
+						 done
+					else
+						 BCOND="$BCOND $1 $2"
+					fi
+					shift 2 ;;
 			esac
 			;;
 		--target )
