@@ -960,7 +960,9 @@ function use_files_macros(	i, n, t, a)
 
 
 	# kill leading zeros
-	gsub("%attr\\(0", "%attr(")
+	if (/%attr\(0[1-9]/) {
+		gsub("%attr\\(0", "%attr(")
+	}
 
 	# sort %verify attrs
 	if (match($0, /%verify\(not([^)]+)\)/)) {
