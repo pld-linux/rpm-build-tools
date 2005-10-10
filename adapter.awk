@@ -845,7 +845,10 @@ function use_macros()
 	}
 
 	gsub(examplesdir, "%{_examplesdir}")
-	gsub("/usr/lib/pkgconfig", "%{_libdir}/pkgconfig")
+
+	gsub(libdir "/pkgconfig", "%{_pkgconfigdir}");
+	gsub("%{_libdir}/pkgconfig", "%{_pkgconfigdir}");
+	gsub("%{_prefix}/lib/pkgconfig", "%{_pkgconfigdir}");
 
 	if (prefix != "/") {
 		# leave --with-foo=/usr alone
