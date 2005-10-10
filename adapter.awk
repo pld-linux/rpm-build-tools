@@ -846,10 +846,6 @@ function use_macros()
 
 	gsub(examplesdir, "%{_examplesdir}")
 
-	gsub(libdir "/pkgconfig", "%{_pkgconfigdir}");
-	gsub("%{_libdir}/pkgconfig", "%{_pkgconfigdir}");
-	gsub("%{_prefix}/lib/pkgconfig", "%{_pkgconfigdir}");
-
 	if (prefix != "/") {
 		# leave --with-foo=/usr alone
 		if ($0 !~ "--with.*=.*" prefix) {
@@ -861,6 +857,8 @@ function use_macros()
 				if ($c ~ prefix "/share/unsermake")
 					continue;
 				if ($c ~ prefix "/lib/sendmail")
+					continue;
+				if ($c ~ prefix "/lib/pkgconfig")
 					continue;
 				gsub(prefix, "%{_prefix}", $c)
 			}
@@ -970,7 +968,6 @@ function use_files_macros(	i, n, t, a)
 		}
 	}
 
-
 	# kill leading zeros
 	if (/%attr\(0[1-9]/) {
 		gsub("%attr\\(0", "%attr(")
@@ -1000,6 +997,10 @@ function use_files_macros(	i, n, t, a)
 	$0 = fixedsub("%{perl_man1dir}", "%{_mandir}/man1", $0);
 	$0 = fixedsub("%{perl_man3dir}", "%{_mandir}/man3", $0);
 	$0 = fixedsub("%{perl_bin}", "%{_bindir}", $0);
+
+	gsub(libdir "/pkgconfig", "%{_pkgconfigdir}");
+	gsub("%{_libdir}/pkgconfig", "%{_pkgconfigdir}");
+	gsub("%{_prefix}/lib/pkgconfig", "%{_pkgconfigdir}");
 }
 
 function fill(ch, n, i) {
