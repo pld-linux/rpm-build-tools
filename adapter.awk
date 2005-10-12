@@ -938,6 +938,11 @@ function use_files_macros(	i, n, t, a)
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
+	# uid/gid nobody is not valid in %files
+	if (/%attr([^)]*nobody[^)]*)/ && !/FIXME/) {
+		$0 = $0 " # FIXME nobody user/group can't own files! -adapter.awk"
+	}
+
 	# replace back
 	gsub("%{_sysconfdir}/cron\.d", "/etc/cron.d")
 	gsub("%{_sysconfdir}/crontab\.d", "/etc/cron.d")
