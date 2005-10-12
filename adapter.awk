@@ -540,7 +540,7 @@ preamble == 1 {
 		$1 = "License:"
 
 	if (field ~ /name:/) {
-		if ($2 == "%{name}" && version) {
+		if ($2 == "%{name}" && name) {
 			$2 = name
 		}
 		name = $2
