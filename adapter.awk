@@ -945,7 +945,7 @@ function use_files_macros(	i, n, t, a)
 
 	# replace back
 	gsub("%{_sysconfdir}/cron\.d", "/etc/cron.d")
-	gsub("%{_sysconfdir}/crontab\.d", "/etc/cron.d")
+	gsub("%{_sysconfdir}/crontab\.d", "/etc/crontab.d")
 	gsub("%{_sysconfdir}/logrotate\.d", "/etc/logrotate.d")
 	gsub("%{_sysconfdir}/pam\.d", "/etc/pam.d")
 	gsub("%{_sysconfdir}/profile\.d", "/etc/profile.d")
