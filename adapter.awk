@@ -684,11 +684,11 @@ preamble == 1 {
 		if ($2 ~ /_snap/)
 			_snap = $3
 
-		if ($2 ~ /name/)
+		if ($2 ~ /^name$/)
 			name = $3
-		if ($2 ~ /version/)
+		if ($2 ~ /^version$/)
 			version = $3
-		if ($2 ~ /release/)
+		if ($2 ~ /^release$/)
 			release = $3
 	}
 
