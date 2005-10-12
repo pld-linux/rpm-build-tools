@@ -489,6 +489,8 @@ preamble == 1 {
 		sub(/^[^ \t]*[ \t]*/,"")
 		Grupa = $0
 
+		sub(/^System Environment\/Libraries/, "Libraries", Grupa)
+
 		print "Group:\t\t" Grupa
 		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
 			x11 = 1
@@ -538,16 +540,25 @@ preamble == 1 {
 		$1 = "License:"
 
 	if (field ~ /name:/) {
+		if ($2 == "%{name}" && version) {
+			$2 = name
+		}
 		name = $2
 		name_seen = 1;
 	}
 
 	if (field ~ /version:/) {
+		if ($2 == "%{version}" && version) {
+			$2 = version
+		}
 		version = $2
 		version_seen = 1;
 	}
 
 	if (field ~ /release:/) {
+		if ($2 == "%{release}" && release) {
+			$2 = release
+		}
 		release = $2
 		release_seen = 1;
 	}
@@ -648,6 +659,7 @@ preamble == 1 {
 			sub("^"prefix, $3, includedir)
 			prefix = $3
 		}
+
 		if ($2 ~ /_bindir/ && !/_sbindir/)
 			bindir = $3
 		if ($2 ~ /_sbindir/)
@@ -671,6 +683,13 @@ preamble == 1 {
 			_rc = $3
 		if ($2 ~ /_snap/)
 			_snap = $3
+
+		if ($2 ~ /name/)
+			name = $3
+		if ($2 ~ /version/)
+			version = $3
+		if ($2 ~ /release/)
+			release = $3
 	}
 
 	if (field ~ /requires/) {
@@ -878,6 +897,7 @@ function use_macros()
 	gsub("^%make ", "%{__make} ")
 	gsub("^%makeinstall_std", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
 	gsub("^%{makeinstall}", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
+	gsub("^%makeinstall", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
 	gsub("^%{__rm} -rf %{buildroot}", "rm -rf $RPM_BUILD_ROOT")
 	gsub("^%{__install}", "install")
 	gsub("^%{__rm}", "rm")
@@ -888,6 +908,8 @@ function use_macros()
 	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\&1")
 	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
+	$0 = fixedsub("CXXFLAGS=%{rpmcflags} %configure", "CXXFLAGS=%{rpmcflags}\n%configure", $0);
+
 	gsub("%_bindir", "%{_bindir}")
 	gsub("%_datadir", "%{_datadir}")
 	gsub("%_iconsdir", "%{_iconsdir}")
