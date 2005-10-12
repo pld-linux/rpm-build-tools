@@ -677,11 +677,11 @@ preamble == 1 {
 		if ($2 ~ /_infodir/)
 			infodir = $3
 
-		if ($2 ~ /_beta/)
+		if ($2 ~ /^_beta$/)
 			_beta = $3
-		if ($2 ~ /_rc/)
+		if ($2 ~ /^_rc$/)
 			_rc = $3
-		if ($2 ~ /_snap/)
+		if ($2 ~ /^_snap$/)
 			_snap = $3
 
 		if ($2 ~ /^name$/)
