@@ -98,6 +98,19 @@ if [ -n "$conflicts" ]; then
 	done
 fi
 
+# parse optional deps
+optional=$(grep '^Optional:' $template || :)
+if [ -n "$optional" ]; then
+	echo "$optional" | while read tag dep; do
+		for req in $dep; do
+			m=$(grep "^%define.*_noautoreq" $spec | fgrep -o "$req" || :)
+			if [ -z "$m" ]; then
+				sed -i -e "/^%define.*_noautoreq/s/$/ $req/" $spec
+			fi
+		done
+	done
+fi
+
 # parse state
 state=$(awk '/^State:/{print $2}' $template)
 sed -i -e "/^%define.*_status/{
