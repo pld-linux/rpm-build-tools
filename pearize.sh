@@ -105,9 +105,9 @@ optional=$(grep '^Optional:' $template || :)
 if [ -n "$optional" ]; then
 	echo "$optional" | while read tag dep; do
 		for req in $dep; do
-			m=$(grep "^%define.*_noautoreq" $spec | fgrep -o "$req" || :)
+			m=$(grep "^%define.*_noautoreq" $spec | grep -o "$req" || :)
 			if [ -z "$m" ]; then
-				sed -i -e "/^%define.*_noautoreq/s/$/ $req/" $spec
+				sed -i -e "/^%define.*_noautoreq/s,$, $req," $spec
 			fi
 		done
 	done
