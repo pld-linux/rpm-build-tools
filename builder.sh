@@ -16,9 +16,7 @@
 #	100 - Unknown error (should not happen)
 
 # Notes (todo):
-#	- builder -u fetches current version first
-#	- tries to get new version from distfiles without new md5
-#	- after fetching new version doesn't update md5
+#	- builder -u fetches current version first (well that's okay, how you compare versions if you have no old spec?)
 #	- when Icon: field is present, -5 and -a5 doesn't work
 
 VERSION="\
@@ -911,13 +909,13 @@ build_package()
 			cp -f $SPECFILE $SPECFILE.bak
 			chmod +w $SPECFILE
 			eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
-			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t1/' $SPECFILE"
+			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t0.1/' $SPECFILE"
 			parse_spec;
 			if [ -n "$ICONS" ]; then
 				get_files $ICONS;
 				parse_spec;
 			fi
-			get_files "$SOURCES $PATCHES";
+			NODIST="yes" UPDATE5="yes" get_files "$SOURCES $PATCHES";
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
 	fi
@@ -1763,7 +1761,7 @@ case "$COMMAND" in
 		;;
 	"tag" )
 		NOURLS=1
-		NODIST=1
+		NODIST="yes"
 		init_builder;
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
