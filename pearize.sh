@@ -37,6 +37,8 @@ stmp=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
 cat > $stmp <<'EOF'
 @extra_headers@
 Optional: @optional@
+@optional-pkg@
+@optional-ext@
 License: @release_license@
 State: @release_state@
 EOF
