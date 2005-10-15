@@ -898,9 +898,9 @@ build_package()
 
 	if [ -n "$TRY_UPGRADE" ]; then
 		if [ -n "$FLOAT_VERSION" ]; then
-			TNOTIFY=`./pldnotify.awk $SPECFILE -n`
+			TNOTIFY=`./pldnotify.awk $SPECFILE -n` || exit 1
 		else
-			TNOTIFY=`./pldnotify.awk $SPECFILE`
+			TNOTIFY=`./pldnotify.awk $SPECFILE` || exit 1
 		fi
 
 		TNEWVER=`echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }'`
