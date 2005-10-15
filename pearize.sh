@@ -42,10 +42,9 @@ Optional: @optional@
 License: @release_license@
 State: @release_state@
 EOF
-pear makerpm --spec-template=$stmp $tarball
+template=$(pear makerpm --spec-template=$stmp $tarball | awk '/Wrote RPM spec file/{print $NF}{print $0 > "/dev/stderr"}')
 rm -f $stmp
 
-template=$(rpm -q --qf "%{name}-%{version}$rc$pre$beta.spec\n" --specfile "$spec" | head -n 1)
 mv $template .$template~
 template=.$template~
 
