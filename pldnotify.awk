@@ -309,7 +309,7 @@ function process_source(number,lurl,name,version) {
 			if ((addr ~ filenameexp) && !(addr ~ "[-_.0-9A-Za-z~]" filenameexp)) {
 				match(addr,filenameexp)
 				newfilename=substr(addr,RSTART,RLENGTH)
-				if (DEBUG) print "Hipotetical new: " newfilename
+				if (DEBUG) print "Hypothetical new: " newfilename
 				newfilename=fixedsub(prever,"",newfilename)
 				newfilename=fixedsub(postver,"",newfilename)
 				if (DEBUG) print "Version: " newfilename
@@ -333,8 +333,33 @@ function process_source(number,lurl,name,version) {
 			print name "(" number ") [OLD] " oldversion " [NEW] " version
 	}
 }
+
+# upgrade check for pear package using PEAR CLI
+function pear_upgrade(name, ver) {
+	pname = name;
+	sub(/^php-pear-/, "", pname);
+
+	pearcmd = "pear remote-info " pname " | awk '/^Latest/{print $NF}'"
+	if (DEBUG) {
+		print "pearcmd: " pearcmd
+	}
+	pearcmd | getline nver
+	close(pearcmd)
+
+	if (compare_ver(ver, nver)) {
+		print name " [OLD] " ver " [NEW] " nver
+	} else {
+		print name " seems ok: " ver
+	}
+
+	return
+}
 	
 function process_data(name,ver,rel,src) {
+	if (name ~ /^php-pear-/) {
+		return pear_upgrade(name, ver);
+	}
+
 # this function checks if substitutions were valid, and if true:
 # processes each URL and tries to get current file list
 	for (i in src) {
