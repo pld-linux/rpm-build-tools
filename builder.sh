@@ -651,14 +651,14 @@ get_files()
 					url=$(distfiles_url "$i")
 					url_attic=$(distfiles_attic_url "$i")
 					FROM_DISTFILES=1
-					if [ `echo $url | grep -E '^(\.|/)'` ]; then
+					if [ "`echo $url | grep -E '^(\.|/)'`" ]; then
 						${GETLOCAL} $url $target
 					else
 						if [ -z "$NOMIRRORS" ]; then
 							url="`find_mirror "$url"`"
 						fi
 						${GETURI} ${OUTFILEOPT} "$target" "$url" || \
-						if [ `echo $url | grep -E 'ftp://'` ]; then
+						if [ "`echo $url | grep -E 'ftp://'`" ]; then
 							${GETURI2} ${OUTFILEOPT} "$target" "$url"
 						fi
 					fi
@@ -671,7 +671,7 @@ get_files()
 								url_attic="`find_mirror "$url_attic"`"
 							fi
 							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
-							if [ `echo $url_attic | grep -E 'ftp://'` ]; then
+							if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
 								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 							fi
 						fi
@@ -702,14 +702,14 @@ get_files()
 					done
 				fi
 
-				if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" -o -n "$UPDATE" ] && [ `echo $i | grep -E 'ftp://|http://|https://'` ]; then
+				if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
 					if [ -z "$NOMIRRORS" ]; then
 						im="`find_mirror "$i"`"
 					else
 						im="$i"
 					fi
 					${GETURI} "$im" || \
-					if [ `echo $im | grep -E 'ftp://'` ]; then
+					if [ "`echo $im | grep -E 'ftp://'`" ]; then
 						${GETURI2} "$im"
 					fi
 				fi
@@ -742,13 +742,13 @@ get_files()
 				FROM_DISTFILES=2
 				rm -f $target
 				${GETURI} ${OUTFILEOPT} "$target" "$url" || \
-				if [ `echo $url | grep -E 'ftp://'` ]; then
+				if [ "`echo $url | grep -E 'ftp://'`" ]; then
 					${GETURI2} ${OUTFILEOPT} "$target" "$url"
 				fi
 				if ! test -s "$target"; then
 					rm -f "$target"
 					${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
-					if [ `echo $url_attic | grep -E 'ftp://'` ]; then
+					if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
 						${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 					fi
 				fi
