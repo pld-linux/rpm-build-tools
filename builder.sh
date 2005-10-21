@@ -1001,6 +1001,7 @@ set_bconds_values()
 		# This takes package name, first defined in spec.
 		# so consider that when defining flags for package.
 		PN=`$RPM -q --qf '%{NAME}\n' --specfile $SPECFILE | head -n 1`
+		SN=${SPECFILE%%\.spec}
 		AVAIL=`$RPMBUILD --bcond $SPECFILE`
 
 		BCONDRC=$HOME/.bcondrc
@@ -1011,7 +1012,7 @@ set_bconds_values()
 			[[ "$pkg" == \#* ]] && continue
 
 			# any package or current package?
-			if [ "$pkg" = "*" ] || [ "$pkg" = "$PN" ]; then
+			if [ "$pkg" = "*" ] || [ "$pkg" = "$PN" ] || [ "$pkg" = "$SN" ]; then
 				for flag in $flags; do
 					opt=${flag#[+-]}
 
