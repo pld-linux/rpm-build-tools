@@ -569,6 +569,10 @@ preamble == 1 {
 	if (field ~ /serial:/)
 		$1 = "Epoch:"
 
+	# proper caps
+	if (field ~ /url:/)
+		$1 = "URL:"
+
 	# Use %{name} and %{version} in the filenames in "Source:"
 	if (field ~ /^source/ || field ~ /patch/) {
 		n = split($2, url, /\//)
@@ -840,6 +844,9 @@ function use_macros()
 		gsub(datadir, "%{_datadir}", $c)
 	}
 
+	gsub("%_sbindir", "%{_sbindir}")
+	gsub("%_mandir", "%{_mandir}")
+	gsub("%name", "%{name}")
 
 	gsub("%{prefix}/share", "%{_datadir}")
 	if (prefix"/share" == datadir)
