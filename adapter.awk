@@ -815,6 +815,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?crontab.d")
 			continue;
+		if ($c ~ sysconfdir "/{?env.d")
+			continue;
 		if ($c ~ sysconfdir "/{?logrotate.d")
 			continue;
 		if ($c ~ sysconfdir "/{?pam.d")
