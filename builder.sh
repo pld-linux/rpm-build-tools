@@ -270,6 +270,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
+-np, --nopatch <patchnumber> 
+                    - don't apply patches  
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
                       %_without_<feature> macro switch.  You may now use
@@ -1536,6 +1538,8 @@ do
 			shift;;
 		--opts )
 			shift; RPMOPTS="$RPM_OPTS ${1}"; shift ;;
+		--nopatch | -np )
+			shift; RPMOPTS="${RPMOPTS} --define \"patch${1} echo ignoring patch${1} \""; shift ;;
 		--with | --without )
 			case $GROUP_BCONDS in
 				"yes")
