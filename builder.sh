@@ -1208,10 +1208,10 @@ _rpm_prov_check()
 	 DEPS=$(rpm -q --whatprovides $DEPS 2>&1 | awk '/^(error:|no package provides)/ { print }')
 
 	 # packages
-	 echo "$DEPS" | awk '/^no package provides/ { print "@" $NF }'
+	 echo "$DEPS" | awk '/^no package provides/ { print $NF }'
 
 	 # other deps (files)
-	 echo "$DEPS" | awk -F: '/^error:.*No such file/{o=$2; gsub("^ file ", "", o); print "@" o}'
+	 echo "$DEPS" | awk -F: '/^error:.*No such file/{o = $2; gsub("^ file ", "", o); print o}'
 }
 
 # checks if given package/files/provides exists in rpmdb.
