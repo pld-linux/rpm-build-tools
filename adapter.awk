@@ -571,7 +571,7 @@ preamble == 1 {
 		$1 = "Epoch:"
 
 	# proper caps
-	if (field ~ /url:/)
+	if (field ~ /^url:$/)
 		$1 = "URL:"
 
 	# Use %{name} and %{version} in the filenames in "Source:"
