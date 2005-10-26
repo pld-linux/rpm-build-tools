@@ -17,6 +17,7 @@
 # - add "-nc" option to skip CVS interaction
 # - sort Summary(XX)
 # - sort Requires, BuildRequires
+# - check if %description (lang=C) contains 8bit
 
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
