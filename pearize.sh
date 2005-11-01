@@ -33,6 +33,10 @@ pre=$(awk '/^%define.*_pre/{print $NF}' $spec)
 beta=$(awk '/^%define.*_beta/{print $NF}' $spec)
 tarball=$(rpm -q --qf "../SOURCES/%{name}-%{version}$rc$pre$beta.tgz\n" --specfile "$spec" | head -n 1 | sed -e 's,php-pear-,,')
 
+if [ ! -f $tarball ]; then
+	./builder -g "$spec"
+fi
+
 stmp=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
 cat > $stmp <<'EOF'
 @extra_headers@
