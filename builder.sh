@@ -1196,8 +1196,10 @@ display_bconds()
 
 display_branches()
 {
-	 echo -ne "Available branches: "
-	 cvs status -v "${SPECFILE}" | awk '/\(branch:/ { print $1 } ' | xargs
+	 if [ "$NOCVSSPEC" != "yes" ]; then
+		  echo -ne "Available branches: "
+		  cvs status -v "${SPECFILE}" | awk '/\(branch:/ { print $1 } ' | xargs
+	 fi
 }
 
 # checks a given list of packages/files/provides agains current rpmdb.
