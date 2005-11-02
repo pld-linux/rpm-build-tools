@@ -1194,6 +1194,12 @@ display_bconds()
 	fi
 }
 
+display_branches()
+{
+	 echo -ne "Available branches: "
+	 cvs status -v "${SPECFILE}" | awk '/\(branch:/ { print $1 } ' | xargs
+}
+
 # checks a given list of packages/files/provides agains current rpmdb.
 # outputs all dependencies whcih current rpmdb doesn't satisfy.
 # input can be either STDIN or parameters
@@ -1684,6 +1690,7 @@ case "$COMMAND" in
 			get_spec;
 			set_bconds_values;
 			display_bconds;
+			display_branches;
 			fetch_build_requires;
 			parse_spec;
 			if [ "$INTEGER_RELEASE" = "yes" ]; then
