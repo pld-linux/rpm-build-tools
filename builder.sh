@@ -1198,7 +1198,7 @@ display_branches()
 {
 	 if [ "$NOCVSSPEC" != "yes" ]; then
 		  echo -ne "Available branches: "
-		  cvs status -v "${SPECFILE}" | awk '/\(branch:/ { print $1 } ' | xargs
+		  cvs status -v "${SPECFILE}" | awk '!/Sticky Tag:/ && /\(branch:/ { print $1 } ' | xargs
 	 fi
 }
 
