@@ -288,6 +288,10 @@ preamble == 1 {
 		if (/^export[ ]*$/)
 			next
 	}
+
+	if (/CC=%{__cc} /) {
+		sub("CC=%{__cc}", "CC=\"%{__cc}\"")
+	}
 	
 	# use macros
 	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
