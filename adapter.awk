@@ -1048,6 +1048,7 @@ function use_files_macros(	i, n, t, a)
 	gsub("%{_prefix}/lib/pkgconfig", "%{_pkgconfigdir}");
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}");
+	gsub("%{_datadir}/icons", "%{_iconsdir}");
 }
 
 function fill(ch, n, i) {
