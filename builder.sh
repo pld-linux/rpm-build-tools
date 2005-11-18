@@ -21,7 +21,7 @@
 #	- builder -R skips installing BR if spec is not present before builder invocation (need to run builder twice)
 
 VERSION="\
-Build package utility from PLD CVS repository
+Build package utility from PLD Linux CVS repository
 V 0.13 (C) 1999-2005 Free Penguins".
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
