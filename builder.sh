@@ -18,6 +18,7 @@
 # Notes (todo):
 #	- builder -u fetches current version first (well that's okay, how you compare versions if you have no old spec?)
 #	- when Icon: field is present, -5 and -a5 doesn't work
+#	- builder -R skips installing BR if spec is not present before builder invocation (need to run builder twice)
 
 VERSION="\
 Build package utility from PLD CVS repository
