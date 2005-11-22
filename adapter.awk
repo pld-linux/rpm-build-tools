@@ -289,6 +289,7 @@ preamble == 1 {
 			next
 	}
 
+	# quote CC
 	if (/CC=%{__cc} /) {
 		sub("CC=%{__cc}", "CC=\"%{__cc}\"")
 	}
@@ -296,6 +297,12 @@ preamble == 1 {
 	# use macros
 	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
 	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0);
+	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0);
+
+	sub(/^aclocal$/, "%{__aclocal}");
+	sub(/^autoheader$/, "%{__autoheader}");
+	sub(/^autoconf$/, "%{__autoconf}");
+	sub(/^automake$/, "%{__automake}");
 
 	# atrpms
 	$0 = fixedsub("%perl_configure", "%{__perl} Makefile.PL \\\n\tINSTALLDIRS=vendor", $0);
