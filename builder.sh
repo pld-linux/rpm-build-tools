@@ -272,7 +272,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
 -np, --nopatch <patchnumber> 
-                    - don't apply patches  
+                    - don't apply <patchnumber>
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
                       %_without_<feature> macro switch.  You may now use
