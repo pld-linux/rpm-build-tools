@@ -1699,10 +1699,8 @@ case "$COMMAND" in
 			get_spec;
 			set_bconds_values;
 			display_bconds;
-			if [ X"$SHOW_BCONDS" = X"yes" ]; then
-				exit 0
-			fi
 			display_branches;
+			[ X"$SHOW_BCONDS" = X"yes" ] && exit 0
 			fetch_build_requires;
 			parse_spec;
 			if [ "$INTEGER_RELEASE" = "yes" ]; then
