@@ -184,7 +184,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
 [-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
-[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>]
+[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] [--show-bconds]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
@@ -273,6 +273,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                     - refresh or make poldek package index files.
 -np, --nopatch <patchnumber> 
                     - don't apply <patchnumber>
+--show-bconds       - show available conditional builds, which can be used
+                    - with --with and/or --without switches.
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
                       %_without_<feature> macro switch.  You may now use
@@ -1659,6 +1661,10 @@ do
 			shift 2
 			RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
 			;;
+		--show-bconds | -show-bconds | -print-bconds | --print-bconds | -display-bconds | --display-bconds )
+			SHOW_BCONDS="yes"
+			shift
+			;;
 		--nodeps)
 			shift
 			RPMOPTS="${RPMOPTS} --nodeps"
@@ -1693,6 +1699,9 @@ case "$COMMAND" in
 			get_spec;
 			set_bconds_values;
 			display_bconds;
+			if [ X"$SHOW_BCONDS" = X"yes" ]; then
+				exit 0
+			fi
 			display_branches;
 			fetch_build_requires;
 			parse_spec;
