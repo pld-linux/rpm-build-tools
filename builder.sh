@@ -271,7 +271,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
--np, --nopatch <patchnumber> 
+-np, --nopatch <patchnumber>
                     - don't apply <patchnumber>
 --show-bconds       - show available conditional builds, which can be used
                     - with --with and/or --without switches.
@@ -283,6 +283,17 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 --target <platform>, --target=<platform>
 		    - build for platform <platform>.
 "
+}
+
+update_shell_title() {
+	case "$TERM" in
+		cygwin|xterm*)
+		echo -ne "\033]1;builder: $*\007\033]2;builder: $*\007"
+	;;
+		screen*)
+		echo -ne "\033]0;builder: $*\007"
+	;;
+	esac
 }
 
 # set TARGET from BuildArch: from SPECFILE
@@ -327,6 +338,7 @@ rpm_dump () {
 
 parse_spec()
 {
+	update_shell_title "parse_spec: $SPECFILE"
 	if [ -n "$DEBUG" ]; then
 		set -x;
 		set -v;
@@ -437,6 +449,9 @@ init_builder()
 
 get_spec()
 {
+
+	update_shell_title "get_spec: $SPECFILE"
+
 	if [ -n "$DEBUG" ]; then
 		set -x;
 		set -v;
@@ -603,6 +618,7 @@ cvsignore_df ()
 get_files()
 {
 	GET_FILES="$@"
+	update_shell_title "get_files: $@"
 
 	if [ -n "$DEBUG" ]; then
 		set -x;
@@ -892,6 +908,7 @@ branch_files()
 
 build_package()
 {
+	update_shell_title "build_package: $SPECFILE"
 	if [ -n "$DEBUG" ]; then
 		set -x;
 		set -v;
@@ -900,6 +917,7 @@ build_package()
 	cd "$SPECS_DIR"
 
 	if [ -n "$TRY_UPGRADE" ]; then
+		  update_shell_title "build_package: try_upgrade: $SPECFILE"
 		if [ -n "$FLOAT_VERSION" ]; then
 			TNOTIFY=`./pldnotify.awk $SPECFILE -n` || exit 1
 		else
@@ -936,6 +954,8 @@ build_package()
 		build-prep )
 			BUILD_SWITCH="-bp --nodeps" ;;
 	esac
+
+	update_shell_title "build_package: $COMMAND: $SPECFILE"
 	if [ -n "$LOGFILE" ]; then
 		LOG=`eval echo $LOGFILE`
 		if [ -d "$LOG" ]; then
@@ -984,6 +1004,8 @@ install_required_packages()
 
 set_bconds_values()
 {
+	update_shell_title "set_bconds_values: $SPECFILE"
+
 	AVAIL_BCONDS_WITHOUT=""
 	AVAIL_BCONDS_WITH=""
 	if `grep -q ^%bcond ${SPECFILE}`; then
@@ -1246,6 +1268,7 @@ _rpm_cnfl_check()
 fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
+		update_shell_title "fetc_build_requires: $SPECFILE"
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
 			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
 			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
@@ -1692,6 +1715,7 @@ if [ -n "$TARGET" ]; then
 	esac
 fi
 
+update_shell_title "$COMMAND"
 case "$COMMAND" in
 	"build" | "build-binary" | "build-source" | "build-prep" )
 		init_builder;
