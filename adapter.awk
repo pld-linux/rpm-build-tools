@@ -151,6 +151,10 @@ preamble == 1 {
 		next
 	if ($2 == "date")
 		date = 1
+
+	# do nothing further, otherwise adapter thinks we're at preamble
+	print
+	next
 }
 
 # Obsolete
