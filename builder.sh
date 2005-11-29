@@ -618,7 +618,7 @@ cvsignore_df ()
 get_files()
 {
 	GET_FILES="$@"
-	update_shell_title "get_files: $@"
+	update_shell_title "get_files"
 
 	if [ -n "$DEBUG" ]; then
 		set -x;
