@@ -9,17 +9,21 @@ specfile="$1"
 
 get_dump() {
 	local specfile="$1"
-	rpm --specfile "$specfile" --define 'prep %dump'  -q 2>&1
+	rpm --specfile "$specfile" --define 'prep %dump' -q 2>&1
 }
 
 get_release() {
-	awk '/PACKAGE_RELEASE/{print $NF; exit}'
+	local specfile="$1"
+	rel=$(awk '/^%define.*_rel/{print $NF}' $specfile)
+	if [ -z "$rel" ]; then
+		rel=$(get_dump "$specfile" | awk '/PACKAGE_RELEASE/{print $NF; exit}')
+	fi
+	echo $rel
 }
-
 
 tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 for spec in "$@"; do
-	rel=$(get_dump "$spec" | get_release)
+	rel=$(get_release "$spec")
 	echo "$spec" >> "$tmpd/$rel"
 done
 
