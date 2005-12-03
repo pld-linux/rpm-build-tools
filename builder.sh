@@ -1268,19 +1268,22 @@ _rpm_cnfl_check()
 fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
-		update_shell_title "fetc_build_requires: $SPECFILE"
+		update_shell_title "fetch_build_requires[$SPECFILE]"
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
 			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
 			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 
+			update_shell_title "fetch_build_requires[$SPECFILE]: update indexes"
 			if [ -n "$CONF" ] || [ -n "$DEPS" ]; then
 				$SU_SUDO /usr/bin/poldek --update || $SU_SUDO /usr/bin/poldek --upa
 			fi
 			if [ -n "$CONF" ]; then
+				 update_shell_title "fetch_build_requires[$SPECFILE]: uninstall conflicting packages"
 				echo "Trying to uninstall conflicting packages ($CONF):"
 				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
 			fi
 			if [ -n "$DEPS" ]; then
+				update_shell_title "fetch_build_requires[$SPECFILE]: install deps ($DEPS)"
 				echo "Trying to install dependencies ($DEPS):"
 				$SU_SUDO /usr/bin/poldek --caplookup -uGv $DEPS
 			fi
