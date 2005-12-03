@@ -1060,6 +1060,7 @@ function use_files_macros(	i, n, t, a)
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}");
 	gsub("%{_datadir}/icons", "%{_iconsdir}");
+	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}");
 }
 
 function fill(ch, n, i) {
