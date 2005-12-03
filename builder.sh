@@ -286,12 +286,13 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 }
 
 update_shell_title() {
+	local msg="builder[$SPECFILE] $*"
 	case "$TERM" in
 		cygwin|xterm*)
-		echo -ne "\033]1;builder: $*\007\033]2;builder: $*\007"
+		echo -ne "\033]1;$msg\007\033]2;$msg\007"
 	;;
 		screen*)
-		echo -ne "\033]0;builder: $*\007"
+		echo -ne "\033]0;$msg\007"
 	;;
 	esac
 }
@@ -338,7 +339,7 @@ rpm_dump () {
 
 parse_spec()
 {
-	update_shell_title "parse_spec: $SPECFILE"
+	update_shell_title "parse_spec"
 	if [ -n "$DEBUG" ]; then
 		set -x;
 		set -v;
@@ -450,7 +451,7 @@ init_builder()
 get_spec()
 {
 
-	update_shell_title "get_spec: $SPECFILE"
+	update_shell_title "get_spec"
 
 	if [ -n "$DEBUG" ]; then
 		set -x;
@@ -673,26 +674,32 @@ get_files()
 					url_attic=$(distfiles_attic_url "$i")
 					FROM_DISTFILES=1
 					if [ "`echo $url | grep -E '^(\.|/)'`" ]; then
+						update_shell_title "get_files: $url"
 						${GETLOCAL} $url $target
 					else
 						if [ -z "$NOMIRRORS" ]; then
 							url="`find_mirror "$url"`"
 						fi
+						update_shell_title "get_files: $url"
 						${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 						if [ "`echo $url | grep -E 'ftp://'`" ]; then
+							update_shell_title "get_files: $url"
 							${GETURI2} ${OUTFILEOPT} "$target" "$url"
 						fi
 					fi
 					if ! test -s "$target"; then
 						rm -f "$target"
 						if [ `echo $url_attic | grep -E '^(\.|/)'` ]; then
+							update_shell_title "get_files: $url_attic"
 							${GETLOCAL} $url_attic $target
 						else
 							if [ -z "$NOMIRRORS" ]; then
 								url_attic="`find_mirror "$url_attic"`"
 							fi
+							update_shell_title "get_files: $url_attic"
 							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 							if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
+								 update_shell_title "get_files: $url_attic"
 								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 							fi
 						fi
@@ -729,8 +736,10 @@ get_files()
 					else
 						im="$i"
 					fi
+				 	update_shell_title "get_files: $im"
 					${GETURI} "$im" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
+						 update_shell_title "get_files: $im"
 						${GETURI2} "$im"
 					fi
 				fi
@@ -762,14 +771,18 @@ get_files()
 				echo "MD5 sum mismatch. Trying full fetch."
 				FROM_DISTFILES=2
 				rm -f $target
+				update_shell_title "get_files: $url"
 				${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 				if [ "`echo $url | grep -E 'ftp://'`" ]; then
+					 update_shell_title "get_files: $url"
 					${GETURI2} ${OUTFILEOPT} "$target" "$url"
 				fi
 				if ! test -s "$target"; then
 					rm -f "$target"
+					update_shell_title "get_files: $url_attic"
 					${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 					if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
+						 update_shell_title "get_files: $url_attic"
 						${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 					fi
 				fi
@@ -908,7 +921,7 @@ branch_files()
 
 build_package()
 {
-	update_shell_title "build_package: $SPECFILE"
+	update_shell_title "build_package"
 	if [ -n "$DEBUG" ]; then
 		set -x;
 		set -v;
@@ -917,7 +930,7 @@ build_package()
 	cd "$SPECS_DIR"
 
 	if [ -n "$TRY_UPGRADE" ]; then
-		  update_shell_title "build_package: try_upgrade: $SPECFILE"
+		  update_shell_title "build_package: try_upgrade"
 		if [ -n "$FLOAT_VERSION" ]; then
 			TNOTIFY=`./pldnotify.awk $SPECFILE -n` || exit 1
 		else
@@ -955,7 +968,7 @@ build_package()
 			BUILD_SWITCH="-bp --nodeps" ;;
 	esac
 
-	update_shell_title "build_package: $COMMAND: $SPECFILE"
+	update_shell_title "build_package: $COMMAND"
 	if [ -n "$LOGFILE" ]; then
 		LOG=`eval echo $LOGFILE`
 		if [ -d "$LOG" ]; then
@@ -1004,7 +1017,7 @@ install_required_packages()
 
 set_bconds_values()
 {
-	update_shell_title "set_bconds_values: $SPECFILE"
+	update_shell_title "set_bconds_values"
 
 	AVAIL_BCONDS_WITHOUT=""
 	AVAIL_BCONDS_WITH=""
@@ -1268,22 +1281,22 @@ _rpm_cnfl_check()
 fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
-		update_shell_title "fetch_build_requires[$SPECFILE]"
+		update_shell_title "fetch_build_requires"
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
 			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
 			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 
-			update_shell_title "fetch_build_requires[$SPECFILE]: update indexes"
+			update_shell_title "fetch_build_requires: update indexes"
 			if [ -n "$CONF" ] || [ -n "$DEPS" ]; then
 				$SU_SUDO /usr/bin/poldek --update || $SU_SUDO /usr/bin/poldek --upa
 			fi
 			if [ -n "$CONF" ]; then
-				 update_shell_title "fetch_build_requires[$SPECFILE]: uninstall conflicting packages"
+				 update_shell_title "fetch_build_requires: uninstall conflicting packages"
 				echo "Trying to uninstall conflicting packages ($CONF):"
 				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
 			fi
 			if [ -n "$DEPS" ]; then
-				update_shell_title "fetch_build_requires[$SPECFILE]: install deps ($DEPS)"
+				update_shell_title "fetch_build_requires: install deps ($DEPS)"
 				echo "Trying to install dependencies ($DEPS):"
 				$SU_SUDO /usr/bin/poldek --caplookup -uGv $DEPS
 			fi
