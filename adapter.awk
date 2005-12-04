@@ -512,6 +512,7 @@ preamble == 1 {
 		sub(/^System Environment\/Libraries/, "Libraries", Grupa)
 		sub(/^System Environment\/Daemons/, "Daemons", Grupa)
 		sub(/^Applications\/Internet/, "Applications/Networking", Grupa)
+		sub(/^System\/Servers/, "Daemons", Grupa)
 
 		print "Group:\t\t" Grupa
 		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
