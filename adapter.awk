@@ -509,11 +509,12 @@ preamble == 1 {
 		sub(/^[^ \t]*[ \t]*/,"")
 		Grupa = $0
 
-		sub(/^System Environment\/Libraries/, "Libraries", Grupa)
-		sub(/^System Environment\/Daemons/, "Daemons", Grupa)
-		sub(/^Applications\/Internet/, "Applications/Networking", Grupa)
-		sub(/^System\/Servers/, "Daemons", Grupa)
-		sub(/^X11\/Xserver/, "X11/Servers", Grupa)
+		sub(/^System Environment\/Libraries$/, "Libraries", Grupa)
+		sub(/^System Environment\/Daemons$/, "Daemons", Grupa)
+		sub(/^Applications\/Internet$/, "Applications/Networking", Grupa)
+		sub(/^System\/Servers$/, "Daemons", Grupa)
+		sub(/^X11\/Xserver$/, "X11/Servers", Grupa)
+		sub(/^X11\/XFree86$/, "X11", Grupa)
 
 		print "Group:\t\t" Grupa
 		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
