@@ -538,7 +538,6 @@ preamble == 1 {
 
 	if (field ~ /prereq:/) {
 		$1 = "Requires:"
-		$(NF + 1) = " # FIXME add Requires(scriptlet) -adapter.awk"
 	}
 
 	# split (build)requires on commas
