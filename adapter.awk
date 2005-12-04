@@ -1000,7 +1000,7 @@ function use_files_macros(	i, n, t, a)
 		}
 	}
 
-	if (/lib.+\.so/ && !/^%attr.*/) {
+	if (/lib.+\.so/ && !/^%attr.*/ && !/%exclude/) {
 		$0 = "%attr(755,root,root) " $0
 	}
 
