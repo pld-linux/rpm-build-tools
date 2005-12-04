@@ -18,6 +18,7 @@
 # - sort Summary(XX)
 # - sort Requires, BuildRequires
 # - check if %description (lang=C) contains 8bit
+# - desc wrapping is totally fucked up on global.spec,1.25
 
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
@@ -510,6 +511,7 @@ preamble == 1 {
 
 		sub(/^System Environment\/Libraries/, "Libraries", Grupa)
 		sub(/^System Environment\/Daemons/, "Daemons", Grupa)
+		sub(/^Applications\/Internet/, "Applications/Networking", Grupa)
 
 		print "Group:\t\t" Grupa
 		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
