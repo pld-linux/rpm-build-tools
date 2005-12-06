@@ -516,6 +516,7 @@ preamble == 1 {
 		sub(/^X11\/Xserver$/, "X11/Servers", Grupa)
 		sub(/^X11\/XFree86$/, "X11", Grupa)
 		sub(/^Applications\/Compilers$/, "Development/Languages", Grupa)
+		sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", Grupa)
 
 		print "Group:\t\t" Grupa
 		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
@@ -1052,6 +1053,11 @@ function use_files_macros(	i, n, t, a)
 
 	if (/%{_mandir}/) {
 		gsub("\.gz$", "*")
+	}
+
+	# locale dir and no %lang -> bad
+	if (/%{_datadir}\/locale/ && !/%(dir|lang)/ && !/locale\/locale.alias/) {
+		$(NF + 1) = "# FIXME consider using %find_lang"
 	}
 
 	# atrpms
