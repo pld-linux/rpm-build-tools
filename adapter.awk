@@ -856,6 +856,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?certs")
 			continue;
+		if ($c ~ sysconfdir "/{?X11")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
