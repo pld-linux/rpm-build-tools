@@ -1058,7 +1058,7 @@ function use_files_macros(	i, n, t, a)
 	}
 
 	# locale dir and no %lang -> bad
-	if (/%{_datadir}\/locale/ && !/%(dir|lang)/ && !/locale\/locale.alias/) {
+	if (/%{_datadir}\/locale\/.*\// && !/%(dir|lang)/) {
 		$(NF + 1) = "# FIXME consider using %find_lang"
 	}
 
