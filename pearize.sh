@@ -4,17 +4,17 @@
 # it is still better than nothing. if somebody wishes to add sorting in this
 # script. i'd be just glad :)
 #
-# needs pear makerpm command.
-# requires tarball to exist in ../SOURCES.
-# you should have all pear packages installed to get best results
+# needs 'pear' for 'pear makerpm' command, ./builder for fetching sources.
+# You should have all PEAR packages installed to get best results.
 #
 # todo: adjust similiarily noautoreqdeps
 # bugs: the beta portions in version deps could be wrong (php-4.3.0b1 and alike)
 # see php-pear-DBA_Relational.spec
-# SOmething strange: Requires:	php-common < 4:3:5.1
+# Something strange: Requires:	php-common < 4:3:5.1
 #
-# note: old version pf this script which was used to convert to new package format is in CVS branch MIGRATE
-# send blames and beerideas to glen@pld-linux.org
+# NOTE: old version of this script which was used to convert to new package format is in CVS branch MIGRATE.
+#
+# Send blames and beerideas to glen@pld-linux.org
 
 set -e
 spec="$1"
