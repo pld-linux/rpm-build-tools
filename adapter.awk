@@ -829,6 +829,8 @@ function use_macros()
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sbindir "/fix-info-dir")
 			continue;
+		if ($c ~ sbindir "/webapp")
+			continue;
 		gsub(sbindir, "%{_sbindir}", $c)
 	}
 
@@ -910,6 +912,8 @@ function use_macros()
 		if ($0 !~ "--with.*=.*" prefix) {
 			for (c = 1; c <= NF; c++) {
 				if ($c ~ prefix "/sbin/fix-info-dir")
+					continue;
+				if ($c ~ prefix "/sbin/webapp")
 					continue;
 				if ($c ~ prefix "/share/automake")
 					continue;
