@@ -148,10 +148,55 @@ preamble == 1 {
 
 # Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
 /^%define/ {
-	if ($2 == "_applnkdir")
+	if ($2 == "_applnkdir") {
 		next
-	if ($2 == "date")
+	}
+	if ($2 == "date") {
 		date = 1
+	}
+
+	# Do not add %define of _prefix if it already is.
+	if ($2 ~ /^_prefix/) {
+		sub("^"prefix, $3, bindir)
+		sub("^"prefix, $3, sbindir)
+		sub("^"prefix, $3, libdir)
+		sub("^"prefix, $3, datadir)
+		sub("^"prefix, $3, includedir)
+		prefix = $3
+	}
+
+	if ($2 ~ /_bindir/ && !/_sbindir/)
+		bindir = $3
+	if ($2 ~ /_sbindir/)
+		sbindir = $3
+	if ($2 ~ /_libdir/)
+		libdir = $3
+	if ($2 ~ /_sysconfdir/ && $3 !~ /^%\(/)
+		sysconfdir = $3
+	if ($2 ~ /_datadir/)
+		datadir = $3
+	if ($2 ~ /_includedir/)
+		includedir = $3
+	if ($2 ~ /_mandir/)
+		mandir = $3
+	if ($2 ~ /_infodir/)
+		infodir = $3
+
+	# version related macros
+	if ($2 ~ /^_beta$/)
+		_beta = $3
+	if ($2 ~ /^_rc$/)
+		_rc = $3
+	if ($2 ~ /^_snap$/)
+		_snap = $3
+
+	# these are used usually when adapterizing external spec
+	if ($2 ~ /^name$/)
+		name = $3
+	if ($2 ~ /^version$/)
+		version = $3
+	if ($2 ~ /^release$/)
+		release = $3
 
 	# do nothing further, otherwise adapter thinks we're at preamble
 	print
@@ -679,48 +724,6 @@ preamble == 1 {
 
 	format_preamble()
 
-	if ($1 ~ /%define/) {
-		# Do not add %define of _prefix if it already is.
-		if ($2 ~ /^_prefix/) {
-			sub("^"prefix, $3, bindir)
-			sub("^"prefix, $3, sbindir)
-			sub("^"prefix, $3, libdir)
-			sub("^"prefix, $3, datadir)
-			sub("^"prefix, $3, includedir)
-			prefix = $3
-		}
-
-		if ($2 ~ /_bindir/ && !/_sbindir/)
-			bindir = $3
-		if ($2 ~ /_sbindir/)
-			sbindir = $3
-		if ($2 ~ /_libdir/)
-			libdir = $3
-		if ($2 ~ /_sysconfdir/ && $3 !~ /^%\(/)
-			sysconfdir = $3
-		if ($2 ~ /_datadir/)
-			datadir = $3
-		if ($2 ~ /_includedir/)
-			includedir = $3
-		if ($2 ~ /_mandir/)
-			mandir = $3
-		if ($2 ~ /_infodir/)
-			infodir = $3
-
-		if ($2 ~ /^_beta$/)
-			_beta = $3
-		if ($2 ~ /^_rc$/)
-			_rc = $3
-		if ($2 ~ /^_snap$/)
-			_snap = $3
-
-		if ($2 ~ /^name$/)
-			name = $3
-		if ($2 ~ /^version$/)
-			version = $3
-		if ($2 ~ /^release$/)
-			release = $3
-	}
 
 	if (field ~ /requires/) {
 		# atrpms
@@ -1007,7 +1010,7 @@ function use_files_macros(	i, n, t, a)
 		}
 	}
 
-	if (/lib.+\.so/ && !/^%attr.*/ && !/%exclude/) {
+	if (/lib.+\.so/ && !/\.so$/ && !/^%attr.*/ && !/%exclude/) {
 		$0 = "%attr(755,root,root) " $0
 	}
 
