@@ -344,7 +344,7 @@ preamble == 1 {
 		sub("CC=%{__cc}", "CC=\"%{__cc}\"")
 	}
 	
-	# use macros
+	# use PLD Linux macros
 	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
 	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0);
 	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0);
@@ -364,7 +364,11 @@ preamble == 1 {
 ##########
 /^%clean/, (/^%[a-z]+$/ && !/^%clean/ && !/^%((end)?if|else)/) {
 	did_clean = 1
-	use_macros()
+
+	# prevent next section header like "%post -p /sbin/ldconfig" being adapterized
+	if (!/^%/) {
+		use_macros()
+	}
 }
 
 ############
@@ -427,7 +431,6 @@ preamble == 1 {
 	if ($0 ~ /^%files/)
 		defattr = 1
 
-	use_macros()
 	use_files_macros()
 }
 
@@ -991,6 +994,8 @@ function isort(A,n,		i,j,hold) {
 
 function use_files_macros(	i, n, t, a)
 {
+	use_macros()
+
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
