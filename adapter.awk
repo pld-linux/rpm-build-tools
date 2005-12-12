@@ -93,7 +93,7 @@ defattr == 1 {
 function b_makekey(a, b,	s) {
 	s = a "" b;
 	# kill bcond
-	gsub(/%{[!?]+[_a-zA-Z0-9]+:/, "", s);
+    gsub(/[#%]+{[!?]+[_a-zA-Z0-9]+:/, "", s);
 	return s;
 }
 
