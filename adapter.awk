@@ -93,7 +93,7 @@ defattr == 1 {
 function b_makekey(a, b,	s) {
 	s = a "" b;
 	# kill bcond
-	gsub("%{\\?[_a-zA-Z0-9]+:", "", s);
+	gsub(/%{[!?]+[_a-zA-Z0-9]+:/, "", s);
 	return s;
 }
 
@@ -831,6 +831,10 @@ function use_macros()
 			continue;
 		if ($c ~ sbindir "/webapp")
 			continue;
+		if ($c ~ sbindir "/chsh")
+			continue;
+		if ($c ~ sbindir "/usermod")
+			continue;
 		gsub(sbindir, "%{_sbindir}", $c)
 	}
 
@@ -914,6 +918,10 @@ function use_macros()
 				if ($c ~ prefix "/sbin/fix-info-dir")
 					continue;
 				if ($c ~ prefix "/sbin/webapp")
+					continue;
+				if ($c ~ prefix "/sbin/chsh")
+					continue;
+				if ($c ~ prefix "/sbin/usermod")
 					continue;
 				if ($c ~ prefix "/share/automake")
 					continue;
