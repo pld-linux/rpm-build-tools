@@ -286,6 +286,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 }
 
 update_shell_title() {
+	[ -t 1 ] || return
 	local msg="builder[$SPECFILE] $*"
 	case "$TERM" in
 		cygwin|xterm*)
@@ -1474,12 +1475,30 @@ adapterize()
 		  if [ -t 1 ]; then
 				diffcol $tmpdir/$SPECFILE.diff | less -r
 				while : ; do
-					 echo -n "Accept? [yn] "
+					 echo -n "Accept? (Yes, No, Confirm)? "
 					 read ans
 					 case "$ans" in
 					 [yYoO]) # y0 mama
 						  mv -f $tmpdir/$SPECFILE $SPECFILE
 						  echo "Ok, adapterized."
+						  break
+					 ;;
+					 [cC]) # confirm each chunk
+						  head -n 2 $tmpdir/$SPECFILE.diff > $tmpdir/header.diff
+						  lines=$(grep -n ^@@ $tmpdir/$SPECFILE.diff | cut -d: -f1)
+						  for a in $lines; do
+								t=$tmpdir/chunk-$a.diff
+								cat $tmpdir/header.diff > $t
+								sed -ne "$a,/@@/p" $tmpdir/$SPECFILE.diff >> $t
+								diffcol $t | less -r
+								echo -n "Accept? (Yes, [N]o)? "
+								read ans
+								case "$ans" in
+								[yYoO]) # y0 mama
+									patch < $t
+									;;
+								esac
+						  done
 						  break
 					 ;;
 					 [nNsS])
