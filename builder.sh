@@ -1463,6 +1463,47 @@ diffcol()
 	 ' "$@"
 }
 
+
+diff2hunks()
+{
+	 # diff2hunks orignally by dig
+	 perl -e '
+#! /usr/bin/perl -w
+
+use strict;
+
+for my $filename (@ARGV) {
+    my $counter = 1;
+    my $fh;
+    open $fh, "<", $filename or die "$filename: open for reading: $!";
+    my @lines = <$fh>;
+    my @hunks;
+    my @curheader;
+    for my $i (0 ... $#lines) {
+        next unless $lines[$i] =~ m/^\@\@ /;
+        if ($i >= 2 and $lines[$i - 2] =~ m/^--- / and $lines[$i - 1] =~ m/^\+\+\+ /) {
+            @curheader = @lines[$i - 2 ... $i - 1];
+        }
+        next unless @curheader;
+        my $j = $i + 1;
+        while ($j < @lines and $lines[$j] !~ m/^\@\@ /) {$j++}
+        $j -= 2
+            if $j >= 3 and $j < @lines
+                and $lines[$j - 2] =~ m/^--- /
+                and $lines[$j - 1] =~ m/^\+\+\+ /;
+        $j--;
+        $j-- until $lines[$j] =~ m/^[ @+-]/;
+        my $hunkfilename = $filename;
+        $hunkfilename =~ s/((\.(pat(ch)?|diff?))?)$/"-".sprintf("%03i",$counter++).$1/ei;
+        my $ofh;
+        open $ofh, ">", $hunkfilename or die "$hunkfilename: open for writing: $!";
+        print $ofh @curheader, @lines[$i ... $j];
+        close $ofh;
+    }
+}
+' "$@"
+}
+
 adapterize()
 {
 	 cd "$SPECS_DIR"
@@ -1484,12 +1525,8 @@ adapterize()
 						  break
 					 ;;
 					 [cC]) # confirm each chunk
-						  head -n 2 $tmpdir/$SPECFILE.diff > $tmpdir/header.diff
-						  lines=$(grep -n ^@@ $tmpdir/$SPECFILE.diff | cut -d: -f1)
-						  for a in $lines; do
-								t=$tmpdir/chunk-$a.diff
-								cat $tmpdir/header.diff > $t
-								sed -ne "$a,/@@/p" $tmpdir/$SPECFILE.diff >> $t
+						  diff2hunks $tmpdir/$SPECFILE.diff
+						  for t in $(ls $tmpdir/$SPECFILE-*.diff); do
 								diffcol $t | less -r
 								echo -n "Accept? (Yes, [N]o)? "
 								read ans
