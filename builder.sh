@@ -1538,7 +1538,7 @@ adapterize()
 						  done
 						  break
 					 ;;
-					 [nNsS])
+					 [QqnNsS])
 						  echo "Ok, exiting."
 						  break
 					 ;;
