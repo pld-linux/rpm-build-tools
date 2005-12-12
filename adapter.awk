@@ -18,12 +18,12 @@
 # - sort Summary(XX)
 # - sort Requires, BuildRequires
 # - check if %description (lang=C) contains 8bit
-# - desc wrapping is totally fucked up on global.spec,1.25
+# - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
 
 BEGIN {
 	preamble = 1		# Is it part of preamble? Default - yes
-	boc = 4			# Beggining of %changelog
-	bod = 0			# Beggining of %description
+	boc = 4			# Beginning of %changelog
+	bod = 0			# Beginning of %description
 	tw = 70			# Descriptions width
 
 	b_idx = 0		# index of BR/R arrays
@@ -863,9 +863,13 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?sysconfig")
 			continue;
+		if ($c ~ sysconfdir "/{?shrc.d")
+			continue;
 		if ($c ~ sysconfdir "/{?certs")
 			continue;
 		if ($c ~ sysconfdir "/{?X11")
+			continue;
+		if ($c ~ sysconfdir "/{?httpd") # temp
 			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
