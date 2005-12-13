@@ -591,7 +591,7 @@ preamble == 1 {
 	}
 
 	if (field ~ /prereq:/) {
-		$1 = "Requires:"
+		sub(/PreReq:/, "Requires:", $1);
 	}
 
 	# split (build)requires on commas
