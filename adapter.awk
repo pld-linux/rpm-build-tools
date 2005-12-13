@@ -21,7 +21,8 @@
 # - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
 
 BEGIN {
-	SECTIONS = "^%(build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun)"
+	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun"
+	SECTIONS = "^%(" RPM_SECTIONS ")"
 
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
