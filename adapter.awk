@@ -273,21 +273,21 @@ preamble == 1 {
 	}
 
 	if (/^%setup/) {
-		gsub(name, "%{name}");
-		gsub(version, "%{version}");
+		$0 = fixedsub(name, "%{name}", $0);
+		$0 = fixedsub(version, "%{version}", $0);
 		if (_beta) {
-			gsub(_beta, "%{_beta}");
+			$0 = fixedsub(_beta, "%{_beta}", $0);
 		}
 		if (_rc) {
-			gsub(_rc, "%{_rc}");
+			$0 = fixedsub(_rc, "%{_rc}", $0);
 		}
 		if (_snap) {
-			gsub(_snap, "%{_snap}");
+			$0 = fixedsub(_snap, "%{_snap}", $0);
 		}
 	}
 
 	if (/^%setup/ && /-n %{name}-%{version}( |$)/) {
-		sub(/ -n %{name}-%{version}/, "")
+		$0 = fixedsub(" -n %{name}-%{version}", "", $0)
 	}
 
 	# invalid in %prep
