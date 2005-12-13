@@ -21,6 +21,8 @@
 # - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
 
 BEGIN {
+	SECTIONS = "^%(build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun)"
+
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
 	bod = 0			# Beginning of %description
@@ -156,8 +158,8 @@ preamble == 1 {
 	next
 }
 
-# Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
 /^%define/ {
+	# Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
 	if ($2 == "_applnkdir") {
 		next
 	}
@@ -181,8 +183,14 @@ preamble == 1 {
 		sbindir = $3
 	if ($2 ~ /_libdir/)
 		libdir = $3
-	if ($2 ~ /_sysconfdir/ && $3 !~ /^%\(/)
-		sysconfdir = $3
+	if ($2 ~ /_sysconfdir/) {
+		if ($3 ~ /^%\(/) {
+			# TODO: should escape for latter checks like: ($c ~ sysconfdir "/{?cron.")
+			sysconfdir = "%%%%%%%%%%%%%%"
+		} else {
+			sysconfdir = $3
+		}
+	}
 	if ($2 ~ /_datadir/)
 		datadir = $3
 	if ($2 ~ /_includedir/)
@@ -221,7 +229,7 @@ preamble == 1 {
 ################
 # %description #
 ################
-/^%description/, (/^%[a-z]+/ && !/^%description/ && !/^%((end)?if|else)/) {
+/^%description/, (!/^%description/ && $0 ~ SECTIONS) {
 	preamble = 0
 
 	if (/^%description/) {
@@ -270,7 +278,7 @@ preamble == 1 {
 #########
 # %prep #
 #########
-/^%prep/, (/^%[a-z]+$/ && !/^%prep/ && !/^%((end)?if|else)/) {
+/^%prep/, (!/^%prep/ && $0 ~ SECTIONS) {
 	preamble = 0
 
 	use_macros()
@@ -305,7 +313,7 @@ preamble == 1 {
 ##########
 # %build #
 ##########
-/^%build/, (/^%[a-z]+$/ && !/^%build/ && !/^%((end)?if|else)/) {
+/^%build/, (!/^%build/ && $0 ~ SECTIONS) {
 	preamble = 0
 
 	use_macros()
@@ -372,7 +380,7 @@ preamble == 1 {
 ##########
 # %clean #
 ##########
-/^%clean/, (/^%[a-z]+$/ && !/^%clean/ && !/^%((end)?if|else)/) {
+/^%clean/, (!/^%clean/ && $0 ~ SECTIONS) {
 	did_clean = 1
 
 	# prevent next section header like "%post -p /sbin/ldconfig" being adapterized
@@ -384,7 +392,7 @@ preamble == 1 {
 ############
 # %install #
 ############
-/^%install/, (/^%[a-z]+$/ && !/^%install/ && !/^%((end)?if|else)/) {
+/^%install/, (!/^%install/ && $0 ~ SECTIONS) {
 
 	preamble = 0
 
@@ -435,7 +443,7 @@ preamble == 1 {
 ##########
 # %files #
 ##########
-/^%files/, (/^%[a-z \-]+$/ && !/^%files/ && !/^%((end)?if|else)/) {
+/^%files/, (!/^%files/ && $0 ~ SECTIONS) {
 	preamble = 0
 
 	if ($0 ~ /^%files/)
@@ -447,7 +455,7 @@ preamble == 1 {
 ##############
 # %changelog #
 ##############
-/^%changelog/, (/^%[a-z]+$/ && !/^%changelog/) {
+/^%changelog/, (!/^%changelog/ && $0 ~ SECTIONS) {
 	preamble = 0
 	has_changelog = 1
 	skip = 0
@@ -495,7 +503,7 @@ preamble == 1 {
 ###########
 # SCRIPTS #
 ###########
-/^%pre/, (/^%[a-z]+$/ && !/^%pre/) {
+/^%pre/, (!/^%pre/ && $0 ~ SECTIONS) {
 	preamble = 0
 
 	# %useradd and %groupadd may not be wrapped
@@ -506,28 +514,28 @@ preamble == 1 {
 	}
 }
 
-/^%post/, (/^%[a-z]+$/ && !/^%post/) {
+/^%post/, (!/^%post/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
-/^%preun/, (/^%[a-z]+$/ && !/^%preun/) {
+/^%preun/, (!/^%preun/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
-/^%postun/, (/^%[a-z]+$/ && !/^%postun/) {
+/^%postun/, (!/^%postun/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
-/^%triggerin/, (/^%[a-z]+$/ && !/^%triggerin/) {
+/^%triggerin/, (!/^%triggerin/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
-/^%triggerun/, (/^%[a-z]+$/ && !/^%triggerun/) {
+/^%triggerun/, (!/^%triggerun/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
-/^%triggerpostun/, (/^%[a-z]+$/ && !/^%triggerpostun/) {
+/^%triggerpostun/, (!/^%triggerpostun/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
-/^%pretrans/, (/^%[a-z]+$/ && !/^%pretrans/) {
+/^%pretrans/, (!/^%pretrans/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
-/^%posttrans/, (/^%[a-z]+$/ && !/^%posttrans/) {
+/^%posttrans/, (!/^%posttrans/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
 
