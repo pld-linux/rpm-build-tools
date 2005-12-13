@@ -1516,7 +1516,7 @@ adapterize()
 		  if [ -t 1 ]; then
 				diffcol $tmpdir/$SPECFILE.diff | less -r
 				while : ; do
-					 echo -n "Accept? (Yes, No, Confirm)? "
+					 echo -n "Accept? (Yes, No, Confirm each chunk)? "
 					 read ans
 					 case "$ans" in
 					 [yYoO]) # y0 mama
