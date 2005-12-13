@@ -109,7 +109,7 @@ function b_makekey(a, b,	s) {
 #   so don't do that.
 # - comments leading the BR/R can not be associated,
 #   so don't adapterize when the BR/R are mixed with comments
-ENVIRON["SORTBR"] == 1 && preamble == 1 && /(Build)?Requires/, /(Build)?Requires/ { # && !/^%/) {
+ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && /(Build)?Requires/, /(Build)?Requires/ {
 	b_idx++;
 	l = substr($0, index($0, $2));
 	b_ktmp = b_makekey($1, l);
