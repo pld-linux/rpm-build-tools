@@ -985,6 +985,10 @@ function use_macros()
 		gsub("%{prefix}", "%{_prefix}")
 	}
 
+	# replace back
+	gsub("%{_includedir}/ncurses", "/usr/include/ncurses")
+	gsub("%{_includedir}/freetype", "/usr/include/freetype")
+
 	gsub("%{PACKAGE_VERSION}", "%{version}")
 	gsub("%{PACKAGE_NAME}", "%{name}")
 
