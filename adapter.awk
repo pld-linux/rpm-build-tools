@@ -44,7 +44,7 @@ BEGIN {
 	# File with rpm groups
 	"rpm --eval %_sourcedir" | getline groups_file
 	groups_file = groups_file "/rpm.groups"
-	system("cd `rpm --eval %_sourcedir`; cvs up rpm.groups >/dev/null")
+	system("cd `rpm --eval %_sourcedir`; [ -f rpm.groups ] || cvs up rpm.groups >/dev/null")
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
@@ -902,14 +902,20 @@ function use_macros()
 	if (prefix"/share" == datadir)
 		gsub("%{_prefix}/share", "%{_datadir}")
 
-	gsub(includedir, "%{_includedir}")
+	# CFLAGS="-I/usr/include/ncurses is usually correct.
+	if (!/-I\/usr\/include/) {
+		gsub(includedir, "%{_includedir}")
+	}
+
 	gsub("%{prefix}/include", "%{_includedir}")
-	if (prefix"/include" == includedir)
+	if (prefix"/include" == includedir) {
 		gsub("%{_prefix}/include", "%{_includedir}")
+	}
 
 	gsub(mandir, "%{_mandir}")
-	if ($0 !~ "%{_datadir}/manual")
+	if ($0 !~ "%{_datadir}/manual") {
 		gsub("%{_datadir}/man", "%{_mandir}")
+	}
 	gsub("%{_prefix}/share/man", "%{_mandir}")
 	gsub("%{prefix}/share/man", "%{_mandir}")
 	gsub("%{prefix}/man", "%{_mandir}")
@@ -945,6 +951,11 @@ function use_macros()
 					continue;
 				if ($c ~ prefix "/lib/pkgconfig")
 					continue;
+
+				# CFLAGS="-I/usr/include/ncurses is usually correct.
+				if (/-I\/usr\/include/)
+					continue;
+
 				gsub(prefix, "%{_prefix}", $c)
 			}
 		}
