@@ -965,6 +965,9 @@ function use_macros()
 				# CFLAGS="-I/usr/include/ncurses is usually correct.
 				if (/-I\/usr\/include/)
 					continue;
+				# same for LDFLAGS="-L/usr..."
+				if (/-L\/usr/)
+					continue;
 
 				gsub(prefix, "%{_prefix}", $c)
 			}
