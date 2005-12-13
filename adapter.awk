@@ -94,6 +94,8 @@ function b_makekey(a, b,	s) {
 	s = a "" b;
 	# kill bcond
     gsub(/[#%]+{[!?]+[_a-zA-Z0-9]+:/, "", s);
+	# kill commented out items
+    gsub(/[# \t]*/, "", s);
 	return s;
 }
 
@@ -560,6 +562,7 @@ preamble == 1 {
 		sub(/^System Environment\/Libraries$/, "Libraries", Grupa)
 		sub(/^System Environment\/Daemons$/, "Daemons", Grupa)
 		sub(/^Applications\/Internet$/, "Applications/Networking", Grupa)
+		sub(/^Applications\/Daemons$/, "Daemons", Grupa)
 		sub(/^System\/Servers$/, "Daemons", Grupa)
 		sub(/^X11\/Xserver$/, "X11/Servers", Grupa)
 		sub(/^X11\/XFree86$/, "X11", Grupa)
@@ -1068,6 +1071,9 @@ function use_files_macros(	i, n, t, a)
 	# sort %verify attrs
 	if (match($0, /%verify\(not([^)]+)\)/)) {
 		t = substr($0, RSTART, RLENGTH)
+		# kill commas: %verify(not,md5,size,mtime)
+		gsub(/,/, " ", t);
+
 		gsub(/^%verify\(not |\)$/, "", t)
 		n = split(t, a, / /)
 		isort(a, n)
