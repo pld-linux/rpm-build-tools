@@ -571,9 +571,10 @@ preamble == 1 {
 		sub(/^System Environment\/Daemons$/, "Daemons", Grupa)
 		sub(/^Applications\/Internet$/, "Applications/Networking", Grupa)
 		sub(/^Applications\/Daemons$/, "Daemons", Grupa)
+		sub(/^Application\/Multimedia$/, "Applications/Multimedia", Grupa)
 		sub(/^System\/Servers$/, "Daemons", Grupa)
 		sub(/^X11\/Xserver$/, "X11/Servers", Grupa)
-		sub(/^X11\/XFree86$/, "X11", Grupa)
+		sub(/^X11\/XFree86/, "X11", Grupa)
 		sub(/^Applications\/Compilers$/, "Development/Languages", Grupa)
 		sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", Grupa)
 		sub(/^Networking\/Deamons$/, "Networking/Daemons", Grupa)
@@ -962,8 +963,8 @@ function use_macros()
 				if ($c ~ prefix "/lib/pkgconfig")
 					continue;
 
-				# CFLAGS="-I/usr/include/ncurses is usually correct.
-				if (/-I\/usr\/include/)
+				# CFLAGS="-I/usr..." is usually correct.
+				if (/-I\/usr/)
 					continue;
 				# same for LDFLAGS="-L/usr..."
 				if (/-L\/usr/)
