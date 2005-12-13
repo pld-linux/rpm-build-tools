@@ -566,6 +566,7 @@ preamble == 1 {
 		sub(/^Applications\/Compilers$/, "Development/Languages", Grupa)
 		sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", Grupa)
 		sub(/^Networking\/Deamons$/, "Networking/Daemons", Grupa)
+		sub(/^Development\/Docs$/, "Documentation", Grupa)
 
 		print "Group:\t\t" Grupa
 		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
@@ -594,8 +595,8 @@ preamble == 1 {
 		sub(/PreReq:/, "Requires:", $1);
 	}
 
-	# split (build)requires on commas
-	if (field ~ /requires:/ && $0 ~ /,/) {
+	# split (build)requires, obsoletes on commas
+	if (field ~ /(obsoletes|requires):/ && $0 ~ /,/) {
 		l = substr($0, index($0, $2));
 		n = split(l, p, / *, */);
 		for (i in p) {
