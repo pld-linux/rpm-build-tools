@@ -1,7 +1,18 @@
 #!/bin/sh
 
 self=$(basename "$0")
-usage="Usage: $self [--sort[-br]|-s|-m|--no-macros] filename"
+usage="Usage: $self [FLAGS] SPECFILE
+
+-s|--no-sort|--skip-sort
+	skip BuildRequires, Requires sorting
+-m|--no-macros|--skip-macros
+	skip use_macros() substitutions
+-d|--skip-desc
+	skip desc wrapping
+-a|--skip-defattr
+	skip %defattr corrections
+
+"
 
 t=`getopt -o hsmda --long help,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@"` || exit $?
 eval set -- "$t"
@@ -12,8 +23,8 @@ while true; do
  		echo 2>&1 "$usage"
 		exit 1
 	;;
-	-s|--sort|--sort-br)
-		export SORTBR=1
+	-s|--no-sort|--skip-sort)
+		export SKIP_SORTBR=1
 	;;
 	-m|--no-macros|--skip-macros)
 		export SKIP_MACROS=1
