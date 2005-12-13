@@ -115,7 +115,7 @@ if [ -n "$optional" ]; then
 		done
 	done
 fi
-has_opt=$(egrep -c '^Optional-(pkg|ext):' $template)
+has_opt=$(egrep -c '^Optional-(pkg|ext):' $template || :)
 if [ "$has_opt" -gt 0 ]; then
 	if ! grep -q optional-packages.txt $spec; then
 		sed -i -e '
