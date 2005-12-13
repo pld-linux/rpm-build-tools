@@ -115,6 +115,23 @@ if [ -n "$optional" ]; then
 		done
 	done
 fi
+has_opt=$(egrep -c '^Optional-(pkg|ext):' $template)
+if [ "$has_opt" -gt 0 ]; then
+	if ! grep -q optional-packages.txt $spec; then
+		sed -i -e '
+		/^%clean/{
+			i%post
+			iif [ -f %{_docdir}/%{name}-%{version}/optional-packages.txt ]; then
+			i\	cat %{_docdir}/%{name}-%{version}/optional-packages.txt
+			ifi
+			i
+		}
+		/^%doc install.log/{
+		s/$/ optional-packages.txt/
+		}
+		' $spec
+	fi
+fi
 
 # parse state
 state=$(awk '/^State:/{print $2}' $template)
