@@ -83,10 +83,13 @@ FNR == 1 {
 
 # If the latest line matched /%files/
 defattr == 1 {
-	if ($0 !~ /defattr/)	# If no %defattr
-		print "%defattr(644,root,root,755)"	# Add it
-	else
-		$0 = "%defattr(644,root,root,755)"	# Correct mistakes (if any)
+	if (ENVIRON["SKIP_DEFATTR"] != 1) {
+		if ($0 !~ /defattr/) {	# If no %defattr
+			print "%defattr(644,root,root,755)"	# Add it
+		} else {
+			$0 = "%defattr(644,root,root,755)"	# Correct mistakes (if any)
+		}
+	}
 	defattr = 0
 }
 
@@ -223,7 +226,7 @@ preamble == 1 {
 	}
 
 	# Format description
-	if (description == 1 && !/^%[a-z]+/ && !/^%description/) {
+	if (ENVIRON["SKIP_DESC"] != 1 && description == 1 && !/^%[a-z]+/ && !/^%description/) {
 		if (/^[ \t]*$/) {
 			format_flush(format_line, format_indent)
 			print ""
@@ -727,11 +730,10 @@ preamble == 1 {
 	if (field ~ /^source:/)
 		$1 = "Source0:"
 
-	if (field ~ /patch:/)
+	if (field ~ /^patch:/)
 		$1 = "Patch0:"
 
 	format_preamble()
-
 
 	if (field ~ /requires/) {
 		# atrpms
@@ -771,8 +773,6 @@ END {
 	while ((getline < changelog_file) > 0)
 		print
 	system("rm -f " changelog_file)
-
-
 
 	if (did_clean == 0) {
 		print ""
@@ -820,6 +820,11 @@ function format_preamble()
 # Replace directly specified directories with macros
 function use_macros()
 {
+	# -m, --skip-macros, --no-macros -- skip macros subst
+	if (ENVIRON["SKIP_MACROS"]) {
+		return
+	}
+
 	gsub(perl_sitearch, "%{perl_sitearch}")
 	gsub(perl_archlib, "%{perl_archlib}")
 	gsub(perl_privlib, "%{perl_privlib}")

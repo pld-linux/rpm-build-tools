@@ -1,9 +1,9 @@
 #!/bin/sh
 
 self=$(basename "$0")
-usage="Usage: $self [--sort[-br]|-s] filename"
+usage="Usage: $self [--sort[-br]|-s|-m|--no-macros] filename"
 
-t=`getopt -o hs --long help,sort,sort-br -n "$self" -- "$@"` || exit $?
+t=`getopt -o hsmda --long help,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@"` || exit $?
 eval set -- "$t"
 
 while true; do
@@ -12,8 +12,17 @@ while true; do
  		echo 2>&1 "$usage"
 		exit 1
 	;;
-	--sort|--sort-br|-s)
+	-s|--sort|--sort-br)
 		export SORTBR=1
+	;;
+	-m|--no-macros|--skip-macros)
+		export SKIP_MACROS=1
+	;;
+	-d|--skip-desc)
+		export SKIP_DESC=1
+	;;
+	-a|--skip-defattr)
+		export SKIP_DEFATTR=1
 	;;
 	--)
 		shift
