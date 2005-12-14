@@ -560,7 +560,7 @@ preamble == 1 {
 
 	field = tolower($1)
 	fieldnlower = $1
-	if (field ~ /summary:/) {
+	if (field ~ /summary:/ && !/etc\.$/) {
 		sub(/\.$/, "", $0);
 	}
 	if (field ~ /group(\([^)]+\)):/)
