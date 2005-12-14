@@ -1,15 +1,18 @@
 #!/bin/awk -f
 #
-# This is adapter v0.27. Adapter adapts .spec files for PLD.
+# This is adapter v0.27. Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2003 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2005 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Micha³ Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
 # 	Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
 # 	Artur Frysiak <wiget@pld-linux.org>
 # 	Michal Kochanowicz <mkochano@pld.org.pl>
-# 	Elan Ruusamäe <glen@pld-linux.org>
+# 	Elan Ruusamä¤e <glen@pld-linux.org>
+#
+# See cvs log adapter{,.awk} for list of contributors
+#
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # TODO
