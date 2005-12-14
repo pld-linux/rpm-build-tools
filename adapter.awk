@@ -63,6 +63,7 @@ BEGIN {
 	"rpm --eval %_mandir"	| getline mandir
 	"rpm --eval %_infodir"	| getline infodir
 	"rpm --eval %_examplesdir"	| getline examplesdir
+	"rpm --eval %_defaultdocdir"	| getline docdir
 
 	"rpm --eval %perl_sitearch" | getline perl_sitearch
 	"rpm --eval %perl_archlib" | getline perl_archlib
@@ -200,6 +201,8 @@ preamble == 1 {
 		mandir = $3
 	if ($2 ~ /_infodir/)
 		infodir = $3
+	if ($2 ~ /_docdir/)
+		docdir = $3
 
 	# version related macros
 	if ($2 ~ /^_beta$/)
@@ -517,6 +520,7 @@ preamble == 1 {
 
 /^%post/, (!/^%post/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_macros()
 }
 /^%preun/, (!/^%preun/ && $0 ~ SECTIONS) {
 	preamble = 0
@@ -904,6 +908,8 @@ function use_macros()
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
+	gsub(docdir, "%{_docdir}")
+
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ datadir "/automake")
 			continue;
@@ -913,10 +919,6 @@ function use_macros()
 			continue;
 		gsub(datadir, "%{_datadir}", $c)
 	}
-
-	gsub("%_sbindir", "%{_sbindir}")
-	gsub("%_mandir", "%{_mandir}")
-	gsub("%name", "%{name}")
 
 	gsub("%{prefix}/share", "%{_datadir}")
 	if (prefix"/share" == datadir)
@@ -1017,6 +1019,9 @@ function use_macros()
 	gsub("%_bindir", "%{_bindir}")
 	gsub("%_datadir", "%{_datadir}")
 	gsub("%_iconsdir", "%{_iconsdir}")
+	gsub("%_sbindir", "%{_sbindir}")
+	gsub("%_mandir", "%{_mandir}")
+	gsub("%name", "%{name}")
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
