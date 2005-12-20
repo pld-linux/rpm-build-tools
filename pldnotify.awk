@@ -138,7 +138,7 @@ function compare_ver_dec(v1,v2) {
 	return 0
 }
 
-function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
+function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
@@ -154,30 +154,32 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 	
 	if (errno==0) {
 		while (getline oneline < tmpfile)
-			odp=(odp " " oneline)
-		if ( DEBUG ) print "Response: " odp
+			wholeodp=(wholeodp " " oneline)
+		if ( DEBUG ) print "Response: " wholeodp
 	}
 	
 	close(tmpfile)
 	system("rm -f " tmpfile)
 	urldir=url;
 	sub(/[^\/]+$/,"",urldir)
+
 	if ( errno==0) {
-		while ((tolower(odp) ~ /<frame[ \t]/)||(tolower(odp) ~ /href=/)) {
-			if (tolower(odp) ~ /<frame[ \t]/) {
-				match(tolower(odp),/<frame[ \t][^>]*>/)
-				ramka=substr(odp,RSTART,RLENGTH)
-				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
-				sub(/[sS][rR][cC]=[ \t]*/,"src=",ramka);
-				match(ramka,/src="[^"]+"/)
-				newurl=substr(ramka,RSTART+5,RLENGTH-6)
+		while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
+			odp=substr(wholeodp,RSTART,RLENGTH);
+			wholeodp=substr(wholeodp,RSTART+RLENGTH);
+
+			lowerodp=tolower(odp);
+			if (lowerodp ~ /<frame[ \t]/) {
+				sub(/[sS][rR][cC]=[ \t]*/,"src=",odp);
+				match(odp,/src="[^"]+"/)
+				newurl=substr(odp,RSTART+5,RLENGTH-6)
 				if (DEBUG) print "Frame: " newurl
 				if (newurl !~ /\//) {
 					newurl=(urldir newurl)
 					if (DEBUG) print "Frame->: " newurl
 				}
 				retval=(retval " " get_links(newurl))
-			} else if (tolower(odp) ~ /href=[ \t]*"[^"]*"/) {
+			} else if (lowerodp ~ /href=[ \t]*"[^"]*"/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*"/,"href=\"",odp)
 				match(odp,/href="[^"]*"/)
 				link=substr(odp,RSTART,RLENGTH)
@@ -185,7 +187,7 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 				link=substr(link,7,length(link)-7)
 				retval=(retval " " link)
 				if (DEBUG) print "href(\"\"): " link
-			} else if (tolower(odp) ~ /href=[ \t]*'[^']*'/) {
+			} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*'/,"href='",odp)
 				match(odp,/href='[^']*'/)
 				link=substr(odp,RSTART,RLENGTH)
@@ -193,7 +195,7 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 				link=substr(link,7,length(link)-7)
 				retval=(retval " " link)
 				if (DEBUG) print "href(''): " link
-			} else if (tolower(odp) ~ /href=[ \t]*[^ \t>]*/) {
+			} else if (lowerodp ~ /href=[ \t]*[^ \t>]*/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*/,"href=",odp)
 				match(odp,/href=[^ \t>]*/)
 				link=substr(odp,RSTART,RLENGTH)
@@ -202,8 +204,8 @@ function get_links(url,	errno,link,oneline,retval,odp,tmpfile) {
 				retval=(retval " " link)
 				if (DEBUG) print "href(): " link
 			} else {
-				retval=(retval " INTERNAL_ERROR")
-				break
+				# <a ...> but not href - skip
+				if (DEBUG) print "skipping <a > without href: " odp
 			}
 		}
 	} else {
