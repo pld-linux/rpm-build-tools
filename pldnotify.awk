@@ -369,7 +369,7 @@ function process_data(name,ver,rel,src) {
 			if ( DEBUG ) print "Source: " src[i]
 			process_source(i,src[i],name,ver)
 		} else {
-			print FNAME ":" i ": niemozliwe podstawienie: " src[i]
+			print FNAME ":" i ": impossible substitution: " src[i]
 		}
 	}
 }
