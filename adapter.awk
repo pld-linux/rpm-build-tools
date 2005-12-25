@@ -104,8 +104,13 @@ function b_makekey(a, b,	s) {
 	s = a "" b;
 	# kill bcond
     gsub(/[#%]+{[!?]+[_a-zA-Z0-9]+:/, "", s);
+
 	# kill commented out items
     gsub(/[# \t]*/, "", s);
+
+	# hack: change Obsoletes -> ZObsoletes to sort as last
+    gsub(/^Provides/, "YProvides", s);
+    gsub(/^Obsoletes/, "ZObsoletes", s);
 	return s;
 }
 
@@ -116,7 +121,7 @@ function b_makekey(a, b,	s) {
 #   so don't do that.
 # - comments leading the BR/R can not be associated,
 #   so don't adapterize when the BR/R are mixed with comments
-ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && /(PreReq|(Build)?Requires)/, /(PreReq|(Build)?Requires)/ {
+ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && /(Obsoletes|Provides|PreReq|(Build)?Requires)/, /(Obsoletes|Provides|PreReq|(Build)?Requires)/ {
 	if ($1 ~ /PreReq:/) {
 		sub(/PreReq:/, "Requires:", $1);
 	}
