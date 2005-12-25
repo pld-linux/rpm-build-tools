@@ -17,6 +17,7 @@ get_dump() {
 		echo >&2 "You need icon files being present in SOURCES."
 		exit 1
 	fi
+	echo "$out"
 }
 
 get_release() {
