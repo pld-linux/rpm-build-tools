@@ -123,6 +123,8 @@ function b_makekey(a, b,	s) {
     gsub(/^Obsoletes/, "YObsoletes", s);
     gsub(/^BuildArch/, "ZBuildArch", s);
     gsub(/^BuildRoot/, "ZBuildRoot", s);
+
+#	printf("%s -> %s\n", a""b, s);
 	return s;
 }
 
@@ -552,53 +554,52 @@ preamble == 1 {
 		next
 	if (field ~ /group:/) {
 		format_preamble()
-		sub(/^Utilities\//,"Applications/",$2)
-		sub(/^Games/,"Applications/Games",$2)
-		sub(/^X11\/Games/,"X11/Applications/Games",$2)
-		sub(/^X11\/GNOME\/Development\/Libraries/,"X11/Development/Libraries",$2)
-		sub(/^X11\/GNOME\/Applications/,"X11/Applications",$2)
-		sub(/^X11\/GNOME/,"X11/Applications",$2)
-		sub(/^X11\/Utilities/,"X11/Applications",$2)
-		sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy",$2)
-		sub(/^Shells/,"Applications/Shells",$2)
+		group = $0;
+		sub(/^[^ \t]*[ \t]*/, "", group);
 
-		sub(/^[^ \t]*[ \t]*/,"")
-		Grupa = $0
+		sub(/^Utilities\//,"Applications/", group)
+		sub(/^Games/,"Applications/Games", group)
+		sub(/^X11\/Games/,"X11/Applications/Games", group)
+		sub(/^X11\/GNOME\/Development\/Libraries/,"X11/Development/Libraries", group)
+		sub(/^X11\/GNOME\/Applications/,"X11/Applications", group)
+		sub(/^X11\/GNOME/,"X11/Applications", group)
+		sub(/^X11\/Utilities/,"X11/Applications", group)
+		sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy", group)
+		sub(/^Shells/,"Applications/Shells", group)
+		sub(/^System Environment\/Libraries$/, "Libraries", group)
+		sub(/^System Environment\/Daemons$/, "Daemons", group)
+		sub(/^Applications\/Internet$/, "Applications/Networking", group)
+		sub(/^Applications\/Daemons$/, "Daemons", group)
+		sub(/^Application\/Multimedia$/, "Applications/Multimedia", group)
+		sub(/^System\/Servers$/, "Daemons", group)
+		sub(/^X11\/Xserver$/, "X11/Servers", group)
+		sub(/^X11\/XFree86/, "X11", group)
+		sub(/^Applications\/Compilers$/, "Development/Languages", group)
+		sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", group)
+		sub(/^Networking\/Deamons$/, "Networking/Daemons", group)
+		sub(/^Development\/Docs$/, "Documentation", group)
 
-		sub(/^System Environment\/Libraries$/, "Libraries", Grupa)
-		sub(/^System Environment\/Daemons$/, "Daemons", Grupa)
-		sub(/^Applications\/Internet$/, "Applications/Networking", Grupa)
-		sub(/^Applications\/Daemons$/, "Daemons", Grupa)
-		sub(/^Application\/Multimedia$/, "Applications/Multimedia", Grupa)
-		sub(/^System\/Servers$/, "Daemons", Grupa)
-		sub(/^X11\/Xserver$/, "X11/Servers", Grupa)
-		sub(/^X11\/XFree86/, "X11", Grupa)
-		sub(/^Applications\/Compilers$/, "Development/Languages", Grupa)
-		sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", Grupa)
-		sub(/^Networking\/Deamons$/, "Networking/Daemons", Grupa)
-		sub(/^Development\/Docs$/, "Documentation", Grupa)
+		$0 = "Group:\t\t" group
 
-		print "Group:\t\t" Grupa
-		if (Grupa ~ /^X11/ && x11 == 0)	# Is it X11 application?
+		if (group ~ /^X11/ && x11 == 0)	# Is it X11 application?
 			x11 = 1
 
-		byl_plik_z_grupami = 0
+		byl_plik_z_groupmi = 0
 		byl_opis_grupy = 0
 		while ((getline linia_grup < groups_file) > 0) {
-			byl_plik_z_grupami = 1
-			if (linia_grup == Grupa) {
+			byl_plik_z_groupmi = 1
+			if (linia_grup == group) {
 				byl_opis_grupy = 1
 				break
 			}
 		}
 
-		if (!byl_plik_z_grupami)
+		if (!byl_plik_z_groupmi)
 			print "######\t\t" groups_file ": no such file"
 		else if (!byl_opis_grupy)
 			print "######\t\t" "Unknown group!"
 
 		close(groups_file)
-		next
 	}
 
 	if (field ~ /prereq:/) {
