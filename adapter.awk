@@ -27,7 +27,7 @@ BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
-	PREAMBLE_TAGS = "(Summary|Name|Version|Release|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Provides|PreReq|(Build)?Requires)"
+	PREAMBLE_TAGS = "(Summary|Name|Version|Release|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|PreReq|(Build)?Requires)"
 
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
@@ -108,7 +108,7 @@ function b_makekey(a, b,	s) {
     gsub(/[#%]+{[!?]+[_a-zA-Z0-9]+:/, "", s);
 
 	# kill commented out items
-    gsub(/[# \t]*/, "", s);
+    gsub(/^#[ \t]*/, "", s);
 
 	# force order
     gsub(/^Summary\(/, "11Summary(", s);
@@ -120,10 +120,13 @@ function b_makekey(a, b,	s) {
     gsub(/^Group/, "6Group", s);
     gsub(/^URL/, "7URL", s);
 
-    gsub(/^Provides/, "XProvides", s);
-    gsub(/^Obsoletes/, "YObsoletes", s);
-    gsub(/^BuildArch/, "ZBuildArch", s);
-    gsub(/^BuildRoot/, "ZBuildRoot", s);
+    gsub(/^Provides/, "X1Provides", s);
+    gsub(/^Obsoletes/, "X2Obsoletes", s);
+    gsub(/^Conflicts/, "X3Conflicts", s);
+    gsub(/^BuildArch/, "X4BuildArch", s);
+    gsub(/^BuildRoot/, "X5BuildRoot", s);
+    gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
+    gsub(/^ExcludeArch/, "X6ExcludeArch", s);
 
 #	printf("%s -> %s\n", a""b, s);
 	return s;
@@ -141,8 +144,11 @@ function b_makekey(a, b,	s) {
 
 	# Generally, comments are printed without touching
 	sub(/[ \t]+$/, "")
-	print $0
-	next
+
+	if (/Source.*md5/) {
+		print $0
+		next
+	}
 }
 
 /^%define/ {
