@@ -27,6 +27,8 @@ BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
+	PREAMBLE_TAGS = "(Summary|Name|Version|Release|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Provides|PreReq|(Build)?Requires)"
+
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
 	bod = 0			# Beginning of %description
@@ -108,49 +110,20 @@ function b_makekey(a, b,	s) {
 	# kill commented out items
     gsub(/[# \t]*/, "", s);
 
-	# hack: change Obsoletes -> ZObsoletes to sort as last
-    gsub(/^Provides/, "YProvides", s);
-    gsub(/^Obsoletes/, "ZObsoletes", s);
+	# force order
+    gsub(/^Summary/, "1Summary", s);
+    gsub(/^Name/, "2Name", s);
+    gsub(/^Version/, "3Version", s);
+    gsub(/^Release/, "4Release", s);
+    gsub(/^License/, "5License", s);
+    gsub(/^Group/, "6Group", s);
+    gsub(/^URL/, "7URL", s);
+
+    gsub(/^Provides/, "XProvides", s);
+    gsub(/^Obsoletes/, "YObsoletes", s);
+    gsub(/^BuildArch/, "ZBuildArch", s);
+    gsub(/^BuildRoot/, "ZBuildRoot", s);
 	return s;
-}
-
-# sort BR/R!
-#
-# NOTES:
-# - mixing BR/R and anything else confuses this (all will be sorted together)
-#   so don't do that.
-# - comments leading the BR/R can not be associated,
-#   so don't adapterize when the BR/R are mixed with comments
-ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && /(Obsoletes|Provides|PreReq|(Build)?Requires)/, /(Obsoletes|Provides|PreReq|(Build)?Requires)/ {
-	if ($1 ~ /PreReq:/) {
-		sub(/PreReq:/, "Requires:", $1);
-	}
-	format_preamble()
-	kill_preamble_macros();
-
-	b_idx++;
-	l = substr($0, index($0, $2));
-	b_ktmp = b_makekey($1, l);
-	b_key[b_idx] = b_ktmp;
-	b_val[b_ktmp] = $0;
-
-	next;
-}
-
-/^%bcond_/ {
-	# do nothing
-	print
-	next
-}
-
-preamble == 1 {
-	if (b_idx > 0) {
-		isort(b_key, b_idx);
-		for (i = 1; i <= b_idx; i++) {
-			print "" b_val[b_key[i]];
-		}
-		b_idx = 0
-	}
 }
 
 # Comments
@@ -770,6 +743,46 @@ preamble == 1 {
 	if (field ~ /requires/) {
 		# atrpms
 		$0 = fixedsub("%{eversion}", "%{epoch}:%{version}-%{release}", $0);
+	}
+}
+
+
+# sort BR/R!
+#
+# NOTES:
+# - mixing BR/R and anything else confuses this (all will be sorted together)
+#   so don't do that.
+# - comments leading the BR/R can not be associated,
+#   so don't adapterize when the BR/R are mixed with comments
+ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS, $0 ~ PREAMBLE_TAGS {
+	if ($1 ~ /PreReq:/) {
+		sub(/PreReq:/, "Requires:", $1);
+	}
+	format_preamble()
+	kill_preamble_macros();
+
+	b_idx++;
+	l = substr($0, index($0, $2));
+	b_ktmp = b_makekey($1, l);
+	b_key[b_idx] = b_ktmp;
+	b_val[b_ktmp] = $0;
+
+	next;
+}
+
+/^%bcond_/ {
+	# do nothing
+	print
+	next
+}
+
+preamble == 1 {
+	if (b_idx > 0) {
+		isort(b_key, b_idx);
+		for (i = 1; i <= b_idx; i++) {
+			print "" b_val[b_key[i]];
+		}
+		b_idx = 0
 	}
 }
 
