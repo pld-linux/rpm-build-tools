@@ -126,6 +126,7 @@ ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && /(Obsoletes|Provides|PreReq|(Bui
 		sub(/PreReq:/, "Requires:", $1);
 	}
 	format_preamble()
+	kill_preamble_macros();
 
 	b_idx++;
 	l = substr($0, index($0, $2));
@@ -227,6 +228,9 @@ preamble == 1 {
 		version = $3
 	if ($2 ~ /^release$/)
 		release = $3
+
+	if ($2 ~ /^mod_name$/)
+		mod_name = $3
 
 	# do nothing further, otherwise adapter thinks we're at preamble
 	print
@@ -760,6 +764,7 @@ preamble == 1 {
 	if (field ~ /^patch:/)
 		$1 = "Patch0:"
 
+	kill_preamble_macros();
 	format_preamble()
 
 	if (field ~ /requires/) {
@@ -1208,4 +1213,11 @@ function cflags(var)
 	if (!/!\?debug/)
 		sub("\$RPM_OPT_FLAGS", "%{rpmcflags}")
 	return 1
+}
+
+function kill_preamble_macros()
+{
+	if ($1 ~ /^URL:/ || $1 ~ /^Obsoletes:/) {
+		sub("%{mod_name}", mod_name, $2);
+	}
 }
