@@ -111,7 +111,8 @@ function b_makekey(a, b,	s) {
     gsub(/[# \t]*/, "", s);
 
 	# force order
-    gsub(/^Summary/, "1Summary", s);
+    gsub(/^Summary\(/, "11Summary(", s);
+    gsub(/^Summary/, "10Summary", s);
     gsub(/^Name/, "2Name", s);
     gsub(/^Version/, "3Version", s);
     gsub(/^Release/, "4Release", s);
