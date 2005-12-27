@@ -125,7 +125,7 @@ function b_makekey(a, b,	s) {
     gsub(/^Conflicts/, "X3Conflicts", s);
     gsub(/^BuildArch/, "X4BuildArch", s);
     gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
-    gsub(/^ExcludeArch/, "X6ExcludeArch", s);
+    gsub(/^ExcludeArch/, "X7ExcludeArch", s);
     gsub(/^BuildRoot/, "X9BuildRoot", s);
 
 #	printf("%s -> %s\n", a""b, s);
@@ -1088,9 +1088,9 @@ function use_files_macros(	i, n, t, a)
 		$0 = $0 " # FIXME nobody user/group can't own files! -adapter.awk"
 	}
 
-	# suid programs with globs are evil
-	if (/%attr\(4...,.*\*/ && !/FIXME/) {
-		$0 = $0 " # FIXME no globs for suid files"
+	# s[gu]id programs with globs are evil
+	if (/%attr\([246]...,.*\*/ && !/FIXME/) {
+		$0 = $0 " # FIXME no globs for suid/sgid files"
 	}
 
 	# replace back
