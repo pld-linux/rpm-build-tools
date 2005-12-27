@@ -124,9 +124,9 @@ function b_makekey(a, b,	s) {
     gsub(/^Obsoletes/, "X2Obsoletes", s);
     gsub(/^Conflicts/, "X3Conflicts", s);
     gsub(/^BuildArch/, "X4BuildArch", s);
-    gsub(/^BuildRoot/, "X5BuildRoot", s);
     gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
     gsub(/^ExcludeArch/, "X6ExcludeArch", s);
+    gsub(/^BuildRoot/, "X9BuildRoot", s);
 
 #	printf("%s -> %s\n", a""b, s);
 	return s;
