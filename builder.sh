@@ -197,9 +197,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                       from <package>.spec,
 -bb, --build-binary - get all files from CVS repo or HTTP/FTP and build binary
                       only package from <package>.spec,
+-bp, --build-prep   - execute the %prep phase of <package>.spec,
+-bc                 - reserved (not implemented)
+-bi                   reserved (not implemented)
 -bs, --build-source - get all files from CVS repo or HTTP/FTP and only pack
                       them into src.rpm,
--bp, --build-prep   - execute the %prep phase of <package>.spec,
+--short-circuit     - reserved (not implemented)
 -B, --branch        - add branch
 -c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
                       SPECS and \$RPM_BUILD_ROOT),
