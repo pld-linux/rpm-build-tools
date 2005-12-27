@@ -1088,6 +1088,11 @@ function use_files_macros(	i, n, t, a)
 		$0 = $0 " # FIXME nobody user/group can't own files! -adapter.awk"
 	}
 
+	# suid programs with globs are evil
+	if (/%attr\(4...,.*\*/ && !/FIXME/) {
+		$0 = $0 " # FIXME no globs for suid files"
+	}
+
 	# replace back
 	gsub("%{_sysconfdir}/cron\.d", "/etc/cron.d")
 	gsub("%{_sysconfdir}/crontab\.d", "/etc/crontab.d")
