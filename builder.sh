@@ -41,7 +41,6 @@ UPDATE=""
 UPDATE5=""
 ADD5=""
 NO5=""
-ADAPTERIZE=""
 ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 CVSROOT=""
 
@@ -188,7 +187,6 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
 
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
---adapter[ize]      - run adapter.awk on SPECFILE
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
 -n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable builder script debugging mode,
@@ -1446,12 +1444,6 @@ fetch_build_requires()
 	fi
 }
 
-adapterize()
-{
-	 cd "$SPECS_DIR"
-	 ./adapter $SPECFILE
-}
-
 #---------------------------------------------
 # main()
 
@@ -1468,12 +1460,6 @@ do
 			NODIST="yes"
 			NOCVSSPEC="yes"
 			UPDATE5="yes"
-			shift ;;
-		--adapter | --adapterize )
-			COMMAND="adapterize";
-			NODIST="yes"
-			NOCVSSPEC="yes"
-			ADAPTERIZE="yes"
 			shift ;;
 		-a5 | --add-md5 )
 			COMMAND="get";
@@ -1824,9 +1810,6 @@ case "$COMMAND" in
 		for SAP in $SAPS ; do
 			 echo $SOURCE_DIR/$(echo $SAP | awk '{gsub(/.*\//,"") ; print }')
 		done
-		;;
-	"adapterize" )
-		adapterize
 		;;
 	"usage" )
 		usage;;
