@@ -247,6 +247,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -sp, --source-paths - list sources - filenames with full local paths (intended for
                       offline operations; does not work when Icon field is present
 							 but icon file is absent),
+-su, --source-urls  - list urls - urls to sources and patches
+                      intended for copying urls with spec with lots of macros in urls
 -T <cvstag> , --tag <cvstag>
                     - add cvs tag <cvstag> for files,
 -Tvs, --tag-version-stable
@@ -288,14 +290,14 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 update_shell_title() {
 	[ -t 1 ] || return
-	echo "$*"
+	echo >&2 "$*"
 	local msg="builder[$SPECFILE] $*"
 	case "$TERM" in
 		cygwin|xterm*)
-		echo -ne "\033]1;$msg\007\033]2;$msg\007"
+		echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
 	;;
 		screen*)
-		echo -ne "\033]0;$msg\007"
+		echo >&2 -ne "\033]0;$msg\007"
 	;;
 	esac
 }
@@ -1295,8 +1297,8 @@ fetch_build_requires()
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
 		update_shell_title "fetch_build_requires"
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
-			CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
-			DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
+			local CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
+			local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 
 			update_shell_title "fetch_build_requires: update indexes"
 			if [ -n "$CONF" ] || [ -n "$DEPS" ]; then
@@ -1307,20 +1309,25 @@ fetch_build_requires()
 				echo "Trying to uninstall conflicting packages ($CONF):"
 				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
 			fi
-			if [ -n "$DEPS" ]; then
+
+		   while [ "$DEPS" ]; do
 				update_shell_title "fetch_build_requires: install deps ($DEPS)"
 				echo "Trying to install dependencies ($DEPS):"
 				local log=.${SPECFILE}_poldek.log
 				$SU_SUDO /usr/bin/poldek --caplookup -uGq $DEPS | tee $log
 				failed=$(awk -F: '/^error:/{print $2}' $log)
 				rm -f $log
+				local ok
 				if [ -n "$failed" ]; then
 					 for package in $failed; do
 						  # FIXME: sanitise, deps could be not .spec files
-						  spawn_sub_builder -bb $package
+						  spawn_sub_builder -bb $package && ok="$ok $package"
 					 done
+					 DEPS="$ok"
+				else
+					 DEPS=""
 				fi
-			fi
+		   done
 			return
 		fi
 
@@ -1601,6 +1608,9 @@ do
 		-sp | --sources-paths)
 			COMMAND="list-sources-local-paths"
 			shift ;;
+		-su | --sources-urls)
+			COMMAND="list-sources-urls"
+			shift ;;
 		-Tvs | --tag-version-stable )
 			COMMAND="tag";
 			TAG="STABLE"
@@ -1822,6 +1832,17 @@ case "$COMMAND" in
 		SAPS="$SOURCES $PATCHES"
 		for SAP in $SAPS ; do
 			 echo $SAP | awk '{gsub(/.*\//,"") ; print}'
+		done
+		;;
+	"list-sources-urls" )
+		init_builder
+		NOCVSSPEC="yes"
+		DONT_PRINT_REVISION="yes"
+		get_spec
+		parse_spec
+		SAPS="$SOURCES $PATCHES"
+		for SAP in $SAPS ; do
+			 echo $SAP
 		done
 		;;
 	"list-sources-local-paths" )
