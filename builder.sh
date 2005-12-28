@@ -288,6 +288,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 update_shell_title() {
 	[ -t 1 ] || return
+	echo "$*"
 	local msg="builder[$SPECFILE] $*"
 	case "$TERM" in
 		cygwin|xterm*)
@@ -1155,7 +1156,7 @@ set_bconds_values()
 run_sub_builder()
 {
 	package_name="${1}"
-	echo -ne "Package installation failed:\t$package_name\n"
+	update_shell_title "run_sub_builder $package_name"
 	#
 	# No i tutaj bym chcia³ zrobiæ sztuczn± inteligencjê, która spróbuje tego
 	# pakieta zbudowaæ. Aktualnie niewiele dziala, bo generalnie nie widze do
@@ -1171,10 +1172,10 @@ run_sub_builder()
 	parent_spec_name=''
 
 	# Istnieje taki spec? ${package}.spec
-	if [ -f "${SPECS_DIR}${package}.spec" ]; then
+	if [ -f "${SPECS_DIR}/${package}.spec" ]; then
 		parent_spec_name=${package}.spec
-	elif [ -f "${SPECS_DIR}`echo ${package_name}|sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
-		parent_spec_name="`echo ${package_name}|sed -e s,-devel.*,,g -e s,-static,,g`.spec"
+	elif [ -f "${SPECS_DIR}/`echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
+		parent_spec_name="`echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g`.spec"
 	else
 		for provides_line in `grep ^Provides:.*$package  ${SPECS_DIR} -R`
 		do
@@ -1183,22 +1184,31 @@ run_sub_builder()
 	fi
 
 	if [ "${parent_spec_name}" != "" ]; then
-		sub_builder_opts=''
-		if [ "${FETCH_BUILD_REQUIRES}" == "yes" ]; then
-			sub_builder_opts="${sub_builder_opts} -R"
-		fi
-		if [ "${REMOVE_BUILD_REQUIRES}" == "nice" ]; then
-			sub_builder_opts="${sub_builder_opts} -RB"
-		elif [ "${REMOVE_BUILD_REQUIRES}" == "force" ]; then
-			sub_builder_opts="${sub_builder_opts} -FRB"
-		fi
-		if [ "${UPDATE_POLDEK_INDEXES}" == "yes" ]; then
-			sub_builder_opts="${sub_builder_opts} -Upi"
-		fi
-		cd "${SPECS_DIR}"
-		./builder ${sub_builder_opts} ${parent_spec_name}
+		spawn_sub_builder $parent_spec_name
 	fi
 	NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package_name"
+}
+
+spawn_sub_builder()
+{
+	 package_name="${1}"
+	 update_shell_title "spawn_sub_builder $package_name"
+
+	 sub_builder_opts=''
+	 if [ "${FETCH_BUILD_REQUIRES}" == "yes" ]; then
+		  sub_builder_opts="${sub_builder_opts} -R"
+	 fi
+	 if [ "${REMOVE_BUILD_REQUIRES}" == "nice" ]; then
+		  sub_builder_opts="${sub_builder_opts} -RB"
+	 elif [ "${REMOVE_BUILD_REQUIRES}" == "force" ]; then
+		  sub_builder_opts="${sub_builder_opts} -FRB"
+	 fi
+	 if [ "${UPDATE_POLDEK_INDEXES}" == "yes" ]; then
+		  sub_builder_opts="${sub_builder_opts} -Upi"
+	 fi
+
+	 cd "${SPECS_DIR}"
+	 ./builder ${sub_builder_opts} "$@"
 }
 
 remove_build_requires()
@@ -1290,17 +1300,26 @@ fetch_build_requires()
 
 			update_shell_title "fetch_build_requires: update indexes"
 			if [ -n "$CONF" ] || [ -n "$DEPS" ]; then
-				$SU_SUDO /usr/bin/poldek --update || $SU_SUDO /usr/bin/poldek --upa
+				$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
 			fi
 			if [ -n "$CONF" ]; then
-				 update_shell_title "fetch_build_requires: uninstall conflicting packages"
+				update_shell_title "fetch_build_requires: uninstall conflicting packages"
 				echo "Trying to uninstall conflicting packages ($CONF):"
 				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
 			fi
 			if [ -n "$DEPS" ]; then
 				update_shell_title "fetch_build_requires: install deps ($DEPS)"
 				echo "Trying to install dependencies ($DEPS):"
-				$SU_SUDO /usr/bin/poldek --caplookup -uGv $DEPS
+				local log=.${SPECFILE}_poldek.log
+				$SU_SUDO /usr/bin/poldek --caplookup -uGq $DEPS | tee $log
+				failed=$(awk -F: '/^error:/{print $2}' $log)
+				rm -f $log
+				if [ -n "$failed" ]; then
+					 for package in $failed; do
+						  # FIXME: sanitise, deps could be not .spec files
+						  spawn_sub_builder -bb $package
+					 done
+				fi
 			fi
 			return
 		fi
@@ -1396,6 +1415,7 @@ fetch_build_requires()
 									;;
 								*)
 									echo "Attempting to run spawn sub - builder..."
+									echo -ne "Package installation failed:\t$package_name\n"
 									run_sub_builder $package_name
 									if [ $? -eq 0 ]; then
 										install_required_packages $package_name;
@@ -1415,6 +1435,7 @@ fetch_build_requires()
 						rm -f ".$package-req.txt"
 					else
 						echo "Attempting to run spawn sub - builder..."
+						echo -ne "Package installation failed:\t$package\n"
 						run_sub_builder $package
 						if [ $? -eq 0 ]; then
 							install_required_packages $package;
