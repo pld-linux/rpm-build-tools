@@ -1080,6 +1080,11 @@ function use_files_macros(	i, n, t, a)
 {
 	use_macros()
 
+	# skip comments
+	if (/^#/) {
+		return;
+	}
+
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
