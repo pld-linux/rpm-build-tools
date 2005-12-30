@@ -1124,6 +1124,10 @@ function use_files_macros(	i, n, t, a)
 		$0 = "%attr(755,root,root) " $0
 	}
 
+	if (/%{perl_vendorarch}.*\.so$/ && !/^%attr.*/) {
+		$0 = "%attr(755,root,root) " $0
+	}
+
 	# /etc/sysconfig files
 	# %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
 	# attr not required, allow default 644 attr
