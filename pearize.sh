@@ -28,10 +28,13 @@ if [ ! -f "$spec" ]; then
 fi
 echo "Processing $spec"
 
-rc=$(awk '/^%define.*_rc/{print $NF}' $spec)
-pre=$(awk '/^%define.*_pre/{print $NF}' $spec)
-beta=$(awk '/^%define.*_beta/{print $NF}' $spec)
-tarball=$(rpm -q --qf "../SOURCES/%{name}-%{version}$rc$pre$beta.tgz\n" --specfile "$spec" | head -n 1 | sed -e 's,php-pear-,,')
+getsource() {
+	local spec="$1"
+	local NR="$2"
+	rpmbuild --nodigest --nosignature -bp --define 'prep %dump' $spec 2>&1 | awk  "/SOURCE$NR\t/ {print \$3}"
+}
+
+tarball=$(getsource $spec 0)
 
 if [ ! -f $tarball ]; then
 	./builder -g "$spec"
