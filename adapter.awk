@@ -1268,6 +1268,8 @@ function kill_preamble_macros()
 {
 	if ($1 ~ /^URL:/ || $1 ~ /^Obsoletes:/) {
 		sub("%{mod_name}", mod_name, $2);
+		sub("%{name}", name, $2);
+
 		# unify sourceforge url
 		sub("\.sf\.net/$", ".sourceforge.net/", $2);
 	}
