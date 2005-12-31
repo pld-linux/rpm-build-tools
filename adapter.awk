@@ -1050,6 +1050,11 @@ function use_macros()
 	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("CXXFLAGS=%{rpmcflags} %configure", "CXXFLAGS=%{rpmcflags}\n%configure", $0);
 
+	# split configure line to multiple lines
+	if (/%configure / && !/\\$/) {
+		$0 = format_configure($0);
+	}
+
 	gsub("%_bindir", "%{_bindir}")
 	gsub("%_datadir", "%{_datadir}")
 	gsub("%_iconsdir", "%{_iconsdir}")
@@ -1059,6 +1064,15 @@ function use_macros()
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
+}
+
+function format_configure(line,		n, a, s) {
+	n = split(line, a, / /);
+	s = a[1] " \\\n";
+	for (i = 2; i <= n; i++) {
+		s = s "\t" a[i] " \\\n"
+	}
+	return s
 }
 
 
