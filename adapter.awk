@@ -614,9 +614,9 @@ preamble == 1 {
 	}
 
 	# split (build)requires, obsoletes on commas
-	if (field ~ /(obsoletes|requires):/ && $0 ~ /,/) {
+	if (field ~ /(obsoletes|requires):/ && NF > 2) {
 		l = substr($0, index($0, $2));
-		n = split(l, p, / *, */);
+		n = split(l, p, / *,? */);
 		for (i in p) {
 			printf("%s\t%s\n", $1, p[i]);
 		}
@@ -696,7 +696,7 @@ preamble == 1 {
 			sub(/\.pamd$/,"",url[n])
 		}
 
-		# allow %{name} just in last url component
+		# allow %{name} only in last url component
 		s = ""
 		for (i = 1; i <= n; i++) {
 			url[i] = fixedsub("%{name}", name, url[i])
