@@ -615,16 +615,13 @@ preamble == 1 {
 
 	# split (build)requires, obsoletes on commas
 	if (field ~ /(obsoletes|requires):/ && NF > 2) {
-		l = substr($0, index($0, $2));
-		n = split(l, p, / *,? */);
-		for (i in p) {
-			printf("%s\t%s\n", $1, p[i]);
-		}
-		next;
+		value = substr($0, index($0, $2));
+		$0 = format_requires($1, value);
 	}
 
-	if (field ~ /packager:|distribution:|docdir:|prefix:/)
+	if (field ~ /packager:|distribution:|docdir:|prefix:/) {
 		next
+	}
 
 	if (field ~ /buildroot:/)
 		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
@@ -1273,4 +1270,21 @@ function kill_preamble_macros()
 		# unify sourceforge url
 		sub("\.sf\.net/$", ".sourceforge.net/", $2);
 	}
+}
+
+function format_requires(tag, value,	n, p, i, deps, ndeps) {
+	n = split(value, p, / *,? */);
+	for (i = 1; i <= n; i++) {
+		if (p[i+1] ~ /[<=>]/) {
+			deps[ndeps++] = p[i] " " p[i+1] " " p[i+2];
+			i += 2;
+		} else {
+			deps[ndeps++] = p[i];
+		}
+	}
+	s = ""
+	for (i in deps) {
+		s = s sprintf("%s\t%s\n", tag, deps[i]);
+	}
+	return substr(s, 1, length(s)-1);
 }
