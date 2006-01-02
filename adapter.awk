@@ -364,6 +364,8 @@ function b_makekey(a, b,	s) {
 	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
 	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0);
 	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0);
+	$0 = fixedsub("libtoolize -c -f --automake", "%{__libtoolize}", $0);
+	$0 = fixedsub("automake -a -c --foreign", "%{__automake}", $0);
 
 	sub(/^aclocal$/, "%{__aclocal}");
 	sub(/^autoheader$/, "%{__autoheader}");
@@ -1261,12 +1263,29 @@ function cflags(var)
 	return 1
 }
 
+function demacroize(str)
+{
+	sub("%{mod_name}", mod_name, str);
+	sub("%{name}", name, str);
+	if (version) {
+		sub("%{version}", version, str);
+	}
+	if (_beta) {
+		sub("%{_beta}", _beta, str);
+	}
+	if (_rc) {
+		sub("%{_rc}", _rc, str);
+	}
+	if (_snap) {
+		sub("%{_snap}", _snap, str);
+	}
+	return str;
+}
+
 function kill_preamble_macros()
 {
 	if ($1 ~ /^URL:/ || $1 ~ /^Obsoletes:/) {
-		sub("%{mod_name}", mod_name, $2);
-		sub("%{name}", name, $2);
-
+		$2 = demacroize($2);
 		# unify sourceforge url
 		sub("\.sf\.net/$", ".sourceforge.net/", $2);
 	}
