@@ -766,7 +766,7 @@ ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS, $0 ~ PREAMBL
 		sub(/PreReq:/, "Requires:", $1);
 	}
 	format_preamble()
-	kill_preamble_macros();
+#	kill_preamble_macros(); # breaks tabbing
 
 	b_idx++;
 	l = substr($0, index($0, $2));
@@ -1265,8 +1265,12 @@ function cflags(var)
 
 function demacroize(str)
 {
-	sub("%{mod_name}", mod_name, str);
-	sub("%{name}", name, str);
+	if (mod_name) {
+		sub("%{mod_name}", mod_name, str);
+	}
+	if (name) {
+		sub("%{name}", name, str);
+	}
 	if (version) {
 		sub("%{version}", version, str);
 	}
@@ -1285,6 +1289,7 @@ function demacroize(str)
 function kill_preamble_macros()
 {
 	if ($1 ~ /^URL:/ || $1 ~ /^Obsoletes:/) {
+		# NB! assigning $2 a value breaks tabbing
 		$2 = demacroize($2);
 		# unify sourceforge url
 		sub("\.sf\.net/$", ".sourceforge.net/", $2);
