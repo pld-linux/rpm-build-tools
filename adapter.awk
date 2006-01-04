@@ -1297,6 +1297,10 @@ function kill_preamble_macros()
 }
 
 function format_requires(tag, value,	n, p, i, deps, ndeps) {
+	# skip any formatting for commented out items
+	if (/^#/) {
+		return tag "\t" value
+	}
 	n = split(value, p, / *,? */);
 	for (i = 1; i <= n; i++) {
 		if (p[i+1] ~ /[<=>]/) {
