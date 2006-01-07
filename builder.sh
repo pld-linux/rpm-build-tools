@@ -290,8 +290,10 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 
 update_shell_title() {
 	[ -t 1 ] || return
-	echo >&2 "$*"
-	local msg="builder[$SPECFILE] $*"
+	local len=${COLUMNS:-80}
+	local msg=$(echo "$*" | cut -c-$len)
+
+	msg="builder[$SPECFILE] $msg"
 	case "$TERM" in
 		cygwin|xterm*)
 		echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
@@ -1022,7 +1024,7 @@ install_required_packages()
 
 set_bconds_values()
 {
-	update_shell_title "set_bconds_values"
+	update_shell_title "set bcond values"
 
 	AVAIL_BCONDS_WITHOUT=""
 	AVAIL_BCONDS_WITH=""
@@ -1295,23 +1297,23 @@ _rpm_cnfl_check()
 fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
-		update_shell_title "fetch_build_requires"
+		update_shell_title "fetch build requires"
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
 			local CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
 			local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 
-			update_shell_title "fetch_build_requires: update indexes"
+			update_shell_title "poldek: update indexes"
 			if [ -n "$CONF" ] || [ -n "$DEPS" ]; then
 				$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
 			fi
 			if [ -n "$CONF" ]; then
-				update_shell_title "fetch_build_requires: uninstall conflicting packages"
+				update_shell_title "uninstall conflicting packages: $CONF"
 				echo "Trying to uninstall conflicting packages ($CONF):"
 				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
 			fi
 
 		   while [ "$DEPS" ]; do
-				update_shell_title "fetch_build_requires: install deps ($DEPS)"
+				update_shell_title "install deps: $DEPS"
 				echo "Trying to install dependencies ($DEPS):"
 				local log=.${SPECFILE}_poldek.log
 				$SU_SUDO /usr/bin/poldek --caplookup -uGq $DEPS | tee $log
