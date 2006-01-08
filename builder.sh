@@ -346,7 +346,7 @@ rpm_dump () {
 
 parse_spec()
 {
-	update_shell_title "parse_spec"
+	update_shell_title "parsing specfile"
 	if [ -n "$DEBUG" ]; then
 		set -x;
 		set -v;
@@ -626,7 +626,7 @@ cvsignore_df ()
 get_files()
 {
 	GET_FILES="$@"
-	update_shell_title "get_files"
+	update_shell_title "fetching sources"
 
 	if [ -n "$DEBUG" ]; then
 		set -x;
