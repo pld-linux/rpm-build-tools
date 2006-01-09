@@ -49,7 +49,8 @@ Optional: @optional@
 License: @release_license@
 State: @release_state@
 EOF
-template=$(pear makerpm --spec-template=$stmp $tarball | awk '/Wrote RPM spec file/{print $NF}{print $0 > "/dev/stderr"}')
+pear makerpm --spec-template=$stmp --rpm-pkgname=pearize $tarball
+template=pearize.spec
 rm -f $stmp
 
 mv $template .$template~
