@@ -120,6 +120,8 @@ function b_makekey(a, b,	s) {
     gsub(/^Group/, "6Group", s);
     gsub(/^URL/, "7URL", s);
 
+    gsub(/^BuildRequires/, "B1BuildRequires", s);
+    gsub(/^BuildConflicts/, "B2BuildConflicts", s);
     gsub(/^Provides/, "X1Provides", s);
     gsub(/^Obsoletes/, "X2Obsoletes", s);
     gsub(/^Conflicts/, "X3Conflicts", s);
