@@ -724,6 +724,7 @@ get_files()
 					while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]
 					do
 						retries_counter=$(( $retries_counter + 1 ))
+						update_shell_title "get_files: `nourl $i`"
 						output=$(LC_ALL=C cvs $OPTIONS `nourl $i` 2>&1)
 						result=$?
 						[ -n "$output" ] && echo "$output"
@@ -1562,7 +1563,7 @@ do
 		--opts )
 			shift; RPMOPTS="$RPM_OPTS ${1}"; shift ;;
 		--nopatch | -np )
-			shift; RPMOPTS="${RPMOPTS} --define \"patch${1} echo ignoring patch${1} \""; shift ;;
+			shift; RPMOPTS="${RPMOPTS} --define \"patch${1} : ignoring patch${1}; exit 1; \""; shift ;;
 		--with | --without )
 			case $GROUP_BCONDS in
 				"yes")
