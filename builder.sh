@@ -298,7 +298,7 @@ update_shell_title() {
 	local len=${COLUMNS:-80}
 	local msg=$(echo "$*" | cut -c-$len)
 
-	msg="builder[$SPECFILE] $msg"
+	msg="builder[$SPECFILE] ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
 	case "$TERM" in
 		cygwin|xterm*)
 		echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
@@ -660,8 +660,12 @@ get_files()
 				OPTIONS="$OPTIONS -r $CVSTAG"
 			fi
 		fi
+		local nf=$(echo "$GET_FILES" | wc -w)
+		local nc=0
 		for i in $GET_FILES; do
-			update_shell_title "get_files: $i"
+			nc=$((nc + 1))
+			SHELL_TITLE_PREFIX="get_files[$nc/$nf]"
+			update_shell_title "$i"
 			local fp=`nourl "$i"`
 			if [ -f "$fp" ] && [ "$SKIP_EXISTING_FILES" = "yes" ]; then
 				 continue
@@ -822,6 +826,7 @@ get_files()
 			fi
 		fi
 		unset OPTIONS
+		SHELL_TITLE_PREFIX=""
 	fi
 }
 
