@@ -658,6 +658,7 @@ get_files()
 		local get_files_cvs=""
 		for i in "$@"; do
 			nc=$((nc + 1))
+			local cvsup=0
 			SHELL_TITLE_PREFIX="get_files[$nc/$#]"
 			update_shell_title "$i"
 			local fp=`nourl "$i"`
@@ -725,8 +726,9 @@ get_files()
 						FROM_DISTFILES=0
 					fi
 				elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
-				   get_files_cvs="$get_files_cvs $fp"
-					continue
+				    get_files_cvs="$get_files_cvs $fp"
+				   	# we'll do cvs up later
+					cvsup=1
 				fi
 
 				if [ -z "$NOURLS" ] && [ ! -f "$fp" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
@@ -741,6 +743,10 @@ get_files()
 						 update_shell_title "${GETURI2%% *}: $im"
 						${GETURI2} "$im"
 					fi
+				fi
+
+				if [ "$cvsup" = 1 ]; then
+					continue
 				fi
 
 			fi
