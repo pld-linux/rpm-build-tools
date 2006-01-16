@@ -86,6 +86,9 @@ DEF_NICE_LEVEL=19
 
 FAIL_IF_NO_SOURCES="yes"
 
+# let get_files skip over files which are present to get those damn files fetched
+SKIP_EXISTING_FILES="no"
+
 if [ -x /usr/bin/rpm-getdeps ]; then
 	 FETCH_BUILD_REQUIRES_RPMGETDEPS="yes"
 else
@@ -228,6 +231,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -ns, --no-srcs      - don't download Sources
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
+-ske,
+--skip-existing-files - skip existing files in get_files
 --opts <rpm opts>   - additional options for rpm
 -q, --quiet         - be quiet,
 --date yyyy-mm-dd   - build package using resources from specified CVS date,
@@ -657,6 +662,9 @@ get_files()
 		fi
 		for i in $GET_FILES
 		do
+			if [ -f "`nourl $i`" ] && [ "$SKIP_EXISTING_FILES" = "yes" ]; then
+				 continue
+			fi
 			if [ -n "$UPDATE5" ]; then
 				if [ -n "$ADD5" ]; then
 					[ `nourl $i` = "$i" ] && continue
@@ -1536,6 +1544,8 @@ do
 			shift; LOGFILE="${1}"; shift ;;
 		-ni| --nice )
 			shift; DEF_NICE_LEVEL=${1}; shift ;;
+		-ske | --skip-existing-files)
+			SKIP_EXISTING_FILES="yes"; shift ;;
 		-m | --mr-proper )
 			COMMAND="mr-proper"; shift ;;
 		-nc | --no-cvs )
