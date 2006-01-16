@@ -719,32 +719,32 @@ get_files()
 					url_attic=$(distfiles_attic_url "$i")
 					FROM_DISTFILES=1
 					if [ "`echo $url | grep -E '^(\.|/)'`" ]; then
-						update_shell_title "${GETLOCAL}: $url"
+						update_shell_title "${GETLOCAL%% *}: $url"
 						${GETLOCAL} $url $target
 					else
 						if [ -z "$NOMIRRORS" ]; then
 							url="`find_mirror "$url"`"
 						fi
-						update_shell_title "${GETURI}: $url"
+						update_shell_title "${GETURI%% *}: $url"
 						${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 						if [ "`echo $url | grep -E 'ftp://'`" ]; then
-							update_shell_title "${GETURI2}: $url"
+							update_shell_title "${GETURI2%% *}: $url"
 							${GETURI2} ${OUTFILEOPT} "$target" "$url"
 						fi
 					fi
 					if ! test -s "$target"; then
 						rm -f "$target"
 						if [ `echo $url_attic | grep -E '^(\.|/)'` ]; then
-							update_shell_title "${GETLOCAL}: $url_attic"
+							update_shell_title "${GETLOCAL%% *}: $url_attic"
 							${GETLOCAL} $url_attic $target
 						else
 							if [ -z "$NOMIRRORS" ]; then
 								url_attic="`find_mirror "$url_attic"`"
 							fi
-							update_shell_title "${GETURI}: $url_attic"
+							update_shell_title "${GETURI%% *}: $url_attic"
 							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 							if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
-								 update_shell_title "${GETURI2}: $url_attic"
+								 update_shell_title "${GETURI2%% *}: $url_attic"
 								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 							fi
 						fi
@@ -766,10 +766,10 @@ get_files()
 					else
 						im="$i"
 					fi
-				 	update_shell_title "${GETURI}: $im"
+				 	update_shell_title "${GETURI%% *}: $im"
 					${GETURI} "$im" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
-						 update_shell_title "${GETURI2}: $im"
+						 update_shell_title "${GETURI2%% *}: $im"
 						${GETURI2} "$im"
 					fi
 				fi
@@ -801,18 +801,18 @@ get_files()
 				echo "MD5 sum mismatch. Trying full fetch."
 				FROM_DISTFILES=2
 				rm -f $target
-				update_shell_title "${GETURI}: $url"
+				update_shell_title "${GETURI%% *}: $url"
 				${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 				if [ "`echo $url | grep -E 'ftp://'`" ]; then
-					 update_shell_title "${GETURI2}: $url"
+					 update_shell_title "${GETURI2%% *}: $url"
 					${GETURI2} ${OUTFILEOPT} "$target" "$url"
 				fi
 				if ! test -s "$target"; then
 					rm -f "$target"
-					update_shell_title "${GETURI}: $url_attic"
+					update_shell_title "${GETURI%% *}: $url_attic"
 					${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 					if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
-						 update_shell_title "${GETURI2}: $url_attic"
+						 update_shell_title "${GETURI2%% *}: $url_attic"
 						${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 					fi
 				fi
