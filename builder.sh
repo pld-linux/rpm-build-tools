@@ -471,50 +471,19 @@ get_spec()
 	fi
 
 	cd "$SPECS_DIR"
-	if [ \! -f "$SPECFILE" ]; then
+	if [ ! -f "$SPECFILE" ]; then
 		SPECFILE="`basename $SPECFILE .spec`.spec";
 	fi
 	if [ "$NOCVSSPEC" != "yes" ]; then
-		OPTIONS="up "
 
-		if [ -n "$CVSROOT" ]; then
-			OPTIONS="-d $CVSROOT $OPTIONS"
-		else
-			if [ ! -s CVS/Root -a "$NOCVSSPEC" != "yes" ]; then
-				echo "warning: No cvs access defined - using local .spec file"
-				NOCVSSPEC="yes"
-			fi
+		if [ ! -s CVS/Root -a "$NOCVSSPEC" != "yes" ]; then
+			echo "Warning: No CVS access defined - using local .spec file"
+			NOCVSSPEC="yes"
 		fi
 
-		if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
-			OPTIONS="$OPTIONS -A"
-		else
-			if [ -n "$CVSDATE" ]; then
-				OPTIONS="$OPTIONS -D $CVSDATE"
-			fi
-			if [ -n "$CVSTAG" ]; then
-				OPTIONS="$OPTIONS -r $CVSTAG"
-			fi
-		fi
-
-		result=1
-		retries_counter=0
-		while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]
-		do
-			retries_counter=$(( $retries_counter + 1 ))
-			output=$(LC_ALL=C cvs $OPTIONS $SPECFILE 2>&1)
-			result=$?
-			[ -n "$output" ] && echo "$output"
-			if [ "$result" -ne "0" ]; then
-				if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out|Unknown host)") && [ "$retries_counter" -le "$CVS_RETRIES" ]; then
-					echo "Trying again [$SPECFILE]... ($retries_counter)"
-					sleep 2
-					continue
-				fi
-				Exit_error err_no_spec_in_repo;
-			fi
-		done
+		cvsup "$SPECFILE" || Exit_error err_no_spec_in_repo
 	fi
+
 	if [ ! -f "$SPECFILE" ]; then
 		Exit_error err_no_spec_in_repo;
 	fi
@@ -665,6 +634,7 @@ cvsup()
 		  fi
 	 done
 	 update_shell_title "cvsup: done!"
+	 return $result
 }
 
 get_files()
@@ -681,7 +651,7 @@ get_files()
 		cd "$SOURCE_DIR"
 
 		if [ ! -s CVS/Root -a "$NOCVS" != "yes" ]; then
-			echo "warning: No cvs access defined for SOURCES"
+			echo "Warning: No CVS access defined for SOURCES"
 			NOCVS="yes"
 		fi
 
