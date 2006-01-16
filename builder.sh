@@ -639,7 +639,6 @@ cvsup()
 
 get_files()
 {
-	GET_FILES="$@"
 	update_shell_title "fetching sources"
 
 	if [ -n "$DEBUG" ]; then
@@ -655,12 +654,11 @@ get_files()
 			NOCVS="yes"
 		fi
 
-		local nf=$(echo "$GET_FILES" | wc -w)
 		local nc=0
 		local get_files_cvs=""
-		for i in $GET_FILES; do
+		for i in "$@"; do
 			nc=$((nc + 1))
-			SHELL_TITLE_PREFIX="get_files[$nc/$nf]"
+			SHELL_TITLE_PREFIX="get_files[$nc/$#]"
 			update_shell_title "$i"
 			local fp=`nourl "$i"`
 			if [ -f "$fp" ] && [ "$SKIP_EXISTING_FILES" = "yes" ]; then
@@ -805,7 +803,7 @@ get_files()
 		fi
 
 		if [ "$CHMOD" = "yes" ]; then
-			CHMOD_FILES="`nourl $GET_FILES`"
+			CHMOD_FILES="`nourl "$@"`"
 			if [ -n "$CHMOD_FILES" ]; then
 				chmod $CHMOD_MODE $CHMOD_FILES
 			fi
