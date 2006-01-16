@@ -628,6 +628,49 @@ cvsignore_df ()
 	fi
 }
 
+cvsup()
+{
+	 update_shell_title "cvsup"
+	 local OPTIONS="up "
+	 if [ -n "$CVSROOT" ]; then
+		  OPTIONS="-d $CVSROOT $OPTIONS"
+	 else
+		  if [ ! -s CVS/Root -a "$NOCVS" != "yes" ]; then
+				echo "warning: No cvs access defined for SOURCES"
+				NOCVS="yes"
+		  fi
+	 fi
+	 if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
+		  OPTIONS="$OPTIONS -A"
+	 else
+		  if [ -n "$CVSDATE" ]; then
+				OPTIONS="$OPTIONS -D $CVSDATE"
+		  fi
+		  if [ -n "$CVSTAG" ]; then
+				OPTIONS="$OPTIONS -r $CVSTAG"
+		  fi
+	 fi
+
+	 local result=1
+	 local retries_counter=0
+	 update_shell_title "cvsup: $# files"
+	 while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
+		  retries_counter=$(( $retries_counter + 1 ))
+		  output=$(LC_ALL=C cvs $OPTIONS "$@" 2>&1)
+		  result=$?
+		  [ -n "$output" ] && echo "$output"
+		  if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out|Unknown host)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
+				echo "Trying again [$*]... ($retries_counter)"
+				update_shell_title "cvsup: retry #$retries_counter"
+				sleep 2
+				continue
+		  else
+				break
+		  fi
+	 done
+	 update_shell_title "cvsup: done!"
+}
+
 get_files()
 {
 	GET_FILES="$@"
@@ -641,27 +684,9 @@ get_files()
 	if [ $# -gt 0 ]; then
 		cd "$SOURCE_DIR"
 
-		OPTIONS="up "
-		if [ -n "$CVSROOT" ]; then
-			OPTIONS="-d $CVSROOT $OPTIONS"
-		else
-			if [ ! -s CVS/Root -a "$NOCVS" != "yes" ]; then
-				echo "warning: No cvs access defined for SOURCES"
-				NOCVS="yes"
-			fi
-		fi
-		if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
-			OPTIONS="$OPTIONS -A"
-		else
-			if [ -n "$CVSDATE" ]; then
-				OPTIONS="$OPTIONS -D $CVSDATE"
-			fi
-			if [ -n "$CVSTAG" ]; then
-				OPTIONS="$OPTIONS -r $CVSTAG"
-			fi
-		fi
 		local nf=$(echo "$GET_FILES" | wc -w)
 		local nc=0
+		local get_files_cvs=""
 		for i in $GET_FILES; do
 			nc=$((nc + 1))
 			SHELL_TITLE_PREFIX="get_files[$nc/$nf]"
@@ -731,24 +756,8 @@ get_files()
 						FROM_DISTFILES=0
 					fi
 				elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
-					# ( echo $i | grep -qvE '(ftp|http|https)://' ); -- if CVS should be used, but URLs preferred
-					result=1
-					retries_counter=0
-					while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]
-					do
-						retries_counter=$(( $retries_counter + 1 ))
-						update_shell_title "cvs up: $fp"
-						output=$(LC_ALL=C cvs $OPTIONS "$fp" 2>&1)
-						result=$?
-						[ -n "$output" ] && echo "$output"
-						if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out|Unknown host)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
-							echo "Trying again ["$fp"]... ($retries_counter)"
-							sleep 2
-							continue
-						else
-							break
-						fi
-					done
+				   get_files_cvs="$get_files_cvs $fp"
+					continue
 				fi
 
 				if [ -z "$NOURLS" ] && [ ! -f "$fp" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
@@ -818,6 +827,11 @@ get_files()
 				Exit_error err_no_source_in_repo $i
 			fi
 		done
+		SHELL_TITLE_PREFIX=""
+
+		if [ "$get_files_cvs" ]; then
+			 cvsup $get_files_cvs
+		fi
 
 		if [ "$CHMOD" = "yes" ]; then
 			CHMOD_FILES="`nourl $GET_FILES`"
@@ -825,8 +839,6 @@ get_files()
 				chmod $CHMOD_MODE $CHMOD_FILES
 			fi
 		fi
-		unset OPTIONS
-		SHELL_TITLE_PREFIX=""
 	fi
 }
 
