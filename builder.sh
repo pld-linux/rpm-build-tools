@@ -1898,4 +1898,4 @@ if [ -f "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES" -a "$REMOVE_BUILD_REQUIRES" != "
 fi
 cd "$__PWD"
 
-# vi:syntax=sh:ts=3:sw=4
+# vi:syntax=sh:ts=4:sw=4
