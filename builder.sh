@@ -638,7 +638,7 @@ get_files()
 		set -v;
 	fi
 
-	if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
+	if [ $# -gt 0 ]; then
 		cd "$SOURCE_DIR"
 
 		OPTIONS="up "
@@ -660,21 +660,22 @@ get_files()
 				OPTIONS="$OPTIONS -r $CVSTAG"
 			fi
 		fi
-		for i in $GET_FILES
-		do
-			if [ -f "`nourl $i`" ] && [ "$SKIP_EXISTING_FILES" = "yes" ]; then
+		for i in $GET_FILES; do
+			update_shell_title "get_files: $i"
+			local fp=`nourl "$i"`
+			if [ -f "$fp" ] && [ "$SKIP_EXISTING_FILES" = "yes" ]; then
 				 continue
 			fi
 			if [ -n "$UPDATE5" ]; then
 				if [ -n "$ADD5" ]; then
-					[ `nourl $i` = "$i" ] && continue
+					[ "$fp" = "$i" ] && continue
 					grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
 				else
 					grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
 				fi
 			fi
 			FROM_DISTFILES=0
-			if [ ! -f `nourl $i` ] || [ $ALWAYS_CVSUP = "yes" ]; then
+			if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 				if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 					echo "Warning: no URL given for $i"
 				fi
@@ -689,32 +690,32 @@ get_files()
 					url_attic=$(distfiles_attic_url "$i")
 					FROM_DISTFILES=1
 					if [ "`echo $url | grep -E '^(\.|/)'`" ]; then
-						update_shell_title "get_files: $url"
+						update_shell_title "${GETLOCAL}: $url"
 						${GETLOCAL} $url $target
 					else
 						if [ -z "$NOMIRRORS" ]; then
 							url="`find_mirror "$url"`"
 						fi
-						update_shell_title "get_files: $url"
+						update_shell_title "${GETURI}: $url"
 						${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 						if [ "`echo $url | grep -E 'ftp://'`" ]; then
-							update_shell_title "get_files: $url"
+							update_shell_title "${GETURI2}: $url"
 							${GETURI2} ${OUTFILEOPT} "$target" "$url"
 						fi
 					fi
 					if ! test -s "$target"; then
 						rm -f "$target"
 						if [ `echo $url_attic | grep -E '^(\.|/)'` ]; then
-							update_shell_title "get_files: $url_attic"
+							update_shell_title "${GETLOCAL}: $url_attic"
 							${GETLOCAL} $url_attic $target
 						else
 							if [ -z "$NOMIRRORS" ]; then
 								url_attic="`find_mirror "$url_attic"`"
 							fi
-							update_shell_title "get_files: $url_attic"
+							update_shell_title "${GETURI}: $url_attic"
 							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 							if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
-								 update_shell_title "get_files: $url_attic"
+								 update_shell_title "${GETURI2}: $url_attic"
 								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 							fi
 						fi
@@ -732,12 +733,12 @@ get_files()
 					while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]
 					do
 						retries_counter=$(( $retries_counter + 1 ))
-						update_shell_title "get_files: `nourl $i`"
-						output=$(LC_ALL=C cvs $OPTIONS `nourl $i` 2>&1)
+						update_shell_title "cvs up: $fp"
+						output=$(LC_ALL=C cvs $OPTIONS "$fp" 2>&1)
 						result=$?
 						[ -n "$output" ] && echo "$output"
 						if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out|Unknown host)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
-							echo "Trying again [`nourl $i`]... ($retries_counter)"
+							echo "Trying again ["$fp"]... ($retries_counter)"
 							sleep 2
 							continue
 						else
@@ -746,23 +747,23 @@ get_files()
 					done
 				fi
 
-				if [ -z "$NOURLS" ] && [ ! -f "`nourl $i`" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
+				if [ -z "$NOURLS" ] && [ ! -f "$fp" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
 					if [ -z "$NOMIRRORS" ]; then
 						im="`find_mirror "$i"`"
 					else
 						im="$i"
 					fi
-				 	update_shell_title "get_files: $im"
+				 	update_shell_title "${GETURI}: $im"
 					${GETURI} "$im" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
-						 update_shell_title "get_files: $im"
+						 update_shell_title "${GETURI2}: $im"
 						${GETURI2} "$im"
 					fi
 				fi
 
 			fi
 			srcno=$(src_no $i)
-			if [ ! -f "`nourl $i`" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
+			if [ ! -f "$fp" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
 				Exit_error err_no_source_in_repo $i;
 			elif [ -n "$UPDATE5" ] && \
 				( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
@@ -770,7 +771,7 @@ get_files()
 				grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
 			then
 				echo "Updating source-$srcno md5."
-				md5=$(md5sum `nourl $i` | cut -f1 -d' ')
+				md5=$(md5sum "$fp" | cut -f1 -d' ')
 				perl -i -ne '
 				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
 				print "# Source'$srcno'-md5:\t'$md5'\n"
@@ -787,18 +788,18 @@ get_files()
 				echo "MD5 sum mismatch. Trying full fetch."
 				FROM_DISTFILES=2
 				rm -f $target
-				update_shell_title "get_files: $url"
+				update_shell_title "${GETURI}: $url"
 				${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 				if [ "`echo $url | grep -E 'ftp://'`" ]; then
-					 update_shell_title "get_files: $url"
+					 update_shell_title "${GETURI2}: $url"
 					${GETURI2} ${OUTFILEOPT} "$target" "$url"
 				fi
 				if ! test -s "$target"; then
 					rm -f "$target"
-					update_shell_title "get_files: $url_attic"
+					update_shell_title "${GETURI}: $url_attic"
 					${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 					if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
-						 update_shell_title "get_files: $url_attic"
+						 update_shell_title "${GETURI2}: $url_attic"
 						${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 					fi
 				fi
@@ -1569,6 +1570,7 @@ do
 			NOMIRRORS="yes"
 			NOURLS="yes"
 			NOSRCS="yes"
+			ALWAYS_CVSUP="no"
 			shift;;
 		--opts )
 			shift; RPMOPTS="$RPM_OPTS ${1}"; shift ;;
