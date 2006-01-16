@@ -634,12 +634,8 @@ cvsup()
 	 local OPTIONS="up "
 	 if [ -n "$CVSROOT" ]; then
 		  OPTIONS="-d $CVSROOT $OPTIONS"
-	 else
-		  if [ ! -s CVS/Root -a "$NOCVS" != "yes" ]; then
-				echo "warning: No cvs access defined for SOURCES"
-				NOCVS="yes"
-		  fi
 	 fi
+
 	 if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
 		  OPTIONS="$OPTIONS -A"
 	 else
@@ -683,6 +679,11 @@ get_files()
 
 	if [ $# -gt 0 ]; then
 		cd "$SOURCE_DIR"
+
+		if [ ! -s CVS/Root -a "$NOCVS" != "yes" ]; then
+			echo "warning: No cvs access defined for SOURCES"
+			NOCVS="yes"
+		fi
 
 		local nf=$(echo "$GET_FILES" | wc -w)
 		local nc=0
