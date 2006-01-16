@@ -331,6 +331,7 @@ cache_rpm_dump () {
 		  set -v;
 	 fi
 
+	update_shell_title "cache_rpm_dump"
 rpm_dump_cache=`
 	case "$RPMBUILD" in
 		rpm )
@@ -340,6 +341,7 @@ rpm_dump_cache=`
 			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 	esac`
+	update_shell_title "cache_rpm_dump: OK!"
 }
 
 rpm_dump () {
@@ -368,10 +370,15 @@ parse_spec()
 		FAIL_IF_NO_SOURCES="no"
 	fi
 
+	update_shell_title "parse_spec: Patches!"
 	PATCHES="`rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}'`"
+	update_shell_title "parse_spec: Icons!"
 	ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
+	update_shell_title "parse_spec: PACKAGE_NAME!"
 	PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
+	update_shell_title "parse_spec: PACKAGE_VERSION!"
 	PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -n 1`"
+	update_shell_title "parse_spec: PACKAGE_RELEASE!"
 	PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
 
 # These variables may be unset after first cache_rpm_dump call
@@ -397,6 +404,8 @@ parse_spec()
 		echo "- Version : $PACKAGE_VERSION"
 		echo "- Release : $PACKAGE_RELEASE"
 	fi
+
+	update_shell_title "parse_spec: OK!"
 }
 
 Exit_error()
