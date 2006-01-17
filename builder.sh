@@ -693,7 +693,7 @@ get_files()
 						echo "$(nourl "$i") having proper md5sum already exists"
 						continue
 					fi
-					target=$(nourl "$i")
+					target="$fp"
 					url=$(distfiles_url "$i")
 					url_attic=$(distfiles_attic_url "$i")
 					FROM_DISTFILES=1
@@ -969,7 +969,7 @@ build_package()
 				get_files $ICONS;
 				parse_spec;
 			fi
-			NODIST="yes" UPDATE5="yes" get_files "$SOURCES $PATCHES";
+			NODIST="yes" UPDATE5="yes" get_files $SOURCES $PATCHES;
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
 	fi
@@ -1767,7 +1767,7 @@ case "$COMMAND" in
 			if [ -n "$NOSOURCE0" ] ; then
 				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 			fi
-			get_files "$SOURCES $PATCHES";
+			get_files $SOURCES $PATCHES;
 			build_package;
 			if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
 				run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
