@@ -347,7 +347,7 @@ rpm_dump_cache=`
 			rpm --rcfile .rpmrc -bp --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 		rpmbuild )
-			rpmbuild --rcfile .rpmrc --nodigest --nosignature --nobuild --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+			rpmbuild --rcfile .rpmrc --nodigest --nodeps --nosignature --nobuild --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 	esac`
 #	if [ $? -gt 0 ]; then
