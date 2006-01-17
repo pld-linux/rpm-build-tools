@@ -333,12 +333,20 @@ cache_rpm_dump () {
 
 	update_shell_title "cache_rpm_dump"
 rpm_dump_cache=`
+	# we reset macros not to contain macros.build as all the %() macros are
+	# executed here, while none of them are actually needed
+	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
+	# macros.build + macros contained at the time of this writing 70 %() macros
+	local macrofiles='/usr/lib/rpm/macros:~/etc/.rpmmacros:~/.rpmmacros'
+	local dump='prep %{echo:z: PACKAGE_NAME %{name} }%dump'
 	case "$RPMBUILD" in
 		rpm )
-			rpm -bp --nodeps --define 'prep %dump' $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+			echo -e "include:/usr/lib/rpm/rpmrc\nmacrofiles:$macrofiles" | \
+			rpm --rcfile - -bp --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 		rpmbuild )
-			rpmbuild --nodigest --nosignature --define 'prep %dump' $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+			echo -e "include:/usr/lib/rpm/rpmrc\nmacrofiles:$macrofiles" | \
+			rpmbuild --rcfile - --nodigest --nosignature --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 	esac`
 	update_shell_title "cache_rpm_dump: OK!"
@@ -360,7 +368,6 @@ parse_spec()
 	fi
 
 	cd $SPECS_DIR
-
 	cache_rpm_dump
 
 	if [ "$NOSRCS" != "yes" ]; then
@@ -370,23 +377,11 @@ parse_spec()
 		FAIL_IF_NO_SOURCES="no"
 	fi
 
-	update_shell_title "parse_spec: Patches!"
 	PATCHES="`rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}'`"
-	update_shell_title "parse_spec: Icons!"
 	ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-	update_shell_title "parse_spec: PACKAGE_NAME!"
-	PACKAGE_NAME="`$RPM -q --qf '%{NAME}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
-	update_shell_title "parse_spec: PACKAGE_VERSION!"
-	PACKAGE_VERSION="`$RPM -q --qf '%{VERSION}\n' --specfile ${SPECFILE} 2> /dev/null| head -n 1`"
-	update_shell_title "parse_spec: PACKAGE_RELEASE!"
-	PACKAGE_RELEASE="`$RPM -q --qf '%{RELEASE}\n' --specfile ${SPECFILE} 2> /dev/null | head -n 1`"
-
-# These variables may be unset after first cache_rpm_dump call
-# (because of not-yet-retrieved icon file)
-#
-#	if [ -z "$PACKAGE_NAME" -o -z "$PACKAGE_VERSION" -o -z "$PACKAGE_RELEASE" ]; then
-#		 Exit_error err_no_package_data;
-#	fi
+	PACKAGE_NAME=$(rpm_dump | awk '$2 == "PACKAGE_NAME" { print $3}')
+	PACKAGE_VERSION=$(rpm_dump | awk '$2 == "PACKAGE_VERSION" { print $3}')
+	PACKAGE_RELEASE=$(rpm_dump | awk '$2 == "PACKAGE_RELEASE" { print $3}')
 
 	if [ -n "$BE_VERBOSE" ]; then
 		echo "- Sources :  `nourl $SOURCES`"
@@ -1033,6 +1028,24 @@ install_required_packages()
 	return $?
 }
 
+find_spec_bcond() {
+	# taken from find-spec-bcond, but with just getting the list
+	local SPEC="$1"
+	# quick revert hint: '$RPMBUILD --bcond $SPEC'
+	awk -F"\n" '
+	/^%changelog/ { exit }
+	/_with(out)?_[_a-zA-Z0-9]+/{
+		match($0, /_with(out)?_[_a-zA-Z0-9]+/);
+		print substr($0, RSTART, RLENGTH);
+	}
+	/^%bcond_with/{
+		match($0, /bcond_with(out)?[ \t]+[_a-zA-Z0-9]+/);
+		bcond = substr($0, RSTART +5 , RLENGTH -5);
+		gsub(/[ \t]+/,"_",bcond);
+		print bcond
+	}' $SPEC | LC_ALL=C sort -u
+}
+
 set_bconds_values()
 {
 	update_shell_title "set bcond values"
@@ -1044,8 +1057,10 @@ set_bconds_values()
 	elif `egrep -q ^#\ *_with ${SPECFILE}`; then
 		BCOND_VERSION="OLD"
 	else
-		BCOND_VERSION="NONE"
+		return
 	fi
+
+	local bcond_avail=$(find_spec_bcond $SPECFILE)
 
 	# expand bconds from ~/.bcondrc
 	# The file structure is like gentoo's package.use:
@@ -1055,27 +1070,23 @@ set_bconds_values()
 	# w32codec-installer license_agreement
 	# php +mysqli
 	# ---
-	if [ "${BCOND_VERSION}" != "NONE" ] && ( [ -f $HOME/.bcondrc ] || ( [ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] ) ) ; then
-		# This takes package name, first defined in spec.
-		# so consider that when defining flags for package.
-		PN=`$RPM -q --qf '%{NAME}\n' --specfile $SPECFILE | head -n 1`
+	if ([ -f $HOME/.bcondrc ] || ([ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ])); then
 		SN=${SPECFILE%%\.spec}
-		AVAIL=`$RPMBUILD --bcond $SPECFILE`
 
-		BCONDRC=$HOME/.bcondrc
-		[ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] && BCONDRC=$HOME_ETC/.bcondrc
+		local bcondrc=$HOME/.bcondrc
+		[ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] && bcondrc=$HOME_ETC/.bcondrc
 
 		while read pkg flags; do
 			# ignore comments
 			[[ "$pkg" == \#* ]] && continue
 
 			# any package or current package?
-			if [ "$pkg" = "*" ] || [ "$pkg" = "$PN" ] || [ "$pkg" = "$SN" ]; then
+			if [ "$pkg" = "*" ] || [ "$pkg" = "$PACKAGE_NAME" ] || [ "$pkg" = "$SN" ]; then
 				for flag in $flags; do
-					opt=${flag#[+-]}
+					local opt=${flag#[+-]}
 
 					# use only flags which are in this package.
-					if [[ $AVAIL = *${opt}* ]]; then
+					if [[ $bcond_avail = *${opt}* ]]; then
 						if [[ $flag = -* ]]; then
 							BCOND="$BCOND --without $opt"
 						else
@@ -1084,29 +1095,31 @@ set_bconds_values()
 					fi
 				done
 			fi
-		done < $BCONDRC
+		done < $bcondrc
+		update_shell_title "parse ~/.bcondrc: DONE!"
 	fi
 
+	update_shell_title "parse bconds"
 	case "${BCOND_VERSION}" in
-		 NONE)
+		NONE)
 			:
 			;;
 		OLD)
 			echo "Warning: This spec has old style bconds. Fix it || die."
-			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_without_`
+			for opt in `echo "$bcond_avail" | grep ^_without_`
 			do
-				AVAIL_BCOND_WITHOUT=`echo $opt|sed -e "s/^_without_//g"`
-				if `echo $BCOND|grep -q -- "--without $AVAIL_BCOND_WITHOUT"`;then
+				AVAIL_BCOND_WITHOUT=${opt#_without_}
+				if [[ "$BCOND" = *--without?${AVAIL_BCOND_WITHOUT}* ]]; then
 					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
 				else
 					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
 				fi
 			done
 
-			for opt in `$RPMBUILD --bcond $SPECFILE |grep ^_with_`
+			for opt in `echo "$bcond_avail" | grep ^_with_`
 			do
-				AVAIL_BCOND_WITH=`echo $opt|sed -e "s/^_with_//g"`
-				if `echo $BCOND|grep -q -- "--with $AVAIL_BCOND_WITH"`;then
+				AVAIL_BCOND_WITH=${opt#_with_}
+				if [[ "$BCOND" = *--with?${AVAIL_BCOND_WITH}* ]]; then
 					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
 				else
 					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
@@ -1114,9 +1127,8 @@ set_bconds_values()
 			done
 			;;
 		NEW)
-			cond_type="" # with || without
-			for opt in `$RPMBUILD --bcond $SPECFILE`
-			do
+			local cond_type="" # with || without
+			for opt in $bcond_avail; do
 				case "$opt" in
 					_without)
 						cond_type="without"
@@ -1125,16 +1137,16 @@ set_bconds_values()
 						cond_type="with"
 						;;
 					_without_*)
-						AVAIL_BCOND_WITHOUT="`echo $opt | sed 's/^_without_//g'`"
-						if `echo $BCOND|grep -q -- "--without $AVAIL_BCOND_WITHOUT"`;then
+						AVAIL_BCOND_WITHOUT=${opt#_without_}
+						if [[ "$BCOND" = *--without?${AVAIL_BCOND_WITHOUT}* ]]; then
 							AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
 						else
 							AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
 						fi
 						;;
 					_with_*)
-						AVAIL_BCOND_WITH="`echo $opt | sed 's/^_with_//g'`"
-						if `echo $BCOND|grep -q -- "--with $AVAIL_BCOND_WITH"`;then
+						AVAIL_BCOND_WITH=${opt#_with_}
+						if [[ "$BCOND" = *--with?${AVAIL_BCOND_WITH}* ]]; then
 							AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
 						else
 							AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
@@ -1145,7 +1157,7 @@ set_bconds_values()
 							with)
 								cond_type=''
 								AVAIL_BCOND_WITH="$opt"
-								if `echo $BCOND|grep -q -- "--with $AVAIL_BCOND_WITH"`;then
+								if [[ "$BCOND" = *--with?${AVAIL_BCOND_WITH}* ]]; then
 									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
 								else
 									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
@@ -1154,7 +1166,7 @@ set_bconds_values()
 							without)
 								cond_type=''
 								AVAIL_BCOND_WITHOUT="$opt"
-								if `echo $BCOND|grep -q -- "--without $AVAIL_BCOND_WITHOUT"`;then
+								if [[ "$BCOND" = *--without?${AVAIL_BCOND_WITHOUT}* ]]; then
 									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
 								else
 									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
@@ -1730,12 +1742,12 @@ case "$COMMAND" in
 		init_builder;
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
+			parse_spec;
 			set_bconds_values;
 			display_bconds;
 			display_branches;
 			[ X"$SHOW_BCONDS" = X"yes" ] && exit 0
 			fetch_build_requires;
-			parse_spec;
 			if [ "$INTEGER_RELEASE" = "yes" ]; then
 				echo "Checking release $PACKAGE_RELEASE..."
 				if echo $PACKAGE_RELEASE | grep -q '^[^.]*\.[^.]*$' 2>/dev/null ; then
