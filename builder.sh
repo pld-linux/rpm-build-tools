@@ -339,17 +339,21 @@ rpm_dump_cache=`
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
 	# macros.build + macros contained at the time of this writing 70 %() macros
 	local macrofiles='/usr/lib/rpm/macros:~/etc/.rpmmacros:~/.rpmmacros'
-	local dump='prep %{echo:z: PACKAGE_NAME %{name} }%dump'
+	local dump='%{echo:z: PACKAGE_NAME %{name} }%dump'
+	# FIXME: better ideas than .rpmrc?
+	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .rpmrc
 	case "$RPMBUILD" in
 		rpm )
-			echo -e "include:/usr/lib/rpm/rpmrc\nmacrofiles:$macrofiles" | \
-			rpm --rcfile - -bp --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+			rpm --rcfile .rpmrc -bp --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 		rpmbuild )
-			echo -e "include:/usr/lib/rpm/rpmrc\nmacrofiles:$macrofiles" | \
-			rpmbuild --rcfile - --nodigest --nosignature --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+			rpmbuild --rcfile .rpmrc --nodigest --nosignature --nobuild --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 	esac`
+#	if [ $? -gt 0 ]; then
+#		echo "$rpm_dump_cache" | sed -ne '/^error:/,$p'  >&2
+#		Exit_error err_build_fail;
+#	fi
 	update_shell_title "cache_rpm_dump: OK!"
 }
 
@@ -374,6 +378,7 @@ parse_spec()
 	if [ "$NOSRCS" != "yes" ]; then
 		SOURCES="`rpm_dump | awk '/SOURCEURL[0-9]+/ {print $3}'`"
 	fi
+
 	if (rpm_dump | grep -qEi ":.*nosource.*1"); then
 		FAIL_IF_NO_SOURCES="no"
 	fi
@@ -644,7 +649,7 @@ cvsup()
 
 get_files()
 {
-	update_shell_title "fetching sources"
+	update_shell_title "get_files"
 
 	if [ -n "$DEBUG" ]; then
 		set -x;
