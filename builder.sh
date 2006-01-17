@@ -732,7 +732,7 @@ get_files()
 					fi
 				elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
 				    get_files_cvs="$get_files_cvs $fp"
-				   	# we'll do cvs up later
+					update_shell_title "$fp (will cvs up later)"
 					cvsup=1
 				fi
 
