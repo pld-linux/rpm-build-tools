@@ -187,7 +187,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
 [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] [--show-bconds]
-[--with/--without <feature>] [--define <macro> <value>] <package>[.spec]
+[--with/--without <feature>] [--define <macro> <value>] <package>[.spec][:cvstag]
 
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
@@ -1702,6 +1702,11 @@ do
 			RPMOPTS="${RPMOPTS} -debug"; shift ;;
 		* )
 			SPECFILE="${1}"
+			# check if specname was passed as specname:cvstag
+			if [ "${SPECFILE##*:}" != "${SPECFILE}" ]; then
+				CVSTAG="${SPECFILE##*:}";
+				SPECFILE="${SPECFILE%%:*}";
+			fi
 			export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
 			shift ;;
 	esac
