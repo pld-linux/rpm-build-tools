@@ -1421,11 +1421,11 @@ fetch_build_requires()
 						do
 							if [ "$package_name" = "$package" ]; then
 								echo -ne "Installing BuildRequired package:\t$package_name\n"
-								export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing BuildRequired package: ${package_name}\007"`
+								update_shell_title "Installing BuildRequired package: ${package_name}"
 								install_required_packages $package;
 							else
 								echo -ne "Installing (sub)Required package:\t$package_name\n"
-								export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}: Installing (sub)Required package: ${package_name}\007"`
+								update_shell_title "Installing (sub)Required package: ${package_name}"
 								install_required_packages $package_name;
 							fi
 							case $? in
@@ -1475,7 +1475,6 @@ fetch_build_requires()
 				fi
 			fi
 		done
-		export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
 		if [ "$NOT_INSTALLED_PACKAGES" != "" ]; then
 			echo "Unable to install following packages and their dependencies:"
 			for pkg in "$NOT_INSTALLED_PACKAGES"
@@ -1707,7 +1706,6 @@ do
 				CVSTAG="${SPECFILE##*:}";
 				SPECFILE="${SPECFILE%%:*}";
 			fi
-			export PROMPT_COMMAND=`echo -ne "\033]0;${SPECFILE}\007"`
 			shift ;;
 	esac
 done
