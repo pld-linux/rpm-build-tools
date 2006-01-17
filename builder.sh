@@ -22,7 +22,7 @@
 
 VERSION="\
 Build package utility from PLD Linux CVS repository
-V 0.13 (C) 1999-2005 Free Penguins".
+v0.14 (C) 1999-2006 Free Penguins".
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
@@ -339,7 +339,7 @@ rpm_dump_cache=`
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
 	# macros.build + macros contained at the time of this writing 70 %() macros
 	local macrofiles='/usr/lib/rpm/macros:~/etc/.rpmmacros:~/.rpmmacros'
-	local dump='%{echo:z: PACKAGE_NAME %{name} }%dump'
+	local dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
 	# FIXME: better ideas than .rpmrc?
 	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .rpmrc
 	case "$RPMBUILD" in
