@@ -338,10 +338,17 @@ rpm_dump_cache=`
 	# executed here, while none of them are actually needed
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
 	# macros.build + macros contained at the time of this writing 70 %() macros
-	local macrofiles='/usr/lib/rpm/macros:~/etc/.rpmmacros:~/.rpmmacros'
+	local macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
 	local dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
 	# FIXME: better ideas than .rpmrc?
 	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .rpmrc
+# TODO: move these to /usr/lib/rpm/macros
+	cat > .rpmmacros <<'EOF'
+%requires_releq_kernel_up %{nil}
+%requires_releq_kernel_smp %{nil}
+%releq_kernel_up ERROR
+%releq_kernel_smp ERROR
+EOF
 	case "$RPMBUILD" in
 		rpm )
 			rpm --rcfile .rpmrc -bp --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
@@ -350,10 +357,10 @@ rpm_dump_cache=`
 			rpmbuild --rcfile .rpmrc --nodigest --nodeps --nosignature --nobuild --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 			;;
 	esac`
-#	if [ $? -gt 0 ]; then
-#		echo "$rpm_dump_cache" | sed -ne '/^error:/,$p'  >&2
-#		Exit_error err_build_fail;
-#	fi
+	if [ $? -gt 0 ]; then
+		echo "$rpm_dump_cache" | sed -ne '/^error:/,$p'  >&2
+		Exit_error err_build_fail;
+	fi
 	update_shell_title "cache_rpm_dump: OK!"
 }
 
