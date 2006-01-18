@@ -298,7 +298,10 @@ update_shell_title() {
 	local len=${COLUMNS:-80}
 	local msg=$(echo "$*" | cut -c-$len)
 
-	echo >&2 "$(date +%s.%N) $*"
+	if [ -n "$BE_VERBOSE" ]; then
+		echo >&2 "$(date +%s.%N) $*"
+	fi
+
 	msg="builder[$SPECFILE] ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
 	case "$TERM" in
 		cygwin|xterm*)
