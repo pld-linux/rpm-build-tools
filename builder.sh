@@ -346,7 +346,7 @@ rpm_dump_cache=`
 	cat > .rpmmacros <<'EOF'
 %requires_releq_kernel_up %{nil}
 %requires_releq_kernel_smp %{nil}
-%pyrequires_eq %{nil}
+%pyrequires_eq() %{nil}
 %releq_kernel_up ERROR
 %releq_kernel_smp ERROR
 EOF
