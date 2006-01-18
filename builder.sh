@@ -338,7 +338,7 @@ rpm_dump_cache=`
 	# executed here, while none of them are actually needed
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
 	# macros.build + macros contained at the time of this writing 70 %() macros
-	local macrofiles="/usr/lib/rpm/macros:/usr/lib/rpm/macros.build:$SPECS_DIR/.rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
+	local macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
 	local dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
 	# FIXME: better ideas than .rpmrc?
 	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .rpmrc
