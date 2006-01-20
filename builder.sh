@@ -374,10 +374,10 @@ EOF
 
 	# make small dump cache
 	rpm_dump_cache=`echo "$rpm_dump" | awk '
-		/SOURCEURL[0-9]+/ {print}
-		/PATCHURL[0-9]+/  {print}
-		/:.*nosource.*1"/ {print}
-		/PACKAGE_/ {print}
+		$2 ~ /^SOURCEURL/ {print}
+		$2 ~ /^PATCHURL/  {print}
+		$2 ~ /^nosource/ {print}
+		$2 ~ /^PACKAGE_/ {print}
 	'`
 
 	update_shell_title "cache_rpm_dump: OK!"
