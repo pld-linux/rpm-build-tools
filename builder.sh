@@ -336,7 +336,8 @@ cache_rpm_dump () {
 	 fi
 
 	update_shell_title "cache_rpm_dump"
-rpm_dump_cache=`
+	local rpm_dump=`
+
 	# we reset macros not to contain macros.build as all the %() macros are
 	# executed here, while none of them are actually needed
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
@@ -362,9 +363,23 @@ EOF
 			;;
 	esac`
 	if [ $? -gt 0 ]; then
-		echo "$rpm_dump_cache" | sed -ne '/^error:/,$p'  >&2
-		Exit_error err_build_fail;
+		error=$(echo "$rpm_dump_cache" | sed -ne '/^error:/,$p')
+
+		# ignore error if it contains "Unable to open icon"
+		if [[ $error != *error:?Unable?to?open?icon* ]]; then
+			echo "$error" >&2
+			Exit_error err_build_fail;
+		fi
 	fi
+
+	# make small dump cache
+	rpm_dump_cache=`echo "$rpm_dump" | awk '
+		/SOURCEURL[0-9]+/ {print}
+		/PATCHURL[0-9]+/  {print}
+		/:.*nosource.*1"/ {print}
+		/PACKAGE_/ {print}
+	'`
+
 	update_shell_title "cache_rpm_dump: OK!"
 }
 
@@ -375,6 +390,17 @@ rpm_dump () {
 	echo "$rpm_dump_cache"
 }
 
+get_icons()
+{
+	update_shell_title "get icons"
+	ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
+	if [ -z "$ICONS" ]; then
+		return
+	fi
+
+	rpm_dump_cache="böö" NODIST="yes" UPDATE5= get_files $ICONS
+}
+
 parse_spec()
 {
 	update_shell_title "parsing specfile"
@@ -382,6 +408,9 @@ parse_spec()
 		set -x;
 		set -v;
 	fi
+
+	# icons are needed for successful spec parse
+	get_icons;
 
 	cd $SPECS_DIR
 	cache_rpm_dump
@@ -639,7 +668,11 @@ cvsup()
 
 	 local result=1
 	 local retries_counter=0
-	 update_shell_title "cvsup: $# files"
+	 if [ $# = 1 ]; then
+		 update_shell_title "cvsup: $*"
+	 else
+		 update_shell_title "cvsup: $# files"
+	 fi
 	 while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
 		  retries_counter=$(( $retries_counter + 1 ))
 		  output=$(LC_ALL=C cvs $OPTIONS "$@" 2>&1)
@@ -700,7 +733,7 @@ get_files()
 					echo "Warning: no URL given for $i"
 				fi
 
-				if [ -n "$(src_md5 "$i")" ] && [ -z "$NODIST" ]; then
+				if [ -z "$NODIST" ] && [ -n "$(src_md5 "$i")" ]; then
 					if good_md5 "$i" && good_size "$i"; then
 						echo "$(nourl "$i") having proper md5sum already exists"
 						continue
@@ -746,10 +779,14 @@ get_files()
 						rm -f "$target"
 						FROM_DISTFILES=0
 					fi
-				elif [ -z "$(src_md5 "$i")" -a "$NOCVS" != "yes" ]; then
-				    get_files_cvs="$get_files_cvs $fp"
-					update_shell_title "$fp (will cvs up later)"
-					cvsup=1
+				elif [ "$NOCVS" != "yes" -a -z "$(src_md5 "$i")" ]; then
+					if [ $# -gt 1 ]; then
+						get_files_cvs="$get_files_cvs $fp"
+						update_shell_title "$fp (will cvs up later)"
+						cvsup=1
+					else
+						cvsup $fp
+					fi
 				fi
 
 				if [ -z "$NOURLS" ] && [ ! -f "$fp" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
@@ -977,10 +1014,6 @@ build_package()
 			eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
 			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t0.1/' $SPECFILE"
 			parse_spec;
-			if [ -n "$ICONS" ]; then
-				get_files $ICONS;
-				parse_spec;
-			fi
 			NODIST="yes" UPDATE5="yes" get_files $SOURCES $PATCHES;
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
@@ -1792,10 +1825,6 @@ case "$COMMAND" in
 				fi
 			fi
 
-			if [ -n "$ICONS" ]; then
-				get_files $ICONS;
-				parse_spec;
-			fi
 			if [ -n "$NOSOURCE0" ] ; then
 				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 			fi
@@ -1814,10 +1843,6 @@ case "$COMMAND" in
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
 			parse_spec;
-			if [ -n "$ICONS" ]; then
-				get_files $ICONS
-				parse_spec;
-			fi
 			get_files $SOURCES $PATCHES;
 			branch_files $TAG "$SOURCES $PATCHES $ICONS";
 		else
@@ -1828,13 +1853,8 @@ case "$COMMAND" in
 		init_builder;
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
-			parse_spec;
-			if [ -n "$ICONS" ]; then
-				OLD_UPDATE5=$UPDATE5
-				UPDATE5= get_files $ICONS
-				UPDATE5=$OLD_UPDATE5
-				parse_spec;
-			fi
+			parse_spec
+
 			if [ -n "$NOSOURCE0" ] ; then
 				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 			fi
@@ -1850,10 +1870,7 @@ case "$COMMAND" in
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
 			parse_spec;
-			if [ -n "$ICONS" ]; then
-				get_files $ICONS
-				parse_spec;
-			fi
+
 			# don't fetch sources from remote locations
 			new_SOURCES=""
 			for file in $SOURCES
