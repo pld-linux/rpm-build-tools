@@ -623,7 +623,8 @@ preamble == 1 {
 		$0 = format_requires($1, value);
 	}
 
-	if (field ~ /packager:|distribution:|docdir:|prefix:/) {
+	# obsolete/unwanted tags
+	if (field ~ /packager:|distribution:|docdir:|prefix:|icon:/) {
 		next
 	}
 
@@ -937,6 +938,8 @@ function use_macros()
 		if ($c ~ sysconfdir "/{?X11")
 			continue;
 		if ($c ~ sysconfdir "/{?ld.so.conf.d")
+			continue;
+		if ($c ~ sysconfdir "/{?rpm")
 			continue;
 		if ($c ~ sysconfdir "/{?httpd") # temp
 			continue;
