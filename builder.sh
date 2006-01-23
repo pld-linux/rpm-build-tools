@@ -353,6 +353,7 @@ cache_rpm_dump () {
 %pyrequires_eq() %{nil}
 %releq_kernel_up ERROR
 %releq_kernel_smp ERROR
+%kgcc_package ERROR
 EOF
 	case "$RPMBUILD" in
 		rpm )
