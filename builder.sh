@@ -336,14 +336,15 @@ cache_rpm_dump () {
 	 fi
 
 	update_shell_title "cache_rpm_dump"
-	local rpm_dump=`
+	local rpm_dump
+	rpm_dump=`
 
 	# we reset macros not to contain macros.build as all the %() macros are
 	# executed here, while none of them are actually needed
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
 	# macros.build + macros contained at the time of this writing 70 %() macros
-	local macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
-	local dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
+	macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
+	dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
 	# FIXME: better ideas than .rpmrc?
 	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .rpmrc
 # TODO: move these to /usr/lib/rpm/macros
@@ -354,23 +355,22 @@ cache_rpm_dump () {
 %releq_kernel_up ERROR
 %releq_kernel_smp ERROR
 %kgcc_package ERROR
+%_fontsdir ERROR
 EOF
 	case "$RPMBUILD" in
-		rpm )
-			rpm --rcfile .rpmrc -bp --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
-			;;
-		rpmbuild )
-			rpmbuild --rcfile .rpmrc --nodigest --nodeps --nosignature --nobuild --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
-			;;
-	esac`
+	rpm)
+		ARGS='-bp'
+		;;
+	rpmbuild)
+		ARGS='--nodigest --nosignature --nobuild'
+		;;
+	esac
+	$RPMBUILD --rcfile .rpmrc $ARGS --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+	`
 	if [ $? -gt 0 ]; then
-		error=$(echo "$rpm_dump_cache" | sed -ne '/^error:/,$p')
-
-		# ignore error if it contains "Unable to open icon"
-		if [[ $error != *error:?Unable?to?open?icon* ]]; then
-			echo "$error" >&2
-			Exit_error err_build_fail;
-		fi
+		error=$(echo "$rpm_dump" | sed -ne '/^error:/,$p')
+		echo "$error" >&2
+		Exit_error err_build_fail;
 	fi
 
 	# make small dump cache
