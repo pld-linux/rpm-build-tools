@@ -53,6 +53,7 @@ BEGIN {
 	"rpm --eval %_sourcedir" | getline groups_file
 	groups_file = groups_file "/rpm.groups"
 	system("cd `rpm --eval %_sourcedir`; [ -f rpm.groups ] || cvs up rpm.groups >/dev/null")
+	system("[ -d ../PLD-doc ] && cd ../PLD-doc && [ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null")
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
@@ -1301,6 +1302,13 @@ function kill_preamble_macros()
 	}
 }
 
+function get_epoch(pkg, ver,	epoch)
+{
+	shell = "grep -o '^" pkg ":[^:]\+' ../PLD-doc/BuildRequires.txt | awk '{print $NF}'";
+	shell | getline epoch;
+	return epoch;
+}
+
 function format_requires(tag, value,	n, p, i, deps, ndeps) {
 	# skip any formatting for commented out items
 	if (/^#/) {
@@ -1309,6 +1317,13 @@ function format_requires(tag, value,	n, p, i, deps, ndeps) {
 	n = split(value, p, / *,? */);
 	for (i = 1; i <= n; i++) {
 		if (p[i+1] ~ /[<=>]/) {
+			# add epoch if the version doesn't have it but BuildRequires.txt has
+			if (p[i] ~ /^[a-z]/ && p[i+2] !~ /^[0-9]+:/) {
+				epoch = get_epoch(p[i], p[i+2])
+				if (epoch) {
+					p[i+2] = epoch ":" p[i+2];
+				}
+			}
 			deps[ndeps++] = p[i] " " p[i+1] " " p[i+2];
 			i += 2;
 		} else {
