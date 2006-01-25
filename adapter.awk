@@ -79,6 +79,7 @@ BEGIN {
 	"rpm --eval %perl_sitelib" | getline perl_sitelib
 
 	"rpm --eval %py_sitescriptdir" | getline py_sitescriptdir
+	"rpm --eval %py_scriptdir " | getline py_scriptdir
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -889,6 +890,7 @@ function use_macros()
 	gsub(perl_sitelib, "%{perl_sitelib}")
 	
 	gsub(py_sitescriptdir, "%{py_sitescriptdir}")
+	gsub(py_scriptdir, "%{py_scriptdir}")
 
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
