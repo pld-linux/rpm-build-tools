@@ -340,9 +340,9 @@ cache_rpm_dump () {
 	rpm_dump=`
 
 	# we reset macros not to contain macros.build as all the %() macros are
-	# executed here, while none of them are actually needed
+	# executed here, while none of them are actually needed.
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
-	# macros.build + macros contained at the time of this writing 70 %() macros
+	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
 	macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
 	dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
 	# FIXME: better ideas than .rpmrc?
@@ -352,6 +352,7 @@ cache_rpm_dump () {
 %requires_releq_kernel_up %{nil}
 %requires_releq_kernel_smp %{nil}
 %pyrequires_eq() %{nil}
+%requires_eq() %{nil}
 %releq_kernel_up ERROR
 %releq_kernel_smp ERROR
 %kgcc_package ERROR
