@@ -351,7 +351,7 @@ cache_rpm_dump () {
 	cat > .rpmmacros <<'EOF'
 %requires_releq_kernel_up %{nil}
 %requires_releq_kernel_smp %{nil}
-%requires_releq %{nil}
+%requires_releq #
 %pyrequires_eq() %{nil}
 %requires_eq() %{nil}
 %releq_kernel_up ERROR
