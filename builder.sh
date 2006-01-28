@@ -359,9 +359,13 @@ cache_rpm_dump () {
 %releq_kernel_smp ERROR
 %kgcc_package ERROR
 %_fontsdir ERROR
-%ruby_ver_requires_eq ERROR
-%ruby_mod_ver_requires_eq ERROR
+%ruby_version ERROR
+%ruby_ver_requires_eq() %{nil}
+%ruby_mod_ver_requires_eq() %{nil}
 %__php_api_requires() %{nil}
+%php_major_version ERROR
+%php_api_version ERROR
+%py_ver ERROR
 EOF
 	case "$RPMBUILD" in
 	rpm)
