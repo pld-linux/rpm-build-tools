@@ -506,8 +506,8 @@ init_builder()
 		set -v;
 	fi
 
-	SOURCE_DIR="`$RPM --eval '%{_sourcedir}'`"
-	SPECS_DIR="`$RPM --eval '%{_specdir}'`"
+	SOURCE_DIR="`eval $RPM $RPMOPTS --eval '%{_sourcedir}'`"
+	SPECS_DIR="`eval $RPM $RPMOPTS --eval '%{_specdir}'`"
 
 	__PWD="`pwd`"
 }
