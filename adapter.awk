@@ -368,8 +368,10 @@ function b_makekey(a, b,	s) {
 	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
 	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0);
 	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0);
-	$0 = fixedsub("libtoolize -c -f --automake", "%{__libtoolize}", $0);
+	$0 = fixedsub("automake -a --foreign --copy", "%{__automake}", $0);
 	$0 = fixedsub("automake -a -c --foreign", "%{__automake}", $0);
+	$0 = fixedsub("libtoolize --force --automake --copy", "%{__libtoolize}", $0);
+	$0 = fixedsub("libtoolize -c -f --automake", "%{__libtoolize}", $0);
 
 	sub(/^aclocal$/, "%{__aclocal}");
 	sub(/^autoheader$/, "%{__autoheader}");
