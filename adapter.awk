@@ -1308,6 +1308,11 @@ function kill_preamble_macros()
 
 function get_epoch(pkg, ver,	epoch)
 {
+	return
+# should parse the BR lines more adequately:
+#	freetype = 2.0.0 -> correct
+#	freetype = 2.1.9 -> with epoch 1, as epoch 1 was added in 2.1.7
+
 	shell = "grep -o '^" pkg ":[^:]\+' ../PLD-doc/BuildRequires.txt | awk '{print $NF}'";
 	shell | getline epoch;
 	return epoch;
