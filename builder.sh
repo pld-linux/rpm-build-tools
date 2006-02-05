@@ -248,10 +248,10 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                       remember, this option works without confirmation,
 -sf, --source-files - list sources - bare filenames (intended for offline
                       operations; does not work when Icon field is present
-							 but icon file is absent),
+                      but icon file is absent),
 -sp, --source-paths - list sources - filenames with full local paths (intended for
                       offline operations; does not work when Icon field is present
-							 but icon file is absent),
+                      but icon file is absent),
 -su, --source-urls  - list urls - urls to sources and patches
                       intended for copying urls with spec with lots of macros in urls
 -T <cvstag> , --tag <cvstag>
@@ -289,8 +289,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                       --with feat1 feat2 feat3 --without feat4 feat5 --with feat6
                       constructions. Set GROUP_BCONDS to yes to make use of it.
 --target <platform>, --target=<platform>
-		    - build for platform <platform>.
---init-rpm-dir		 - initialize ~/rpm directory structure
+                     - build for platform <platform>.
+--init-rpm-dir       - initialize ~/rpm directory structure
 "
 }
 
