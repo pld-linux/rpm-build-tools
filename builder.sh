@@ -290,6 +290,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                       constructions. Set GROUP_BCONDS to yes to make use of it.
 --target <platform>, --target=<platform>
 		    - build for platform <platform>.
+--init-rpm-dir		 - initialize ~/rpm directory structure
 "
 }
 
@@ -1560,6 +1561,27 @@ fetch_build_requires()
 	fi
 }
 
+init_rpm_dir() {
+
+	TOP_DIR="`eval $RPM $RPMOPTS --eval '%{_topdir}'`"
+	CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
+
+	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
+	cd $TOP_DIR
+	cvs -d $CVSROOT co SOURCES/.cvsignore SPECS/{mirrors,adapter{,.awk},fetchsrc_request,builder,repackage.sh}
+
+	init_builder
+
+	echo "To checkout *all* .spec files:"
+   	echo "- remove $SPECS_DIR/CVS/Entries.Static"
+   	echo "- run cvs up in $SPECS_DIR dir"
+
+	echo ""
+	echo "To commit with your developer account:"
+   	echo "- edit $SPECS_DIR/CVS/Root"
+   	echo "- edit $SOURCE_DIR/CVS/Root"
+}
+
 #---------------------------------------------
 # main()
 
@@ -1749,6 +1771,9 @@ do
 		-Upi | --update-poldek-indexes )
 			UPDATE_POLDEK_INDEXES="yes"
 			shift ;;
+		--init-rpm-dir)
+			COMMAND="init_rpm_dir";
+			shift ;;
 		-u | --try-upgrade )
 			TRY_UPGRADE="1"; shift ;;
 		-un | --try-upgrade-with-float-version )
@@ -1931,6 +1956,9 @@ case "$COMMAND" in
 		for SAP in $SAPS ; do
 			 echo $SOURCE_DIR/$(echo $SAP | awk '{gsub(/.*\//,"") ; print }')
 		done
+		;;
+	"init_rpm_dir")
+		init_rpm_dir
 		;;
 	"usage" )
 		usage;;
