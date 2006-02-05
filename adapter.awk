@@ -628,7 +628,7 @@ preamble == 1 {
 	}
 
 	# obsolete/unwanted tags
-	if (field ~ /packager:|distribution:|docdir:|prefix:|icon:/) {
+	if (field ~ /vendor:|packager:|distribution:|docdir:|prefix:|icon:/) {
 		next
 	}
 
