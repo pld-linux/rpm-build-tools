@@ -12,8 +12,14 @@ rpmbuild() {
 	# i'd use ./builder to get all the ~/.bcondrc parsing,
     # but builder doesn't understand -bi
 #	./builder -ncs -nc -nn --opts --short-circuit "$@"
-	/usr/bin/rpmbuild --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
+	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
 }
+
+SPECFILE="$1"
+tmp=$(awk '/^BuildArch:/ { print $NF}' $SPECFILE)
+if [ "$tmp" ]; then
+	TARGET="$tmp"
+fi
 
 # just create the rpm's if -bb is somewhere in the args
 if [[ *$@* != *-bb* ]]; then
