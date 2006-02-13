@@ -867,6 +867,9 @@ function fixedsub(s1,s2,t, ind) {
 # There should be one or two tabs after the colon.
 function format_preamble()
 {
+	if (/^#/) {
+		return;
+	}
 	sub(/:[ \t]*/, ":")
 	if (match($0, /[A-Za-z0-9(),#_ \t]+[ \t]*:[ \t]*/) == 1) {
 		if (RLENGTH < 8)
