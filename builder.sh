@@ -1071,7 +1071,7 @@ build_package()
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
 		if [ -n "$TRY_UPGRADE" ]; then
-			echo "\n!!! Package with new version cannot be build automagically\n"
+			echo "\n!!! Package with new version cannot be built automagically\n"
 			mv -f $SPECFILE.bak $SPECFILE
 		fi
 		Exit_error err_build_fail;
