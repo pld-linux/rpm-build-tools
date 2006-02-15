@@ -951,6 +951,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?httpd") # temp
 			continue;
+		if ($c ~ sysconfdir "/{?bash_completion.d") # temp
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
