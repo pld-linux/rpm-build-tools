@@ -1,8 +1,9 @@
 #!/bin/awk -f
 #
 # This is adapter v0.27. Adapter adapts .spec files for PLD Linux.
+# $Id$
 #
-# Copyright (C) 1999-2005 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2006 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Micha³ Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
