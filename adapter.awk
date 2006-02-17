@@ -888,6 +888,11 @@ function use_macros()
 		return
 	}
 
+	# leave inline sed lines alone
+	if (/(%{__sed}|sed) -i -e/) {
+		return;
+	}
+
 	gsub(perl_sitearch, "%{perl_sitearch}")
 	gsub(perl_archlib, "%{perl_archlib}")
 	gsub(perl_privlib, "%{perl_privlib}")
@@ -900,7 +905,7 @@ function use_macros()
 
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
-	if(prefix"/bin" == bindir)
+	if (prefix"/bin" == bindir)
 		gsub("%{_prefix}/bin", "%{_bindir}")
 
 	for (c = 1; c <= NF; c++) {
