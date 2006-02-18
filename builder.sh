@@ -111,6 +111,7 @@ fi
 #REMOVE_BUILD_REQUIRES="force"
 #GROUP_BCONDS="yes"
 #LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
+#TITLECHANGE=no
 #
 SU_SUDO=""
 if [ -n "$HOME_ETC" ]; then
@@ -303,15 +304,17 @@ update_shell_title() {
 		echo >&2 "$(date +%s.%N) $*"
 	fi
 
-	msg="builder[$SPECFILE] ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
-	case "$TERM" in
-		cygwin|xterm*)
-		echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
-	;;
-		screen*)
-		echo >&2 -ne "\033]0;$msg\007"
-	;;
-	esac
+	if [ "x$TITLECHANGE" == "xyes" -o "x$TITLECHANGE" == "x" ]; then
+		msg="builder[$SPECFILE] ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
+		case "$TERM" in
+			cygwin|xterm*)
+			echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
+		;;
+			screen*)
+			echo >&2 -ne "\033]0;$msg\007"
+		;;
+		esac
+	fi
 }
 
 # set TARGET from BuildArch: from SPECFILE
