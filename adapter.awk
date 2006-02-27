@@ -1333,8 +1333,8 @@ function get_epoch(pkg, ver,	epoch)
 }
 
 function format_requires(tag, value,	n, p, i, deps, ndeps) {
-	# skip any formatting for commented out items
-	if (/^#/) {
+	# skip any formatting for commented out items or some weird macros
+	if (/^#/ || /%\(/) {
 		return tag "\t" value
 	}
 	n = split(value, p, / *,? */);
