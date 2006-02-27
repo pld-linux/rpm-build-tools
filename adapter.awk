@@ -28,7 +28,7 @@ BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
-	PREAMBLE_TAGS = "(Summary|Name|Version|Release|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|PreReq|(Build)?Requires)"
+	PREAMBLE_TAGS = "(Summary|Name|Version|Release|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
 
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
@@ -81,6 +81,7 @@ BEGIN {
 
 	"rpm --eval %py_sitescriptdir" | getline py_sitescriptdir
 	"rpm --eval %py_scriptdir " | getline py_scriptdir
+	"rpm --eval %php_pear_dir" | getline php_pear_dir
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -242,7 +243,7 @@ function b_makekey(a, b,	s) {
 	}
 
 	# Format description
-	if (ENVIRON["SKIP_DESC"] != 1 && description == 1 && !/^%[a-z]+/ && !/^%description/) {
+	if (ENVIRON["SKIP_DESC"] != 1 && description == 1 && !$0 ~ SECTIONS && !/^%description/) {
 		if (/^[ \t]*$/) {
 			format_flush(format_line, format_indent)
 			print ""
@@ -733,6 +734,7 @@ preamble == 1 {
 				url[n] = fixedsub(_snap, "%{_snap}", url[n])
 			}
 		}
+		# assigning to $2 kills preamble formatting
 		$2 = fixedsub(filename, url[n], $2)
 
 		# sourceforge urls
@@ -770,7 +772,7 @@ preamble == 1 {
 # - comments leading the BR/R can not be associated,
 #   so don't adapterize when the BR/R are mixed with comments
 ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS, $0 ~ PREAMBLE_TAGS {
-	if ($1 ~ /PreReq:/) {
+	if ($1 ~ /Pre[Rr]eq:/) {
 		sub(/PreReq:/, "Requires:", $1);
 	}
 	format_preamble()
@@ -868,7 +870,7 @@ function fixedsub(s1,s2,t, ind) {
 # There should be one or two tabs after the colon.
 function format_preamble()
 {
-	if (/^#/) {
+	if (/^#/ || /^%bcond_with/) {
 		return;
 	}
 	sub(/:[ \t]*/, ":")
@@ -955,14 +957,15 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?rpm")
 			continue;
-		if ($c ~ sysconfdir "/{?httpd") # temp
+		if ($c ~ sysconfdir "/{?bash_completion.d")
 			continue;
-		if ($c ~ sysconfdir "/{?bash_completion.d") # temp
+		if ($c ~ sysconfdir "/{?samba")
 			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
 	gsub(docdir, "%{_docdir}")
+	gsub(php_pear_dir, "%{php_pear_dir}")
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ datadir "/automake")
