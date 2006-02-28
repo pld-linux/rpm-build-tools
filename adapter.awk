@@ -644,8 +644,9 @@ preamble == 1 {
 		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
 
 	# Use "License" instead of "Copyright" if it is (L)GPL or BSD
-	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/)
+	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/) {
 		$1 = "License:"
+	}
 
 	if (field ~ /name:/) {
 		if ($2 == "%{name}" && name) {
@@ -803,7 +804,9 @@ preamble == 1 {
 	if (b_idx > 0) {
 		isort(b_key, b_idx);
 		for (i = 1; i <= b_idx; i++) {
-			print "" b_val[b_key[i]];
+			v = b_val[b_key[i]];
+			sub(/[ \t]+$/, "", v);
+			print "" v;
 		}
 		b_idx = 0
 	}
