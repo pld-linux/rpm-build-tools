@@ -220,6 +220,7 @@ function b_makekey(a, b,	s) {
 	if ($2 ~ /^mod_name$/)
 		mod_name = $3
 
+	sub(/[ \t]+$/, "");
 	# do nothing further, otherwise adapter thinks we're at preamble
 	print
 	next
@@ -601,6 +602,7 @@ preamble == 1 {
 		sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", group)
 		sub(/^Networking\/Deamons$/, "Networking/Daemons", group)
 		sub(/^Development\/Docs$/, "Documentation", group)
+		sub(/^System Environment\/Kernel$/, "Base/Kernel", group)
 
 		$0 = "Group:\t\t" group
 

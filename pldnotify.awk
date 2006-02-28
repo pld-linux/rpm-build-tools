@@ -18,7 +18,7 @@ function ispre(s) {
 		return 0
 	}
 }
-	
+
 function compare_ver(v1,v2) {
 # compares version numbers
 	while (match(v1,/[a-zA-Z][0-9]|[0-9][a-zA-Z]/))
@@ -33,10 +33,10 @@ function compare_ver(v1,v2) {
 	if (DEBUG) print "v2 == " v2
 	count=split(v1,v1a,"\.")
 	count2=split(v2,v2a,"\.")
-	
-	if (count<count2) mincount=count 
+
+	if (count<count2) mincount=count
 	else mincount=count2
-	
+
 	for (i=1; i<=mincount; i++) {
 		if (v1a[i]=="") v1a[i]=0
 		if (v2a[i]=="") v2a[i]=0
@@ -88,10 +88,10 @@ function compare_ver_dec(v1,v2) {
 	if (DEBUG) print "v2 == " v2
 	count=split(v1,v1a,"\.")
 	count2=split(v2,v2a,"\.")
-	
-	if (count<count2) mincount=count 
+
+	if (count<count2) mincount=count
 	else mincount=count2
-	
+
 	for (i=1; i<=mincount; i++) {
 		if (v1a[i]=="") v1a[i]=0
 		if (v2a[i]=="") v2a[i]=0
@@ -148,16 +148,16 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 		url = "http://prdownloads.sourceforge.net/" substr(url, 1, 1) "/" substr(url, 1, 2) "/" url
 		if (DEBUG) print "sf url, mungled url to: " url
 	}
-	
+
 	if (DEBUG) print "Retrieving: " url
 	errno=system("wget -O - \"" url "\" -t 3 -T 300 --passive-ftp > " tmpfile " 2>/dev/null" )
-	
+
 	if (errno==0) {
 		while (getline oneline < tmpfile)
 			wholeodp=(wholeodp " " oneline)
 		if ( DEBUG ) print "Response: " wholeodp
 	}
-	
+
 	close(tmpfile)
 	system("rm -f " tmpfile)
 	urldir=url;
@@ -211,8 +211,8 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 	} else {
 		retval=("WGET ERROR: " errno)
 	}
-	
-	
+
+
 	if (DEBUG) print "Returning: " retval
 	return retval
 }
@@ -290,12 +290,12 @@ function process_source(number,lurl,name,version) {
 	postver=substr(filename,RSTART+RLENGTH)
 	if ( DEBUG ) print "Before number: " prever
 	if ( DEBUG ) print "and after: " postver
-	newurl=find_mirror(acc "://" host dir)	
+	newurl=find_mirror(acc "://" host dir)
 	#print acc "://" host dir
 	#newurl=url[1]"://"url[2]url[3]url[4]
 	#newurl=acc "://" host dir filename
-	if ( DEBUG ) print "Looking at " newurl 
-	
+	if ( DEBUG ) print "Looking at " newurl
+
 	references=0
 	finished=0
 	oldversion=version
@@ -356,7 +356,7 @@ function pear_upgrade(name, ver) {
 
 	return
 }
-	
+
 function process_data(name,ver,rel,src) {
 	if (name ~ /^php-pear-/) {
 		return pear_upgrade(name, ver);
@@ -386,7 +386,7 @@ BEGIN {
 	}
 	if (ARGC>=3 && ARGV[2]=="-n") {
 		NUMERIC=1
-		for (i=3; i<ARGC; i++) ARGV[i-1]=ARGV[i] 
+		for (i=3; i<ARGC; i++) ARGV[i-1]=ARGV[i]
 		ARGC=ARGC-1
 	}
 }
