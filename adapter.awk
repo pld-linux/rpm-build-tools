@@ -25,7 +25,7 @@
 # - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
 
 BEGIN {
-	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun"
+	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
 	PREAMBLE_TAGS = "(Summary|Name|Version|Release|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
@@ -545,6 +545,12 @@ function b_makekey(a, b,	s) {
 	preamble = 0
 }
 /^%posttrans/, (!/^%posttrans/ && $0 ~ SECTIONS) {
+	preamble = 0
+}
+/^%verifyscript/, (!/^%verifyscript/ && $0 ~ SECTIONS) {
+	preamble = 0
+}
+/^%check/, (!/^%check/ && $0 ~ SECTIONS) {
 	preamble = 0
 }
 
