@@ -632,7 +632,7 @@ preamble == 1 {
 	}
 
 	# split (build)requires, obsoletes on commas
-	if (field ~ /(obsoletes|requires):/ && NF > 2) {
+	if (field ~ /(obsoletes|requires|conflicts):/ && NF > 2) {
 		value = substr($0, index($0, $2));
 		$0 = format_requires($1, value);
 	}
