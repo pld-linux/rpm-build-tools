@@ -930,6 +930,8 @@ function use_macros()
 			continue;
 		if ($c ~ sbindir "/usermod")
 			continue;
+		if ($c ~ sbindir "/chkconfig")
+			continue;
 		gsub(sbindir, "%{_sbindir}", $c)
 	}
 
