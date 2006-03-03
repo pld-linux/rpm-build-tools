@@ -347,12 +347,12 @@ cache_rpm_dump () {
 	# executed here, while none of them are actually needed.
 	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
 	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
-	macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
+	macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.builder-rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
 	dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
 	# FIXME: better ideas than .rpmrc?
-	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .rpmrc
+	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .builder-rpmrc
 # TODO: move these to /usr/lib/rpm/macros
-	cat > .rpmmacros <<'EOF'
+	cat > .builder-rpmmacros <<'EOF'
 %requires_releq_kernel_up %{nil}
 %requires_releq_kernel_smp %{nil}
 %requires_releq() %{nil}
@@ -379,7 +379,7 @@ EOF
 		ARGS='--nodigest --nosignature --nobuild'
 		;;
 	esac
-	$RPMBUILD --rcfile .rpmrc $ARGS --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+	$RPMBUILD --rcfile .builder-rpmrc $ARGS --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 	`
 	if [ $? -gt 0 ]; then
 		error=$(echo "$rpm_dump" | sed -ne '/^error:/,$p')
