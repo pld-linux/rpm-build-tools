@@ -61,6 +61,7 @@ LASTLOG_FILE=""
 CHMOD="no"
 CHMOD_MODE="0444"
 RPMOPTS=""
+RPMBUILDOPTS=""
 BCOND=""
 GROUP_BCONDS="no"
 CVSIGNORE_DF="no"
@@ -1058,7 +1059,7 @@ build_package()
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
 		RES_FILE=~/tmp/$RPMBUILD-exit-status.$RANDOM
-		(time eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $TARGET_SWITCH $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+		(time eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm $RES_FILE
 		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
@@ -1069,7 +1070,7 @@ build_package()
 			fi
 		fi
 	else
-		eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $BCOND $TARGET_SWITCH $SPECFILE
+		eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE
 		RETVAL=$?
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
@@ -1799,7 +1800,7 @@ do
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
 		-debug)
-			RPMOPTS="${RPMOPTS} -debug"; shift ;;
+			RPMBUILDOPTS="${RPMBUILDOPTS} -debug"; shift ;;
 		* )
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
