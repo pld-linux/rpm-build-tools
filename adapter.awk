@@ -638,7 +638,7 @@ preamble == 1 {
 	}
 
 	# obsolete/unwanted tags
-	if (field ~ /vendor:|packager:|distribution:|docdir:|prefix:|icon:/) {
+	if (field ~ /vendor:|packager:|distribution:|docdir:|prefix:|icon:|author:|author-email:|metadata-version:/) {
 		next
 	}
 
@@ -674,12 +674,22 @@ preamble == 1 {
 		release_seen = 1;
 	}
 
+	if (field ~ /buildroot:/) {
+		did_build_root = 1
+	}
+
 	if (field ~ /serial:/)
 		$1 = "Epoch:"
+
+	if (field ~ /home-page:/)
+		$1 = "URL:"
 
 	# proper caps
 	if (field ~ /^url:$/)
 		$1 = "URL:"
+
+	if (field ~ /^description:$/)
+		$1 = "\n%description\n"
 
 	# Use %{name} and %{version} in the filenames in "Source:"
 	if (field ~ /^source/ || field ~ /patch/) {
@@ -834,6 +844,11 @@ preamble == 1 {
 	if (release_seen == 0 && release) {
 		print "Release:\t" release
 		release_seen = 1
+	}
+
+	if (did_build_root == 0) {
+		print "BuildRoot:\t%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
+		did_build_root = 1
 	}
 }
 
