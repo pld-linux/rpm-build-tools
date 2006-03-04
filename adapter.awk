@@ -669,6 +669,15 @@ preamble == 1 {
 		$1 = "License:"
 	}
 
+	if (field ~ /license:/) {
+		l = substr($0, index($0, $2));
+		if (l == "Python Software Foundation License") {
+			l = "PSF"
+		}
+		$0 = "License:\t" l;
+	}
+
+
 	if (field ~ /name:/) {
 		if ($2 == "%{name}" && name) {
 			$2 = name
