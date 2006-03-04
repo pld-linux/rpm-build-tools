@@ -71,6 +71,8 @@ BEGIN {
 	"rpm --eval %_infodir"	| getline infodir
 	"rpm --eval %_examplesdir"	| getline examplesdir
 	"rpm --eval %_defaultdocdir"	| getline docdir
+	"rpm --eval %_desktopdir" | getline desktopdir
+	"rpm --eval %_pixmapsdir" | getline pixmapsdir
 
 	"rpm --eval %perl_sitearch" | getline perl_sitearch
 	"rpm --eval %perl_archlib" | getline perl_archlib
@@ -948,9 +950,11 @@ function use_macros()
 	gsub(perl_sitelib, "%{perl_sitelib}")
 	
 	gsub(py_sitescriptdir, "%{py_sitescriptdir}")
-	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
 	gsub(py_sitedir, "%{py_sitedir}")
 	gsub(py_scriptdir, "%{py_scriptdir}")
+	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
+	gsub("%{_datadir}/applications", "%{_desktopdir}")
+	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
 
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
