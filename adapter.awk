@@ -80,6 +80,7 @@ BEGIN {
 	"rpm --eval %perl_sitelib" | getline perl_sitelib
 
 	"rpm --eval %py_sitescriptdir" | getline py_sitescriptdir
+	"rpm --eval %py_sitedir" | getline py_sitedir
 	"rpm --eval %py_scriptdir " | getline py_scriptdir
 	"rpm --eval %php_pear_dir" | getline php_pear_dir
 }
@@ -164,6 +165,11 @@ function b_makekey(a, b,	s) {
 	}
 	if ($2 == "date") {
 		date = 1
+		if (did_files == 0) {
+			print "%files"
+			print ""
+			did_files = 1
+		}
 	}
 
 	# Do not add %define of _prefix if it already is.
@@ -285,6 +291,7 @@ function b_makekey(a, b,	s) {
 #########
 /^%prep/, (!/^%prep/ && $0 ~ SECTIONS) {
 	preamble = 0
+	did_prep = 1
 
 	use_macros()
 
@@ -320,6 +327,12 @@ function b_makekey(a, b,	s) {
 ##########
 /^%build/, (!/^%build/ && $0 ~ SECTIONS) {
 	preamble = 0
+
+	if (did_prep == 0) {
+		print "%prep"
+		print ""
+		did_prep = 1
+	}
 
 	use_macros()
 
@@ -454,6 +467,7 @@ function b_makekey(a, b,	s) {
 ##########
 /^%files/, (!/^%files/ && $0 ~ SECTIONS) {
 	preamble = 0
+	did_files = 1
 
 	if ($0 ~ /^%files/)
 		defattr = 1
@@ -625,6 +639,7 @@ preamble == 1 {
 			print "######\t\t" "Unknown group!"
 
 		close(groups_file)
+		did_groups = 1
 	}
 
 	if (field ~ /prereq:/) {
@@ -642,8 +657,10 @@ preamble == 1 {
 		next
 	}
 
-	if (field ~ /buildroot:/)
+	if (field ~ /buildroot:/) {
 		$0 = $1 "%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
+		did_build_root = 1
+	}
 
 	# Use "License" instead of "Copyright" if it is (L)GPL or BSD
 	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/) {
@@ -670,13 +687,11 @@ preamble == 1 {
 		if ($2 == "%{release}" && release) {
 			$2 = release
 		}
+		sub(/%atrelease /, "0.", $0)
 		release = $2
 		release_seen = 1;
 	}
 
-	if (field ~ /buildroot:/) {
-		did_build_root = 1
-	}
 
 	if (field ~ /serial:/)
 		$1 = "Epoch:"
@@ -847,8 +862,12 @@ preamble == 1 {
 	}
 
 	if (did_build_root == 0) {
-		print "BuildRoot:\t%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
+#		print "BuildRoot:\t%{tmpdir}/%{name}-%{version}-root-%(id -u -n)"
 		did_build_root = 1
+	}
+	if (did_groups == 0) {
+#		print "Group:\t\tunknown"
+		did_groups = 1
 	}
 }
 
@@ -929,6 +948,8 @@ function use_macros()
 	gsub(perl_sitelib, "%{perl_sitelib}")
 	
 	gsub(py_sitescriptdir, "%{py_sitescriptdir}")
+	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
+	gsub(py_sitedir, "%{py_sitedir}")
 	gsub(py_scriptdir, "%{py_scriptdir}")
 
 	gsub(bindir, "%{_bindir}")
