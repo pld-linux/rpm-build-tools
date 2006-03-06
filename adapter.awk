@@ -28,7 +28,7 @@ BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
-	PREAMBLE_TAGS = "(Summary|Name|Version|Release|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
+	PREAMBLE_TAGS = "(Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
 
 	preamble = 1		# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
@@ -123,6 +123,7 @@ function b_makekey(a, b,	s) {
     gsub(/^Name/, "2Name", s);
     gsub(/^Version/, "3Version", s);
     gsub(/^Release/, "4Release", s);
+    gsub(/^Epoch/, "5Epoch", s);
     gsub(/^License/, "5License", s);
     gsub(/^Group/, "6Group", s);
     gsub(/^URL/, "7URL", s);
