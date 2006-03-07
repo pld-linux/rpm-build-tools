@@ -215,6 +215,8 @@ function b_makekey(a, b,	s) {
 		_beta = $3
 	if ($2 ~ /^_rc$/)
 		_rc = $3
+	if ($2 ~ /^_pre$/)
+		_pre = $3
 	if ($2 ~ /^_snap$/)
 		_snap = $3
 
@@ -311,6 +313,9 @@ function b_makekey(a, b,	s) {
 		}
 		if (_rc) {
 			$0 = fixedsub(_rc, "%{_rc}", $0);
+		}
+		if (_pre) {
+			$0 = fixedsub(_pre, "%{_pre}", $0);
 		}
 		if (_snap) {
 			$0 = fixedsub(_snap, "%{_snap}", $0);
@@ -775,6 +780,9 @@ preamble == 1 {
 			}
 			if (_rc) {
 				url[n] = fixedsub(_rc, "%{_rc}", url[n])
+			}
+			if (_pre) {
+				url[n] = fixedsub(_pre, "%{_pre}", url[n])
 			}
 			if (_snap) {
 				url[n] = fixedsub(_snap, "%{_snap}", url[n])
@@ -1366,6 +1374,9 @@ function demacroize(str)
 	}
 	if (_rc) {
 		sub("%{_rc}", _rc, str);
+	}
+	if (_pre) {
+		sub("%{_pre}", _pre, str);
 	}
 	if (_snap) {
 		sub("%{_snap}", _snap, str);
