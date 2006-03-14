@@ -537,12 +537,18 @@ function b_makekey(a, b,	s) {
 /^%pre/, (!/^%pre/ && $0 ~ SECTIONS) {
 	preamble = 0
 
+	if (gsub("/usr/sbin/useradd", "%useradd")) {
+		sub(" 2> /dev/null \|\| :", "");
+		sub(" >/dev/null 2>&1 \|\|:", "");
+	}
+
 	# %useradd and %groupadd may not be wrapped
 	if (/%(useradd|groupadd).*\\$/) {
 		a = $0; getline;
 		sub(/^[\s\t]*/, "");
 		$0 = substr(a, 1, length(a) - 1) $0;
 	}
+	use_script_macros()
 }
 
 /^%post/, (!/^%post/ && $0 ~ SECTIONS) {
@@ -551,30 +557,39 @@ function b_makekey(a, b,	s) {
 }
 /^%preun/, (!/^%preun/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%postun/, (!/^%postun/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%triggerin/, (!/^%triggerin/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%triggerun/, (!/^%triggerun/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%triggerpostun/, (!/^%triggerpostun/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%pretrans/, (!/^%pretrans/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%posttrans/, (!/^%posttrans/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%verifyscript/, (!/^%verifyscript/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 /^%check/, (!/^%check/ && $0 ~ SECTIONS) {
 	preamble = 0
+	use_script_macros()
 }
 
 #############
@@ -1330,6 +1345,14 @@ function use_files_macros(	i, n, t, a)
 	gsub("%{_datadir}/applications", "%{_desktopdir}");
 	gsub("%{_datadir}/icons", "%{_iconsdir}");
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}");
+}
+
+function use_script_macros()
+{
+	if (gsub("/sbin/service", "%service")) {
+		sub(" >/dev/null 2>&1 \|\|:", "");
+		sub(" 2> /dev/null \|\| :", "");
+	}
 }
 
 function fill(ch, n, i) {
