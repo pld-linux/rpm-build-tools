@@ -651,7 +651,7 @@ preamble == 1 {
 	}
 
 	if (field ~ /prereq:/) {
-		sub(/PreReq:/, "Requires:", $1);
+		sub(/Pre[Rr]eq:/, "Requires:", $1);
 	}
 
 	# split (build)requires, obsoletes on commas
@@ -850,7 +850,7 @@ preamble == 1 {
 #   so don't adapterize when the BR/R are mixed with comments
 ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS, $0 ~ PREAMBLE_TAGS {
 	if ($1 ~ /Pre[Rr]eq:/) {
-		sub(/PreReq:/, "Requires:", $1);
+		sub(/Pre[Rr]eq:/, "Requires:", $1);
 	}
 	format_preamble()
 #	kill_preamble_macros(); # breaks tabbing
