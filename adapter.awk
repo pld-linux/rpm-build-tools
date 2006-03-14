@@ -677,23 +677,24 @@ preamble == 1 {
 
 	# BR: tar (and others) is to common (rpm-build requires it)
 	if (field ~ /^buildrequires:/) {
-		if ($2 == "awk" ||
-			$2 == "binutils" ||
-			$2 == "bzip2" ||
-			$2 == "cpio" ||
-			$2 == "diffutils" ||
-			$2 == "elfutils" ||
-			$2 == "fileutils" ||
-			$2 == "findutils" ||
-			$2 == "glibc-devel" ||
-			$2 == "grep" ||
-			$2 == "gzip" ||
-			$2 == "make" ||
-			$2 == "patch" ||
-			$2 == "sed" ||
-			$2 == "sh-utils" ||
-			$2 == "tar" ||
-			$2 == "textutils") {
+		l = substr($0, index($0, $2));
+		if (l == "awk" ||
+			l == "binutils" ||
+			l == "bzip2" ||
+			l == "cpio" ||
+			l == "diffutils" ||
+			l == "elfutils" ||
+			l == "fileutils" ||
+			l == "findutils" ||
+			l == "glibc-devel" ||
+			l == "grep" ||
+			l == "gzip" ||
+			l == "make" ||
+			l == "patch" ||
+			l == "sed" ||
+			l == "sh-utils" ||
+			l == "tar" ||
+			l == "textutils") {
 			next
 		}
 	}
