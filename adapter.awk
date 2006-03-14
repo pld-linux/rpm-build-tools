@@ -660,6 +660,29 @@ preamble == 1 {
 		$0 = format_requires($1, value);
 	}
 
+	# BR: tar (and others) is to common (rpm-build requires it)
+	if (field ~ /^buildrequires:/) {
+		if ($2 == "awk" ||
+			$2 == "binutils" ||
+			$2 == "bzip2" ||
+			$2 == "cpio" ||
+			$2 == "diffutils" ||
+			$2 == "elfutils" ||
+			$2 == "fileutils" ||
+			$2 == "findutils" ||
+			$2 == "glibc-devel" ||
+			$2 == "grep" ||
+			$2 == "gzip" ||
+			$2 == "make" ||
+			$2 == "patch" ||
+			$2 == "sed" ||
+			$2 == "sh-utils" ||
+			$2 == "tar" ||
+			$2 == "textutils") {
+			next
+		}
+	}
+
 	# obsolete/unwanted tags
 	if (field ~ /vendor:|packager:|distribution:|docdir:|prefix:|icon:|author:|author-email:|metadata-version:/) {
 		next
