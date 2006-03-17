@@ -22,7 +22,7 @@ get_dump() {
 
 get_release() {
 	local specfile="$1"
-	rel=$(awk '/^%define.*_rel/{print $NF}' $specfile)
+	rel=$(awk '/^%define[ 	]*_rel[ 	]/{print $NF}' $specfile)
 	if [ -z "$rel" ]; then
 		dump=$(get_dump "$specfile")
 		rel=$(echo "$dump" | awk '/PACKAGE_RELEASE/{print $NF; exit}')
