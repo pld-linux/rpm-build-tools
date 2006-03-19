@@ -255,7 +255,7 @@ function b_makekey(a, b,	s) {
 	}
 
 	# Format description
-	if (ENVIRON["SKIP_DESC"] != 1 && description == 1 && !$0 ~ SECTIONS && !/^%description/) {
+	if (ENVIRON["SKIP_DESC"] != 1 && description == 1 && !/^%[a-z]+/ && !/^%description/) {
 		if (/^[ \t]*$/) {
 			format_flush(format_line, format_indent)
 			print ""
