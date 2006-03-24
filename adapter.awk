@@ -856,6 +856,11 @@ preamble == 1 {
 	}
 }
 
+/^%bcond_/ {
+	# do nothing
+	print
+	next
+}
 
 # sort BR/R!
 #
@@ -878,12 +883,6 @@ ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS, $0 ~ PREAMBL
 	b_val[b_ktmp] = $0;
 
 	next;
-}
-
-/^%bcond_/ {
-	# do nothing
-	print
-	next
 }
 
 preamble == 1 {
