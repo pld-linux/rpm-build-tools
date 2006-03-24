@@ -1029,12 +1029,15 @@ function use_macros()
 			continue;
 		if ($c ~ sbindir "/chkconfig")
 			continue;
+		if ($c ~ sbindir "/installzope(product|3package)")
+			continue;
 		gsub(sbindir, "%{_sbindir}", $c)
 	}
 
 	gsub("%{prefix}/sbin", "%{_sbindir}")
-	if (prefix"/sbin" == sbindir)
+	if (prefix"/sbin" == sbindir) {
 		gsub("%{_prefix}/sbin", "%{_sbindir}")
+	}
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sysconfdir "/{?cron.")
@@ -1131,6 +1134,8 @@ function use_macros()
 				if ($c ~ prefix "/sbin/chsh")
 					continue;
 				if ($c ~ prefix "/sbin/usermod")
+					continue;
+				if ($c ~ prefix "/sbin/installzope(product|3package)")
 					continue;
 				if ($c ~ prefix "/share/automake")
 					continue;
