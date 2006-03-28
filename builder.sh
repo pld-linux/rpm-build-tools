@@ -306,7 +306,7 @@ update_shell_title() {
 	fi
 
 	if [ "x$TITLECHANGE" == "xyes" -o "x$TITLECHANGE" == "x" ]; then
-		msg="builder[$SPECFILE] ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
+		msg="${SPECFILE}: ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
 		case "$TERM" in
 			cygwin|xterm*)
 			echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
