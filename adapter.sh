@@ -28,7 +28,10 @@ usage="Usage: $self [FLAGS] SPECFILE
 	skip %defattr corrections
 
 "
-
+if [ ! -x /usr/bin/getopt ]; then
+echo "You need to install util-linux to use adapter"
+exit 0
+fi
 t=`getopt -o hsmda --long help,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@"` || exit $?
 eval set -- "$t"
 
