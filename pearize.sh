@@ -123,7 +123,7 @@ has_opt=$(egrep -c '^Optional-(pkg|ext):' $template || :)
 if [ "$has_opt" -gt 0 ]; then
 	if ! grep -q '%{_docdir}/.*/optional-packages.txt' $spec; then
 		sed -i -e '
-		/^%clean/{
+		/^%files$/{
 			i%post
 			iif [ -f %{_docdir}/%{name}-%{version}/optional-packages.txt ]; then
 			i\	cat %{_docdir}/%{name}-%{version}/optional-packages.txt
