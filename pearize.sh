@@ -5,7 +5,7 @@
 # script. i'd be just glad :)
 #
 # needs 'pear' for 'pear makerpm' command, ./builder for fetching sources.
-# You should have all PEAR packages installed to get best results.
+# You should have all PEAR packages installed to get best results (needed for epoch autodetection)
 #
 # todo: adjust similiarily noautoreqdeps
 # bugs: the beta portions in version deps could be wrong (php-4.3.0b1 and alike)
@@ -114,6 +114,7 @@ if [ -n "$optional" ]; then
 		for req in $dep; do
 			m=$(grep "^%define.*_noautoreq" $spec | grep -o "$req" || :)
 			if [ -z "$m" ]; then
+				# FIXME: fails if _noautoreq is not present
 				sed -i -e "/^%define.*_noautoreq/s,$, $req," $spec
 			fi
 		done
