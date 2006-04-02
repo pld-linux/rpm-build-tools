@@ -121,7 +121,7 @@ if [ -n "$optional" ]; then
 fi
 has_opt=$(egrep -c '^Optional-(pkg|ext):' $template || :)
 if [ "$has_opt" -gt 0 ]; then
-	if ! grep -q optional-packages.txt $spec; then
+	if ! grep -q '%{_docdir}/.*/optional-packages.txt' $spec; then
 		sed -i -e '
 		/^%clean/{
 			i%post
@@ -130,6 +130,10 @@ if [ "$has_opt" -gt 0 ]; then
 			ifi
 			i
 		}
+		' $spec
+	fi
+	if ! grep -q '%doc.*optional-packages.txt' $spec; then
+		sed -i -e '
 		/^%doc install.log/{
 		s/$/ optional-packages.txt/
 		}
