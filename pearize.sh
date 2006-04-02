@@ -112,11 +112,23 @@ optional=$(grep '^Optional:' $template || :)
 if [ -n "$optional" ]; then
 	echo "$optional" | while read tag dep; do
 		for req in $dep; do
-			m=$(grep "^%define.*_noautoreq" $spec | grep -o "$req" || :)
+			echo add dep: $dep
+			set -x
+			m=$(grep "^%define.*_noautoreq" $spec || :)
 			if [ -z "$m" ]; then
-				# FIXME: fails if _noautoreq is not present
-				sed -i -e "/^%define.*_noautoreq/s,$, $req," $spec
+				sed -i -e "/^BuildRoot:/{
+					a
+					a# exclude optional dependencies
+					a%define\	\	_noautoreq\	$req
+				}
+				" $spec
+			else
+				m=$(echo "$m" | grep -o "$req" || :)
+				if [ -z "$m" ]; then
+					sed -i -e "/^%define.*_noautoreq/s,$, $req," $spec
+				fi
 			fi
+			set -
 		done
 	done
 fi
