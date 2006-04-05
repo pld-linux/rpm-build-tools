@@ -306,7 +306,14 @@ update_shell_title() {
 	fi
 
 	if [ "x$TITLECHANGE" == "xyes" -o "x$TITLECHANGE" == "x" ]; then
-		msg="${SPECFILE}: ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
+		local pkg
+		if [ -n "$PACKAGE_NAME" ]; then
+			pkg=${PACKAGE_NAME}-${PACKAGE_VERSION}-${PACKAGE_RELEASE}
+		else
+			pkg=${SPECFILE}
+		fi
+
+		msg="$pkg: ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
 		case "$TERM" in
 			cygwin|xterm*)
 			echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
