@@ -343,6 +343,7 @@ function b_makekey(a, b,	s) {
 	}
 
 	use_macros()
+	use_tabs()
 
 	if (/^automake$/)
 		sub(/$/, " -a -c")
@@ -1483,4 +1484,10 @@ function format_requires(tag, value,	n, p, i, deps, ndeps) {
 		s = s sprintf("%s\t%s\n", tag, deps[i]);
 	}
 	return substr(s, 1, length(s)-1);
+}
+
+function use_tabs()
+{
+	# reverse vim: ts=4 sw=4 et
+	gsub(/    /, "\t");
 }
