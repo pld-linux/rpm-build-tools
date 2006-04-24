@@ -84,6 +84,7 @@ DISTFILES_SERVER="://distfiles.pld-linux.org"
 ATTICDISTFILES_SERVER="://attic-distfiles.pld-linux.org"
 
 DEF_NICE_LEVEL=19
+SCHEDTOOL="auto"
 
 FAIL_IF_NO_SOURCES="yes"
 
@@ -125,6 +126,14 @@ fi
 
 wget --help 2>&1 | grep -q ' \-\-no-check\-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
 
+if [ "$SCHEDTOOL" = "auto" ]; then
+	if [ -x /usr/bin/schedtool ] && schedtool -B -e echo >/dev/null; then
+		SCHEDTOOL="schedtool -B -e"
+	else
+		SCHEDTOOL="no"
+	fi
+fi
+
 if [ -n "$USE_PROZILLA" ]; then
 	GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
 	GETURI2="$GETURI"
@@ -163,10 +172,10 @@ run_poldek()
 		if [ -n "$LASTLOG_FILE" ]; then
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
-		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee -a $LOG
+		(${NICE_COMMAND} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee -a $LOG
 		return $exit_pldk
 	else
-		(nice -n ${DEF_NICE_LEVEL} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE}) 1>&2 >/dev/null
+		(${NICE_COMMAND} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE}) 1>&2 >/dev/null
 		return `cat ${RES_FILE}`
 		rm -rf ${RES_FILE}
 	fi
@@ -1066,7 +1075,7 @@ build_package()
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
 		RES_FILE=~/tmp/$RPMBUILD-exit-status.$RANDOM
-		(time eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+		(time eval ${NICE_COMMAND} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm $RES_FILE
 		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
@@ -1077,7 +1086,7 @@ build_package()
 			fi
 		fi
 	else
-		eval nice -n ${DEF_NICE_LEVEL} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE
+		eval ${NICE_COMMAND} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE
 		RETVAL=$?
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
@@ -1831,6 +1840,12 @@ if [ -n "$TARGET" ]; then
 		"rpm")
 			TARGET_SWITCH="--target=$TARGET" ;;
 	esac
+fi
+
+if [ "$SCHEDTOOL" != "no" ]; then
+	NICE_COMMAND="$SCHEDTOOL"
+else
+	NICE_COMMAND="nice -n ${DEF_NICE_LEVEL}"
 fi
 
 update_shell_title "$COMMAND"
