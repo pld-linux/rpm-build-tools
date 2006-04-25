@@ -243,7 +243,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -ns, --no-srcs      - don't download Sources
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
--ni, --no-init      - don't initialize builder paths (SPECS and SOURCES)
+--no-init           - don't initialize builder paths (SPECS and SOURCES)
 -ske,
 --skip-existing-files - skip existing files in get_files
 --opts <rpm opts>   - additional options for rpm
@@ -1706,7 +1706,7 @@ do
 			NOSRCS="yes"
 			ALWAYS_CVSUP="no"
 			shift;;
-		-ni | --no-init )
+		--no-init )
 			NOINIT="yes"
 			shift;;
 		--opts )
