@@ -406,7 +406,7 @@ EOF
 		ARGS='--nodigest --nosignature --nobuild'
 		;;
 	esac
-	$RPMBUILD --rcfile .builder-rpmrc $ARGS --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+	$RPMBUILD --rcfile .builder-rpmrc $ARGS --nodeps --define "prep $dump" $RPMOPTS $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 	`
 	if [ $? -gt 0 ]; then
 		error=$(echo "$rpm_dump" | sed -ne '/^error:/,$p')
