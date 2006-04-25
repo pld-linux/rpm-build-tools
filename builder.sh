@@ -406,10 +406,11 @@ EOF
 		ARGS='--nodigest --nosignature --nobuild'
 		;;
 	esac
-	if [ "$NOINIT" != "yes" ] ; then
-		ARGDIRS=''
-	else
-		ARGDIRS='--define "_specdir ." --define "_sourcedir ."'
+	if [ "$NOINIT" = "yes" ] ; then
+		cat >> .builder-rpmmacros <<'EOF'
+%_specdir ./
+%_sourcedir ./
+EOF
 	fi
 	$RPMBUILD --rcfile .builder-rpmrc $ARGS $ARGDIRS --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
 	`
