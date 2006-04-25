@@ -332,6 +332,7 @@ update_shell_title() {
 		fi
 
 		msg="$pkg: ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
+		msg="$(echo $msg | tr -d '\n\r')"
 		case "$TERM" in
 			cygwin|xterm*)
 			echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
