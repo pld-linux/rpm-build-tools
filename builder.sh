@@ -544,7 +544,7 @@ init_builder()
 		set -v;
 	fi
 
-	[ "$NOINIT" != "yes" ] ; then
+	if [ "$NOINIT" != "yes" ] ; then
 		SOURCE_DIR="`eval $RPM $RPMOPTS --eval '%{_sourcedir}'`"
 		SPECS_DIR="`eval $RPM $RPMOPTS --eval '%{_specdir}'`"
 	else
