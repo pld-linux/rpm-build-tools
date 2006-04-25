@@ -438,7 +438,7 @@ get_icons()
 		return
 	fi
 
-	rpm_dump_cache="böö" "NODIST="yes" UPDATE5= get_files $ICONS
+	rpm_dump_cache="böö" NODIST="yes" UPDATE5= get_files $ICONS
 }
 
 parse_spec()
