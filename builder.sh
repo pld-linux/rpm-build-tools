@@ -257,6 +257,13 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -FRB, --force-remove-build-requires
                     - remove all you fetched with -R or --fetch-build-requires
                       remember, this option works without confirmation,
+-sd, --source-distfiles - list sources available from distfiles (intended for offline
+                      operations; does not work when Icon field is present
+                      but icon file is absent),
+-sdp, --source-distfiles-paths - list sources available from distfiles -
+                      paths relative to distfiles directory (intended for offline
+                      operations; does not work when Icon field is present
+                      but icon file is absent),
 -sf, --source-files - list sources - bare filenames (intended for offline
                       operations; does not work when Icon field is present
                       but icon file is absent),
@@ -645,14 +652,19 @@ src_md5 ()
 	fi
 }
 
+distfiles_path ()
+{
+	echo "by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+}
+
 distfiles_url ()
 {
-	echo "$PROTOCOL$DISTFILES_SERVER/distfiles/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+	echo "$PROTOCOL$DISTFILES_SERVER/distfiles/$(distfiles_path "$1")"
 }
 
 distfiles_attic_url ()
 {
-	echo "$PROTOCOL$ATTICDISTFILES_SERVER/distfiles/Attic/by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
+	echo "$PROTOCOL$ATTICDISTFILES_SERVER/distfiles/Attic/$(distfiles_path "$1")"
 }
 
 good_md5 ()
@@ -1732,6 +1744,12 @@ do
 		-FRB | --force-remove-build-requires)
 			REMOVE_BUILD_REQUIRES="force"
 			shift ;;
+		-sd | --sources-distfiles)
+			COMMAND="list-sources-distfiles"
+			shift ;;
+		-sdp | --sources-distfiles-paths)
+			COMMAND="list-sources-distfiles-paths"
+			shift ;;
 		-sf | --sources-files)
 			COMMAND="list-sources-files"
 			shift ;;
@@ -1981,6 +1999,32 @@ case "$COMMAND" in
 		SAPS="$SOURCES $PATCHES"
 		for SAP in $SAPS ; do
 			 echo $SOURCE_DIR/$(echo $SAP | awk '{gsub(/.*\//,"") ; print }')
+		done
+		;;
+	"list-sources-distfiles-paths" )
+		init_builder
+		NOCVSSPEC="yes"
+		DONT_PRINT_REVISION="yes"
+		get_spec
+		parse_spec
+		SAPS="$SOURCES $PATCHES"
+		for SAP in $SAPS ; do
+			if [ -n "$(src_md5 "$SAP")" ]; then
+				distfiles_path "$SAP"
+			fi
+		done
+		;;
+	"list-sources-distfiles" )
+		init_builder
+		NOCVSSPEC="yes"
+		DONT_PRINT_REVISION="yes"
+		get_spec
+		parse_spec
+		SAPS="$SOURCES $PATCHES"
+		for SAP in $SAPS ; do
+			if [ -n "$(src_md5 "$SAP")" ]; then
+				distfiles_url "$SAP"
+			fi
 		done
 		;;
 	"init_rpm_dir")
