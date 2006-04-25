@@ -242,6 +242,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -ns, --no-srcs      - don't download Sources
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
+-ni, --no-init      - don't initialize builder paths (SPECS and SOURCES)
 -ske,
 --skip-existing-files - skip existing files in get_files
 --opts <rpm opts>   - additional options for rpm
@@ -437,7 +438,7 @@ get_icons()
 		return
 	fi
 
-	rpm_dump_cache="böö" NODIST="yes" UPDATE5= get_files $ICONS
+	rpm_dump_cache="böö" "NODIST="yes" UPDATE5= get_files $ICONS
 }
 
 parse_spec()
@@ -543,8 +544,13 @@ init_builder()
 		set -v;
 	fi
 
-	SOURCE_DIR="`eval $RPM $RPMOPTS --eval '%{_sourcedir}'`"
-	SPECS_DIR="`eval $RPM $RPMOPTS --eval '%{_specdir}'`"
+	[ "$NOINIT" != "yes" ] ; then
+		SOURCE_DIR="`eval $RPM $RPMOPTS --eval '%{_sourcedir}'`"
+		SPECS_DIR="`eval $RPM $RPMOPTS --eval '%{_specdir}'`"
+	else
+		SOURCE_DIR="."
+		SPECS_DIR="."
+	fi
 
 	__PWD="`pwd`"
 }
@@ -1698,6 +1704,9 @@ do
 			NOURLS="yes"
 			NOSRCS="yes"
 			ALWAYS_CVSUP="no"
+			shift;;
+		-ni | --no-init )
+			NOINIT="yes"
 			shift;;
 		--opts )
 			shift; RPMOPTS="$RPM_OPTS ${1}"; shift ;;
