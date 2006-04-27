@@ -142,9 +142,9 @@ elif [ -n "$USE_AXEL" ]; then
 	GETURI2="$GETURI"
 	OUTFILEOPT="-o"
 else
-	wget --help 2>&1 | grep -q ' \-\-no-check\-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
-	wget --help 2>&1 | grep -q ' \-\-inet ' && WGET_OPTS="$WGET_OPTS --inet"
-	wget --help 2>&1 | grep -q ' \-\-retry\-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
+	wget --help 2>&1 | grep -q -- ' --no-check-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
+	wget --help 2>&1 | grep -q -- ' --inet ' && WGET_OPTS="$WGET_OPTS --inet"
+	wget --help 2>&1 | grep -q -- ' --retry-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
 
 	GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
 	GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
