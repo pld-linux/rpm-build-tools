@@ -85,6 +85,7 @@ BEGIN {
 	"rpm --eval %py_sitedir" | getline py_sitedir
 	"rpm --eval %py_scriptdir " | getline py_scriptdir
 	"rpm --eval %php_pear_dir" | getline php_pear_dir
+	"rpm --eval %tmpdir" | getline tmpdir
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -449,6 +450,11 @@ function b_makekey(a, b,	s) {
 		print "rm -rf $RPM_BUILD_ROOT"
 		did_rmroot=1
 	}
+
+    if (tmpdir) {
+        buildroot = tmpdir "/" name "-" version "-root-" ENVIRON["USER"]
+		gsub(buildroot, "$RPM_BUILD_ROOT")
+    }
 
 	use_macros()
 
