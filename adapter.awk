@@ -189,8 +189,14 @@ function b_makekey(a, b,	s) {
 		bindir = $3
 	if ($2 ~ /_sbindir/)
 		sbindir = $3
-	if ($2 ~ /_libdir/)
-		libdir = $3
+	if ($2 ~ /_libdir/) {
+		if ($3 ~ /^%\(/) {
+			# TODO: should escape for latter checks like: ($c ~ sysconfdir "/{?cron.")
+			libdir = "%%%%%%%%%%%%%%"
+		} else {
+			libdir = $3
+		}
+	}
 	if ($2 ~ /_sysconfdir/) {
 		if ($3 ~ /^%\(/) {
 			# TODO: should escape for latter checks like: ($c ~ sysconfdir "/{?cron.")
@@ -199,8 +205,14 @@ function b_makekey(a, b,	s) {
 			sysconfdir = $3
 		}
 	}
-	if ($2 ~ /_datadir/)
-		datadir = $3
+	if ($2 ~ /_datadir/) {
+		if ($3 ~ /^%\(/) {
+			# TODO: should escape for latter checks like: ($c ~ sysconfdir "/{?cron.")
+			datadir = "%%%%%%%%%%%%%%"
+		} else {
+			datadir = $3
+		}
+	}
 	if ($2 ~ /_includedir/)
 		includedir = $3
 	if ($2 ~ /_mandir/)
