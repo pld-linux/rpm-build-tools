@@ -602,18 +602,22 @@ get_spec()
 find_mirror()
 {
 	cd "$SPECS_DIR"
-	url="$1"
+	local url="$1"
 	if [ ! -f "mirrors" -a "$NOCVSSPEC" != "yes" ] ; then
 		cvs update mirrors >&2
 	fi
 
 	IFS="|"
-	while read origin mirror name rest
-	do
+	local origin mirror name rest ol prefix
+	while read origin mirror name rest; do
+		# skip comments and empty lines
+		if [ -z "$origin" ] || [[ $origin == \#* ]]; then
+			continue
+		fi
 		ol=`echo -n "$origin"|wc -c`
 		prefix="`echo -n "$url" | head -c $ol`"
 		if [ "$prefix" = "$origin" ] ; then
-			suffix="`echo "$url"|cut -b $ol-`"
+			suffix="`echo "$url"|cut -b $((ol+1))-`"
 			echo -n "$mirror$suffix"
 			return 0
 		fi
