@@ -428,7 +428,7 @@ function b_makekey(a, b,	s) {
 	did_clean = 1
 
 	# prevent next section header like "%post -p /sbin/ldconfig" being adapterized
-	if (!/^%/) {
+	if (!/^%post/) {
 		use_macros()
 	}
 }
@@ -658,7 +658,13 @@ preamble == 1 {
 		sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", group)
 		sub(/^Networking\/Deamons$/, "Networking/Daemons", group)
 		sub(/^Development\/Docs$/, "Documentation", group)
+		sub(/^Development\/Documentation$/, "Documentation", group)
 		sub(/^System Environment\/Kernel$/, "Base/Kernel", group)
+		sub(/^Development\/Libraries\/Java$/, "Development/Languages/Java", group)
+		sub(/^Development\/Java/, "Development/Languages/Java", group)
+		sub(/^Development\/Testing$/, "Development", group)
+		sub(/^Text Processing\/Markup\/HTML$/, "Applications/Text", group)
+		sub(/^Text Processing\/Markup\/XML$/, "Applications/Text", group)
 
 		$0 = "Group:\t\t" group
 
@@ -716,6 +722,18 @@ preamble == 1 {
 			l == "textutils") {
 			next
 		}
+
+        # perhaps we have common known name?
+
+        # jpackages
+		sub(/^java-devel$/, "jdk", $2);
+		sub(/^ant$/, "jakarta-ant", $2);
+		sub(/^log4j$/, "jakarta-log4j", $2);
+		sub(/^oro$/, "jakarta-oro", $2);
+		sub(/^xerces-j2$/, "xerces-j", $2);
+		sub(/^ant-junit$/, "jakarta-ant", $2);
+		sub(/^ldapjdk$/, "ldapsdk", $2);
+		sub(/^saxon-scripts$/, "saxon", $2);
 	}
 
 	# obsolete/unwanted tags
@@ -853,6 +871,7 @@ preamble == 1 {
 		sub("[?]use_mirror=.*$", "", $2);
 		sub("[?]download$", "", $2);
 		sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
+		sub("^http://download\.sf\.net/", "http://dl.sourceforge.net/", $2)
 
 		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 		sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", $2)
@@ -1217,6 +1236,14 @@ function use_macros()
 	gsub("%_sbindir", "%{_sbindir}")
 	gsub("%_mandir", "%{_mandir}")
 	gsub("%name", "%{name}")
+    gsub(/%ant/, "ant")
+    gsub(/%__rm/, "rm");
+    gsub(/%__mkdir_p/, "install -d");
+    gsub(/%__cp/, "cp");
+    gsub(/%__ln_s/, "ln -s");
+    gsub(/%__sed/, "%{__sed}");
+    gsub(/%__cat/, "cat");
+    gsub(/%__chmod/, "chmod");
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
