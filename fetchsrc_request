@@ -38,8 +38,13 @@ if [ "$2" != "" ]; then
 else
 	BRANCH="HEAD"
 fi
+SPEC="$1"
+if [[ "$SPEC" != *.spec ]]; then
+	SPEC="$SPEC.spec"
+fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
+	echo >&2 "Requesting $SPEC:$BRANCH via sendmail${VIA_ARGS:+ ($VIA_ARGS)}"
 	cat <<EOF | /usr/sbin/sendmail -t $VIA_ARGS 
 To: $DMAIL
 From: $LOGIN <$LOGIN@$HOST>
@@ -47,12 +52,13 @@ Subject: fetchsrc_request notify
 X-CVS-Module: SPECS
 X-distfiles-request: yes
 X-Login: $LOGIN
-X-Spec: $1
+X-Spec: $SPEC
 X-Branch: $BRANCH
 X-Flags: force-reply
 .
 EOF
 else
+	echo >&2 "Requesting $SPEC:$BRANCH via SMTP ($VIA:25)"
 	cat <<EOF | /usr/bin/nc $VIA 25 > /dev/null
 EHLO $HOST
 MAIL FROM: $LOGIN <$LOGIN@$HOST>
@@ -63,7 +69,7 @@ Subject: fetchsrc_request notify
 X-CVS-Module: SPECS
 X-distfiles-request: yes
 X-Login: $LOGIN
-X-Spec: $1
+X-Spec: $SPEC
 X-Branch: $BRANCH
 X-Flags: force-reply
 .
