@@ -1083,7 +1083,7 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?env.d")
 			continue;
-		if ($c ~ sysconfdir "/{?modprobe.d")
+		if ($c ~ sysconfdir "/{?modprobe.(d|conf)")
 			continue;
 		if ($c ~ sysconfdir "/{?logrotate.d")
 			continue;
