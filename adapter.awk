@@ -1047,6 +1047,7 @@ function use_macros()
 	gsub(py_sitedir, "%{py_sitedir}")
 	gsub(py_scriptdir, "%{py_scriptdir}")
 	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
+	gsub("%{python_sitelib}", "%{py_sitedir}")
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
 
