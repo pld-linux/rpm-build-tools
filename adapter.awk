@@ -727,7 +727,6 @@ preamble == 1 {
 
         # jpackages
 		sub(/^java-devel$/, "jdk", $2);
-		sub(/^ant$/, "jakarta-ant", $2);
 		sub(/^log4j$/, "jakarta-log4j", $2);
 		sub(/^oro$/, "jakarta-oro", $2);
 		sub(/^xerces-j2$/, "xerces-j", $2);
