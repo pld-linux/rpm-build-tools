@@ -670,7 +670,7 @@ src_md5()
 		# we have empty SourceX-md5, but it is still possible
 		# that we have NoSourceX-md5 AND NoSource: X
 		nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
-		if [ ! -z "$nosource_md5" -a -n "`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" ] ; then
+		if [ -n "$nosource_md5" -a -n "`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" ] ; then
 			echo $nosource_md5
 		fi
 	fi
@@ -970,7 +970,7 @@ tag_files()
 		set -v;
 	fi
 
-	if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
+	if [ $# -gt 0 ]; then
 		echo "Version: $PACKAGE_VERSION"
 		echo "Release: $PACKAGE_RELEASE"
 
@@ -983,37 +983,44 @@ tag_files()
 			echo "CVS tag: $TAG"
 		fi
 
-		OPTIONS="tag -F"
+		local OPTIONS="tag -F"
 		if [ -n "$CVSROOT" ]; then
 			OPTIONS="-d $CVSROOT $OPTIONS"
 		fi
 
 		cd "$SOURCE_DIR"
-		for i in $TAG_FILES
-		do
+		local tag_files
+		for i in $TAG_FILES; do
 			# don't tag files stored on distfiles
 			[ -n "`src_md5 $i`" ] && continue
-			if [ -f "`nourl $i`" ]; then
-				if [ "$TAG_VERSION" = "yes" ]; then
-					cvs $OPTIONS $TAGVER `nourl $i`
-				fi
-				if [ -n "$TAG" ]; then
-					cvs $OPTIONS $TAG `nourl $i`
-				fi
+			local fp=`nourl "$i"`
+			if [ -f "$fp" ]; then
+				tag_files="$tag_files $fp"
 			else
 				Exit_error err_no_source_in_repo $i
 			fi
 		done
 
+		if [ "$tag_files" ]; then
+			if [ "$TAG_VERSION" = "yes" ]; then
+				update_shell_title "tag sources: $TAGVER"
+				cvs $OPTIONS $TAGVER $tag_files
+			fi
+			if [ -n "$TAG" ]; then
+				update_shell_title "tag sources: $TAG"
+				cvs $OPTIONS $TAG $tag_files
+			fi
+		fi
+
 		cd "$SPECS_DIR"
 		if [ "$TAG_VERSION" = "yes" ]; then
+			update_shell_title "tag spec: $TAGVER"
 			cvs $OPTIONS $TAGVER $SPECFILE
 		fi
 		if [ -n "$TAG" ]; then
+			update_shell_title "tag spec: $TAG"
 			cvs $OPTIONS $TAG $SPECFILE
 		fi
-
-		unset OPTIONS
 	fi
 }
 
