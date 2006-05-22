@@ -625,6 +625,7 @@ find_mirror()
 	echo "$url"
 }
 
+# Warning: unpredictable results if same URL used twice
 src_no ()
 {
 	cd $SPECS_DIR
@@ -634,38 +635,44 @@ src_no ()
 	head -n 1 | xargs
 }
 
-src_md5 ()
+src_md5()
 {
-	[ X"$NO5" = X"yes" ] && return
+	[ "$NO5" = "yes" ] && return
 	no=$(src_no "$1")
 	[ -z "$no" ] && return
 	cd $SPECS_DIR
-	spec_rev=$(grep $SPECFILE CVS/Entries 2>/dev/null | sed -e s:/$SPECFILE/:: -e s:/.*::)
-	if [ -z "$spec_rev" ]; then
-		spec_rev="$(head -n 1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
-	fi
-	spec="$SPECFILE[0-9.,]*,$(echo $spec_rev | sed 's/\./\\./g')"
-	md5=$(grep -s -v '^#' additional-md5sums | \
-	grep -E "[ 	]$(basename "$1")[ 	]+${spec}([ 	,]|\$)" | \
-	sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
-	grep -E '^[0-9a-f]{32}$')
-	if [ X"$md5" = X"" ] ; then
-		source_md5=`grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
-		if [ ! -z "$source_md5" ] ; then
-			echo $source_md5;
-		else
-			# we have empty SourceX-md5, but it is still possible
-			# that we have NoSourceX-md5 AND NoSource: X
-			nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
-			if [ ! -z "$nosource_md5" -a ! X"`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" = X"" ] ; then
-				echo $nosource_md5;
-			fi;
-		fi;
-	else
-		if [ $(echo "$md5" | wc -l) != 1 ] ; then
-			echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
+	local md5
+
+	if [ -f additional-md5sums ]; then
+		local spec_rev=$(grep $SPECFILE CVS/Entries 2>/dev/null | sed -e s:/$SPECFILE/:: -e s:/.*::)
+		if [ -z "$spec_rev" ]; then
+			spec_rev="$(head -n 1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
 		fi
-		echo "$md5" | tail -n 1
+		local spec="$SPECFILE[0-9.,]*,$(echo $spec_rev | sed 's/\./\\./g')"
+		md5=$(grep -s -v '^#' additional-md5sums | \
+		grep -E "[ 	]$(basename "$1")[ 	]+${spec}([ 	,]|\$)" | \
+		sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
+		grep -E '^[0-9a-f]{32}$')
+
+		if [ "$md5" ]; then
+			if [ $(echo "$md5" | wc -l) != 1 ] ; then
+				echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
+			fi
+			echo "$md5" | tail -n 1
+			return
+		fi
+	fi
+
+	source_md5=`grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+	if [ -n "$source_md5" ]; then
+		echo $source_md5
+	else
+		# we have empty SourceX-md5, but it is still possible
+		# that we have NoSourceX-md5 AND NoSource: X
+		nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
+		if [ ! -z "$nosource_md5" -a -n "`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" ] ; then
+			echo $nosource_md5
+		fi
 	fi
 }
 
@@ -780,23 +787,25 @@ get_files()
 			if [ -f "$fp" ] && [ "$SKIP_EXISTING_FILES" = "yes" ]; then
 				continue
 			fi
+			local srcno=$(src_no $i)
 			if [ -n "$UPDATE5" ]; then
 				if [ -n "$ADD5" ]; then
 					[ "$fp" = "$i" ] && continue
-					grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
+					grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
 				else
-					grep -qiE '^#[ 	]*Source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
+					grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
 				fi
 			fi
 			FROM_DISTFILES=0
+			local srcmd5=$(src_md5 "$i")
 			if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 				if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 					echo "Warning: no URL given for $i"
 				fi
 
-				if [ -z "$NODIST" ] && [ -n "$(src_md5 "$i")" ]; then
+				if [ -z "$NODIST" ] && [ -n "$srcmd5" ]; then
 					if good_md5 "$i" && good_size "$i"; then
-						echo "$(nourl "$i") having proper md5sum already exists"
+						echo "$fp having proper md5sum already exists"
 						continue
 					fi
 					target="$fp"
@@ -840,7 +849,7 @@ get_files()
 						rm -f "$target"
 						FROM_DISTFILES=0
 					fi
-				elif [ "$NOCVS" != "yes" -a -z "$(src_md5 "$i")" ]; then
+				elif [ "$NOCVS" != "yes" -a -z "$srcmd5" ]; then
 					if [ $# -gt 1 ]; then
 						get_files_cvs="$get_files_cvs $fp"
 						update_shell_title "$fp (will cvs up later)"
@@ -869,13 +878,12 @@ get_files()
 				fi
 
 			fi
-			srcno=$(src_no $i)
 			if [ ! -f "$fp" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
 				Exit_error err_no_source_in_repo $i;
 			elif [ -n "$UPDATE5" ] && \
 				( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
 				[ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
-				grep -q -i -E '^#[ 	]*source'$(src_no $i)'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
+				grep -q -i -E '^#[ 	]*source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
 			then
 				echo "Updating source-$srcno md5."
 				md5=$(md5sum "$fp" | cut -f1 -d' ')
