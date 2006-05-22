@@ -1037,25 +1037,28 @@ branch_files()
 		set -v;
 	fi
 
-	if [ -n "$1$2$3$4$5$6$7$8$9${10}" ]; then
+	if [ $# gt 0 ]; then
 
-		OPTIONS="tag -b"
+		local OPTIONS="tag -b"
 		if [ -n "$CVSROOT" ]; then
 			OPTIONS="-d $CVSROOT $OPTIONS"
 		fi
 		cd "$SOURCE_DIR"
-		for i in $TAG_FILES
-		do
-			if [ -f `nourl $i` ]; then
-				cvs $OPTIONS $TAG `nourl $i`
+		local tag_files
+		for i in $TAG_FILES; do
+			local fp=`nourl "$i"`
+			if [ -f "$fp" ]; then
+				tag_files="$tag_files $fp"
 			else
 				Exit_error err_no_source_in_repo $i
 			fi
 		done
+		if [ "$tag_files" ]; then
+			cvs $OPTIONS $TAG $tag_files
+		fi
+
 		cd "$SPECS_DIR"
 		cvs $OPTIONS $TAG $SPECFILE
-
-		unset OPTIONS
 	fi
 }
 
