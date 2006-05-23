@@ -759,6 +759,80 @@ cvsup()
 	return $result
 }
 
+update_md5()
+{
+	if [ $# -eq 0 ]; then
+		return
+	fi
+
+	update_shell_title "update md5"
+	if [ -n "$DEBUG" ]; then
+		set -x;
+		set -v;
+	fi
+
+	cd "$SOURCE_DIR"
+
+	# pass 1: check files to be fetched
+	local todo
+	local need_files
+	for i in "$@"; do
+		local fp=$(nourl "$i")
+		local srcno=$(src_no "$i")
+		if [ -n "$UPDATE5" ]; then
+			if [ -n "$ADD5" ]; then
+				[ "$fp" = "$i" ] && continue # FIXME what is this check doing?
+				grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
+			else
+				grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
+			fi
+		fi
+		if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
+			need_files="$need_files $i"
+		fi
+	done
+
+	# pass 1a: get needed files
+	if [ "$need_files" ]; then
+		get_files $need_files
+	fi
+
+	# pass 2: proceed with md5 adding or updating
+	for i in "$@"; do
+		local fp=$(nourl "$i")
+		local srcno=$(src_no "$i")
+		if [ -n "$UPDATE5" ] && \
+			( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
+			[ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
+			grep -q -i -E '^#[ 	]*source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
+		then
+			echo "Updating source-$srcno md5."
+			md5=$(md5sum "$fp" | cut -f1 -d' ')
+			perl -i -ne '
+			print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
+			print "# Source'$srcno'-md5:\t'$md5'\n"
+			if /^Source'$srcno'\s*:\s+/;
+			' \
+			$SPECS_DIR/$SPECFILE
+		fi
+	done
+}
+
+check_md5()
+{
+	update_shell_title "check md5"
+
+	for i in "$@"; do
+		if good_md5 "$i" && good_size "$i"; then
+			continue
+		fi
+
+		echo "MD5 sum mismatch or 0 size.  Use -U to refetch sources,"
+		echo "or -5 to update md5 sums, if you're sure files are correct."
+		Exit_error err_no_source_in_repo $i
+	done
+}
+
 get_files()
 {
 	update_shell_title "get_files"
@@ -784,20 +858,18 @@ get_files()
 			SHELL_TITLE_PREFIX="get_files[$nc/$#]"
 			update_shell_title "$i"
 			local fp=`nourl "$i"`
-			if [ -f "$fp" ] && [ "$SKIP_EXISTING_FILES" = "yes" ]; then
+			if [ "$SKIP_EXISTING_FILES" = "yes" ] && [ -f "$fp" ]; then
 				continue
 			fi
-			local srcno=$(src_no $i)
-			if [ -n "$UPDATE5" ]; then
-				if [ -n "$ADD5" ]; then
-					[ "$fp" = "$i" ] && continue
-					grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
-				else
-					grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
-				fi
-			fi
+
 			FROM_DISTFILES=0
 			local srcmd5=$(src_md5 "$i")
+
+			# we know if source/patch is present in cvs/distfiles
+			# - has md5 (in distfiles)
+			# - in cvs... ideas?
+
+			# CHECK: local file didn't exist or always cvs up (first) requested.
 			if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 				if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 					echo "Warning: no URL given for $i"
@@ -812,7 +884,8 @@ get_files()
 					url=$(distfiles_url "$i")
 					url_attic=$(distfiles_attic_url "$i")
 					FROM_DISTFILES=1
-					if [ "`echo $url | grep -E '^(\.|/)'`" ]; then
+					# is $url local file?
+					if [[ "$url" = [./]* ]]; then
 						update_shell_title "${GETLOCAL%% *}: $url"
 						${GETLOCAL} $url $target
 					else
@@ -826,7 +899,9 @@ get_files()
 							${GETURI2} ${OUTFILEOPT} "$target" "$url"
 						fi
 					fi
-					if ! test -s "$target"; then
+
+					# is it empty file?
+					if [ ! -s "$target" ]; then
 						rm -f "$target"
 						if [ `echo $url_attic | grep -E '^(\.|/)'` ]; then
 							update_shell_title "${GETLOCAL%% *}: $url_attic"
@@ -843,7 +918,8 @@ get_files()
 							fi
 						fi
 					fi
-					if test -s "$target"; then
+
+					if [ -s "$target" ]; then
 						cvsignore_df $target
 					else
 						rm -f "$target"
@@ -878,23 +954,13 @@ get_files()
 				fi
 
 			fi
+
+			# the md5 check must be moved elsewhere as if we've called from update_md5 the md5 is wrong.
 			if [ ! -f "$fp" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
 				Exit_error err_no_source_in_repo $i;
-			elif [ -n "$UPDATE5" ] && \
-				( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
-				[ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
-				grep -q -i -E '^#[ 	]*source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
-			then
-				echo "Updating source-$srcno md5."
-				md5=$(md5sum "$fp" | cut -f1 -d' ')
-				perl -i -ne '
-				print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
-				print "# Source'$srcno'-md5:\t'$md5'\n"
-				if /^Source'$srcno'\s*:\s+/;
-				' \
-				$SPECS_DIR/$SPECFILE
 			fi
 
+			# we check md5 here just only to refetch immediately
 			if good_md5 "$i" && good_size "$i"; then
 				:
 			elif [ "$FROM_DISTFILES" = 1 ]; then
@@ -909,7 +975,7 @@ get_files()
 					update_shell_title "${GETURI2%% *}: $url"
 					${GETURI2} ${OUTFILEOPT} "$target" "$url"
 				fi
-				if ! test -s "$target"; then
+				if [ ! -s "$target" ]; then
 					rm -f "$target"
 					update_shell_title "${GETURI%% *}: $url_attic"
 					${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
@@ -919,14 +985,6 @@ get_files()
 					fi
 				fi
 				test -s "$target" || rm -f "$target"
-			fi
-
-			if good_md5 "$i" && good_size "$i" ; then
-				:
-			else
-				echo "MD5 sum mismatch or 0 size.  Use -U to refetch sources,"
-				echo "or -5 to update md5 sums, if you're sure files are correct."
-				Exit_error err_no_source_in_repo $i
 			fi
 		done
 		SHELL_TITLE_PREFIX=""
@@ -1660,13 +1718,13 @@ while test $# -gt 0
 do
 	case "${1}" in
 		-5 | --update-md5 )
-			COMMAND="get";
+			COMMAND="update_md5";
 			NODIST="yes"
 			NOCVSSPEC="yes"
 			UPDATE5="yes"
 			shift ;;
 		-a5 | --add-md5 )
-			COMMAND="get";
+			COMMAND="update_md5";
 			NODIST="yes"
 			NOCVS="yes"
 			NOCVSSPEC="yes"
@@ -1837,7 +1895,7 @@ do
 			INTEGER_RELEASE="yes"
 			shift;;
 		-U | --update )
-			COMMAND="get"
+			COMMAND="update_md5"
 			UPDATE="yes"
 			NOCVSSPEC="yes"
 			NODIST="yes"
@@ -1944,7 +2002,8 @@ case "$COMMAND" in
 			if [ -n "$NOSOURCE0" ] ; then
 				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 			fi
-			get_files $SOURCES $PATCHES;
+			get_files $SOURCES $PATCHES
+			check_md5 $SOURCES
 			build_package;
 			if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
 				run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
@@ -1959,8 +2018,9 @@ case "$COMMAND" in
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
 			parse_spec;
-			get_files $SOURCES $PATCHES;
-			branch_files $TAG "$SOURCES $PATCHES $ICONS";
+			get_files $SOURCES $PATCHES
+			check_md5 $SOURCES
+			branch_files $TAG $SOURCES $PATCHES $ICONS
 		else
 			Exit_error err_no_spec_in_cmdl;
 		fi
@@ -1975,6 +2035,21 @@ case "$COMMAND" in
 				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 			fi
 			get_files $SOURCES $PATCHES
+			check_md5 $SOURCES
+		else
+			Exit_error err_no_spec_in_cmdl;
+		fi
+		;;
+	"update_md5" )
+		init_builder;
+		if [ -n "$SPECFILE" ]; then
+			get_spec;
+			parse_spec
+
+			if [ -n "$NOSOURCE0" ] ; then
+				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
+			fi
+			update_md5 $SOURCES
 		else
 			Exit_error err_no_spec_in_cmdl;
 		fi
@@ -1995,8 +2070,9 @@ case "$COMMAND" in
 				new_SOURCES="$new_SOURCES $file"
 			done
 			SOURCES="$new_SOURCES"
-			get_files $SOURCES $PATCHES;
-			tag_files "$SOURCES $PATCHES $ICONS";
+			get_files $SOURCES $PATCHES
+			check_md5 $SOURCES
+			tag_files $SOURCES $PATCHES $ICONS
 		else
 			Exit_error err_no_spec_in_cmdl;
 		fi
@@ -2010,8 +2086,7 @@ case "$COMMAND" in
 		DONT_PRINT_REVISION="yes"
 		get_spec
 		parse_spec
-		SAPS="$SOURCES $PATCHES"
-		for SAP in $SAPS ; do
+		for SAP in $SOURCES $PATCHES; do
 			echo $SAP | awk '{gsub(/.*\//,"") ; print}'
 		done
 		;;
@@ -2032,8 +2107,7 @@ case "$COMMAND" in
 		DONT_PRINT_REVISION="yes"
 		get_spec
 		parse_spec
-		SAPS="$SOURCES $PATCHES"
-		for SAP in $SAPS ; do
+		for SAP in $SOURCES $PATCHES; do
 			echo $SOURCE_DIR/$(echo $SAP | awk '{gsub(/.*\//,"") ; print }')
 		done
 		;;
@@ -2043,8 +2117,7 @@ case "$COMMAND" in
 		DONT_PRINT_REVISION="yes"
 		get_spec
 		parse_spec
-		SAPS="$SOURCES $PATCHES"
-		for SAP in $SAPS ; do
+		for SAP in $SOURCES $PATCHES; do
 			if [ -n "$(src_md5 "$SAP")" ]; then
 				distfiles_path "$SAP"
 			fi
@@ -2056,8 +2129,7 @@ case "$COMMAND" in
 		DONT_PRINT_REVISION="yes"
 		get_spec
 		parse_spec
-		SAPS="$SOURCES $PATCHES"
-		for SAP in $SAPS ; do
+		for SAP in $SOURCES $PATCHES; do
 			if [ -n "$(src_md5 "$SAP")" ]; then
 				distfiles_url "$SAP"
 			fi
