@@ -1284,6 +1284,8 @@ function use_files_macros(	i, n, t, a)
 		return;
 	}
 
+	sub("^%doc %{_mandir}", "%{_mandir}")
+
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
 
