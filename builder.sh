@@ -1028,7 +1028,6 @@ tag_files()
 		set -v;
 	fi
 
-	if [ $# -gt 0 ]; then
 		echo "Version: $PACKAGE_VERSION"
 		echo "Release: $PACKAGE_RELEASE"
 
@@ -1079,7 +1078,6 @@ tag_files()
 			update_shell_title "tag spec: $TAG"
 			cvs $OPTIONS $TAG $SPECFILE
 		fi
-	fi
 }
 
 branch_files()
