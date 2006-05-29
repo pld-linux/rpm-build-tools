@@ -441,10 +441,11 @@ function b_makekey(a, b,	s) {
 	preamble = 0
 
 	# foreign rpms
-	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
-	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
+	sub("^%{__rm} -rf %{buildroot}", "rm -rf $RPM_BUILD_ROOT")
+    sub("%buildroot", "$RPM_BUILD_ROOT");
+    sub("%{buildroot}", "$RPM_BUILD_ROOT");
 
-	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/ && did_rmroot==0) {
+	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+(\${?RPM_BUILD_ROOT}?|%{?buildroot}?)/ && did_rmroot==0) {
 		did_rmroot=1
 		print "rm -rf $RPM_BUILD_ROOT"
 		next
