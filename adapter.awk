@@ -440,6 +440,10 @@ function b_makekey(a, b,	s) {
 
 	preamble = 0
 
+	# foreign rpms
+	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
+	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
+
 	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+\${?RPM_BUILD_ROOT}?/ && did_rmroot==0) {
 		did_rmroot=1
 		print "rm -rf $RPM_BUILD_ROOT"
@@ -480,10 +484,6 @@ function b_makekey(a, b,	s) {
 	# No lines contain 'chmod' if it sets the modes to '644'
 	if ($1 ~ /chmod/ && $2 ~ /644/)
 		next
-
-	# foreign rpms
-	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
-	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
 
 	# atrpms
 	$0 = fixedsub("%perl_makeinstall", "%{__make} pure_install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0);
