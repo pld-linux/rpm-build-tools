@@ -360,10 +360,10 @@ set_spec_target() {
 }
 
 cache_rpm_dump () {
-	 if [ -n "$DEBUG" ]; then
-		  set -x;
-		  set -v;
-	 fi
+	if [ -n "$DEBUG" ]; then
+		set -x;
+		set -v;
+	fi
 
 	update_shell_title "cache_rpm_dump"
 	local rpm_dump
@@ -2064,8 +2064,7 @@ case "$COMMAND" in
 
 			# don't fetch sources from remote locations
 			new_SOURCES=""
-			for file in $SOURCES
-			do
+			for file in $SOURCES; do
 				[ -n "`src_md5 $file`" ] && continue
 				new_SOURCES="$new_SOURCES $file"
 			done
