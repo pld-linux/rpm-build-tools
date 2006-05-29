@@ -1028,56 +1028,56 @@ tag_files()
 		set -v;
 	fi
 
-		echo "Version: $PACKAGE_VERSION"
-		echo "Release: $PACKAGE_RELEASE"
+	echo "Version: $PACKAGE_VERSION"
+	echo "Release: $PACKAGE_RELEASE"
 
-		TAGVER=`make_tagver`
+	TAGVER=`make_tagver`
 
+	if [ "$TAG_VERSION" = "yes" ]; then
+		echo "CVS tag: $TAGVER"
+	fi
+	if [ -n "$TAG" ]; then
+		echo "CVS tag: $TAG"
+	fi
+
+	local OPTIONS="tag -F"
+	if [ -n "$CVSROOT" ]; then
+		OPTIONS="-d $CVSROOT $OPTIONS"
+	fi
+
+	cd "$SOURCE_DIR"
+	local tag_files
+	for i in $TAG_FILES; do
+		# don't tag files stored on distfiles
+		[ -n "`src_md5 $i`" ] && continue
+		local fp=`nourl "$i"`
+		if [ -f "$fp" ]; then
+			tag_files="$tag_files $fp"
+		else
+			Exit_error err_no_source_in_repo $i
+		fi
+	done
+
+	if [ "$tag_files" ]; then
 		if [ "$TAG_VERSION" = "yes" ]; then
-			echo "CVS tag: $TAGVER"
+			update_shell_title "tag sources: $TAGVER"
+			cvs $OPTIONS $TAGVER $tag_files
 		fi
 		if [ -n "$TAG" ]; then
-			echo "CVS tag: $TAG"
+			update_shell_title "tag sources: $TAG"
+			cvs $OPTIONS $TAG $tag_files
 		fi
+	fi
 
-		local OPTIONS="tag -F"
-		if [ -n "$CVSROOT" ]; then
-			OPTIONS="-d $CVSROOT $OPTIONS"
-		fi
-
-		cd "$SOURCE_DIR"
-		local tag_files
-		for i in $TAG_FILES; do
-			# don't tag files stored on distfiles
-			[ -n "`src_md5 $i`" ] && continue
-			local fp=`nourl "$i"`
-			if [ -f "$fp" ]; then
-				tag_files="$tag_files $fp"
-			else
-				Exit_error err_no_source_in_repo $i
-			fi
-		done
-
-		if [ "$tag_files" ]; then
-			if [ "$TAG_VERSION" = "yes" ]; then
-				update_shell_title "tag sources: $TAGVER"
-				cvs $OPTIONS $TAGVER $tag_files
-			fi
-			if [ -n "$TAG" ]; then
-				update_shell_title "tag sources: $TAG"
-				cvs $OPTIONS $TAG $tag_files
-			fi
-		fi
-
-		cd "$SPECS_DIR"
-		if [ "$TAG_VERSION" = "yes" ]; then
-			update_shell_title "tag spec: $TAGVER"
-			cvs $OPTIONS $TAGVER $SPECFILE
-		fi
-		if [ -n "$TAG" ]; then
-			update_shell_title "tag spec: $TAG"
-			cvs $OPTIONS $TAG $SPECFILE
-		fi
+	cd "$SPECS_DIR"
+	if [ "$TAG_VERSION" = "yes" ]; then
+		update_shell_title "tag spec: $TAGVER"
+		cvs $OPTIONS $TAGVER $SPECFILE
+	fi
+	if [ -n "$TAG" ]; then
+		update_shell_title "tag spec: $TAG"
+		cvs $OPTIONS $TAG $SPECFILE
+	fi
 }
 
 branch_files()
