@@ -540,8 +540,8 @@ Exit_error()
 			exit 11 ;;
 
 	esac
-   echo "Unknown error."
-   exit 100
+	echo "Unknown error."
+	exit 100
 }
 
 init_builder()
@@ -1697,13 +1697,13 @@ init_rpm_dir() {
 	init_builder
 
 	echo "To checkout *all* .spec files:"
-   	echo "- remove $SPECS_DIR/CVS/Entries.Static"
-   	echo "- run cvs up in $SPECS_DIR dir"
+	echo "- remove $SPECS_DIR/CVS/Entries.Static"
+	echo "- run cvs up in $SPECS_DIR dir"
 
 	echo ""
 	echo "To commit with your developer account:"
-   	echo "- edit $SPECS_DIR/CVS/Root"
-   	echo "- edit $SOURCE_DIR/CVS/Root"
+	echo "- edit $SPECS_DIR/CVS/Root"
+	echo "- edit $SOURCE_DIR/CVS/Root"
 }
 
 #---------------------------------------------
@@ -2148,4 +2148,4 @@ if [ -f "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES" -a "$REMOVE_BUILD_REQUIRES" != "
 fi
 cd "$__PWD"
 
-# vi:syntax=sh:ts=4:sw=4
+# vi:syntax=sh:ts=4:sw=4:noet
