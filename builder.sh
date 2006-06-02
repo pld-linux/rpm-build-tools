@@ -1093,7 +1093,7 @@ branch_files()
 		set -v;
 	fi
 
-	if [ $# gt 0 ]; then
+	if [ $# -gt 0 ]; then
 
 		local OPTIONS="tag -b"
 		if [ -n "$CVSROOT" ]; then
