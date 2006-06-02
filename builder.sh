@@ -1089,8 +1089,6 @@ branch_files()
 		set -v;
 	fi
 
-	if [ $# -gt 0 ]; then
-
 		local OPTIONS="tag $CVS_FORCE -b"
 		if [ -n "$CVSROOT" ]; then
 			OPTIONS="-d $CVSROOT $OPTIONS"
@@ -1111,7 +1109,6 @@ branch_files()
 
 		cd "$SPECS_DIR"
 		cvs $OPTIONS $TAG $SPECFILE
-	fi
 }
 
 
