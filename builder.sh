@@ -194,8 +194,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
 [-h|--help] [--http] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
-[-Tvs|--tag-version-stable] [-Tvn|--tag-version-nest]
-[-Ts|--tag-stable] [-Tn|--tag-nest] [-Tv|--tag-version]
+[-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
 [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] [--show-bconds]
 [--with/--without <feature>] [--define <macro> <value>] <package>[.spec][:cvstag]
@@ -277,12 +276,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                     - add cvs tag <cvstag> for files,
 -Tvs, --tag-version-stable
                     - add cvs tags STABLE and NAME-VERSION-RELEASE for files,
--Tvn, --tag-version-nest
-                    - add cvs tags NEST and NAME-VERSION-RELEASE for files,
 -Ts, --tag-stable
                     - add cvs tag STABLE for files,
--Tn, --tag-nest
-                    - add cvs tag NEST for files,
 -Tv, --tag-version
                     - add cvs tag NAME-VERSION-RELEASE for files,
 -Tp, --tag-prefix <prefix>
@@ -1857,19 +1852,9 @@ do
 			TAG="STABLE"
 			TAG_VERSION="yes"
 			shift;;
-		-Tvn | --tag-version-nest )
-			COMMAND="tag";
-			TAG="NEST"
-			TAG_VERSION="yes"
-			shift;;
 		-Ts | --tag-stable )
 			COMMAND="tag";
 			TAG="STABLE"
-			TAG_VERSION="no"
-			shift;;
-		-Tn | --tag-nest )
-			COMMAND="tag";
-			TAG="NEST"
 			TAG_VERSION="no"
 			shift;;
 		-Tv | --tag-version )
