@@ -79,6 +79,7 @@ CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
 
 CVSTAG=""
 RES_FILE=""
+CVS_FORCE=""
 
 CVS_SERVER="cvs.pld-linux.org"
 DISTFILES_SERVER="://distfiles.pld-linux.org"
@@ -189,10 +190,9 @@ usage()
 	if [ -n "$DEBUG" ]; then set -xv; fi
 	echo "\
 Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
-
 [-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
-[{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] [-g|--get]
-[-h|--help] [--http] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
+[{-cf|--cvs-force}] [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] 
+[-g|--get] [-h|--help] [--http] [{-l,--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T--tag <cvstag>]
 [-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
@@ -219,6 +219,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -B, --branch        - add branch
 -c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
                       SPECS and \$RPM_BUILD_ROOT),
+-cf, --cvs-force	- use -F when tagging (useful when moving branches)
 -d <cvsroot>, --cvsroot <cvsroot>
                     - setup \$CVSROOT,
 --define <macro> <value>
@@ -1035,7 +1036,7 @@ tag_files()
 		echo "CVS tag: $TAG"
 	fi
 
-	local OPTIONS="tag -F"
+	local OPTIONS="tag $CVS_FORCE"
 	if [ -n "$CVSROOT" ]; then
 		OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
@@ -1090,7 +1091,7 @@ branch_files()
 
 	if [ $# -gt 0 ]; then
 
-		local OPTIONS="tag -b"
+		local OPTIONS="tag $CVS_FORCE -b"
 		if [ -n "$CVSROOT" ]; then
 			OPTIONS="-d $CVSROOT $OPTIONS"
 		fi
@@ -1745,6 +1746,8 @@ do
 			COMMAND="branch"; shift; TAG="${1}"; shift;;
 		-c | --clean )
 			CLEAN="--clean --rmspec --rmsource"; shift ;;
+		-cf | --cvs-force )
+			CVS_FORCE="-F"; shift;;
 		-d | --cvsroot )
 			shift; CVSROOT="${1}"; shift ;;
 		-g | --get )
