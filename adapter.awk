@@ -666,6 +666,8 @@ preamble == 1 {
 		sub(/^Development\/Testing$/, "Development", group)
 		sub(/^Text Processing\/Markup\/HTML$/, "Applications/Text", group)
 		sub(/^Text Processing\/Markup\/XML$/, "Applications/Text", group)
+		sub(/^Web\/Database$/, "Applications/WWW", group)
+		sub(/^System Environment\/Base$/, "Base", group)
 
 		$0 = "Group:\t\t" group
 
@@ -1114,8 +1116,11 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?samba")
 			continue;
+		if ($c ~ sysconfdir "/shells")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
+    return
 
 	gsub(docdir, "%{_docdir}")
 	gsub(php_pear_dir, "%{php_pear_dir}")
