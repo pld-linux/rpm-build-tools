@@ -1920,9 +1920,16 @@ do
 				CVSTAG="${SPECFILE##*:}";
 				SPECFILE="${SPECFILE%%:*}";
 			fi
-			shift ;;
+			shift
 	esac
 done
+
+if [ -z "$CVSTAG" ]; then
+	CVSTAG=$(awk -vSPECFILE="${SPECFILE%.spec}.spec" -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' CVS/Entries)
+	if [ "$CVSTAG" ]; then
+		echo "builder: Stick tag $CVSTAG active. Use -r TAGNAME to override."
+	fi
+fi
 
 if [ -n "$DEBUG" ]; then
 	set -x;
