@@ -1120,7 +1120,6 @@ function use_macros()
 			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
-    return
 
 	gsub(docdir, "%{_docdir}")
 	gsub(php_pear_dir, "%{php_pear_dir}")
