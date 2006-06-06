@@ -1929,6 +1929,9 @@ if [ -z "$CVSTAG" ]; then
 	if [ "$CVSTAG" ]; then
 		echo "builder: Stick tag $CVSTAG active. Use -r TAGNAME to override."
 	fi
+elif [ "$CVSTAG" = "HEAD" ]; then
+	# assume -r HEAD is same as -A
+	CVSTAG=""
 fi
 
 if [ -n "$DEBUG" ]; then
