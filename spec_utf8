@@ -28,7 +28,7 @@ langs={
     'pt':'iso8859-1',
     'pt_BR':'iso8859-1',
     'ro':'iso8859-2',
-    'ru':'iso8859-5',
+    'ru':'KOI8-R',
     'se':'UTF-8',
     'sk':'iso8859-2',
     'sl':'iso8859-2',
