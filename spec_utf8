@@ -1,0 +1,98 @@
+#!/usr/bin/python
+
+import os, os.path, re, sys, locale
+
+langs={
+    'bg':'windows-1251',
+    'br':'iso8859-1',
+    'ca':'iso8859-1',
+    'cs':'iso8859-2',
+    'da':'iso8859-1',
+    'de':'iso8859-1',
+    'en':'iso8859-1',
+    'eo':'iso8859-3',
+    'es':'iso8859-1',
+    'fi':'iso8859-1',
+    'fo':'iso8859-1',
+    'fr':'iso8859-1',
+    'gl':'iso8859-1',
+    'he':'iso8859-8',
+    'id':'iso8859-1',
+    'is':'iso8859-1',
+    'it':'iso8859-1',
+    'ja':'euc-jp',
+    'ko':'euc-kr',
+    'nb':'iso8859-1',
+    'nl':'iso8859-1', 
+    'pl':'iso8859-2',
+    'pt':'iso8859-1',
+    'pt_BR':'iso8859-1',
+    'ro':'iso8859-2',
+    'ru':'iso8859-5',
+    'se':'UTF-8',
+    'sk':'iso8859-2',
+    'sl':'iso8859-2',
+    'sv':'iso8859-1',
+    'tr':'iso8859-9',
+    'uk':'KOI8-U',
+    'wa':'iso8859-1',
+    'zh_CN':'GB2312',
+    'zh_HK':'BIG5-HKSCS',
+    'zh_TW':'BIG5',
+    0:0}
+
+def parse_spec(infile, outfile):
+  re_summary = re.compile("^Summary\(([^\)]+)\):\t+(.*)$")
+  re_utf = re.compile(".utf-8$", re.I)
+  re_desc = re.compile("^(%description.*\s)-l\s+([\S]+)($|\s.*$)")
+  re_proc = re.compile("^%")
+  in_desc = False
+
+  for l in infile:
+      outline = l
+      r = re_summary.match(l)
+      if r:
+        lang = r.group(1)
+        if re_utf.search(lang):
+          outfile.write(l)
+          continue
+        if lang in langs.keys():
+          try:
+            desc = unicode(r.group(2), langs[lang]).encode("UTF-8")
+            l = "Summary(%s.UTF-8):   %s\n" % (lang, desc)
+          except UnicodeDecodeError:
+            outfile.write("#transcoding error Summary(%s)\n" % (lang))
+        else:
+          outfile.write("#unknow lang code Summary(%s)\n" % (lang))
+      if in_desc:
+        if re_proc.search(l):
+          in_desc = False
+        else:
+          if not langs[lang] == 'UTF-8':
+            try:
+              l = unicode(l, langs[lang]).encode("UTF-8")
+            except UnicodeDecodeError:
+              outfile.write("#transcoding error %%description -l %s\n" % (lang))
+
+      r = re_desc.match(l)
+      if r:
+        lang = r.group(2)
+        if re_utf.search(lang):
+          outfile.write(l)
+          continue
+        in_desc = True
+        if not lang in langs.keys():
+          outfile.write("#unknow lang code in %%description -l %s\n" % (lang))
+        else:
+          l = "%s-l %s.UTF-8%s\n" % (r.group(1), lang, r.group(3))
+
+      outfile.write(l)
+
+
+
+def main():
+  parse_spec(sys.stdin, sys.stdout)
+
+if __name__ == "__main__":
+  main()
+
