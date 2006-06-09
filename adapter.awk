@@ -1088,6 +1088,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?modprobe.(d|conf)")
 			continue;
+		if ($c ~ sysconfdir "/{?udev/rules.d")
+			continue;
 		if ($c ~ sysconfdir "/{?logrotate.d")
 			continue;
 		if ($c ~ sysconfdir "/{?pam.d")
