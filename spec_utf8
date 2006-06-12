@@ -41,9 +41,22 @@ langs={
     'zh_TW':'BIG5',
     0:0}
 
+def find_encoding(lang):
+  r = re.match("^([^.]+)(\.[^@]+)?$", lang)
+  pure_lang = r.group(1)
+  if r.group(2) == None:
+    try:
+      enc = langs[lang]
+    except KeyError:
+      enc = None
+  else:
+    # strip dot
+    enc = r.group(2)[1:]
+  return (enc, pure_lang)
+
 def parse_spec(infile, outfile):
   re_summary = re.compile("^Summary\(([^\)]+)\):\t+(.*)$")
-  re_utf = re.compile(".utf-8$", re.I)
+  re_utf = re.compile("^utf-8$", re.I)
   re_desc = re.compile("^(%description.*\s)-l\s+([\S]+)($|\s.*$)")
   re_proc = re.compile("^%")
   in_desc = False
@@ -52,43 +65,35 @@ def parse_spec(infile, outfile):
       outline = l
       r = re_summary.match(l)
       if r:
-        lang = r.group(1)
-        if re_utf.search(lang):
-          outfile.write(l)
-          continue
-        if lang in langs.keys():
+        (enc, pure_lang) = find_encoding(r.group(1))
+        if enc == None:
+          outfile.write("#unknow lang code Summary(%s)\n" % (lang))
+        elif not re_utf.search(enc):
           try:
-            desc = unicode(r.group(2), langs[lang]).encode("UTF-8")
-            l = "Summary(%s.UTF-8):   %s\n" % (lang, desc)
+            desc = unicode(r.group(2), enc).encode("UTF-8")
+            l = "Summary(%s.UTF-8):   %s\n" % (pure_lang, desc)
           except UnicodeDecodeError:
             outfile.write("#transcoding error Summary(%s)\n" % (lang))
-        else:
-          outfile.write("#unknow lang code Summary(%s)\n" % (lang))
       if in_desc:
         if re_proc.search(l):
           in_desc = False
         else:
-          if not langs[lang] == 'UTF-8':
+          if not re_utf.search(enc):
             try:
-              l = unicode(l, langs[lang]).encode("UTF-8")
+              l = unicode(l, enc).encode("UTF-8")
             except UnicodeDecodeError:
               outfile.write("#transcoding error %%description -l %s\n" % (lang))
 
       r = re_desc.match(l)
       if r:
-        lang = r.group(2)
-        if re_utf.search(lang):
-          outfile.write(l)
-          continue
-        in_desc = True
-        if not lang in langs.keys():
+        (enc, pure_lang) = find_encoding(r.group(2))
+        if enc == None:
           outfile.write("#unknow lang code in %%description -l %s\n" % (lang))
-        else:
-          l = "%s-l %s.UTF-8%s\n" % (r.group(1), lang, r.group(3))
+        elif not re_utf.search(enc):
+          in_desc = True
+          l = "%s-l %s.UTF-8%s\n" % (r.group(1), pure_lang, r.group(3))
 
       outfile.write(l)
-
-
 
 def main():
   parse_spec(sys.stdin, sys.stdout)
