@@ -1265,9 +1265,13 @@ set_bconds_values()
 					# use only flags which are in this package.
 					if [[ $bcond_avail = *${opt}* ]]; then
 						if [[ $flag = -* ]]; then
-							BCOND="$BCOND --without $opt"
+							if [[ $BCOND != *--with?${opt}* ]]; then
+								BCOND="$BCOND --without $opt"
+							fi
 						else
-							BCOND="$BCOND --with $opt"
+							if [[ $BCOND != *--without?${opt}* ]]; then
+								BCOND="$BCOND --with $opt"
+							fi
 						fi
 					fi
 				done
