@@ -945,7 +945,7 @@ preamble == 1 {
 	print
 
 	if (name_seen == 0 && name) {
-		print "Name:\t" name
+		print "Name:\t\t" name
 		name_seen = 1
 	}
 
