@@ -1903,9 +1903,14 @@ do
 		--define)
 			shift
 			MACRO="${1}"
-			VALUE="${2}"
-			shift 2
-			RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
+			shift
+			if echo "${MACRO}" | grep -q '\W'; then
+				RPMOPTS="${RPMOPTS} --define \"${MACRO}\""
+			else
+				VALUE="${1}"
+				shift
+				RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
+			fi
 			;;
 		--show-bconds | -show-bconds | -print-bconds | --print-bconds | -display-bconds | --display-bconds )
 			SHOW_BCONDS="yes"
