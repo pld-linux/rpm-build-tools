@@ -428,7 +428,7 @@ EOF
 
 rpm_dump () {
 	if [ -z "$rpm_dump_cache" ] ; then
-		echo "internal error: cache_rpm_dump not called!" 1>&2
+		echo "internal error: cache_rpm_dump not called! (missing %prep?)" 1>&2
 	fi
 	echo "$rpm_dump_cache"
 }
