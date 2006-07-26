@@ -93,7 +93,7 @@ FAIL_IF_NO_SOURCES="yes"
 # let get_files skip over files which are present to get those damn files fetched
 SKIP_EXISTING_FILES="no"
 
-TRY_UPGRADE=
+TRY_UPGRADE=""
 # should the specfile be restored if upgrade failed?
 REVERT_BROKEN_UPGRADE="yes"
 
@@ -445,7 +445,7 @@ get_icons()
 		return
 	fi
 
-	rpm_dump_cache="kalasaba" NODIST="yes" UPDATE5= get_files $ICONS
+	rpm_dump_cache="kalasaba" NODIST="yes" get_files $ICONS
 }
 
 parse_spec()
@@ -1147,7 +1147,9 @@ build_package()
 			eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
 			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t0.1/' $SPECFILE"
 			parse_spec;
-			NODIST="yes" UPDATE5="yes" get_files $SOURCES $PATCHES;
+			NODIST="yes" get_files $SOURCES $PATCHES;
+			UPDATE5="yes" update_md5 $SOURCES
+
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
 	fi
