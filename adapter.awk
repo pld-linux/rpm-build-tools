@@ -1370,7 +1370,7 @@ function use_files_macros(	i, n, t, a)
     # kill default attrs
     gsub(/%dir %attr\(755,root,root\)/, "%dir");
     if (!/%dir/) {
-        gsub(/%attr\(644,root,root\)/, "");
+        gsub(/%attr\(644,root,root\) /, "");
     }
 
 	# sort %verify attrs
