@@ -1367,6 +1367,12 @@ function use_files_macros(	i, n, t, a)
 		gsub("%attr\\(0", "%attr(")
 	}
 
+    # kill default attrs
+    gsub(/%dir %attr\(755,root,root\)/, "%dir");
+    if (!/%dir/) {
+        gsub(/%attr\(644,root,root\)/, "");
+    }
+
 	# sort %verify attrs
 	if (match($0, /%verify\(not([^)]+)\)/)) {
 		t = substr($0, RSTART, RLENGTH)
