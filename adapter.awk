@@ -318,7 +318,7 @@ function b_makekey(a, b,	s) {
 		sub(/^%setup/, "%setup -q")
 	}
 
-	if (/^%setup/) {
+	if (/^%setup/ && name != "setup") {
 		$0 = fixedsub(name, "%{name}", $0);
 		$0 = fixedsub(version, "%{version}", $0);
 		if (_beta) {
@@ -338,6 +338,7 @@ function b_makekey(a, b,	s) {
 	if (/^%setup/ && /-n %{name}-%{version}( |$)/) {
 		$0 = fixedsub(" -n %{name}-%{version}", "", $0)
 	}
+    sub("^%patch ", "%patch0 ");
 
 	# invalid in %prep
 	sub("^rm -rf \$RPM_BUILD_ROOT.*", "");
