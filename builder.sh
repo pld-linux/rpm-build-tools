@@ -93,6 +93,10 @@ FAIL_IF_NO_SOURCES="yes"
 # let get_files skip over files which are present to get those damn files fetched
 SKIP_EXISTING_FILES="no"
 
+TRY_UPGRADE=
+# should the specfile be restored if upgrade failed?
+REVERT_BROKEN_UPGRADE="yes"
+
 if [ -x /usr/bin/rpm-getdeps ]; then
 	FETCH_BUILD_REQUIRES_RPMGETDEPS="yes"
 else
@@ -1136,7 +1140,9 @@ build_package()
 		if [ -n "$TNEWVER" ]; then
 			TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
 			echo "New version found, updating spec file to version " $TNEWVER
-			cp -f $SPECFILE $SPECFILE.bak
+			if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
+				cp -f $SPECFILE $SPECFILE.bak
+			fi
 			chmod +w $SPECFILE
 			eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
 			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t0.1/' $SPECFILE"
@@ -1187,7 +1193,9 @@ build_package()
 	if [ "$RETVAL" -ne "0" ]; then
 		if [ -n "$TRY_UPGRADE" ]; then
 			echo "\n!!! Package with new version cannot be built automagically\n"
-			mv -f $SPECFILE.bak $SPECFILE
+			if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
+				mv -f $SPECFILE.bak $SPECFILE
+			fi
 		fi
 		Exit_error err_build_fail;
 	fi
