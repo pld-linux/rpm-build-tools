@@ -461,7 +461,9 @@ function b_makekey(a, b,	s) {
 		gsub(buildroot, "$RPM_BUILD_ROOT")
     }
 
-    sub("\$RPM_BUILD_ROOT/%", "$RPM_BUILD_ROOT%")
+    if (!/%{_lib}/) {
+        sub("\$RPM_BUILD_ROOT/%", "$RPM_BUILD_ROOT%")
+    }
 
 	use_macros()
 
