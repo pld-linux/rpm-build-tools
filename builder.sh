@@ -2030,6 +2030,13 @@ case "$COMMAND" in
 		if [ -n "$SPECFILE" ]; then
 			get_spec;
 			parse_spec;
+			# don't fetch sources from remote locations
+			new_SOURCES=""
+			for file in $SOURCES; do
+				[ -n "`src_md5 $file`" ] && continue
+				new_SOURCES="$new_SOURCES $file"
+			done
+			SOURCES="$new_SOURCES"
 			get_files $SOURCES $PATCHES
 			check_md5 $SOURCES
 			branch_files $TAG $SOURCES $PATCHES $ICONS
