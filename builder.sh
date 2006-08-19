@@ -1802,7 +1802,7 @@ do
 			NOINIT="yes"
 			shift;;
 		--opts )
-			shift; RPMOPTS="$RPM_OPTS ${1}"; shift ;;
+			shift; RPMOPTS="${RPMOPTS} ${1}"; shift ;;
 		--nopatch | -np )
 			shift; RPMOPTS="${RPMOPTS} --define \"patch${1} : ignoring patch${1}; exit 1; \""; shift ;;
 		--with | --without )
@@ -1931,7 +1931,7 @@ do
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
 		-debug)
-			RPMBUILDOPTS="${RPMBUILDOPTS} -debug"; shift ;;
+			RPMBUILDOPTS="${RPMBUILDOPTS} --debug"; shift ;;
 		* )
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
