@@ -1931,7 +1931,7 @@ do
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
 		-debug)
-			RPMBUILDOPTS="${RPMBUILDOPTS} --debug"; shift ;;
+			RPMBUILDOPTS="${RPMBUILDOPTS} -debug"; shift ;;
 		* )
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
