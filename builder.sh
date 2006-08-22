@@ -396,6 +396,8 @@ cache_rpm_dump () {
 %php_major_version ERROR
 %php_api_version ERROR
 %py_ver ERROR
+%perl_vendorarch ERROR
+%perl_vendorlib ERROR
 EOF
 	case "$RPMBUILD" in
 	rpm)
