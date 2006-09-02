@@ -1044,6 +1044,8 @@ function use_macros()
 		return;
 	}
 
+    sub("%{_defaultdocdir}", "%{_docdir}");
+
 	gsub(perl_sitearch, "%{perl_sitearch}")
 	gsub(perl_archlib, "%{perl_archlib}")
 	gsub(perl_privlib, "%{perl_privlib}")
