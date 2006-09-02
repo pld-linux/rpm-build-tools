@@ -472,9 +472,8 @@ function b_makekey(a, b,	s) {
 	if (/mkdir -p/)
 		sub(/mkdir -p/, "install -d")
 
-	# 'install' instead 'cp -p'
-	if (/cp -p\b/)
-		sub(/cp -p/, "install")
+	# cp -a already implies cp -r
+    sub(/^cp -ar/, "cp -a")
 
 	# No '-u root' or '-g root' for 'install'
 	if (/^install/ && /-[ug][ \t]*root/)
