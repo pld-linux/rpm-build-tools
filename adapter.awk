@@ -1045,6 +1045,8 @@ function use_macros()
 	}
 
     sub("%{_defaultdocdir}", "%{_docdir}");
+    sub("%{_bindir}/perl", "%{__perl}");
+    sub("%{_bindir}/python", "%{__python}");
 
 	gsub(perl_sitearch, "%{perl_sitearch}")
 	gsub(perl_archlib, "%{perl_archlib}")
