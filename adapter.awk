@@ -1386,11 +1386,11 @@ function use_files_macros(	i, n, t, a)
 	# %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
 	# attr not required, allow default 644 attr
 	if (!/network-scripts/ && !/%dir/ && !/\.d$/ && !/functions/ && !/\/etc\/sysconfig\/wmstyle/) {
-		if (/\/etc\/sysconfig\// && /%config/ && !/%config\(noreplace\)/) {
+		if (/\/etc\/sysconfig\// && /%config/ && !/%config\(noreplace/) {
 			gsub("%config", "%config(noreplace)")
 		}
 
-		if (/\/etc\/sysconfig\// && !/%config\(noreplace\)/) {
+		if (/\/etc\/sysconfig\// && !/%config\(noreplace/) {
 			$NF = "%config(noreplace) " $NF
 		}
 
