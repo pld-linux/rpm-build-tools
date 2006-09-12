@@ -85,6 +85,13 @@ BEGIN {
 	"rpm --eval %py_sitescriptdir" | getline py_sitescriptdir
 	"rpm --eval %py_sitedir" | getline py_sitedir
 	"rpm --eval %py_scriptdir " | getline py_scriptdir
+
+	"rpm --eval %ruby_archdir" | getline ruby_archdir
+	"rpm --eval %ruby_ridir" | getline ruby_ridir
+	"rpm --eval %ruby_rubylibdir" | getline ruby_rubylibdir
+	"rpm --eval %ruby_sitearchdir" | getline ruby_sitearchdir
+	"rpm --eval %ruby_sitelibdir" | getline ruby_sitelibdir
+
 	"rpm --eval %php_pear_dir" | getline php_pear_dir
 	"rpm --eval %tmpdir" | getline tmpdir
 }
@@ -1071,6 +1078,13 @@ function use_macros()
 	gsub(py_scriptdir, "%{py_scriptdir}")
 	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
 	gsub("%{python_sitelib}", "%{py_sitedir}")
+
+	gsub(ruby_archdir, "%{ruby_archdir}")
+	gsub(ruby_ridir, "%{ruby_ridir}")
+	gsub(ruby_rubylibdir, "%{ruby_rubylibdir}")
+	gsub(ruby_sitearchdir, "%{ruby_sitearchdir}")
+	gsub(ruby_sitelibdir, "%{ruby_sitelibdir}")
+
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
 
