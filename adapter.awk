@@ -30,12 +30,13 @@ BEGIN {
 
 	PREAMBLE_TAGS = "(Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
 
-	preamble = 1		# Is it part of preamble? Default - yes
+	preamble = 1	# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
 	bod = 0			# Beginning of %description
 	tw = 70			# Descriptions width
 
 	b_idx = 0		# index of BR/R arrays
+    BR_count = 0   # number of additional BuildRequires
 
 	# If variable removed, then 1 (for removing it from export)
 	removed["LDFLAGS"] = 0
@@ -980,6 +981,13 @@ END {
 	if (do_not_touch_anything)
 		exit 0
 
+    # TODO: need to output these in proper place
+    if (BR_count > 0) {
+        for (i = 0; i <= BR_count; i++) {
+            print BR[i];
+        }
+    }
+
 	close(changelog_file)
 	while ((getline < changelog_file) > 0)
 		print
@@ -996,17 +1004,20 @@ END {
 		print "%define date\t%(echo `LC_ALL=\"C\" date +\"%a %b %d %Y\"`)"
 	}
 
-	if (has_changelog == 0)
+	if (has_changelog == 0) {
 		print "%changelog"
+    }
 
-	if (boc > 2)
+	if (boc > 2) {
 		print "* %{date} PLD Team <feedback@pld-linux.org>"
+    }
 	if (boc > 1) {
 		printf "All persons listed below can be reached at "
 		print "<cvs_login>@pld-linux.org\n"
 	}
-	if (boc > 0)
+	if (boc > 0) {
 		print "$" "Log:$"
+    }
 }
 
 function fixedsub(s1,s2,t, ind) {
@@ -1255,7 +1266,6 @@ function use_macros()
 	gsub("%_sbindir", "%{_sbindir}")
 	gsub("%_mandir", "%{_mandir}")
 	gsub("%name", "%{name}")
-    gsub(/%ant/, "ant")
     gsub(/%__rm/, "rm");
     gsub(/%__mkdir_p/, "install -d");
     gsub(/%__cp/, "cp");
@@ -1266,6 +1276,13 @@ function use_macros()
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
+
+	if (/^ant /) {
+		sub(/^ant/, "%ant")
+        add_br("BuildRequires:  jpackage-utils");
+        add_br("BuildRequires:  rpmbuild(macros) >= 1.294");
+    }
+
 }
 
 function format_configure(line,		n, a, s) {
@@ -1563,3 +1580,10 @@ function use_tabs()
 	# reverse vim: ts=4 sw=4 et
 	gsub(/    /, "\t");
 }
+
+function add_br(br)
+{
+    BR[BR_count++] = br
+}
+
+# vim:ts=4:sw=4:et
