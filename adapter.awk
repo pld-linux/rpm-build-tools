@@ -82,9 +82,9 @@ BEGIN {
 	"rpm --eval %perl_vendorarch" | getline perl_vendorarch
 	"rpm --eval %perl_sitelib" | getline perl_sitelib
 
-	"rpm --eval %py_sitescriptdir" | getline py_sitescriptdir
-	"rpm --eval %py_sitedir" | getline py_sitedir
-	"rpm --eval %py_scriptdir " | getline py_scriptdir
+	"rpm --eval %py_sitescriptdir 2>/dev/null" | getline py_sitescriptdir
+	"rpm --eval %py_sitedir 2>/dev/null" | getline py_sitedir
+	"rpm --eval %py_scriptdir 2>/dev/null" | getline py_scriptdir
 
 	"rpm --eval %ruby_archdir" | getline ruby_archdir
 	"rpm --eval %ruby_ridir" | getline ruby_ridir
