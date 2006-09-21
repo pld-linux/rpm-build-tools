@@ -760,6 +760,17 @@ cvsup()
 	return $result
 }
 
+# returns true if "$1" is ftp, http or https protocol url
+is_url()
+{
+	case "$1" in
+	ftp://*|http://*|https://*)
+		return 0
+	;;
+	esac
+	return 1
+}
+
 update_md5()
 {
 	if [ $# -eq 0 ]; then
@@ -800,16 +811,17 @@ update_md5()
 	for i in "$@"; do
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
-		if ( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
-			[ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
-			grep -q -i -E '^#[ 	]*source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
-		then
-			echo "Updating source-$srcno md5."
+		local md5=$(grep -iE '^#[ 	]*(No)?Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
+		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
+			local tag="Source$srcno-md5"
+			if [[ "$md5" == *NoSource* ]]; then
+				tag="NoSource$srcno-md5"
+			fi
 			md5=$(md5sum "$fp" | cut -f1 -d' ')
+			echo "Updating $tag ($md5)."
 			perl -i -ne '
-			print unless /^\s*#\s*Source'$srcno'-md5\s*:/i;
-			print "# Source'$srcno'-md5:\t'$md5'\n"
-			if /^Source'$srcno'\s*:\s+/;
+				print unless /^\s*#\s*(No)?Source'$srcno'-md5\s*:/i;
+				print "# '$tag':\t'$md5'\n" if /^Source'$srcno'\s*:\s+/;
 			' \
 			$SPECS_DIR/$SPECFILE
 		fi
