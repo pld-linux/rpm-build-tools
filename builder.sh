@@ -39,7 +39,6 @@ NOCVSSPEC=""
 NODIST=""
 NOINIT=""
 UPDATE=""
-UPDATE5=""
 ADD5=""
 NO5=""
 ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
@@ -781,13 +780,11 @@ update_md5()
 	for i in "$@"; do
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
-		if [ -n "$UPDATE5" ]; then
-			if [ -n "$ADD5" ]; then
-				[ "$fp" = "$i" ] && continue # FIXME what is this check doing?
-				grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
-			else
-				grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
-			fi
+		if [ -n "$ADD5" ]; then
+			[ "$fp" = "$i" ] && continue # FIXME what is this check doing?
+			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
+		else
+			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
 		fi
 		if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 			need_files="$need_files $i"
@@ -803,8 +800,7 @@ update_md5()
 	for i in "$@"; do
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
-		if [ -n "$UPDATE5" ] && \
-			( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
+		if ( ( [ -n "$ADD5" ] && echo $i | grep -q -E 'ftp://|http://|https://' && \
 			[ -z "$(grep -E -i '^NoSource[ 	]*:[ 	]*'$i'([ 	]|$)' $SPECS_DIR/$SPECFILE)" ] ) || \
 			grep -q -i -E '^#[ 	]*source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
 		then
@@ -1150,7 +1146,7 @@ build_package()
 			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t0.1/' $SPECFILE"
 			parse_spec;
 			NODIST="yes" get_files $SOURCES $PATCHES;
-			UPDATE5="yes" update_md5 $SOURCES
+			update_md5 $SOURCES
 
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
@@ -1728,14 +1724,12 @@ do
 			COMMAND="update_md5";
 			NODIST="yes"
 			NOCVSSPEC="yes"
-			UPDATE5="yes"
 			shift ;;
 		-a5 | --add-md5 )
 			COMMAND="update_md5";
 			NODIST="yes"
 			NOCVS="yes"
 			NOCVSSPEC="yes"
-			UPDATE5="yes"
 			ADD5="yes"
 			shift ;;
 		-n5 | --no-md5 )
@@ -1898,7 +1892,6 @@ do
 			UPDATE="yes"
 			NOCVSSPEC="yes"
 			NODIST="yes"
-			UPDATE5="yes"
 			shift ;;
 		-Upi | --update-poldek-indexes )
 			UPDATE_POLDEK_INDEXES="yes"
