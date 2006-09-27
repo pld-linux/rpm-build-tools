@@ -1,6 +1,6 @@
 # shell aliases and functions for PLD Developer
+# $Id$
 
-# find *.rej files
 alias cv='cvs status -v'
 alias ac='poldek -q --sn ac --cmd'
 alias ac-requires='ac what-requires'
