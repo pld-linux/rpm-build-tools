@@ -8,7 +8,6 @@
 # - optional message after rel: "- rel 9 (rebuild with foolib)"
 
 set -e
-specfile="$1"
 
 get_dump() {
 	local specfile="$1"
