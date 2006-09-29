@@ -60,3 +60,26 @@ autotag() {
 		echo "$a:$out"
 	done
 }
+
+dif() {
+	if [ -t 1 ]; then
+		diff -ur "$@" | diffcol | less -R
+	else
+		diff -ur "$@"
+	fi
+}
+
+diffcol() {
+sed -e '
+	s,,[44m^[[49m,g;
+	s,,[44m^G[49m,g;
+	s,^\(Index:\|diff\|---\|+++\) .*$,[32m&,;
+	s,^@@ ,[33m&,;
+	s,^-,[35m&,;
+	s,^+,[36m&,;
+	s,,[44m^M[49m,g;
+	s,	,    ,g;
+	s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
+	s,$,[0m,
+' "$@"
+}
