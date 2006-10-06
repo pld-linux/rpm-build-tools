@@ -88,7 +88,7 @@ def parse_spec(infile, outfile):
       if r:
         (enc, pure_lang) = find_encoding(r.group(2))
         if enc == None:
-          outfile.write("#unknow lang code in %%description -l %s\n" % (lang))
+          outfile.write("#unknown lang code in %%description -l %s\n" % (lang))
         elif not re_utf.search(enc):
           in_desc = True
           l = "%s-l %s.UTF-8%s\n" % (r.group(1), pure_lang, r.group(3))
