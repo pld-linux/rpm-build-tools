@@ -253,6 +253,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 --date yyyy-mm-dd   - build package using resources from specified CVS date,
 -r <cvstag>, --cvstag <cvstag>
                     - build package using resources from specified CVS tag,
+-A                  - build package using CVS resources as any sticky tags/date/kopts being reset.
 -R, --fetch-build-requires
                     - fetch what is BuildRequired,
 -RB, --remove-build-requires
@@ -1844,6 +1845,8 @@ do
 			CVSDATE="${2}"; shift 2 ;;
 		-r | --cvstag )
 			shift; CVSTAG="${1}"; shift ;;
+		-A)
+			shift; CVSTAG="HEAD"; ;;
 		-R | --fetch-build-requires)
 			FETCH_BUILD_REQUIRES="yes"
 			NOT_INSTALLED_PACKAGES=
