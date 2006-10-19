@@ -31,6 +31,7 @@ get_release() {
 
 tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 for spec in "$@"; do
+	spec=${spec%.spec}.spec
 	rel=$(get_release "$spec")
 	echo "$spec" >> "$tmpd/$rel"
 done
