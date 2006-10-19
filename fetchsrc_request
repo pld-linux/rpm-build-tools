@@ -11,7 +11,8 @@ VIA_ARGS=""
 DMAIL="distfiles@pld-linux.org"
 #
 # CVS LOGIN or fill it by hand :)
-LOGIN=`cat CVS/Root | awk -F: '{ print $3; }' | perl -pi -e "s/@.+//"`
+tmp=$(awk -F: '{ print $3; }' CVS/Root)
+LOGIN=${tmp%@*}
 #LOGIN="djrzulf"
 #
 # HOST
