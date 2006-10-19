@@ -1,7 +1,7 @@
 #!/bin/sh
 # $Id$
 #
-# Sending via 
+# Sending via
 VIA="SENDMAIL"
 #VIA="localhost"
 VIA_ARGS=""
@@ -45,10 +45,10 @@ fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
 	echo >&2 "Requesting $SPEC:$BRANCH via sendmail${VIA_ARGS:+ ($VIA_ARGS)}"
-	cat <<EOF | /usr/sbin/sendmail -t $VIA_ARGS 
+	cat <<EOF | /usr/sbin/sendmail -t $VIA_ARGS
 To: $DMAIL
 From: $LOGIN <$LOGIN@$HOST>
-Subject: fetchsrc_request notify 
+Subject: fetchsrc_request notify
 X-CVS-Module: SPECS
 X-distfiles-request: yes
 X-Login: $LOGIN
