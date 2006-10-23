@@ -361,8 +361,8 @@ set_spec_target() {
 
 cache_rpm_dump () {
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	update_shell_title "cache_rpm_dump"
@@ -418,7 +418,7 @@ EOF
 	if [ $? -gt 0 ]; then
 		error=$(echo "$rpm_dump" | sed -ne '/^error:/,$p')
 		echo "$error" >&2
-		Exit_error err_build_fail;
+		Exit_error err_build_fail
 	fi
 
 	# make small dump cache
@@ -454,12 +454,12 @@ parse_spec()
 {
 	update_shell_title "parsing specfile"
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	# icons are needed for successful spec parse
-	get_icons;
+	get_icons
 
 	cd $SPECS_DIR
 	cache_rpm_dump
@@ -501,8 +501,8 @@ parse_spec()
 Exit_error()
 {
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	cd "$__PWD"
@@ -510,19 +510,19 @@ Exit_error()
 	case "$1" in
 		"err_no_spec_in_cmdl" )
 			remove_build_requires
-			echo "ERROR: spec file name not specified.";
+			echo "ERROR: spec file name not specified."
 			exit 2 ;;
 		"err_no_spec_in_repo" )
 			remove_build_requires
-			echo "Error: spec file not stored in CVS repo.";
+			echo "Error: spec file not stored in CVS repo."
 			exit 3 ;;
 		"err_no_source_in_repo" )
 			remove_build_requires
-			echo "Error: some source, patch or icon files not stored in CVS repo. ($2)";
+			echo "Error: some source, patch or icon files not stored in CVS repo. ($2)"
 			exit 4 ;;
 		"err_build_fail" )
 			remove_build_requires
-			echo "Error: package build failed. (${2:-no more info})";
+			echo "Error: package build failed. (${2:-no more info})"
 			exit 5 ;;
 		"err_no_package_data" )
 			remove_build_requires
@@ -530,15 +530,15 @@ Exit_error()
 			exit 6 ;;
 		"err_tag_exists" )
 			remove_build_requires
-			echo "Tag ${2} already exists (spec release: ${3}).";
+			echo "Tag ${2} already exists (spec release: ${3})."
 			exit 9 ;;
 		"err_fract_rel" )
 			remove_build_requires
-			echo "Release ${2} not integer and not a snapshot.";
+			echo "Release ${2} not integer and not a snapshot."
 			exit 10 ;;
 		"err_branch_exists" )
 			remove_build_requires
-			echo "Tree branch already exists (${2}).";
+			echo "Tree branch already exists (${2})."
 			exit 11 ;;
 
 	esac
@@ -549,8 +549,8 @@ Exit_error()
 init_builder()
 {
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	if [ "$NOINIT" != "yes" ] ; then
@@ -570,13 +570,13 @@ get_spec()
 	update_shell_title "get_spec"
 
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	cd "$SPECS_DIR"
 	if [ ! -f "$SPECFILE" ]; then
-		SPECFILE="`basename $SPECFILE .spec`.spec";
+		SPECFILE="`basename $SPECFILE .spec`.spec"
 	fi
 	if [ "$NOCVSSPEC" != "yes" ]; then
 
@@ -589,7 +589,7 @@ get_spec()
 	fi
 
 	if [ ! -f "$SPECFILE" ]; then
-		Exit_error err_no_spec_in_repo;
+		Exit_error err_no_spec_in_repo
 	fi
 
 	if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
@@ -780,8 +780,8 @@ update_md5()
 
 	update_shell_title "update md5"
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	cd "$SOURCE_DIR"
@@ -849,8 +849,8 @@ get_files()
 	update_shell_title "get_files"
 
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	if [ $# -gt 0 ]; then
@@ -968,7 +968,7 @@ get_files()
 
 			# the md5 check must be moved elsewhere as if we've called from update_md5 the md5 is wrong.
 			if [ ! -f "$fp" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
-				Exit_error err_no_source_in_repo $i;
+				Exit_error err_no_source_in_repo $i
 			fi
 
 			# we check md5 here just only to refetch immediately
@@ -1015,8 +1015,8 @@ get_files()
 
 make_tagver() {
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	# Check whether first character of PACKAGE_NAME is legal for tag name
@@ -1035,8 +1035,8 @@ tag_files()
 	TAG_FILES="$@"
 
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	echo "Version: $PACKAGE_VERSION"
@@ -1095,13 +1095,13 @@ branch_files()
 {
 	TAG=$1
 	echo "CVS branch tag: $TAG"
-	shift;
+	shift
 
 	TAG_FILES="$@"
 
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	local OPTIONS="tag $CVS_FORCE -b"
@@ -1132,8 +1132,8 @@ build_package()
 {
 	update_shell_title "build_package"
 	if [ -n "$DEBUG" ]; then
-		set -x;
-		set -v;
+		set -x
+		set -v
 	fi
 
 	cd "$SPECS_DIR"
@@ -1157,8 +1157,8 @@ build_package()
 			chmod +w $SPECFILE
 			eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
 			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t0.1/' $SPECFILE"
-			parse_spec;
-			NODIST="yes" get_files $SOURCES $PATCHES;
+			parse_spec
+			NODIST="yes" get_files $SOURCES $PATCHES
 			update_md5 $SOURCES
 
 			unset TOLDVER TNEWVER TNOTIFY
@@ -1183,7 +1183,7 @@ build_package()
 		if [ -d "$LOG" ]; then
 			echo "Log file $LOG is a directory."
 			echo "Parse error in the spec?"
-			Exit_error err_build_fail;
+			Exit_error err_build_fail
 		fi
 		if [ -n "$LASTLOG_FILE" ]; then
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
@@ -1210,7 +1210,7 @@ build_package()
 				mv -f $SPECFILE.bak $SPECFILE
 			fi
 		fi
-		Exit_error err_build_fail;
+		Exit_error err_build_fail
 	fi
 	unset BUILD_SWITCH
 }
@@ -1636,11 +1636,11 @@ fetch_build_requires()
 							if [ "$package_name" = "$package" ]; then
 								echo -ne "Installing BuildRequired package:\t$package_name\n"
 								update_shell_title "Installing BuildRequired package: ${package_name}"
-								install_required_packages $package;
+								install_required_packages $package
 							else
 								echo -ne "Installing (sub)Required package:\t$package_name\n"
 								update_shell_title "Installing (sub)Required package: ${package_name}"
-								install_required_packages $package_name;
+								install_required_packages $package_name
 							fi
 							case $? in
 								0)
@@ -1652,7 +1652,7 @@ fetch_build_requires()
 									echo -ne "Package installation failed:\t$package_name\n"
 									run_sub_builder $package_name
 									if [ $? -eq 0 ]; then
-										install_required_packages $package_name;
+										install_required_packages $package_name
 										case $? in
 											0)
 												INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
@@ -1672,7 +1672,7 @@ fetch_build_requires()
 						echo -ne "Package installation failed:\t$package\n"
 						run_sub_builder $package
 						if [ $? -eq 0 ]; then
-							install_required_packages $package;
+							install_required_packages $package
 							case $? in
 								0)
 									INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
@@ -1726,7 +1726,7 @@ init_rpm_dir() {
 # main()
 
 if [ "$#" = 0 ]; then
-	usage;
+	usage
 	exit 1
 fi
 
@@ -1734,12 +1734,12 @@ while test $# -gt 0
 do
 	case "${1}" in
 		-5 | --update-md5 )
-			COMMAND="update_md5";
+			COMMAND="update_md5"
 			NODIST="yes"
 			NOCVSSPEC="yes"
 			shift ;;
 		-a5 | --add-md5 )
-			COMMAND="update_md5";
+			COMMAND="update_md5"
 			NODIST="yes"
 			NOCVS="yes"
 			NOCVSSPEC="yes"
@@ -1873,17 +1873,17 @@ do
 			COMMAND="list-sources-urls"
 			shift ;;
 		-Tvs | --tag-version-stable )
-			COMMAND="tag";
+			COMMAND="tag"
 			TAG="STABLE"
 			TAG_VERSION="yes"
 			shift;;
 		-Ts | --tag-stable )
-			COMMAND="tag";
+			COMMAND="tag"
 			TAG="STABLE"
 			TAG_VERSION="no"
 			shift;;
 		-Tv | --tag-version )
-			COMMAND="tag";
+			COMMAND="tag"
 			TAG=""
 			TAG_VERSION="yes"
 			shift;;
@@ -1894,7 +1894,7 @@ do
 			TEST_TAG="yes"
 			shift;;
 		-T | --tag )
-			COMMAND="tag";
+			COMMAND="tag"
 			shift
 			TAG="$1"
 			TAG_VERSION="no"
@@ -1912,7 +1912,7 @@ do
 			UPDATE_POLDEK_INDEXES="yes"
 			shift ;;
 		--init-rpm-dir)
-			COMMAND="init_rpm_dir";
+			COMMAND="init_rpm_dir"
 			shift ;;
 		-u | --try-upgrade )
 			TRY_UPGRADE="1"; shift ;;
@@ -1933,7 +1933,7 @@ do
 			fi
 			;;
 		--show-bconds | -show-bconds | -print-bconds | --print-bconds | -display-bconds | --display-bconds )
-			SHOW_BCONDS="yes"
+			COMMAND="show_bconds"
 			shift
 			;;
 		--nodeps)
@@ -1946,8 +1946,8 @@ do
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
 			if [ "${SPECFILE##*:}" != "${SPECFILE}" ]; then
-				CVSTAG="${SPECFILE##*:}";
-				SPECFILE="${SPECFILE%%:*}";
+				CVSTAG="${SPECFILE##*:}"
+				SPECFILE="${SPECFILE%%:*}"
 			fi
 			shift
 	esac
@@ -1964,8 +1964,8 @@ elif [ "$CVSTAG" = "HEAD" ]; then
 fi
 
 if [ -n "$DEBUG" ]; then
-	set -x;
-	set -v;
+	set -x
+	set -v
 fi
 
 if [ -n "$TARGET" ]; then
@@ -2026,20 +2026,20 @@ case "$COMMAND" in
 			fi
 			get_files $SOURCES $PATCHES
 			check_md5 $SOURCES
-			build_package;
+			build_package
 			if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
 				run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
 			fi
-			remove_build_requires;
+			remove_build_requires
 		else
-			Exit_error err_no_spec_in_cmdl;
+			Exit_error err_no_spec_in_cmdl
 		fi
 		;;
 	"branch" )
-		init_builder;
+		init_builder
 		if [ -n "$SPECFILE" ]; then
-			get_spec;
-			parse_spec;
+			get_spec
+			parse_spec
 			# don't fetch sources from remote locations
 			new_SOURCES=""
 			for file in $SOURCES; do
@@ -2051,13 +2051,13 @@ case "$COMMAND" in
 			check_md5 $SOURCES
 			branch_files $TAG $SOURCES $PATCHES $ICONS
 		else
-			Exit_error err_no_spec_in_cmdl;
+			Exit_error err_no_spec_in_cmdl
 		fi
 		;;
 	"get" )
-		init_builder;
+		init_builder
 		if [ -n "$SPECFILE" ]; then
-			get_spec;
+			get_spec
 			parse_spec
 
 			if [ -n "$NOSOURCE0" ] ; then
@@ -2066,13 +2066,13 @@ case "$COMMAND" in
 			get_files $SOURCES $PATCHES
 			check_md5 $SOURCES
 		else
-			Exit_error err_no_spec_in_cmdl;
+			Exit_error err_no_spec_in_cmdl
 		fi
 		;;
 	"update_md5" )
-		init_builder;
+		init_builder
 		if [ -n "$SPECFILE" ]; then
-			get_spec;
+			get_spec
 			parse_spec
 
 			if [ -n "$NOSOURCE0" ] ; then
@@ -2080,16 +2080,16 @@ case "$COMMAND" in
 			fi
 			update_md5 $SOURCES
 		else
-			Exit_error err_no_spec_in_cmdl;
+			Exit_error err_no_spec_in_cmdl
 		fi
 		;;
 	"tag" )
 		NOURLS=1
 		NODIST="yes"
-		init_builder;
+		init_builder
 		if [ -n "$SPECFILE" ]; then
-			get_spec;
-			parse_spec;
+			get_spec
+			parse_spec
 
 			# don't fetch sources from remote locations
 			new_SOURCES=""
@@ -2102,7 +2102,7 @@ case "$COMMAND" in
 			check_md5 $SOURCES
 			tag_files $SOURCES $PATCHES $ICONS
 		else
-			Exit_error err_no_spec_in_cmdl;
+			Exit_error err_no_spec_in_cmdl
 		fi
 		;;
 	"mr-proper" )
