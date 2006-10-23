@@ -1734,15 +1734,14 @@ init_rpm_dir() {
 #---------------------------------------------
 # main()
 
-if [ "$#" = 0 ]; then
+if [ $# = 0 ]; then
 	usage
 	exit 1
 fi
 
-while test $# -gt 0
-do
+while [ $# -gt 0 ]; do
 	case "${1}" in
-		-5 | --update-md5 )
+		-5 | --update-md5)
 			COMMAND="update_md5"
 			NODIST="yes"
 			NOCVSSPEC="yes"
@@ -1965,7 +1964,7 @@ done
 if [ -z "$CVSTAG" ]; then
 	CVSTAG=$(awk -vSPECFILE="${SPECFILE%.spec}.spec" -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' CVS/Entries)
 	if [ "$CVSTAG" ]; then
-		echo "builder: Stick tag $CVSTAG active. Use -r TAGNAME to override."
+		echo >&2 "builder: Stick tag $CVSTAG active. Use -r TAGNAME to override."
 	fi
 elif [ "$CVSTAG" = "HEAD" ]; then
 	# assume -r HEAD is same as -A
