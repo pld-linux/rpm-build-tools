@@ -5,7 +5,7 @@
 # -glen 2005-03-03
 #
 # TODO
-# - make builder doesn't understand -bi and use builder for short-circuit
+# - make builder to understand -bi and use builder for short-circuit
 
 set -e
 
