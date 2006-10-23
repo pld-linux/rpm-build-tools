@@ -23,7 +23,7 @@ fi
 
 BCONDS=$(./builder --show-bconds $specfile)
 # ignore output from older builders whose output is not compatible.
-if [ "$(echo "$bconds" | wc -l)" -gt 1 ]; then
+if [ "$(echo "$BCONDS" | wc -l)" -gt 1 ]; then
 	BCONDS=""
 fi
 
