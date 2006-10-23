@@ -11,13 +11,13 @@ set -e
 
 rpmbuild() {
 	set -x
-	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
+	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} $BCONDS --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
 }
 
-bconds=$(./builder --show-bconds "$@")
+BCONDS=$(./builder --show-bconds "$@")
 # ignore output from older builders whose output is not compatible.
 if [ "$(echo "$bconds" | wc -l)" -gt 1 ]; then
-	bconds=""
+	BCONDS=""
 fi
 
 SPECFILE="$1"
@@ -28,6 +28,6 @@ fi
 
 # just create the rpm's if -bb is somewhere in the args
 if [[ *$@* != *-bb* ]]; then
-	rpmbuild -bi $bconds "$@"
+	rpmbuild -bi "$@"
 fi
-rpmbuild -bb --define 'clean %{nil}' $bconds "$@"
+rpmbuild -bb --define 'clean %{nil}' "$@"
