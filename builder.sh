@@ -1244,6 +1244,55 @@ find_spec_bcond() {
 	}' $SPEC | LC_ALL=C sort -u
 }
 
+process_bcondrc() {
+	# expand bconds from ~/.bcondrc
+	# The file structure is like gentoo's package.use:
+	# ---
+	# * -selinux
+	# samba -mysql -pgsql
+	# w32codec-installer license_agreement
+	# php +mysqli
+	# ---
+	if ([ -f $HOME/.bcondrc ] || ([ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ])); then
+		:
+	else
+		return
+	fi
+
+	SN=${SPECFILE%%\.spec}
+
+	local bcondrc=$HOME/.bcondrc
+	[ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] && bcondrc=$HOME_ETC/.bcondrc
+
+	local bcond_avail=$(find_spec_bcond $SPECFILE)
+
+	while read pkg flags; do
+		# ignore comments
+		[[ "$pkg" == \#* ]] && continue
+
+		# any package or current package?
+		if [ "$pkg" = "*" ] || [ "$pkg" = "$PACKAGE_NAME" ] || [ "$pkg" = "$SN" ]; then
+			for flag in $flags; do
+				local opt=${flag#[+-]}
+
+				# use only flags which are in this package.
+				if [[ $bcond_avail = *${opt}* ]]; then
+					if [[ $flag = -* ]]; then
+						if [[ $BCOND != *--with?${opt}* ]]; then
+							BCOND="$BCOND --without $opt"
+						fi
+					else
+						if [[ $BCOND != *--without?${opt}* ]]; then
+							BCOND="$BCOND --with $opt"
+						fi
+					fi
+				fi
+			done
+		fi
+	done < $bcondrc
+	update_shell_title "parse ~/.bcondrc: DONE!"
+}
+
 set_bconds_values()
 {
 	update_shell_title "set bcond values"
@@ -1259,47 +1308,7 @@ set_bconds_values()
 	fi
 
 	local bcond_avail=$(find_spec_bcond $SPECFILE)
-
-	# expand bconds from ~/.bcondrc
-	# The file structure is like gentoo's package.use:
-	# ---
-	# * -selinux
-	# samba -mysql -pgsql
-	# w32codec-installer license_agreement
-	# php +mysqli
-	# ---
-	if ([ -f $HOME/.bcondrc ] || ([ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ])); then
-		SN=${SPECFILE%%\.spec}
-
-		local bcondrc=$HOME/.bcondrc
-		[ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ] && bcondrc=$HOME_ETC/.bcondrc
-
-		while read pkg flags; do
-			# ignore comments
-			[[ "$pkg" == \#* ]] && continue
-
-			# any package or current package?
-			if [ "$pkg" = "*" ] || [ "$pkg" = "$PACKAGE_NAME" ] || [ "$pkg" = "$SN" ]; then
-				for flag in $flags; do
-					local opt=${flag#[+-]}
-
-					# use only flags which are in this package.
-					if [[ $bcond_avail = *${opt}* ]]; then
-						if [[ $flag = -* ]]; then
-							if [[ $BCOND != *--with?${opt}* ]]; then
-								BCOND="$BCOND --without $opt"
-							fi
-						else
-							if [[ $BCOND != *--without?${opt}* ]]; then
-								BCOND="$BCOND --with $opt"
-							fi
-						fi
-					fi
-				done
-			fi
-		done < $bcondrc
-		update_shell_title "parse ~/.bcondrc: DONE!"
-	fi
+	process_bcondrc "$SPECFILE"
 
 	update_shell_title "parse bconds"
 	case "${BCOND_VERSION}" in
@@ -1985,16 +1994,24 @@ fi
 
 update_shell_title "$COMMAND"
 case "$COMMAND" in
-	"build" | "build-binary" | "build-source" | "build-prep" )
-		init_builder;
+	"show_bconds")
+		init_builder
 		if [ -n "$SPECFILE" ]; then
-			get_spec;
-			parse_spec;
-			set_bconds_values;
-			display_bconds;
-			display_branches;
-			[ X"$SHOW_BCONDS" = X"yes" ] && exit 0
-			fetch_build_requires;
+			get_spec > /dev/null
+			parse_spec
+			set_bconds_values
+			echo "$BCOND"
+		fi
+		;;
+	"build" | "build-binary" | "build-source" | "build-prep" )
+		init_builder
+		if [ -n "$SPECFILE" ]; then
+			get_spec
+			parse_spec
+			set_bconds_values
+			display_bconds
+			display_branches
+			fetch_build_requires
 			if [ "$INTEGER_RELEASE" = "yes" ]; then
 				echo "Checking release $PACKAGE_RELEASE..."
 				if echo $PACKAGE_RELEASE | grep -q '^[^.]*\.[^.]*$' 2>/dev/null ; then
