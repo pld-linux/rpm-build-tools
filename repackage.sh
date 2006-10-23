@@ -3,26 +3,25 @@
 # i use it a lot!
 #
 # -glen 2005-03-03
+#
+# TODO
+# - make builder doesn't understand -bi and use builder for short-circuit
 
 set -e
 
 rpmbuild() {
 	set -x
-
-	# i'd use ./builder to get all the ~/.bcondrc parsing,
-    # but builder doesn't understand -bi
-#	./builder -ncs -nc -nn --opts --short-circuit "$@"
-	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
+	/usr/bin/rpmbuild --short-circuit --define '_source_payload w9.gzdio' $bconds "$@" || exit
 }
 
-SPECFILE="$1"
-tmp=$(awk '/^BuildArch:/ { print $NF}' $SPECFILE)
-if [ "$tmp" ]; then
-	TARGET="$tmp"
+bconds=$(./builder --show-bconds "$@")
+# ignore output from older builders whose output is not compatible.
+if [ "$(echo "$bconds" | wc -l)" -gt 1 ]; then
+	bconds=""
 fi
 
 # just create the rpm's if -bb is somewhere in the args
 if [[ *$@* != *-bb* ]]; then
-	rpmbuild -bi "$@"
+	rpmbuild -bi $bconds "$@"
 fi
-rpmbuild -bb --define 'clean %{nil}' "$@"
+rpmbuild -bb --define 'clean %{nil}' $bconds "$@"
