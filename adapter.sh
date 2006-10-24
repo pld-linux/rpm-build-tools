@@ -130,7 +130,7 @@ adapterize()
 	 tmpdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
 	 awk -f adapter.awk $SPECFILE > $tmpdir/$SPECFILE || exit
 
-	 if [ "`diff --brief $SPECFILE $tmpdir/$SPECFILE`" ] ; then
+	 if [ "`diff --brief $SPECFILE $tmpdir/$SPECFILE`" ]; then
 		  diff -u $SPECFILE $tmpdir/$SPECFILE > $tmpdir/$SPECFILE.diff
 		  if [ -t 1 ]; then
 				diffcol $tmpdir/$SPECFILE.diff | less -r
@@ -147,11 +147,14 @@ adapterize()
 						  diff2hunks $tmpdir/$SPECFILE.diff
 						  for t in $(ls $tmpdir/$SPECFILE-*.diff); do
 								diffcol $t | less -r
-								echo -n "Accept? (Yes, [N]o)? "
+								echo -n "Accept? (Yes, [N]o, Quit)? "
 								read ans
 								case "$ans" in
 								[yYoO]) # y0 mama
 									patch < $t
+									;;
+								[Q])  # Abort
+									break
 									;;
 								esac
 						  done
