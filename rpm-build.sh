@@ -7,7 +7,7 @@ alias ac-requires='ac what-requires'
 alias ac-provides='ac what-provides'
 alias ac-verify='poldek --sn ac --sn ac-ready -V'
 alias ac-tag='./builder -cf -T AC-branch -r HEAD'
-alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs"
+alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
 alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
 # merges two patches
@@ -38,7 +38,11 @@ urldiff() {
 	file=${file%\?*}
 
 	echo >&2 "$file: $r1 -> $r2"
-	cvs diff -u -r$r1 -r$r2 $file | tee m.patch | diffcol
+
+	if [ -t 1 ]; then
+		pipe=' | tee m.patch | diffcol'
+	fi
+	cvs diff -u -r$r1 -r$r2 $file $pipe
 }
 
 # downloads sourceforge url from specific mirror
