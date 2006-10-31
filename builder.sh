@@ -194,7 +194,7 @@ usage()
 	echo "\
 Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
-[{-cf|--cvs-force}] [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>] 
+[{-cf|--cvs-force}] [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>]
 [-g|--get] [-h|--help] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T|--tag <cvstag>]
 [-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
@@ -819,7 +819,7 @@ update_md5()
 				tag="NoSource$srcno-md5"
 			fi
 			md5=$(md5sum "$fp" | cut -f1 -d' ')
-			echo "Updating $tag ($md5)."
+			echo "Updating $tag ($md5: $fp)."
 			perl -i -ne '
 				print unless /^\s*#\s*(No)?Source'$srcno'-md5\s*:/i;
 				print "# '$tag':\t'$md5'\n" if /^Source'$srcno'\s*:\s+/;
