@@ -8,9 +8,21 @@ set -e
 
 rpmbuild() {
 	set -x
-	# i'd use ./builder to get all the ~/.bcondrc parsing,
-    # but builder doesn't understand -bi
-#	./builder -ncs -nc -nn --opts --short-circuit "$@"
-	command rpmbuild --short-circuit "$@" || exit
+	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} $BCONDS --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
 }
+
+specfile="${1%.spec}.spec"; shift
+set -- "$specfile" "$@"
+
+tmp=$(awk '/^BuildArch:/ { print $NF}' $specfile)
+if [ "$tmp" ]; then
+	TARGET="$tmp"
+fi
+
+BCONDS=$(./builder --show-bconds $specfile)
+# ignore output from older builders whose output is not compatible.
+if [ "$(echo "$BCONDS" | wc -l)" -gt 1 ]; then
+	BCONDS=""
+fi
+
 rpmbuild -bc "$@"
