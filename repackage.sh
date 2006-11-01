@@ -14,7 +14,8 @@ rpmbuild() {
 	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} $BCONDS --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
 }
 
-specfile="$1"
+specfile="${1%.spec}.spec"; shift
+set -- "$specfile" "$@"
 
 tmp=$(awk '/^BuildArch:/ { print $NF}' $specfile)
 if [ "$tmp" ]; then
