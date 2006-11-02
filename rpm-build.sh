@@ -87,3 +87,9 @@ sed -e '
 	s,$,[0m,
 ' "$@"
 }
+
+# chdir to file location and do 'cvs log'
+cvslog() {
+	local f="$1"
+	(cd ${f%/*} && cvs log ${f##*/})
+}
