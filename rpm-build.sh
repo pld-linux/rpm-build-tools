@@ -91,5 +91,7 @@ sed -e '
 # chdir to file location and do 'cvs log'
 cvslog() {
 	local f="$1"
-	(cd ${f%/*} && cvs log ${f##*/})
+	local d="${f%/*}"
+	[ "$d" = "$f" ] && d=.
+	(builtin cd $d && cvs log ${f##*/})
 }
