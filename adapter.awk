@@ -436,10 +436,7 @@ function b_makekey(a, b,	s) {
 /^%clean/, (!/^%clean/ && $0 ~ SECTIONS) {
 	did_clean = 1
 
-	# prevent next section header like "%post -p /sbin/ldconfig" being adapterized
-	if (!/^%post/) {
-		use_macros()
-	}
+    use_macros()
 }
 
 ############
@@ -1066,6 +1063,8 @@ function use_macros()
     sub("%{_bindir}/perl", "%{__perl}");
     sub("%{_bindir}/python", "%{__python}");
 
+	gsub(infodir, "%{_infodir}")
+
 	gsub(perl_sitearch, "%{perl_sitearch}")
 	gsub(perl_archlib, "%{perl_archlib}")
 	gsub(perl_privlib, "%{perl_privlib}")
@@ -1097,6 +1096,8 @@ function use_macros()
 		if ($c ~ sbindir "/fix-info-dir")
 			continue;
 		if ($c ~ sbindir "/webapp")
+			continue;
+		if ($c ~ sbindir "/ldconfig")
 			continue;
 		if ($c ~ sbindir "/chsh")
 			continue;
