@@ -5,7 +5,7 @@ alias cv='cvs status -v'
 alias ac='poldek -q --sn ac --cmd'
 alias ac-requires='ac what-requires'
 alias ac-provides='ac what-provides'
-alias ac-verify='poldek --sn ac --sn ac-ready -V'
+alias ac-verify='poldek --sn ac --sn ac-ready --verify=deps'
 alias ac-tag='./builder -cf -T AC-branch -r HEAD'
 alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
 alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
