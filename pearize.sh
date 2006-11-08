@@ -49,7 +49,7 @@ Optional: @optional@
 License: @release_license@
 State: @release_state@
 EOF
-pear makerpm --spec-template=$stmp --rpm-pkgname=pearize $tarball
+pear make-rpm-spec --spec-template=$stmp --rpm-pkgname=pearize $tarball
 template=pearize.spec
 rm -f $stmp
 
