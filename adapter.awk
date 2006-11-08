@@ -713,7 +713,7 @@ preamble == 1 {
 		value = substr($0, index($0, $2));
 		$0 = format_requires($1, value);
 	}
-
+    
 	# BR: tar (and others) is to common (rpm-build requires it)
 	if (field ~ /^buildrequires:/) {
 		l = substr($0, index($0, $2));
@@ -747,7 +747,14 @@ preamble == 1 {
 		sub(/^ant-junit$/, "jakarta-ant", $2);
 		sub(/^ldapjdk$/, "ldapsdk", $2);
 		sub(/^saxon-scripts$/, "saxon", $2);
+
+        replace_php_virtual_deps();
 	}
+
+	if (field ~ /^requires:/) {
+        replace_php_virtual_deps();
+    }
+
 
 	# obsolete/unwanted tags
 	if (field ~ /vendor:|packager:|distribution:|docdir:|prefix:|icon:|author:|author-email:|metadata-version:/) {
@@ -1599,6 +1606,24 @@ function use_tabs()
 function add_br(br)
 {
     BR[BR_count++] = br
+}
+
+# php virtual deps as discussed in devel-en
+function replace_php_virtual_deps()
+{
+    pkg = $2
+    if (pkg ~ /^php-/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs)/) {
+        sub(/^php-/, "php(", pkg);
+        sub(/$/, ")", pkg);
+        $2 = pkg
+    }
+
+    if (pkg ~/^php$/) {
+        $2 = "webserver(php)";
+        if ($4 ~ /^[0-9]:/) {
+            $4 = substr($4, 3);
+        }
+    }
 }
 
 # vim:ts=4:sw=4:et
