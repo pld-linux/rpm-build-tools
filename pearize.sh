@@ -35,6 +35,10 @@ getsource() {
 }
 
 tarball=$(getsource $spec 0)
+if [ -z "$tarball" ]; then
+	echo >&2 "Spec is missing Source0!"
+	exit 1
+fi
 
 if [ ! -f $tarball ]; then
 	./builder -g "$spec"
@@ -49,7 +53,7 @@ Optional: @optional@
 License: @release_license@
 State: @release_state@
 EOF
-pear make-rpm-spec --spec-template=$stmp --rpm-pkgname=pearize $tarball
+pear make-rpm-spec --spec-template=$stmp --output=pearize.spec $tarball
 template=pearize.spec
 rm -f $stmp
 
