@@ -33,9 +33,10 @@ urldiff() {
 	file=${file##*/}
 	local r1=${file#*r1=}
 	local r2=${r1#*r2=}
-	r2=${r2%&*}
-	r1=${r1%%&*}
+	r2=${r2%[&;]*}
+	r1=${r1%%[&;]*}
 	file=${file%\?*}
+	file=${file%.diff}
 
 	echo >&2 "$file: $r1 -> $r2"
 
