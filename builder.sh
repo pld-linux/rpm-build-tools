@@ -1999,7 +1999,7 @@ case "$COMMAND" in
 			get_spec > /dev/null
 			parse_spec
 			set_bconds_values
-			echo "$BCOND"
+			display_bconds
 		fi
 		;;
 	"build" | "build-binary" | "build-source" | "build-prep" )
