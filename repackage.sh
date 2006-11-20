@@ -22,11 +22,7 @@ if [ "$tmp" ]; then
 	TARGET="$tmp"
 fi
 
-BCONDS=$(./builder --show-bconds $specfile)
-# ignore output from older builders whose output is not compatible.
-if [ "$(echo "$BCONDS" | wc -l)" -gt 1 ]; then
-	BCONDS=""
-fi
+BCONDS=$(./builder --show-bcond-args $specfile)
 
 # just create the rpm's if -bb is somewhere in the args
 if [[ *$@* != *-bb* ]]; then
