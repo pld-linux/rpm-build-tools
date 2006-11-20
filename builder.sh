@@ -302,6 +302,9 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
                     - don't apply <patchnumber>
 --show-bconds       - show available conditional builds, which can be used
                     - with --with and/or --without switches.
+--show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by
+                      ./repackage.sh script. in other words, the output is
+                      parseable by scripts.
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
                       %_without_<feature> macro switch.  You may now use
@@ -1944,6 +1947,10 @@ while [ $# -gt 0 ]; do
 			COMMAND="show_bconds"
 			shift
 			;;
+		--show-bcond-args)
+			COMMAND="show_bcond_args"
+			shift
+			;;
 		--nodeps)
 			shift
 			RPMOPTS="${RPMOPTS} --nodeps"
@@ -2000,6 +2007,15 @@ case "$COMMAND" in
 			parse_spec
 			set_bconds_values
 			display_bconds
+		fi
+		;;
+	"show_bcond_args")
+		init_builder
+		if [ -n "$SPECFILE" ]; then
+			get_spec > /dev/null
+			parse_spec
+			set_bconds_values
+			echo "$BCOND"
 		fi
 		;;
 	"build" | "build-binary" | "build-source" | "build-prep" )
