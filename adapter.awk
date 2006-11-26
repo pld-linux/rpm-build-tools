@@ -1612,7 +1612,12 @@ function add_br(br)
 function replace_php_virtual_deps()
 {
     pkg = $2
-    if (pkg ~ /^php-/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs)/) {
+#    if (pkg == "php-program") {
+#        $0 = $1 "\t/usr/bin/php"
+#        return
+#    }
+
+    if (pkg ~ /^php-/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
         sub(/^php-/, "php(", pkg);
         sub(/$/, ")", pkg);
         $2 = pkg
