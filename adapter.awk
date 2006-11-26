@@ -888,8 +888,12 @@ preamble == 1 {
 		$2 = fixedsub(filename, url[n], $2)
 
 		# sourceforge urls
+		sub("[?&]big_mirror=.*$", "", $2);
+		sub("[?&]modtime=.*$", "", $2);
+
 		sub("[?]use_mirror=.*$", "", $2);
 		sub("[?]download$", "", $2);
+
 		sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 		sub("^http://download\.sf\.net/", "http://dl.sourceforge.net/", $2)
 
