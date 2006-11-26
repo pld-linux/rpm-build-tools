@@ -1617,7 +1617,7 @@ function replace_php_virtual_deps()
 #        return
 #    }
 
-    if (pkg ~ /^php-/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
+    if (pkg ~ /^php-/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|ZendOptimizer|pecl-)/) {
         sub(/^php-/, "php(", pkg);
         sub(/$/, ")", pkg);
         $2 = pkg
