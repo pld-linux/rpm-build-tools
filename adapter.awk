@@ -1633,6 +1633,13 @@ function replace_php_virtual_deps()
             $4 = substr($4, 3);
         }
     }
+
+    if (pkg ~/^php4$/) {
+        $2 = "webserver(php)";
+        if ($4 ~ /^[0-9]:/) {
+            $4 = substr($4, 3);
+        }
+    }
 }
 
 # vim:ts=4:sw=4:et
