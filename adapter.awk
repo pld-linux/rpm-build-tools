@@ -1423,6 +1423,7 @@ function use_files_macros(	i, n, t, a)
 
     # kill default attrs
     gsub(/%dir %attr\(755,root,root\)/, "%dir");
+    gsub(/%attr\(755,root,root\) %dir/, "%dir");
     if (!/%dir/) {
         gsub(/%attr\(644,root,root\) /, "");
     }
