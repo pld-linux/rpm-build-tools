@@ -679,6 +679,7 @@ preamble == 1 {
 		sub(/^Text Processing\/Markup\/XML$/, "Applications/Text", group)
 		sub(/^Web\/Database$/, "Applications/WWW", group)
 		sub(/^System Environment\/Base$/, "Base", group)
+		sub(/^System$/, "Base", group)
 
 		$0 = "Group:\t\t" group
 
