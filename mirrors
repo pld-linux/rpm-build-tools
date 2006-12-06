@@ -14,7 +14,7 @@ http://www.apache.org/dist/|ftp://sunsite.icm.edu.pl/pub/www/apache/dist/|ICM
 http://www.apache.org/dist/|ftp://ftp.task.gda.pl/pub/www/apache/dist/|TASK
 ftp://ftp.dante.de/tex-archive/|ftp://sunsite.icm.edu.pl/pub/tex/|ICM
 http://www.exploits.org/nut/|http://penguin.harrison.k12.co.us/mirrors/nut/|US
-ftp://ftp.postgresql.org/pub/|amu.edu.pl
+#ftp://ftp.postgresql.org/pub/|amu.edu.pl
 ftp://ftp.gnupg.org/gcrypt/alpha/|http://mirrors.sunsite.dk/gnupg/alpha/|sunsite-dk
 ftp://ftp.musoftware.de/pub/uz/cc65/|http://cc65.civitas64.de/|civitas64
 ftp://ftp.alsa-project.org/pub/|ftp://ftp.task.gda.pl/pub/linux/misc/alsa/|TASK
