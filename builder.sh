@@ -895,7 +895,15 @@ get_files()
 						continue
 					fi
 					target="$fp"
-					url=$(distfiles_url "$i")
+
+					# prefer mirror over distfiles if there's mirror
+					# TODO: build url list and then try each url from the list
+					if [ -z "$NOMIRRORS" ] && im=$(find_mirror "$i") && [ "$im" != "$i" ]; then
+						url="$im"
+					else
+						url=$(distfiles_url "$i")
+					fi
+
 					url_attic=$(distfiles_attic_url "$i")
 					FROM_DISTFILES=1
 					# is $url local file?
