@@ -66,7 +66,8 @@ done
 for file in $(ls "$tmpd" 2>/dev/null); do
 	files=$(cat "$tmpd/$file")
 	rel=$(basename "$file")
-	echo cvs ci -m "'- rel $rel${message:+ ($message)}'"
+	msg="- rel $rel${message:+ ($message)}"
+	echo cvs ci -m "'$msg'"
 	cvs ci -m "$msg" $files
 done
 rm -rf $tmpd
