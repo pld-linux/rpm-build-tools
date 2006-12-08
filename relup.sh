@@ -29,6 +29,33 @@ get_release() {
 	echo $rel
 }
 
+if [ ! -x /usr/bin/getopt ]; then
+	echo >&1 "You need to install util-linux to use relup.sh"
+	exit 1
+fi
+
+t=`getopt -o 'm:' -n $(dirname "$0") -- "$@"` || exit $?
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$t"
+
+while true; do
+	case "$1" in
+	-m)
+		shift
+		message="$1"
+		;;
+	--)
+		shift
+	   	break
+	;;
+	*)
+	   	echo 2>&1 "Internal error: [$1] not recognized!"
+		exit 1
+	   	;;
+	esac
+	shift
+done
+
 tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 for spec in "$@"; do
 	spec=${spec%.spec}.spec
@@ -39,6 +66,7 @@ done
 for file in $(ls "$tmpd" 2>/dev/null); do
 	files=$(cat "$tmpd/$file")
 	rel=$(basename "$file")
-	cvs ci -m "- rel $rel" $files
+	echo cvs ci -m "'- rel $rel${message:+ ($message)}'"
+	cvs ci -m "$msg" $files
 done
 rm -rf $tmpd
