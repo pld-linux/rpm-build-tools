@@ -10,6 +10,9 @@ alias ac-tag='./builder -cf -T AC-branch -r HEAD'
 alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
 alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
+# set $distro, used by functions below
+[ -n "$distro" ] || distro=$(awk '{print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
+
 # merges two patches
 # requires: patchutils
 pmerge() {
@@ -63,7 +66,7 @@ autotag() {
 	local out
 	for a in "$@"; do
 		s=${a%.spec}.spec
-		out=$(cvs status -v $s | awk '/auto-ac-/{if (!a++) print $1}')
+		out=$(cvs status -v $s | awk "/auto-$distro-/{if (!a++) print \$1}")
 		echo "$s:$out"
 	done
 }
