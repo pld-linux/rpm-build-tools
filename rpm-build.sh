@@ -62,8 +62,9 @@ sfget() {
 autotag() {
 	local out
 	for a in "$@"; do
-		out=$(cvs status -v $a | awk '/auto-ac-/{if (!a++) print $1}')
-		echo "$a:$out"
+		s=${a%.spec}.spec
+		out=$(cvs status -v $s | awk '/auto-ac-/{if (!a++) print $1}')
+		echo "$s:$out"
 	done
 }
 
