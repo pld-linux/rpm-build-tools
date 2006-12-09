@@ -41,9 +41,10 @@ urldiff() {
 	echo >&2 "$file: $r1 -> $r2"
 
 	if [ -t 1 ]; then
-		pipe=' | tee m.patch | diffcol'
+		cvs diff -u -r$r1 -r$r2 $file | tee m.patch | diffcol
+	else
+		cvs diff -u -r$r1 -r$r2 $file
 	fi
-	cvs diff -u -r$r1 -r$r2 $file $pipe
 }
 
 # downloads sourceforge url from specific mirror
