@@ -1,17 +1,23 @@
 # shell aliases and functions for PLD Developer
 # $Id$
 
+# set $dist, used by functions below
+[ -n "$dist" ] || dist=$(awk '{print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
+
 alias cv='cvs status -v'
-alias ac='poldek -q --sn ac --cmd'
-alias ac-requires='ac what-requires'
-alias ac-provides='ac what-provides'
-alias ac-verify='poldek --sn ac --sn ac-ready --verify=deps'
-alias ac-tag='./builder -cf -T AC-branch -r HEAD'
 alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
 alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
-# set $distro, used by functions below
-[ -n "$distro" ] || distro=$(awk '{print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
+alias $dist="poldek -q --sn $dist --cmd"
+alias $dist-requires="$dist what-requires"
+alias $dist-provides="$dist what-provides"
+alias $dist-tag="./builder -cf -T $(echo $dist | tr '[a-z]' '[A-Z]')-branch -r HEAD"
+alias $dist-verify=dist-verify
+
+function dist-verify() {
+	poldek --sn $dist --sn $dist-ready --up
+	poldek --sn $dist --sn $dist-ready --verify=deps
+}
 
 # merges two patches
 # requires: patchutils
