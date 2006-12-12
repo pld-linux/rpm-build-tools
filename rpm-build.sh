@@ -12,7 +12,7 @@ alias $dist-provides="$dist what-provides"
 alias $dist-tag="./builder -cf -T $(echo $dist | tr '[a-z]' '[A-Z]')-branch -r HEAD"
 alias $dist-verify=dist-verify
 
-function dist-verify() {
+dist-verify() {
 	poldek --sn $dist --sn $dist-ready --up
 	poldek --sn $dist --sn $dist-ready --verify=deps
 }
