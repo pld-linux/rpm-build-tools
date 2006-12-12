@@ -4,9 +4,7 @@
 # set $dist, used by functions below
 [ -n "$dist" ] || dist=$(awk '{print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
 
-alias cv='cvs status -v'
-alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
-alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
+if [ "$dist" ]; then
 
 alias $dist="poldek -q --sn $dist --cmd"
 alias $dist-requires="$dist what-requires"
@@ -19,13 +17,21 @@ function dist-verify() {
 	poldek --sn $dist --sn $dist-ready --verify=deps
 }
 
-# merges two patches
-# requires: patchutils
-pmerge() {
-	combinediff -p1 $1 $2 > m.patch || return
-	pclean m.patch
-	dif $1 m.patch
+# displays latest used tag for a specfile
+autotag() {
+	local out
+	for a in "$@"; do
+		s=${a%.spec}.spec
+		out=$(cvs status -v $s | awk "/auto-$dist-/{if (!a++) print \$1}")
+		echo "$s:$out"
+	done
 }
+
+fi # no $dist set
+
+alias cv='cvs status -v'
+alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
+alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
 # makes diff from PLD CVS urls
 urldiff() {
@@ -56,6 +62,14 @@ urldiff() {
 	fi
 }
 
+# merges two patches
+# requires: patchutils
+pmerge() {
+	combinediff -p1 $1 $2 > m.patch || return
+	pclean m.patch
+	dif $1 m.patch
+}
+
 # downloads sourceforge url from specific mirror
 sfget() {
 	local url="$1"
@@ -65,16 +79,6 @@ sfget() {
 	local mirror="http://nchc.dl.sourceforge.net"
 	url="$mirror/sourceforge/${url#http://dl.sourceforge.net/}"
 	wget -c "$url"
-}
-
-# displays latest used tag for a specfile
-autotag() {
-	local out
-	for a in "$@"; do
-		s=${a%.spec}.spec
-		out=$(cvs status -v $s | awk "/auto-$dist-/{if (!a++) print \$1}")
-		echo "$s:$out"
-	done
 }
 
 dif() {
