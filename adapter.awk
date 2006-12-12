@@ -1169,6 +1169,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/shells")
 			continue;
+		if ($c ~ sysconfdir "/ppp")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
