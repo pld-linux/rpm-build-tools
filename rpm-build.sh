@@ -72,7 +72,7 @@ autotag() {
 	local out
 	for a in "$@"; do
 		s=${a%.spec}.spec
-		out=$(cvs status -v $s | awk "/auto-$distro-/{if (!a++) print \$1}")
+		out=$(cvs status -v $s | awk "/auto-$dist-/{if (!a++) print \$1}")
 		echo "$s:$out"
 	done
 }
