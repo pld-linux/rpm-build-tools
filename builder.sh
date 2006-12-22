@@ -401,7 +401,9 @@ cache_rpm_dump () {
 %py_ver ERROR
 %perl_vendorarch ERROR
 %perl_vendorlib ERROR
-%patchset_source() %{nil}
+# damn. need it here! - copied from /usr/lib/rpm/macros.build
+%tmpdir		%(echo "${TMPDIR:-/tmp}")
+%patchset_source(f:b:) %(base=%{-b*}%{!-b*:10000}; start=$((%1 + $base)); end=$((%{?2}%{!?2:%{1}} + $base)); seq -f 'Patch%g:' $start $end > %{tmpdir}/__ps1; seq -f '%{-f*}' %1 %{?2}%{!?2:%{1}} > %{tmpdir}/__ps2; paste %{tmpdir}/__ps{1,2}; rm -f %{tmpdir}/__ps{1,2})%{nil}
 EOF
 	case "$RPMBUILD" in
 	rpm)
