@@ -401,6 +401,7 @@ cache_rpm_dump () {
 %py_ver ERROR
 %perl_vendorarch ERROR
 %perl_vendorlib ERROR
+%patchset_source() %{nil}
 EOF
 	case "$RPMBUILD" in
 	rpm)
