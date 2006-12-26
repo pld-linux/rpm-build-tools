@@ -193,14 +193,15 @@ usage()
 	if [ -n "$DEBUG" ]; then set -xv; fi
 	echo "\
 Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
-[-bb|--build-binary] [-bs|--build-source] [-u|--try-upgrade]
+[-bb|--build-binary] [-bs|--build-source] [-bc] [-bi] [-bl] [-u|--try-upgrade]
 [{-cf|--cvs-force}] [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>]
 [-g|--get] [-h|--help] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T|--tag <cvstag>]
 [-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
-[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] [--show-bconds]
-[--with/--without <feature>] [--define <macro> <value>] <package>[.spec][:cvstag]
+[-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] [--short-circuit]
+[--show-bconds] [--with/--without <feature>] [--define <macro> <value>] 
+<package>[.spec][:cvstag]
 
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
@@ -214,11 +215,12 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -bb, --build-binary - get all files from CVS repo or HTTP/FTP and build binary
                       only package from <package>.spec,
 -bp, --build-prep   - execute the %prep phase of <package>.spec,
--bc                 - reserved (not implemented)
--bi                   reserved (not implemented)
+-bc                 - execute the %build phase of <package>.spec,
+-bi                 - execute the %install phase of <package>.spec
+-bl					- execute the %files phase of <package>.spec
 -bs, --build-source - get all files from CVS repo or HTTP/FTP and only pack
                       them into src.rpm,
---short-circuit     - reserved (not implemented)
+--short-circuit     - short-circuit build
 -B, --branch        - add branch
 -c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
                       SPECS and \$RPM_BUILD_ROOT),
@@ -1199,6 +1201,13 @@ build_package()
 			BUILD_SWITCH="-bs --nodeps" ;;
 		build-prep )
 			BUILD_SWITCH="-bp --nodeps" ;;
+		build-build )
+			BUILD_SWITCH="-bc" ;;
+		build-install )
+			BUILD_SWITCH="-bi" ;;
+		build-list )
+			BUILD_SWITCH="-bl" ;;
+
 	esac
 
 	update_shell_title "build_package: $COMMAND"
@@ -1790,10 +1799,16 @@ while [ $# -gt 0 ]; do
 			COMMAND="build"; shift ;;
 		-bb | --build-binary )
 			COMMAND="build-binary"; shift ;;
-		-bs | --build-source )
-			COMMAND="build-source"; shift ;;
+		-bc )
+			COMMAND="build-build"; shift ;;
+		-bi )
+			COMMAND="build-install"; shift ;;
+		-bl )
+			COMMAND="build-list"; shift ;;
 		-bp | --build-prep )
 			COMMAND="build-prep"; shift ;;
+		-bs | --build-source )
+			COMMAND="build-source"; shift ;;
 		-B | --branch )
 			COMMAND="branch"; shift; TAG="${1}"; shift;;
 		-c | --clean )
@@ -1964,6 +1979,10 @@ while [ $# -gt 0 ]; do
 				RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
 			fi
 			;;
+		--short-circuit)
+			RPMBUILDOPTS="${RPMBUILDOPTS} --short-circuit"
+			shift
+			;;
 		--show-bconds | -show-bconds | -print-bconds | --print-bconds | -display-bconds | --display-bconds )
 			COMMAND="show_bconds"
 			shift
@@ -2039,7 +2058,7 @@ case "$COMMAND" in
 			echo "$BCOND"
 		fi
 		;;
-	"build" | "build-binary" | "build-source" | "build-prep" )
+	"build" | "build-binary" | "build-source" | "build-prep" | "build-build" | "build-install" | "build-list")
 		init_builder
 		if [ -n "$SPECFILE" ]; then
 			get_spec
