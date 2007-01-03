@@ -680,6 +680,7 @@ preamble == 1 {
 		sub(/^Web\/Database$/, "Applications/WWW", group)
 		sub(/^System Environment\/Base$/, "Base", group)
 		sub(/^System$/, "Base", group)
+		sub(/^Applications\/Productivity$/, "X11/Applications", group)
 
 		$0 = "Group:\t\t" group
 
