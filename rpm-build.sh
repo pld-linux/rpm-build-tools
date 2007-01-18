@@ -34,6 +34,7 @@ alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in'
 alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
 # makes diff from PLD CVS urls
+# requires: cvs, tee
 urldiff() {
 	local url="$1"
 	if [ -z "$url" ]; then
@@ -59,6 +60,28 @@ urldiff() {
 		cvs diff -u -r$r1 -r$r2 $file | tee m.patch | diffcol
 	else
 		cvs diff -u -r$r1 -r$r2 $file
+	fi
+}
+
+# makes diff from kde svn path
+# requires: wget, tee
+kdediff() {
+	local url="$1"
+	# --- branches/KDE/3.5/kdepim/kpilot/conduits/vcalconduit/vcalRecord.cc #624744:624745
+	url=${url#*--- }
+	echo >&2 "Process $url"
+	r1=${url#*#}
+	r2=${r1#*:}
+	r1=${r1%:*}
+
+	#  http://websvn.kde.org/branches/KDE/3.5/kdepim/kpilot/conduits/vcalconduit/vcalRecord.cc?rev=624745&r1=612579&r2=624745&makepatch=1&diff_format=u
+	url=http://websvn.kde.org/${url% *}
+	url="$url?r1=$r1&r2=$r2&makepatch=1&diff_format=u"
+
+	if [ -t 1 ]; then
+		wget "$url" -O -| tee m.patch | diffcol
+	else
+		wget "$url" -O -
 	fi
 }
 
