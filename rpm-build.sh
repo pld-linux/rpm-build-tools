@@ -14,7 +14,7 @@ alias $dist-verify=dist-verify
 
 dist-verify() {
 	poldek --sn $dist --sn $dist-ready --up
-	poldek --sn $dist --sn $dist-ready --verify=deps
+	poldek --sn $dist --sn $dist-ready --verify=deps "$@"
 }
 
 # displays latest used tag for a specfile
