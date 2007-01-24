@@ -384,6 +384,8 @@ cache_rpm_dump () {
 	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .builder-rpmrc
 # TODO: move these to /usr/lib/rpm/macros
 	cat > .builder-rpmmacros <<'EOF'
+%alt_kernel %{nil}
+%_alt_kernel %{nil}
 %requires_releq_kernel_up %{nil}
 %requires_releq_kernel_smp %{nil}
 %requires_releq() %{nil}
