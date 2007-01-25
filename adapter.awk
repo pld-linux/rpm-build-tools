@@ -751,7 +751,6 @@ preamble == 1 {
 		sub(/^ant-junit$/, "jakarta-ant", $2);
 		sub(/^ldapjdk$/, "ldapsdk", $2);
 		sub(/^saxon-scripts$/, "saxon", $2);
-		sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
 
         replace_php_virtual_deps();
 	}
