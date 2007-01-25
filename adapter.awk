@@ -417,6 +417,7 @@ function b_makekey(a, b,	s) {
 	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0);
 	$0 = fixedsub("automake -a --foreign --copy", "%{__automake}", $0);
 	$0 = fixedsub("automake -a -c --foreign", "%{__automake}", $0);
+	$0 = fixedsub("automake -a -c", "%{__automake}", $0);
 	$0 = fixedsub("libtoolize --force --automake --copy", "%{__libtoolize}", $0);
 	$0 = fixedsub("libtoolize -c -f --automake", "%{__libtoolize}", $0);
 
@@ -424,6 +425,7 @@ function b_makekey(a, b,	s) {
 	sub(/^autoheader$/, "%{__autoheader}");
 	sub(/^autoconf$/, "%{__autoconf}");
 	sub(/^automake$/, "%{__automake}");
+	sub(/^libtoolize$/, "%{__libtoolize}");
 
 	# atrpms
 	$0 = fixedsub("%perl_configure", "%{__perl} Makefile.PL \\\n\tINSTALLDIRS=vendor", $0);
@@ -1311,7 +1313,7 @@ function use_macros()
 	if (/^ant /) {
 		sub(/^ant/, "%ant")
         add_br("BuildRequires:  jpackage-utils");
-        add_br("BuildRequires:  rpmbuild(macros) >= 1.294");
+        add_br("BuildRequires:  rpmbuild(macros) >= 1.300");
     }
 
 }
