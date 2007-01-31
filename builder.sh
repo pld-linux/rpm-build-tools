@@ -929,9 +929,17 @@ get_files()
 						${GETLOCAL} $url $target
 					else
 						if [ -z "$NOMIRRORS" ]; then
-							url="`find_mirror "$url"`"
+							url=$(find_mirror "$url")
 						fi
-						update_shell_title "${GETURI%% *}: $url"
+
+						local uri=${url}
+						# make shorter message for distfiles urls
+						if [[ "$uri" = ${PROTOCOL}${DISTFILES_SERVER}* ]] || [[ "$uri" = ${PROTOCOL}${ATTICDISTFILES_SERVER}* ]]; then
+							uri=${uri#${PROTOCOL}${DISTFILES_SERVER}/distfiles/by-md5/?/?/*/}
+							uri=${uri#${PROTOCOL}${ATTICDISTFILES_SERVER}/distfiles/by-md5/?/?/*/}
+							uri="df: $uri"
+						fi
+						update_shell_title "${GETURI%% *}: $uri"
 						${GETURI} ${OUTFILEOPT} "$target" "$url" || \
 						if [ "`echo $url | grep -E 'ftp://'`" ]; then
 							update_shell_title "${GETURI2%% *}: $url"
