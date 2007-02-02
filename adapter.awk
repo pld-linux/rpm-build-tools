@@ -72,6 +72,7 @@ BEGIN {
 	"rpm --eval %_infodir"	| getline infodir
 	"rpm --eval %_examplesdir"	| getline examplesdir
 	"rpm --eval %_defaultdocdir"	| getline docdir
+	"rpm --eval %_kdedocdir"	| getline kdedocdir
 	"rpm --eval %_desktopdir" | getline desktopdir
 	"rpm --eval %_pixmapsdir" | getline pixmapsdir
 
@@ -1177,6 +1178,7 @@ function use_macros()
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
+	gsub(kdedocdir, "%{_kdedocdir}")
 	gsub(docdir, "%{_docdir}")
 	gsub(php_pear_dir, "%{php_pear_dir}")
 
