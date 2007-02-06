@@ -380,8 +380,12 @@ cache_rpm_dump () {
 	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
 	macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.builder-rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
 	dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
-	# FIXME: better ideas than .rpmrc?
-	printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .builder-rpmrc
+	if [ -f /usr/lib/rpm/rpmrc ]; then
+		# FIXME: better ideas than .rpmrc?
+		printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .builder-rpmrc
+	else
+		printf 'macrofiles:%s\n' $macrofiles > .builder-rpmrc
+	fi
 # TODO: move these to /usr/lib/rpm/macros
 	cat > .builder-rpmmacros <<'EOF'
 %alt_kernel %{nil}
