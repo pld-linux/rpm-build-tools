@@ -2,7 +2,7 @@
 
 debug = False
 
-import os, os.path, re, sys, locale
+import os, os.path, re, sys, locale, StringIO
 
 langs={
     'bg':'windows-1251',
@@ -117,9 +117,20 @@ def parse_spec(infile, outfile):
     if debug: outfile.write("%s, %s\n"% (in_desc, in_changelog))
     outfile.write("%s"% (outline, ))
 
-def main():
-  parse_spec(sys.stdin, sys.stdout)
+def main(argv):
+  f = open(argv[1], 'r')
+  sio = StringIO.StringIO()
+  sio.write(f.read())
+  f.close()
+  sio.seek(0)
+  f = open(argv[1] + '.tmp', 'w')
+  parse_spec(sio, f)
+  f.close()
+  os.rename(argv[1] + '.tmp', argv[1])
 
 if __name__ == "__main__":
-  main()
+  if len(sys.argv) != 2:
+	  sys.stderr.write("Usage: %s <spec file>\n" % sys.argv[0])
+	  sys.exit(1)
+  main(sys.argv)
 
