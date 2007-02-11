@@ -122,7 +122,7 @@ def parse_spec(infile, outfile):
     
     if debug: outfile.write("%s, %s\n"% (in_desc, in_changelog))
     outfile.write("%s"% (outline, ))
-    return success
+  return success
 
 def main(argv):
   print "Converting %s ..." % argv[1]
