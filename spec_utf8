@@ -74,7 +74,7 @@ def parse_spec(infile, outfile):
     if r:
       (enc, pure_lang) = find_encoding(r.group(2))
       if enc == None:
-        outfile.write("#spec_utf8: unknown lang code in %%description -l %s\n" % (lang))
+        outfile.write("#spec_utf8: unknown lang code in %%description -l %s\n" % (r.group(2)))
       elif not re_utf.search(enc):
         in_desc = True
         outline = "%s-l %s.UTF-8%s\n" % (r.group(1), pure_lang, r.group(3))
@@ -87,7 +87,7 @@ def parse_spec(infile, outfile):
           try:
             outline = unicode(l, enc).encode("UTF-8")
           except UnicodeDecodeError:
-            outfile.write("#spec_utf8: transcoding error %%description -l %s\n" % (lang))
+            outfile.write("#spec_utf8: transcoding error %%description -l %s\n" % (r.group(2)))
     elif in_changelog:
       try:
         outline = unicode(l, "UTF-8").encode("UTF-8")
@@ -102,13 +102,13 @@ def parse_spec(infile, outfile):
       if r:
         (enc, pure_lang) = find_encoding(r.group(1))
         if enc == None:
-          outfile.write("#spec_utf8: unknow lang code Summary(%s)\n" % (lang))
+          outfile.write("#spec_utf8: unknow lang code Summary(%s)\n" % (r.group(1)))
         elif not re_utf.search(enc):
           try:
             desc = unicode(r.group(2), enc).encode("UTF-8")
             outline = "Summary(%s.UTF-8):   %s\n" % (pure_lang, desc)
           except UnicodeDecodeError:
-            outfile.write("#spec_utf8: ranscoding error Summary(%s)\n" % (lang))
+            outfile.write("#spec_utf8: ranscoding error Summary(%s)\n" % (r.group(1)))
       elif re_changelog.match(l):
         # %changelog start
         in_changelog = True
@@ -118,6 +118,7 @@ def parse_spec(infile, outfile):
     outfile.write("%s"% (outline, ))
 
 def main(argv):
+  print "Converting %s ..." % argv[1]
   f = open(argv[1], 'r')
   sio = StringIO.StringIO()
   sio.write(f.read())
