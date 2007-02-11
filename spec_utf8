@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+debug = False
+
 import os, os.path, re, sys, locale
 
 langs={
@@ -59,41 +61,61 @@ def parse_spec(infile, outfile):
   re_utf = re.compile("^utf-8$", re.I)
   re_desc = re.compile("^(%description.*\s)-l\s+([\S]+)($|\s.*$)")
   re_proc = re.compile("^%")
+  re_changelog = re.compile("^%changelog")
   in_desc = False
+  in_changelog = False
 
   for l in infile:
-      outline = l
+    outline = l
+    if debug: outfile.write("%s, %s, %s" % (in_desc, in_changelog, l))
+
+    # %description start
+    r = re_desc.match(l)
+    if r:
+      (enc, pure_lang) = find_encoding(r.group(2))
+      if enc == None:
+        outfile.write("#spec_utf8: unknown lang code in %%description -l %s\n" % (lang))
+      elif not re_utf.search(enc):
+        in_desc = True
+        outline = "%s-l %s.UTF-8%s\n" % (r.group(1), pure_lang, r.group(3))
+    elif in_desc:
+      if re_proc.search(l):
+        in_desc = False
+      else:
+        # %description continues
+        if not re_utf.search(enc):
+          try:
+            outline = unicode(l, enc).encode("UTF-8")
+          except UnicodeDecodeError:
+            outfile.write("#spec_utf8: transcoding error %%description -l %s\n" % (lang))
+    elif in_changelog:
+      try:
+        outline = unicode(l, "UTF-8").encode("UTF-8")
+      except UnicodeDecodeError:
+        try:
+          outline = unicode(l, "ISO-8859-2").encode("UTF-8")
+        except UnicodeDecodeError:
+          outfile.write("#spec_utf8: transcoding next line from Latin2 failed\n")
+    else: 
+      # Summary
       r = re_summary.match(l)
       if r:
         (enc, pure_lang) = find_encoding(r.group(1))
         if enc == None:
-          outfile.write("#unknow lang code Summary(%s)\n" % (lang))
+          outfile.write("#spec_utf8: unknow lang code Summary(%s)\n" % (lang))
         elif not re_utf.search(enc):
           try:
             desc = unicode(r.group(2), enc).encode("UTF-8")
-            l = "Summary(%s.UTF-8):   %s\n" % (pure_lang, desc)
+            outline = "Summary(%s.UTF-8):   %s\n" % (pure_lang, desc)
           except UnicodeDecodeError:
-            outfile.write("#transcoding error Summary(%s)\n" % (lang))
-      if in_desc:
-        if re_proc.search(l):
-          in_desc = False
-        else:
-          if not re_utf.search(enc):
-            try:
-              l = unicode(l, enc).encode("UTF-8")
-            except UnicodeDecodeError:
-              outfile.write("#transcoding error %%description -l %s\n" % (lang))
-
-      r = re_desc.match(l)
-      if r:
-        (enc, pure_lang) = find_encoding(r.group(2))
-        if enc == None:
-          outfile.write("#unknown lang code in %%description -l %s\n" % (lang))
-        elif not re_utf.search(enc):
-          in_desc = True
-          l = "%s-l %s.UTF-8%s\n" % (r.group(1), pure_lang, r.group(3))
-
-      outfile.write(l)
+            outfile.write("#spec_utf8: ranscoding error Summary(%s)\n" % (lang))
+      elif re_changelog.match(l):
+        # %changelog start
+        in_changelog = True
+    
+    
+    if debug: outfile.write("%s, %s\n"% (in_desc, in_changelog))
+    outfile.write("%s"% (outline, ))
 
 def main():
   parse_spec(sys.stdin, sys.stdout)
