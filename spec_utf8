@@ -61,7 +61,7 @@ def parse_spec(infile, outfile):
   re_summary = re.compile("^Summary\(([^\)]+)\):\t+(.*)$")
   re_utf = re.compile("^utf-8$", re.I)
   re_desc = re.compile("^(%description.*\s)-l\s+([\S]+)($|\s.*$)")
-  re_proc = re.compile("^%")
+  re_proc = re.compile("^%[^{]")
   re_changelog = re.compile("^%changelog")
   in_desc = False
   in_changelog = False
