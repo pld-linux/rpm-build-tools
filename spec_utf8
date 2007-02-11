@@ -62,6 +62,7 @@ def parse_spec(infile, outfile):
   re_utf = re.compile("^utf-8$", re.I)
   re_desc = re.compile("^(%description.*\s)-l\s+([\S]+)($|\s.*$)")
   re_proc = re.compile("^%[^{]")
+  re_ignore_proc = re.compile("^%(if|endif)")
   re_changelog = re.compile("^%changelog")
   in_desc = False
   in_changelog = False
@@ -82,7 +83,7 @@ def parse_spec(infile, outfile):
         in_desc = True
         outline = "%s-l %s.UTF-8%s\n" % (r.group(1), pure_lang, r.group(3))
     elif in_desc:
-      if re_proc.search(l):
+      if re_proc.search(l) and not re_ignore_proc.search(l):
         in_desc = False
       else:
         # %description continues
