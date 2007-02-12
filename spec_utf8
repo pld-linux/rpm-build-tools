@@ -58,7 +58,7 @@ def find_encoding(lang):
 
 def parse_spec(infile, outfile):
   success = True
-  re_summary = re.compile("^Summary\(([^\)]+)\):\t+(.*)$")
+  re_summary = re.compile("^Summary\(([^\)]+)\):[ \t]+(.*)$")
   re_utf = re.compile("^utf-8$", re.I)
   re_desc = re.compile("^(%description.*\s)-l\s+([\S]+)($|\s.*$)")
   re_proc = re.compile("^%[^{]")
