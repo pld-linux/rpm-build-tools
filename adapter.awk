@@ -684,6 +684,8 @@ preamble == 1 {
 		sub(/^System Environment\/Base$/, "Base", group)
 		sub(/^System$/, "Base", group)
 		sub(/^Applications\/Productivity$/, "X11/Applications", group)
+		sub(/^Database$/, "Applications/Databases", group)
+		sub(/^Development\/Code Generators$/, "Development", group)
 
 		$0 = "Group:\t\t" group
 
@@ -748,10 +750,12 @@ preamble == 1 {
 		sub(/^java-devel$/, "jdk", $2);
 		sub(/^log4j$/, "jakarta-log4j", $2);
 		sub(/^oro$/, "jakarta-oro", $2);
+		sub(/^jakarta-ant$/, "ant", $2);
 		sub(/^xerces-j2$/, "xerces-j", $2);
-		sub(/^ant-junit$/, "jakarta-ant", $2);
 		sub(/^ldapjdk$/, "ldapsdk", $2);
 		sub(/^saxon-scripts$/, "saxon", $2);
+		sub(/^xalan-j2$/, "xalan-j", $2);
+		sub(/^xerces-j2$/, "xerces-j", $2);
 
         replace_php_virtual_deps();
 	}
@@ -1055,11 +1059,12 @@ function format_preamble()
 		return;
 	}
 	sub(/:[ \t]*/, ":")
-	if (match($0, /[A-Za-z0-9(),#_ \t]+[ \t]*:[ \t]*/) == 1) {
-		if (RLENGTH < 8)
+	if (match($0, /[A-Za-z0-9(),#_ \t.-]+[ \t]*:[ \t]*/) == 1) {
+		if (RLENGTH < 8) {
 			sub(/:/, ":\t\t")
-		else
+        } else {
 			sub(/:/, ":\t")
+        }
 	}
 }
 
@@ -1652,4 +1657,4 @@ function replace_php_virtual_deps()
     }
 }
 
-# vim:ts=4:sw=4:et
+# vim:ts=4:sw=4
