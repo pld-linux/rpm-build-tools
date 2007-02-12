@@ -2,7 +2,7 @@
 
 debug = False
 
-import os, os.path, re, sys, locale, StringIO
+import os, os.path, re, sys, locale, StringIO, filecmp
 
 langs={
     'bg':'windows-1251',
@@ -128,22 +128,26 @@ def parse_spec(infile, outfile):
     outfile.write("%s"% (outline, ))
   return success
 
-def main(argv):
-  print "Converting %s ..." % argv[1]
-  f = open(argv[1], 'r')
+def main(spec):
+  tmp = spec + '.tmp'
+  print "Converting %s ..." % spec
+  f = open(spec, 'r')
   sio = StringIO.StringIO()
   sio.write(f.read())
   f.close()
   sio.seek(0)
-  f = open(argv[1] + '.tmp', 'w')
+  f = open(tmp, 'w')
   if not parse_spec(sio, f):
-	  sys.stderr.write("   Problems while converting %s.\n" % argv[1])
+	  sys.stderr.write("   Problems while converting %s.\n" % spec)
   f.close()
-  os.rename(argv[1] + '.tmp', argv[1])
+  if filecmp.cmp(spec, tmp, False):
+    os.remove(tmp)
+  else:
+    os.rename(tmp, spec)
 
 if __name__ == "__main__":
-  if len(sys.argv) != 2:
-	  sys.stderr.write("Usage: %s <spec file>\n" % sys.argv[0])
-	  sys.exit(1)
-  main(sys.argv)
-
+  if len(sys.argv) == 1:
+    sys.stderr.write("Usage: %s <spec-files>\n" % sys.argv[0])
+    sys.exit(1)
+  for spec in sys.argv[1:]:
+    main(spec)
