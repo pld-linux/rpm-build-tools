@@ -115,7 +115,7 @@ def parse_spec(infile, outfile):
         elif not re_utf.search(enc):
           try:
             desc = unicode(r.group(2), enc).encode("UTF-8")
-            outline = "Summary(%s.UTF-8):   %s\n" % (pure_lang, desc)
+            outline = "Summary(%s.UTF-8):\t%s\n" % (pure_lang, desc)
           except UnicodeDecodeError:
             outfile.write("#spec_utf8: transcoding error Summary(%s)\n" % (lang))
 	    success = False
