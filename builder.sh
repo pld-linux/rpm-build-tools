@@ -2099,7 +2099,7 @@ case "$COMMAND" in
 					local t
 					t=$(grep '^Summary(.*\.UTF-8):' $SPECFILE)
 					if [ "$t" ]; then
-						Exit_error err_acl_deny "UTF-8 not allowed on AC-branch"
+						Exit_error err_acl_deny "UTF-8 .specs not allowed on $CVSTAG"
 					fi
 				fi
 
