@@ -564,6 +564,10 @@ Exit_error()
 			remove_build_requires
 			echo "Tree branch already exists (${2})."
 			exit 11 ;;
+		"err_acl_deny" )
+			remove_build_requires
+			echo "Error: conditions reject building this spec (${2})."
+			exit 12 ;;
 
 	esac
 	echo "Unknown error."
@@ -2088,7 +2092,17 @@ case "$COMMAND" in
 				fi
 			fi
 
+			# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
 			if [ -n "$TEST_TAG" ]; then
+				# - do not allow utf8 encoded specs on AC-branch
+				if [ "$CVSTAG" = "AC-branch" ]; then
+					local t
+					t=$(grep '^Summary(.*\.UTF-8):' $SPECFILE)
+					if [ "$t" ]; then
+						Exit_error err_acl_deny "UTF-8 not allowed on AC-branch"
+					fi
+				fi
+
 				TAGVER=`make_tagver`
 				echo "Searching for tag $TAGVER..."
 				TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
@@ -2105,6 +2119,7 @@ case "$COMMAND" in
 						Exit_error err_branch_exists "$TAG_STATUS"
 					fi
 				fi
+
 			fi
 
 			if [ -n "$NOSOURCE0" ] ; then
