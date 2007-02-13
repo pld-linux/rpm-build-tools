@@ -4,12 +4,12 @@
 #
 # Copyright (C) 1999-2003 PLD-Team <feedback@pld-linux.org>
 # Authors:
-# 	Micha≥ Kuratczyk <kura@pld.org.pl>
+# 	Micha≈Ç Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
-# 	Tomasz K≥oczko <kloczek@rudy.mif.pg.gda.pl>
+# 	Tomasz K≈Çoczko <kloczek@rudy.mif.pg.gda.pl>
 # 	Artur Frysiak <wiget@pld-linux.org>
 # 	Michal Kochanowicz <mkochano@pld.org.pl>
-# 	Elan Ruusam‰e <glen@pld-linux.org>
+# 	Elan Ruusam√§e <glen@pld-linux.org>
 #
 # See cvs log adapter{,.awk} for list of contributors
 #
