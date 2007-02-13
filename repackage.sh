@@ -22,7 +22,7 @@ if [ "$tmp" ]; then
 	TARGET="$tmp"
 fi
 
-BCONDS=$(./builder --show-bcond-args $specfile)
+BCONDS=$(./builder -nn -ncs --show-bcond-args $specfile)
 
 # just create the rpm's if -bb is somewhere in the args
 if [[ *$@* != *-bb* ]]; then
