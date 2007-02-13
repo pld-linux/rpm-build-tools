@@ -22,7 +22,7 @@
 
 VERSION="\
 Build package utility from PLD Linux CVS repository
-v0.17 (C) 1999-2006 Free Penguins".
+v0.17 (C) 1999-2007 Free Penguins".
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
