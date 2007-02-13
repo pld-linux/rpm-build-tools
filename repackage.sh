@@ -4,6 +4,16 @@
 #
 # -glen 2005-03-03
 #
+# Usage:
+# do %install and rpm package, skips %clean
+# SPECS$ ./repackage.sh kdelibs.spec
+#
+# after that is done you could try only package creation (as %clean was
+# skipped), for adjusting %files lists:
+# SPECS$ ./repackage.sh kdelibs.spec -bb
+#
+# See also: SPECS/compile.sh
+#
 # TODO
 # - make builder to understand -bi and use builder for short-circuit
 
