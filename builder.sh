@@ -353,10 +353,11 @@ set_spec_target() {
 	if [ -n "$SPECFILE" ] && [ -z "$TARGET" ]; then
 		tmp=$(awk '/^BuildArch:/ { print $NF}' $SPECFILE)
 		if [ "$tmp" ]; then
+				target_platform=$(rpm -E '%{_target_vendor}-%{_target_os}%{?_gnu}')
 				TARGET="$tmp"
 				case "$RPMBUILD" in
 				"rpmbuild")
-					TARGET_SWITCH="--target $TARGET" ;;
+					TARGET_SWITCH="--target ${TARGET}-${target_platform}" ;;
 				"rpm")
 					TARGET_SWITCH="--target=$TARGET" ;;
 				esac
