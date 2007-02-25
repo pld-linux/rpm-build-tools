@@ -1,4 +1,4 @@
-#!/bin/awk -f
+#!/usr/bin/gawk -f
 #
 # This is adapter v0.28. Adapter adapts .spec files for PLD Linux.
 # $Id$
