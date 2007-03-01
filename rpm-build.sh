@@ -142,3 +142,8 @@ cvslog() {
 	[ "$d" = "$f" ] && d=.
 	(builtin cd $d && cvs log ${f##*/})
 }
+
+# does diff between FILE and FILE~
+d() {
+	dif $1{~,}
+}
