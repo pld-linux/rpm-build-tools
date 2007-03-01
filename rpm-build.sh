@@ -144,6 +144,19 @@ cvslog() {
 }
 
 # does diff between FILE and FILE~
+# the diff can be applied with patch -p1
 d() {
-	dif $1{~,}
+	local file="$1"
+	local dir=${file%/*}
+	if [[ "$file" = /* ]]; then
+		# full path -- no idea where to strip
+		dir=.
+		diff=$file
+	else
+		# relative path -- keep one path component from current dir
+		dir=..
+		diff=${PWD##*/}/${file}
+	fi
+
+	(builtin cd "$dir"; dif $diff{~,})
 }
