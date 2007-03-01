@@ -147,7 +147,7 @@ cvslog() {
 # the diff can be applied with patch -p1
 d() {
 	local file="$1"
-	local dir=${file%/*}
+	local dir
 	if [[ "$file" = /* ]]; then
 		# full path -- no idea where to strip
 		dir=.
