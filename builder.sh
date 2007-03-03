@@ -200,7 +200,7 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 [-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
 [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] [--short-circuit]
-[--show-bconds] [--with/--without <feature>] [--define <macro> <value>] 
+[--show-bconds] [--with/--without <feature>] [--define <macro> <value>]
 <package>[.spec][:cvstag]
 
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
@@ -1175,6 +1175,18 @@ branch_files()
 }
 
 
+# this function should exit early if package can't be built for this arch
+# this avoids unneccessary BR filling.
+check_buildarch() {
+	local out ret
+	out=$($RPMBUILD --short-circuit -bp --define 'prep exit 0' --nodeps $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE 2>&1)
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		echo >&2 "$out"
+		exit $ret
+	fi
+}
+
 
 build_package()
 {
@@ -2092,6 +2104,7 @@ case "$COMMAND" in
 			set_bconds_values
 			display_bconds
 			display_branches
+			check_buildarch
 			fetch_build_requires
 			if [ "$INTEGER_RELEASE" = "yes" ]; then
 				echo "Checking release $PACKAGE_RELEASE..."
