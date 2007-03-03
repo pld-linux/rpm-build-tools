@@ -1109,6 +1109,8 @@ function use_macros()
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
 
+	gsub(libdir, "%{_libdir}")
+
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
 	if (prefix"/bin" == bindir)
