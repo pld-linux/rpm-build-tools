@@ -537,6 +537,9 @@ Exit_error()
 			remove_build_requires
 			echo "ERROR: spec file name not specified."
 			exit 2 ;;
+		"err_invalid_cmdline" )
+			echo "ERROR: invalid command line arg ($2)."
+			exit 2 ;;
 		"err_no_spec_in_repo" )
 			remove_build_requires
 			echo "Error: spec file not stored in CVS repo."
@@ -2015,7 +2018,11 @@ while [ $# -gt 0 ]; do
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
 		-debug)
-			RPMBUILDOPTS="${RPMBUILDOPTS} -debug"; shift ;;
+			RPMBUILDOPTS="${RPMBUILDOPTS} -debug"; shift
+			;;
+		-* )
+			Exit_error err_invalid_cmdline "$1"
+			;;
 		* )
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
@@ -2027,7 +2034,7 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-if [ -z "$CVSTAG" ]; then
+if [ -f CVS/Entries ] && [ -z "$CVSTAG" ]; then
 	CVSTAG=$(awk -vSPECFILE="${SPECFILE%.spec}.spec" -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' CVS/Entries)
 	if [ "$CVSTAG" ]; then
 		echo >&2 "builder: Stick tag $CVSTAG active. Use -r TAGNAME to override."
