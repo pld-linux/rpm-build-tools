@@ -1,5 +1,4 @@
 #!/bin/sh
-file="$1"
 lftp -c "open dropin;
-put $file
+mput $*
 "
