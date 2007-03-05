@@ -572,7 +572,6 @@ Exit_error()
 			remove_build_requires
 			echo "Error: conditions reject building this spec (${2})."
 			exit 12 ;;
-
 	esac
 	echo "Unknown error."
 	exit 100
@@ -1120,22 +1119,22 @@ tag_files()
 	if [ "$tag_files" ]; then
 		if [ "$TAG_VERSION" = "yes" ]; then
 			update_shell_title "tag sources: $TAGVER"
-			cvs $OPTIONS $TAGVER $tag_files
+			cvs $OPTIONS $TAGVER $tag_files || exit
 		fi
 		if [ -n "$TAG" ]; then
 			update_shell_title "tag sources: $TAG"
-			cvs $OPTIONS $TAG $tag_files
+			cvs $OPTIONS $TAG $tag_files || exit
 		fi
 	fi
 
 	cd "$SPECS_DIR"
 	if [ "$TAG_VERSION" = "yes" ]; then
 		update_shell_title "tag spec: $TAGVER"
-		cvs $OPTIONS $TAGVER $SPECFILE
+		cvs $OPTIONS $TAGVER $SPECFILE || exit
 	fi
 	if [ -n "$TAG" ]; then
 		update_shell_title "tag spec: $TAG"
-		cvs $OPTIONS $TAG $SPECFILE
+		cvs $OPTIONS $TAG $SPECFILE || exit
 	fi
 }
 
@@ -1167,11 +1166,11 @@ branch_files()
 		fi
 	done
 	if [ "$tag_files" ]; then
-		cvs $OPTIONS $TAG $tag_files
+		cvs $OPTIONS $TAG $tag_files || exit
 	fi
 
 	cd "$SPECS_DIR"
-	cvs $OPTIONS $TAG $SPECFILE
+	cvs $OPTIONS $TAG $SPECFILE || exit
 }
 
 
