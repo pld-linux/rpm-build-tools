@@ -1082,7 +1082,7 @@ make_tagver() {
 	fi
 
 	# NOTE: CVS tags may must not contain the characters `$,.:;@'
-	TAGVER=$TAG_PREFIX$PACKAGE_NAME-$(echo $PACKAGE_VERSION | tr '[.@]' '[_#]')-$(echo $PACKAGE_RELEASE | tr '[.@]' '[_#]')
+	TAGVER=$(echo $TAG_PREFIX$PACKAGE_NAME-$PACKAGE_VERSION-$PACKAGE_RELEASE | tr '[.@]' '[_#]')
 
 	# Remove #kernel.version_release from TAGVER because tagging sources
 	# could occur with different kernel-headers than kernel-headers used at build time.
