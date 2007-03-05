@@ -426,7 +426,6 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-#	set -x
 	eval $RPMBUILD --rcfile .builder-rpmrc $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
 }
 
@@ -1081,10 +1080,18 @@ make_tagver() {
 	if [ -z "${PACKAGE_NAME##[_0-9]*}" -a -z "$TAG_PREFIX" ]; then
 		TAG_PREFIX=tag_
 	fi
-	TAGVER=$TAG_PREFIX$PACKAGE_NAME-`echo $PACKAGE_VERSION | sed -e "s/\./\_/g" -e "s/@/#/g"`-`echo $PACKAGE_RELEASE | sed -e "s/\./\_/g" -e "s/@/#/g"`
+
+	# NOTE: CVS tags may must not contain the characters `$,.:;@'
+	TAGVER=$TAG_PREFIX$PACKAGE_NAME-$(echo $PACKAGE_VERSION | tr '[.@]' '[_#]')-$(echo $PACKAGE_RELEASE | tr '[.@]' '[_#]')
+
 	# Remove #kernel.version_release from TAGVER because tagging sources
 	# could occur with different kernel-headers than kernel-headers used at build time.
-	TAGVER=$(echo "$TAGVER" | sed -e 's/#.*//g')
+	# besides, %{_kernel_ver_str} is not expanded.
+
+	# TAGVER=auto-ac-madwifi-ng-0-0_20070225_1#%{_kernel_ver_str}
+	# TAGVER=auto-ac-madwifi-ng-0-0_20070225_1
+
+	TAGVER=${TAGVER%#*}
 	echo -n "$TAGVER"
 }
 
@@ -1100,7 +1107,7 @@ tag_files()
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
 
-	TAGVER=`make_tagver`
+	local TAGVER=`make_tagver`
 
 	if [ "$TAG_VERSION" = "yes" ]; then
 		echo "CVS tag: $TAGVER"
@@ -2136,7 +2143,7 @@ case "$COMMAND" in
 					fi
 				fi
 
-				TAGVER=`make_tagver`
+				local TAGVER=`make_tagver`
 				echo "Searching for tag $TAGVER..."
 				TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
 				if [ -n "$TAGREL" ]; then
