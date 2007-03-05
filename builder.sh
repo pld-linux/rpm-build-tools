@@ -2116,7 +2116,7 @@ case "$COMMAND" in
 			# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
 			if [ -n "$TEST_TAG" ]; then
 				# - do not allow utf8 encoded specs on AC-branch
-				if [ "$CVSTAG" = "AC-branch-disabled" ]; then
+				if [ "$CVSTAG" = "AC-branch" ]; then
 					local t
 					t=$(grep '^Summary(.*\.UTF-8):' $SPECFILE)
 					if [ "$t" ]; then
