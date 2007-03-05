@@ -1107,9 +1107,9 @@ tag_files()
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
 
-	local TAGVER=`make_tagver`
-
+	local TAGVER
 	if [ "$TAG_VERSION" = "yes" ]; then
+		TAGVER=`make_tagver`
 		echo "CVS tag: $TAGVER"
 	fi
 	if [ -n "$TAG" ]; then
