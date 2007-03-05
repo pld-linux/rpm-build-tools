@@ -370,29 +370,20 @@ set_spec_target() {
 	fi
 }
 
-cache_rpm_dump () {
-	if [ -n "$DEBUG" ]; then
-		set -x
-		set -v
-	fi
-
-	update_shell_title "cache_rpm_dump"
-	local rpm_dump
-	rpm_dump=`
-
+# runs rpm with minimal macroset
+minirpm() {
 	# we reset macros not to contain macros.build as all the %() macros are
 	# executed here, while none of them are actually needed.
-	# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
 	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
 	macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.builder-rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
-	dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
 	if [ -f /usr/lib/rpm/rpmrc ]; then
 		# FIXME: better ideas than .rpmrc?
 		printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .builder-rpmrc
 	else
 		printf 'macrofiles:%s\n' $macrofiles > .builder-rpmrc
 	fi
-# TODO: move these to /usr/lib/rpm/macros
+
+	# TODO: move these to /usr/lib/rpm/macros
 	cat > .builder-rpmmacros <<'EOF'
 %alt_kernel %{nil}
 %_alt_kernel %{nil}
@@ -429,21 +420,36 @@ cache_rpm_dump () {
 ) \
 %{nil}
 EOF
-	case "$RPMBUILD" in
-	rpm)
-		ARGS='-bp'
-		;;
-	rpmbuild)
-		ARGS='--nodigest --nosignature --nobuild'
-		;;
-	esac
 	if [ "$NOINIT" = "yes" ] ; then
 		cat >> .builder-rpmmacros <<'EOF'
 %_specdir ./
 %_sourcedir ./
 EOF
 	fi
-	$RPMBUILD --rcfile .builder-rpmrc $ARGS $ARGDIRS --nodeps --define "prep $dump" $BCOND $TARGET_SWITCH $SPECFILE 2>&1
+#	set -x
+	eval $RPMBUILD --rcfile .builder-rpmrc $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
+}
+
+cache_rpm_dump() {
+	if [ -n "$DEBUG" ]; then
+		set -x
+		set -v
+	fi
+
+	update_shell_title "cache_rpm_dump"
+	local rpm_dump
+	rpm_dump=`
+		# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
+		dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
+		case "$RPMBUILD" in
+		rpm)
+			ARGS='-bp'
+			;;
+		rpmbuild)
+			ARGS='--nodigest --nosignature --nobuild'
+			;;
+		esac
+		minirpm $ARGS --define "'prep $dump'" --nodeps $SPECFILE
 	`
 	if [ $? -gt 0 ]; then
 		error=$(echo "$rpm_dump" | sed -ne '/^error:/,$p')
@@ -462,7 +468,7 @@ EOF
 	update_shell_title "cache_rpm_dump: OK!"
 }
 
-rpm_dump () {
+rpm_dump() {
 	if [ -z "$rpm_dump_cache" ] ; then
 		echo "internal error: cache_rpm_dump not called! (missing %prep?)" 1>&2
 	fi
@@ -1183,7 +1189,7 @@ branch_files()
 # this avoids unneccessary BR filling.
 check_buildarch() {
 	local out ret
-	out=$($RPMBUILD --short-circuit -bp --define 'prep exit 0' --nodeps $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE 2>&1)
+	out=$(minirpm --short-circuit -bp --define "'prep exit 0'" --nodeps $SPECFILE 2>&1)
 	ret=$?
 	if [ $ret -ne 0 ]; then
 		echo >&2 "$out"
