@@ -510,9 +510,9 @@ parse_spec()
 
 	PATCHES="`rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}'`"
 	ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
-	PACKAGE_NAME=$(rpm_dump | awk '$2 == "PACKAGE_NAME" { print $3}')
-	PACKAGE_VERSION=$(rpm_dump | awk '$2 == "PACKAGE_VERSION" { print $3}')
-	PACKAGE_RELEASE=$(rpm_dump | awk '$2 == "PACKAGE_RELEASE" { print $3}')
+	PACKAGE_NAME=$(rpm_dump | awk '$2 == "PACKAGE_NAME" { print $3; exit}')
+	PACKAGE_VERSION=$(rpm_dump | awk '$2 == "PACKAGE_VERSION" { print $3; exit}')
+	PACKAGE_RELEASE=$(rpm_dump | awk '$2 == "PACKAGE_RELEASE" { print $3; exit}')
 
 	if [ -n "$BE_VERBOSE" ]; then
 		echo "- Sources :  `nourl $SOURCES`"
