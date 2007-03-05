@@ -1,6 +1,5 @@
 #!/bin/ksh
 # -----------
-# $Id$
 # Exit codes:
 #	  0 - succesful
 #	  1 - help displayed
@@ -20,9 +19,14 @@
 #	- when Icon: field is present, -5 and -a5 doesn't work
 #	- builder -R skips installing BR if spec is not present before builder invocation (need to run builder twice)
 
-VERSION="\
+RCSID='$Id$'
+r=${RCSID#* * }
+rev=${r%% *}
+VERSION="v0.18/$rev"
+VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
-v0.18 (C) 1999-2007 Free Penguins".
+$VERSION (C) 1999-2007 Free Penguins".
+
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 COMMAND="build"
@@ -192,7 +196,7 @@ usage()
 {
 	if [ -n "$DEBUG" ]; then set -xv; fi
 	echo "\
-Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
+Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|-ba|--build]
 [-bb|--build-binary] [-bs|--build-source] [-bc] [-bi] [-bl] [-u|--try-upgrade]
 [{-cf|--cvs-force}] [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>]
 [-g|--get] [-h|--help] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
@@ -208,7 +212,8 @@ Usage: builder [-D|--debug] [-V|--version] [-a|--as_anon] [-b|-ba|--build]
 -n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable builder script debugging mode,
 -debug              - produce rpm debug package (same as --opts -debug)
--V, --version       - output builder version
+-V, --version       - output builder version string
+--short-version     - output builder short version
 -a, --as_anon       - get files via pserver as cvs@$CVS_SERVER,
 -b, -ba, --build    - get all files from CVS repo or HTTP/FTP and build package
                       from <package>.spec,
@@ -1826,6 +1831,8 @@ while [ $# -gt 0 ]; do
 			DEBUG="yes"; shift ;;
 		-V | --version )
 			COMMAND="version"; shift ;;
+		--short-version )
+			COMMAND="short-version"; shift ;;
 		-a | --as_anon )
 			CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"; shift ;;
 		-b | -ba | --build )
@@ -2288,9 +2295,14 @@ case "$COMMAND" in
 		init_rpm_dir
 		;;
 	"usage" )
-		usage;;
+		usage
+		;;
+	"short-version" )
+		echo "$VERSION"
+		;;
 	"version" )
-		echo "$VERSION";;
+		echo "$VERSIONSTRING"
+		;;
 esac
 if [ -f "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES" -a "$REMOVE_BUILD_REQUIRES" != "" ]; then
 	rm "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES"
