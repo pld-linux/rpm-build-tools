@@ -524,24 +524,27 @@ function b_makekey(a, b,	s) {
 	skip = 0
 	# There should be some CVS keywords on the first line of %changelog.
 	if (boc == 3) {
-		if ($0 !~ _cvsmailfeedback)
+		if ($0 !~ _cvsmailfeedback) {
 			print "* %{date} " _cvsmailfeedback > changelog_file
-		else
+		} else {
 			skip = 1
+		}
 		boc = 2
 	}
 	if (boc == 2 && !skip) {
 		if (!/All persons listed below/) {
 			printf "All persons listed below can be reached at " > changelog_file
 			print "<cvs_login>" _cvsmaildomain "\n" > changelog_file
-		} else
+		} else {
 			skip = 1
+		}
 		boc = 1
 	}
 	if (boc == 1 && !skip) {
 		if (!/^$/) {
-			if (!/\$.*Log:.*\$/)
+			if (!/\$.*Log:.*\$/) {
 				print "$" "Log:$" > changelog_file
+			}
 			boc = 0
 		}
 	}
@@ -555,11 +558,19 @@ function b_makekey(a, b,	s) {
 		boc = 3
 	}
 
-	sub(/[ \t]+$/, "")
-	if (!/^%[a-z]+$/ || /changelog/)
+	sub(/[ \t]+$/, "");
+	if (!/^%[a-z]+$/ || /changelog/) {
+		# stop changelog if "real" changelog starts
+		if (boc == 0 && /^\* /) {
+			boc = -1
+		}
+		if (boc == -1) {
+			next;
+		}
 		print > changelog_file
-	else
+	} else {
 		print
+	}
 	next
 }
 
