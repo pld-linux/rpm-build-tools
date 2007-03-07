@@ -2123,7 +2123,9 @@ case "$COMMAND" in
 			set_bconds_values
 			display_bconds
 			display_branches
-			check_buildarch
+			if [ "$COMMAND" != "build-source" ]; then
+				check_buildarch
+			fi
 			fetch_build_requires
 			if [ "$INTEGER_RELEASE" = "yes" ]; then
 				echo "Checking release $PACKAGE_RELEASE..."
