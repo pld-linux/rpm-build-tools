@@ -372,21 +372,10 @@ set_spec_target() {
 
 # runs rpm with minimal macroset
 minirpm() {
-	nprpmrc=no
-	if [ "$1" = "--norpmrc" ]; then
-		norpmrc=yes
-		shift
-	fi
 	# we reset macros not to contain macros.build as all the %() macros are
 	# executed here, while none of them are actually needed.
 	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
-	macrofiles="/usr/lib/rpm/macros:$SPECS_DIR/.builder-rpmmacros:~/etc/.rpmmacros:~/.rpmmacros"
-	if [ -f /usr/lib/rpm/rpmrc ]; then
-		# FIXME: better ideas than .rpmrc?
-		printf 'include:/usr/lib/rpm/rpmrc\nmacrofiles:%s\n' $macrofiles > .builder-rpmrc
-	else
-		printf 'macrofiles:%s\n' $macrofiles > .builder-rpmrc
-	fi
+	safe_macrofiles=$(rpm --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); gsub(/:.*macros.build:/, ":", $0); print $0 } ')
 
 	# TODO: move these to /usr/lib/rpm/macros
 	cat > .builder-rpmmacros <<'EOF'
@@ -431,9 +420,7 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-	LOCAL_RPMRC="--rcfile .builder-rpmrc"
-	[ "$norpmrc" = "yes" ] && LOCAL_RPMRC=""
-	eval $RPMBUILD $LOCAL_RPMRC $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
+	eval $RPMBUILD --macros "$safe_macrofiles:.builder-rpmmacros" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
 }
 
 cache_rpm_dump() {
@@ -1203,7 +1190,7 @@ branch_files()
 # this avoids unneccessary BR filling.
 check_buildarch() {
 	local out ret
-	out=$(minirpm --norpmrc --short-circuit -bp --define "'prep exit 0'" --nodeps $SPECFILE 2>&1)
+	out=$(minirpm --short-circuit -bp --define "'prep exit 0'" --nodeps $SPECFILE 2>&1)
 	ret=$?
 	if [ $ret -ne 0 ]; then
 		echo >&2 "$out"
