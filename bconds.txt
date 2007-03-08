@@ -943,7 +943,6 @@ xpm
 xrandr
 xslt
 xulrunner
-xvfb
 xvid
 xvmc
 yaz
