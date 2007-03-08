@@ -379,6 +379,7 @@ minirpm() {
 
 	# TODO: move these to /usr/lib/rpm/macros
 	cat > .builder-rpmmacros <<'EOF'
+%x8664 x86_64 amd64 ia32e
 %alt_kernel %{nil}
 %_alt_kernel %{nil}
 %requires_releq_kernel_up %{nil}
