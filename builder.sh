@@ -372,6 +372,11 @@ set_spec_target() {
 
 # runs rpm with minimal macroset
 minirpm() {
+	nprpmrc=no
+	if [ "$1" = "--norpmrc" ]; then
+		norpmrc=yes
+		shift
+	fi
 	# we reset macros not to contain macros.build as all the %() macros are
 	# executed here, while none of them are actually needed.
 	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
@@ -426,7 +431,9 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-	eval $RPMBUILD --rcfile .builder-rpmrc $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
+	LOCAL_RPMRC="--rcfile .builder-rpmrc"
+	[ "$norpmrc" = "yes" ] && LOCAL_RPMRC=""
+	eval $RPMBUILD $LOCAL_RPMRC $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
 }
 
 cache_rpm_dump() {
@@ -1196,7 +1203,7 @@ branch_files()
 # this avoids unneccessary BR filling.
 check_buildarch() {
 	local out ret
-	out=$(minirpm --short-circuit -bp --define "'prep exit 0'" --nodeps $SPECFILE 2>&1)
+	out=$(minirpm --norpmrc --short-circuit -bp --define "'prep exit 0'" --nodeps $SPECFILE 2>&1)
 	ret=$?
 	if [ $ret -ne 0 ]; then
 		echo >&2 "$out"
