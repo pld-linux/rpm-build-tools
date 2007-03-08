@@ -1,952 +1,952 @@
-#
-256
-3dnow
-AC
-FHS
-GL
-MQ
-NAT
-SDL_mixer
-SDL_net
-X
-aa
-aalib
-absolute_dbpaths
-acml
-ada
-admin_only
-ads
-adsrdd
-advanced_userlist
-allarchs
-allegro
-allstatic
-alltogether
-alsa
-altconfig
-altivec
-amarok
-amr
-animation
-ansi
-antialiasing
-antlr
-apache
-apache1
-apache2
-apache_bcel
-apache_bsf
-apache_log4j
-apache_oro
-apache_regexp
-apache_resolver
-apidocs
-applet
-applets
-arch_confdir
-ares
-art
-arts
-asmopt
-aspell
-asprintf
-athena
-atheos
-atlas
-atm
-audit
-authlib
-authother
-autodeps
-autoreqdep
-autoresponder
-avatars
-avfs
-avifile
-bash_history
-baudboy
-beagle
-beryl_mesa
-bgi
-big_tables
-binary
-binsh
-bioapi
-bittorrent
-blas
-bluetooth
-bmp
-bonobo
-boot
-bootdisk
-bootsplash
-bootstrap
-brlapi
-bsf
-bucketeer
-builtin_bfd
-bxmpp
-bytecode
-bzip2
-caca
-cairo
-canlock
-canna
-canon20d
-canonupload
-canvas
-cap
-capifax
-ccache
-cda_internal
-cda_sdl
-cdaudio
-cdb
-cddb
-cdio
-cdparanoia
-cflags_passing
-cgi
-chasen
-cheaters
-check
-checkpath
-chipcard
-chroot
-ck
-clamav
-classify_square_brackets_into_url_paths
-client
-clisp
-clvmd
-cman
-cmvs
-cobra
-codb
-colors
-com
-combined_binary
-combined_log
-commons_logging
-commons_net
-compface
-composite
-console_wx
-cpdf
-cppunit
-cpu_autodetect
-crop
-cross
-crypt
-cryptedpw
-crypto
-cstrike
-cti
-cups
-curl
-curses
-cursors
-cvs
-cxx
-cyberflex
-cymes
-data
-database
-db
-db2
-db3
-dbglib
-dbus
-dcopexport
-debug
-debugger
-default_ipchains
-deflate
-demo
-designer
-devalias
-dga2
-dietlibc
-directconnect
-directfb
-disable_prev_next_tab_sensitivity_changes
-dist_kernel
-distcache
-distributable
-divx
-divx4linux
-djvu
-dkeys
-dlopen_gl
-dmc
-dnssd
-doc
-docking_desktop
-docs
-domxslt
-donkey
-dotnet
-doxygen
-dpboxt
-dps
-dshow
-dso
-dssi
-dts
-dualhead
-dv
-dvb
-dvd
-dxr3
-dynamic
-dynamic_exe
-ea
-eabi
-editor
-eds
-efence
-emacs
-enca
-encoder
-enigmail
-epiphany
-epistrophy
-esd
-esmtp
-esound
-event
-evolution
-ex
-examples
-exif
-expat
-ext2compiled
-ext2undel
-ext3
-extra
-f2c
-f90
-faad
-fam
-fasttrack
-fb
-fbcon
-fcgi
-fdf
-fetch
-ffmpeg
-fftwl
-filetp
-fileutl_prov
-filter
-filtering
-find
-firebird
-firewire
-flac
-flash
-flex_bison_c++
-fltk
-fluid
-folder_column
-fontconfig
-foomatic
-forcedns
-fortran
-fpx
-freebob
-freetds
-freetype
-fribidi
-fsck
-fsp
-ft218
-fun
-fuse
-fusionsound
-fw
-gadugadu
-gai
-gaim
-galago
-gamin
-gamma_ramp
-gcc2
-gcc4
-gcj
-gconf
-gd
-gda
-gdbm
-gdk_pixbuf
-gdkimlib
-gdkpixbuf
-gecko
-genuser
-geoip
-ggi
-ghc
-gif
-gimp
-gl
-glade
-glibc
-glide
-glitz
-glut
-glx
-gnome
-gnome1
-gnome_applet
-gnomeall
-gnomedb
-gnomeprint
-gnomess
-gnomeui
-gnomevfs
-gnueabi
-gnumeric
-gnus
-gnutella
-gnutella2
-gnutls
-gpc
-gpg
-gpgme
-gpgsm
-gphoto
-gpl
-gpm
-gradients
-graphics
-graphviz
-grep_prov
-groupwindows
-grsec
-grsec_full
-grsec_kernel
-grsec_minimal
-grsecurity
-grt
-gs
-gsd
-gsf
-gsm
-gss
-gssapi
-gstreamer
-gtk
-gtk1
-gtk2
-gtkglarea
-gtkhtml
-gtkhtml2
-gtkmm
-gtksourceview
-gtkspell
-gtkxmhtml
-gtsln
-gui
-guievents
-guile
-gvfs
-gzip
-hal
-hardening
-heimdal
-helix
-hidden_visibility
-hidups
-highscore
-hir
-home_etc
-howl
-hpn
-hpn_none
-hrbsh
-html
-html_docs
-html_index
-hvm
-i18n
-iLBC
-i_have_checked_this_patch_works_not_just_compiles
-ibase
-idn
-ie7
-iface_descr
-ijs
-im
-images
-imap
-imlib
-imlib2
-imode
-incall
-included_sqlite
-info
-initrd
-inkboard
-inline
-innodb
-interbase
-interbase_inst
-internal_libgadu
-internal_libs
-intl
-ioctl_daemon
-iodbc
-ip_based_virtual
-ipod
-ipv4
-ipv6
-ipx
-ispell
-ivtv
-iwait4u
-jabber
-jack
-jai
-jasper
-java
-javac
-javamail
-javascript
-jdepend
-jfs
-jingle
-jogshuttle
-joystick
-jpeg
-jpegmmx
-jpilot
-js
-jsch
-jsw
-junit
-kakasi
-karma
-kbanking
-kde
-kdegames
-kerberos
-kerberos5
-kernel
-kernel24
-kernel25
-kgicon
-kio
-klibc
-koffice
-kqemu
-krb
-krb4
-krb5
-krbv5
-kuickshow
-ladcca
-ladspa
-laptop
-largefile
-largefiles
-lcd
-ldap
-led
-lfs
-libGL
-libXNVCtrl
-libY
-libart
-libcap
-libcroco
-libdts
-libdv
-libedit
-libghttp
-libglade
-libgsf
-libgsm
-libgssapi
-libiptc
-libkjsembed
-libkonq
-libmpeg2
-libmpeg3
-libresample
-libresolv
-libsmi
-libusb
-libvisual
-libwrap
-license_agreement
-lingerd
-linkfl
-lirc
-live
-lmsd
-local_metadata
-localedb
-lock_reason
-longnicks
-longtopics
-longusername
-lpt
-lua
-luastatic
-lying
-lzo
-macmenu
-mad
-madwifi
-main
-mapping
-mas
-matroska
-mcrypt
-md5sum
-mdb
-mdb06
-mdbtools
-meanwhile
-memcache
-memusage
-mencoder
-metacity
-metuxmpm
-mhash
-microperl
-mikmod
-milter
-mime_magic
-ming
-minimal
-mint
-mit
-mjpeg
-mjpegtools
-mm
-mms
-mmx
-mnogosearch
-mo
-modemlights
-modules
-mono
-motif
-mozilla
-mozilla_firefox
-mp1e
-mp3
-mp3players
-mpeg4ip
-mpg
-ms_tcl
-msdblib
-msession
-msglog
-msql
-mssql
-muine
-multi
-multilib
-musepack
-mysql
-mysql40
-mysqli
-mytharchive
-mythbrowser
-mythcontrols
-mythdvd
-mythflix
-mythgallery
-mythgame
-mythmusic
-mythnews
-mythphone
-mythvideo
-mythweather
-mythweb
-nas
-native
-nautilus
-nbs
-ncurses
-ndf
-neon
-net
-net_client_only
-netrexx
-nf
-nfs4
-nfsroot
-nhc
-nls
-nmm
-nntp
-no_dynamic_context
-noatun
-non_hams
-nonfree
-nosdlgui
-notify_exec
-notify_led
-notify_osdhints
-notify_pcspeaker
-notify_speech
-nptl
-ntfs
-ntlm
-ntsc
-numarray
-numeric
-numpy
-nvidia
-nvidia_settings
-nvtv
-oasis
-objc
-objcxx
-ocaml
-oci8
-odbc
-ofa
-offensive
-ogg
-old_wheel
-omni
-openal
-openft
-opengl
-opennap
-openssl
-openssl097
-opera
-opie
-opts
-oq
-oracle
-osd
-oss
-pae
-pam
-paradox
-parser
-patchedkernel
-pax
-pcd
-pch
-pcmcia
-pcre
-pda
-pdf
-pdf_doc
-pdf_docs
-pdump
-perl
-perl_vfs
-peruser
-pgsql
-php
-php4
-pie
-pilot
-pl
-pmshell
-pmutex
-png
-polish
-polypaudio
-portaudio
-posix_shm
-postgres
-postgresql
-powerkadu
-pppoatm
-ppr
-preconfigured
-preempt-nort
-preemptrt
-prelude
-print
-privacy
-procfs
-profiles
-profiling
-proflib
-progress
-protections
-proxy
-ps
-pspell
-psyco
-pth
-pthread
-pthreads
-publichtml
-pulseaudio
-puredb
-purify
-pvm
-pvm3
-pwcheck
-python
-qmail
-qt
-qt3
-qt4
-qtdom
-quicktime
-quotafile
-quotaldap
-quotamysql
-quotapgsql
-r300
-radius
-raid
-rdoc
-readline
-real
-recode
-recursive
-regeneration
-registered
-reiserfs
-reiserfs4
-relocation
-reqs
-rescue
-resmgr
-restorecond
-rewrite_ldap
-ri
-ricochet
-routes
-routing
-rox
-rplay
-rsh
-rtf
-rts88xx
-ruby
-runtime
-rxfax
-samba
-sane
-sasl
-sc
-scaler
-screenshot
-sdl
-sdlsvga
-seamonkey
-select
-selinux
-selinux24
-server
-session
-setup
-sh_prov
-shared
-shm_mmap
-sid
-sigcomp
-single
-skey
-skipgetpwcheck
-skype
-slang
-slp
-smb
-smode
-smp
-smpppd
-sms_miastoplusa
-smsgsm
-sn
-snap
-snide
-snmp
-soulseek
-sound
-sound_alsa
-sound_arts
-sound_dsp
-sound_esd
-sound_nas
-source
-spamassassin
-spc
-speedo
-speex
-spellchecker
-spf
-splashimage
-splashy
-spy
-sql
-sqlite
-sqlite2
-sqlite3
-sqlite3_sync_off
-squid
-sqweb
-srp
-srs
-ss
-sse
-sse2
-ssh
-sshagentsh
-ssl
-ssp
-startup
-static
-static_libs
-steam
-stk
-stroke
-suexec
-supervise
-svg
-svga
-svgalib
-swfdec
-sybase
-sybase_ct
-synaptics
-sysfs
-system_agg
-system_beanshell
-system_db
-system_ffmpeg
-system_hsqldb
-system_hunspell
-system_jbig2dec
-system_libhnj
-system_libmagic
-system_mdbtools
-system_myspell
-system_xalan
-system_xerces
-system_xml_apis
-system_xt
-systemlibs
-szip
-tabs
-tahoe
-tars
-tc
-tcl
-tcl85
-tcp
-tcp_wrappers
-tcpd
-term_voodoo
-test
-tests
-tex
-tfc
-th
-theora
-threads
-threadsafe_dns
-thunderbird
-tidy
-tiff
-tk
-tkinter
-tls
-tools
-toplevel
-totem
-tracker_registration
-tunepimp
-uClibc
-ucspi
-udev
-um
-unicode
-unixodbc
-unsupported_rulesets
-up
-usb
-userspace
-utf
-utf8
-uudeview
-valgrind
-vbr
-vcd
-vda
-vdr
-verbose
-verbose_tests
-version
-versioning
-vesafb_tng
-vfs
-vga
-vhosts
-via_openchrome
-vidix
-virtual
-vnc
-voip
-vorbis
-vserver
-wavpack
-wc2
-wddx
-weHaveCheckedIfTheIconsAreDistributable
-weather
-webdav_locks
-webdav_props
-weekly
-whoson
-wifi
-win32
-win4lin
-winpopup
-wm_applet
-wmf
-wnn6
-words
-working_history
-wx
-x
-x11
-x11univ
-x264
-x509
-xalan
-xanim
-xattr
-xawd3d
-xbase
-xcb
-xditview
-xemacs
-xen0
-xenU
-xerces
-xfs
-xft
-xine
-xinerama
-xinerama_fix
-xiph
-xml
-xmlrpc
-xmms
-xosd
-xpm
-xrandr
-xslt
-xulrunner
-xvid
-xvmc
-yaz
-yesterday_snapshot
-zeroconf
-zope
-zts
+# 1
+256 1
+3dnow 2
+AC 1
+FHS 1
+GL 1
+MQ 1
+NAT 1
+SDL_mixer 6
+SDL_net 1
+X 1
+aa 1
+aalib 9
+absolute_dbpaths 1
+acml 3
+ada 3
+admin_only 1
+ads 1
+adsrdd 1
+advanced_userlist 1
+allarchs 1
+allegro 1
+allstatic 1
+alltogether 1
+alsa 36
+altconfig 1
+altivec 5
+amarok 1
+amr 5
+animation 1
+ansi 2
+antialiasing 1
+antlr 1
+apache 1
+apache1 6
+apache2 4
+apache_bcel 1
+apache_bsf 1
+apache_log4j 1
+apache_oro 1
+apache_regexp 1
+apache_resolver 1
+apidocs 26
+applet 1
+applets 1
+arch_confdir 1
+ares 1
+art 1
+arts 19
+asmopt 2
+aspell 3
+asprintf 1
+athena 1
+atheos 1
+atlas 2
+atm 1
+audit 2
+authlib 2
+authother 1
+autodeps 54
+autoreqdep 3
+autoresponder 1
+avatars 1
+avfs 1
+avifile 1
+bash_history 1
+baudboy 1
+beagle 2
+beryl_mesa 1
+bgi 1
+big_tables 2
+binary 2
+binsh 1
+bioapi 1
+bittorrent 2
+blas 1
+bluetooth 1
+bmp 1
+bonobo 3
+boot 1
+bootdisk 1
+bootsplash 2
+bootstrap 13
+brlapi 1
+bsf 1
+bucketeer 1
+builtin_bfd 1
+bxmpp 1
+bytecode 3
+bzip2 1
+caca 6
+cairo 6
+canlock 1
+canna 1
+canon20d 1
+canonupload 1
+canvas 1
+cap 2
+capifax 1
+ccache 1
+cda_internal 1
+cda_sdl 1
+cdaudio 1
+cdb 1
+cddb 1
+cdio 1
+cdparanoia 1
+cflags_passing 1
+cgi 2
+chasen 2
+cheaters 2
+check 1
+checkpath 2
+chipcard 1
+chroot 3
+ck 1
+clamav 3
+classify_square_brackets_into_url_paths 1
+client 2
+clisp 1
+clvmd 1
+cman 1
+cmvs 1
+cobra 1
+codb 1
+colors 1
+com 1
+combined_binary 1
+combined_log 1
+commons_logging 1
+commons_net 1
+compface 3
+composite 1
+console_wx 1
+cpdf 1
+cppunit 1
+cpu_autodetect 1
+crop 1
+cross 1
+crypt 2
+cryptedpw 1
+crypto 2
+cstrike 1
+cti 1
+cups 13
+curl 4
+curses 1
+cursors 1
+cvs 1
+cxx 5
+cyberflex 1
+cymes 1
+data 1
+database 1
+db 1
+db2 1
+db3 3
+dbglib 1
+dbus 6
+dcopexport 1
+debug 4
+debugger 1
+default_ipchains 1
+deflate 1
+demo 2
+designer 1
+devalias 1
+dga2 1
+dietlibc 4
+directconnect 1
+directfb 7
+disable_prev_next_tab_sensitivity_changes 1
+dist_kernel 175
+distcache 1
+distributable 2
+divx 1
+divx4linux 1
+djvu 1
+dkeys 2
+dlopen_gl 1
+dmc 1
+dnssd 1
+doc 25
+docking_desktop 1
+docs 6
+domxslt 1
+donkey 1
+dotnet 7
+doxygen 1
+dpboxt 1
+dps 1
+dshow 1
+dso 1
+dssi 1
+dts 1
+dualhead 1
+dv 1
+dvb 1
+dvd 1
+dxr3 2
+dynamic 2
+dynamic_exe 1
+ea 1
+eabi 1
+editor 1
+eds 1
+efence 1
+emacs 7
+enca 1
+encoder 1
+enigmail 1
+epiphany 2
+epistrophy 1
+esd 16
+esmtp 2
+esound 1
+event 1
+evolution 3
+ex 1
+examples 2
+exif 1
+expat 1
+ext2compiled 1
+ext2undel 3
+ext3 1
+extra 1
+f2c 1
+f90 1
+faad 3
+fam 2
+fasttrack 1
+fb 3
+fbcon 1
+fcgi 3
+fdf 2
+fetch 1
+ffmpeg 2
+fftwl 1
+filetp 1
+fileutl_prov 1
+filter 1
+filtering 1
+find 1
+firebird 4
+firewire 1
+flac 2
+flash 1
+flex_bison_c++ 1
+fltk 1
+fluid 1
+folder_column 1
+fontconfig 1
+foomatic 1
+forcedns 1
+fortran 1
+fpx 2
+freebob 1
+freetds 4
+freetype 3
+fribidi 2
+fsck 1
+fsp 1
+ft218 2
+fun 1
+fuse 1
+fusionsound 1
+fw 1
+gadugadu 1
+gai 1
+gaim 1
+galago 1
+gamin 2
+gamma_ramp 1
+gcc2 3
+gcc4 1
+gcj 4
+gconf 6
+gd 2
+gda 2
+gdbm 5
+gdk_pixbuf 2
+gdkimlib 1
+gdkpixbuf 1
+gecko 1
+genuser 1
+geoip 1
+ggi 5
+ghc 1
+gif 2
+gimp 8
+gl 5
+glade 3
+glibc 3
+glide 3
+glitz 3
+glut 2
+glx 1
+gnome 48
+gnome1 3
+gnome_applet 1
+gnomeall 1
+gnomedb 1
+gnomeprint 7
+gnomess 1
+gnomeui 1
+gnomevfs 9
+gnueabi 1
+gnumeric 1
+gnus 1
+gnutella 1
+gnutella2 1
+gnutls 9
+gpc 1
+gpg 3
+gpgme 2
+gpgsm 1
+gphoto 1
+gpl 1
+gpm 2
+gradients 1
+graphics 2
+graphviz 1
+grep_prov 1
+groupwindows 1
+grsec 1
+grsec_full 1
+grsec_kernel 15
+grsec_minimal 3
+grsecurity 1
+grt 1
+gs 2
+gsd 1
+gsf 1
+gsm 1
+gss 1
+gssapi 2
+gstreamer 12
+gtk 29
+gtk1 11
+gtk2 8
+gtkglarea 1
+gtkhtml 4
+gtkhtml2 1
+gtkmm 1
+gtksourceview 1
+gtkspell 9
+gtkxmhtml 1
+gtsln 1
+gui 11
+guievents 1
+guile 2
+gvfs 1
+gzip 1
+hal 2
+hardening 2
+heimdal 4
+helix 3
+hidden_visibility 9
+hidups 1
+highscore 1
+hir 1
+home_etc 10
+howl 1
+hpn 2
+hpn_none 2
+hrbsh 1
+html 1
+html_docs 1
+html_index 1
+hvm 1
+i18n 1
+iLBC 1
+i_have_checked_this_patch_works_not_just_compiles 1
+ibase 2
+idn 1
+ie7 1
+iface_descr 1
+ijs 2
+im 1
+images 1
+imap 2
+imlib 1
+imlib2 2
+imode 1
+incall 5
+included_sqlite 3
+info 1
+initrd 9
+inkboard 1
+inline 1
+innodb 2
+interbase 3
+interbase_inst 2
+internal_libgadu 1
+internal_libs 3
+intl 1
+ioctl_daemon 1
+iodbc 3
+ip_based_virtual 1
+ipod 1
+ipv4 1
+ipv6 26
+ipx 1
+ispell 1
+ivtv 1
+iwait4u 1
+jabber 1
+jack 13
+jai 1
+jasper 2
+java 31
+javac 4
+javamail 1
+javascript 3
+jdepend 1
+jfs 1
+jingle 1
+jogshuttle 1
+joystick 1
+jpeg 2
+jpegmmx 1
+jpilot 2
+js 2
+jsch 1
+jsw 1
+junit 1
+kakasi 1
+karma 1
+kbanking 1
+kde 14
+kdegames 1
+kerberos 1
+kerberos5 9
+kernel 100
+kernel24 5
+kernel25 1
+kgicon 1
+kio 1
+klibc 2
+koffice 1
+kqemu 1
+krb 1
+krb4 1
+krb5 2
+krbv5 1
+kuickshow 1
+ladcca 6
+ladspa 2
+laptop 1
+largefile 1
+largefiles 1
+lcd 4
+ldap 33
+led 1
+lfs 2
+libGL 1
+libXNVCtrl 1
+libY 1
+libart 1
+libcap 1
+libcroco 1
+libdts 1
+libdv 1
+libedit 2
+libghttp 1
+libglade 1
+libgsf 1
+libgsm 1
+libgssapi 1
+libiptc 1
+libkjsembed 1
+libkonq 1
+libmpeg2 1
+libmpeg3 1
+libresample 1
+libresolv 1
+libsmi 1
+libusb 2
+libvisual 1
+libwrap 1
+license_agreement 11
+lingerd 1
+linkfl 1
+lirc 15
+live 2
+lmsd 1
+local_metadata 1
+localedb 1
+lock_reason 1
+longnicks 1
+longtopics 1
+longusername 1
+lpt 1
+lua 3
+luastatic 2
+lying 1
+lzo 2
+macmenu 1
+mad 4
+madwifi 1
+main 2
+mapping 1
+mas 3
+matroska 1
+mcrypt 1
+md5sum 1
+mdb 2
+mdb06 1
+mdbtools 1
+meanwhile 1
+memcache 1
+memusage 1
+mencoder 1
+metacity 1
+metuxmpm 1
+mhash 2
+microperl 1
+mikmod 1
+milter 1
+mime_magic 1
+ming 2
+minimal 1
+mint 1
+mit 1
+mjpeg 1
+mjpegtools 1
+mm 2
+mms 1
+mmx 12
+mnogosearch 1
+mo 1
+modemlights 1
+modules 2
+mono 5
+motif 6
+mozilla 3
+mozilla_firefox 1
+mp1e 1
+mp3 1
+mp3players 3
+mpeg4ip 2
+mpg 1
+ms_tcl 1
+msdblib 1
+msession 1
+msglog 1
+msql 1
+mssql 2
+muine 1
+multi 1
+multilib 2
+musepack 1
+mysql 38
+mysql40 2
+mysqli 1
+mytharchive 1
+mythbrowser 1
+mythcontrols 1
+mythdvd 1
+mythflix 1
+mythgallery 1
+mythgame 1
+mythmusic 1
+mythnews 1
+mythphone 1
+mythvideo 1
+mythweather 1
+mythweb 1
+nas 13
+native 1
+nautilus 3
+nbs 1
+ncurses 1
+ndf 1
+neon 2
+net 1
+net_client_only 1
+netrexx 1
+nf 1
+nfs4 1
+nfsroot 1
+nhc 2
+nls 2
+nmm 3
+nntp 1
+no_dynamic_context 1
+noatun 1
+non_hams 1
+nonfree 1
+nosdlgui 1
+notify_exec 1
+notify_led 1
+notify_osdhints 1
+notify_pcspeaker 1
+notify_speech 1
+nptl 5
+ntfs 1
+ntlm 1
+ntsc 1
+numarray 1
+numeric 1
+numpy 1
+nvidia 1
+nvidia_settings 1
+nvtv 2
+oasis 1
+objc 1
+objcxx 1
+ocaml 3
+oci8 2
+odbc 16
+ofa 1
+offensive 1
+ogg 1
+old_wheel 1
+omni 1
+openal 2
+openft 1
+opengl 7
+opennap 1
+openssl 7
+openssl097 1
+opera 1
+opie 1
+opts 1
+oq 1
+oracle 5
+osd 1
+oss 3
+pae 4
+pam 5
+paradox 1
+parser 1
+patchedkernel 1
+pax 2
+pcd 2
+pch 3
+pcmcia 2
+pcre 4
+pda 1
+pdf 4
+pdf_doc 1
+pdf_docs 2
+pdump 1
+perl 19
+perl_vfs 1
+peruser 1
+pgsql 32
+php 9
+php4 1
+pie 1
+pilot 1
+pl 1
+pmshell 1
+pmutex 4
+png 4
+polish 1
+polypaudio 1
+portaudio 1
+posix_shm 2
+postgres 2
+postgresql 4
+powerkadu 1
+pppoatm 1
+ppr 1
+preconfigured 1
+preempt-nort 1
+preemptrt 1
+prelude 3
+print 2
+privacy 1
+procfs 1
+profiles 1
+profiling 2
+proflib 1
+progress 1
+protections 2
+proxy 1
+ps 2
+pspell 2
+psyco 1
+pth 2
+pthread 3
+pthreads 1
+publichtml 1
+pulseaudio 2
+puredb 1
+purify 1
+pvm 3
+pvm3 1
+pwcheck 1
+python 33
+qmail 2
+qt 15
+qt3 1
+qt4 2
+qtdom 1
+quicktime 2
+quotafile 1
+quotaldap 1
+quotamysql 1
+quotapgsql 1
+r300 1
+radius 1
+raid 2
+rdoc 2
+readline 2
+real 1
+recode 3
+recursive 1
+regeneration 1
+registered 1
+reiserfs 1
+reiserfs4 1
+relocation 1
+reqs 2
+rescue 1
+resmgr 1
+restorecond 1
+rewrite_ldap 1
+ri 2
+ricochet 1
+routes 1
+routing 1
+rox 1
+rplay 1
+rsh 1
+rtf 1
+rts88xx 1
+ruby 11
+runtime 1
+rxfax 1
+samba 4
+sane 3
+sasl 9
+sc 1
+scaler 1
+screenshot 1
+sdl 16
+sdlsvga 1
+seamonkey 1
+select 1
+selinux 25
+selinux24 1
+server 3
+session 1
+setup 1
+sh_prov 1
+shared 3
+shm_mmap 1
+sid 2
+sigcomp 1
+single 3
+skey 2
+skipgetpwcheck 1
+skype 1
+slang 2
+slp 4
+smb 2
+smode 1
+smp 136
+smpppd 1
+sms_miastoplusa 1
+smsgsm 1
+sn 3
+snap 2
+snide 1
+snmp 8
+soulseek 1
+sound 3
+sound_alsa 1
+sound_arts 1
+sound_dsp 1
+sound_esd 1
+sound_nas 1
+source 4
+spamassassin 1
+spc 1
+speedo 1
+speex 3
+spellchecker 1
+spf 1
+splashimage 1
+splashy 1
+spy 1
+sql 1
+sqlite 15
+sqlite2 2
+sqlite3 10
+sqlite3_sync_off 1
+squid 1
+sqweb 1
+srp 2
+srs 1
+ss 1
+sse 6
+sse2 1
+ssh 1
+sshagentsh 2
+ssl 22
+ssp 1
+startup 1
+static 30
+static_libs 162
+steam 1
+stk 1
+stroke 1
+suexec 1
+supervise 1
+svg 2
+svga 31
+svgalib 1
+swfdec 1
+sybase 4
+sybase_ct 1
+synaptics 1
+sysfs 3
+system_agg 1
+system_beanshell 2
+system_db 2
+system_ffmpeg 1
+system_hsqldb 1
+system_hunspell 1
+system_jbig2dec 1
+system_libhnj 2
+system_libmagic 1
+system_mdbtools 2
+system_myspell 1
+system_xalan 1
+system_xerces 1
+system_xml_apis 1
+system_xt 2
+systemlibs 1
+szip 2
+tabs 1
+tahoe 1
+tars 1
+tc 1
+tcl 15
+tcl85 1
+tcp 1
+tcp_wrappers 3
+tcpd 2
+term_voodoo 1
+test 3
+tests 1694
+tex 2
+tfc 1
+th 1
+theora 1
+threads 2
+threadsafe_dns 1
+thunderbird 1
+tidy 1
+tiff 2
+tk 3
+tkinter 1
+tls 5
+tools 2
+toplevel 1
+totem 1
+tracker_registration 1
+tunepimp 1
+uClibc 10
+ucspi 1
+udev 1
+um 1
+unicode 5
+unixodbc 1
+unsupported_rulesets 1
+up 30
+usb 2
+userspace 82
+utf 1
+utf8 4
+uudeview 1
+valgrind 1
+vbr 1
+vcd 1
+vda 1
+vdr 2
+verbose 111
+verbose_tests 1
+version 1
+versioning 2
+vesafb_tng 1
+vfs 2
+vga 1
+vhosts 1
+via_openchrome 1
+vidix 1
+virtual 1
+vnc 1
+voip 1
+vorbis 3
+vserver 1
+wavpack 2
+wc2 1
+wddx 2
+weHaveCheckedIfTheIconsAreDistributable 1
+weather 1
+webdav_locks 1
+webdav_props 1
+weekly 1
+whoson 5
+wifi 1
+win32 1
+win4lin 1
+winpopup 1
+wm_applet 1
+wmf 1
+wnn6 1
+words 1
+working_history 1
+wx 1
+x 20
+x11 8
+x11univ 1
+x264 2
+x509 2
+xalan 1
+xanim 1
+xattr 1
+xawd3d 1
+xbase 2
+xcb 2
+xditview 1
+xemacs 7
+xen0 1
+xenU 1
+xerces 1
+xfs 2
+xft 4
+xine 10
+xinerama 1
+xinerama_fix 1
+xiph 1
+xml 3
+xmlrpc 3
+xmms 13
+xosd 2
+xpm 1
+xrandr 1
+xslt 1
+xulrunner 1
+xvid 4
+xvmc 1
+yaz 1
+yesterday_snapshot 1
+zeroconf 3
+zope 1
+zts 2
