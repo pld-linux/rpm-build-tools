@@ -42,7 +42,7 @@ while true; do
 	case "$1" in
 	-m)
 		shift
-		message="$1"
+		message="${1#- }"
 		;;
 	--)
 		shift
