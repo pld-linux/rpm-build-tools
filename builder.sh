@@ -1616,8 +1616,9 @@ fetch_build_requires()
 			local CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
 			local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 
-			update_shell_title "poldek: install $DEPS; remove $CNFL"
 			if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
+				echo "fetch builderequires: install $DEPS; remove $CNFL"
+				update_shell_title "poldek: install $DEPS; remove $CNFL"
 				$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
 			fi
 			if [ -n "$CNFL" ]; then
@@ -1626,24 +1627,24 @@ fetch_build_requires()
 				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CNFL
 			fi
 
-		while [ "$DEPS" ]; do
-				update_shell_title "install deps: $DEPS"
-				echo "Trying to install dependencies ($DEPS):"
-				local log=.${SPECFILE}_poldek.log
-				$SU_SUDO /usr/bin/poldek --caplookup -uGq $DEPS | tee $log
-				failed=$(awk -F: '/^error:/{print $2}' $log)
-				rm -f $log
-				local ok
-				if [ -n "$failed" ]; then
-					for package in $failed; do
-						# FIXME: sanitise, deps could be not .spec files
-						spawn_sub_builder -bb $package && ok="$ok $package"
-					done
-					DEPS="$ok"
-				else
-					DEPS=""
-				fi
-		done
+			while [ "$DEPS" ]; do
+					update_shell_title "install deps: $DEPS"
+					echo "Trying to install dependencies ($DEPS):"
+					local log=.${SPECFILE}_poldek.log
+					$SU_SUDO /usr/bin/poldek --caplookup -uGq $DEPS | tee $log
+					failed=$(awk -F: '/^error:/{print $2}' $log)
+					rm -f $log
+					local ok
+					if [ -n "$failed" ]; then
+						for package in $failed; do
+							# FIXME: sanitise, deps could be not .spec files
+							spawn_sub_builder -bb $package && ok="$ok $package"
+						done
+						DEPS="$ok"
+					else
+						DEPS=""
+					fi
+			done
 			return
 		fi
 
