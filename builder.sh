@@ -1612,17 +1612,18 @@ fetch_build_requires()
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
 		update_shell_title "fetch build requires"
 		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
-			local CONF=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
+			# TODO: Conflicts list doesn't check versions
+			local CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
 			local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 
-			update_shell_title "poldek: update indexes"
-			if [ -n "$CONF" ] || [ -n "$DEPS" ]; then
+			update_shell_title "poldek: install $DEPS; remove $CNFL"
+			if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
 				$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
 			fi
-			if [ -n "$CONF" ]; then
-				update_shell_title "uninstall conflicting packages: $CONF"
-				echo "Trying to uninstall conflicting packages ($CONF):"
-				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CONF
+			if [ -n "$CNFL" ]; then
+				update_shell_title "uninstall conflicting packages: $CNFL"
+				echo "Trying to uninstall conflicting packages ($CNFL):"
+				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CNFL
 			fi
 
 		while [ "$DEPS" ]; do
