@@ -28,6 +28,10 @@ if [ ! -f "$spec" ]; then
 fi
 echo "Processing $spec"
 
+if [[ "$(rpm -q php-pear-PEAR_Command_Packaging)" = *is*not* ]]; then
+	echo >&2 "Please install php-pear-PEAR_Command_Packaging package"
+fi
+
 getsource() {
 	local spec="$1"
 	local NR="$2"
