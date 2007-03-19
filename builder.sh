@@ -384,12 +384,14 @@ minirpm() {
 %_alt_kernel %{nil}
 %requires_releq_kernel_up %{nil}
 %requires_releq_kernel_smp %{nil}
+%requires_releq_kernel %{nil}
 %requires_releq() %{nil}
 %pyrequires_eq() %{nil}
 %requires_eq() %{nil}
 %requires_eq_to() %{nil}
 %releq_kernel_up ERROR
 %releq_kernel_smp ERROR
+%releq_kernel ERROR
 %kgcc_package ERROR
 %_fontsdir ERROR
 %ruby_version ERROR
