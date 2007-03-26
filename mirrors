@@ -1,6 +1,6 @@
-#ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
-#ftp://ftp.cpan.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
-#http://www.cpan.org/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
+ftp://ftp.perl.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
+ftp://ftp.cpan.org/pub/CPAN/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
+http://www.cpan.org/|ftp://sunsite.icm.edu.pl/pub/CPAN/|ICM
 #ftp://ftp.perl.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 #ftp://ftp.cpan.org/pub/CPAN/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
 #http://www.cpan.org/|ftp://ftp.man.torun.pl/pub/doc/CPAN/|TORMAN
