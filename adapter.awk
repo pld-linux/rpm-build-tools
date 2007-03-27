@@ -600,7 +600,7 @@ function b_makekey(a, b,	s) {
 }
 /^%preun/, (!/^%preun/ && $0 ~ SECTIONS) {
 	preamble = 0
-	use_script_macros()
+	use_macros()
 }
 /^%postun/, (!/^%postun/ && $0 ~ SECTIONS) {
 	preamble = 0
@@ -1303,7 +1303,7 @@ function use_macros()
 	gsub("%{compat_perl_vendorarch}", "%{perl_vendorarch}")
 
 	gsub("^%{__make} install DESTDIR=\$RPM_BUILD_ROOT", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
-	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\&1")
+	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\\&1")
 	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("CXXFLAGS=%{rpmcflags} %configure", "CXXFLAGS=%{rpmcflags}\n%configure", $0);
