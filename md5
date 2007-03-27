@@ -1,0 +1,2 @@
+#!/bin/sh
+./builder -ncs -5 "$@"
