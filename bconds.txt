@@ -430,7 +430,7 @@ kbanking 1
 kde 14
 kdegames 1
 kerberos 1
-kerberos5 9
+kerberos5 17
 kernel 100
 kernel24 5
 kernel25 1
@@ -439,10 +439,7 @@ kio 1
 klibc 2
 koffice 1
 kqemu 1
-krb 1
 krb4 1
-krb5 2
-krbv5 1
 kuickshow 1
 ladcca 6
 ladspa 2
