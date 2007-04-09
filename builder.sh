@@ -48,6 +48,9 @@ NO5=""
 ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 CVSROOT=""
 
+# user agent when fetching files
+USER_AGENT="PLD/Builder($VERSION)"
+
 # It can be used i.e. in log file naming.
 # See LOGFILE example.
 DATE=`date +%Y-%m-%d_%H-%M-%S`
@@ -153,6 +156,7 @@ else
 	wget --help 2>&1 | grep -q -- ' --no-check-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
 	wget --help 2>&1 | grep -q -- ' --inet ' && WGET_OPTS="$WGET_OPTS --inet"
 	wget --help 2>&1 | grep -q -- ' --retry-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
+	WGET_OPTS="$WGET_OPTS --user-agent=$USER_AGENT"
 
 	GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
 	GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
