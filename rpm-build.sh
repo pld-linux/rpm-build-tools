@@ -20,6 +20,15 @@ alias $dist-provides="ipoldek-$dist what-provides"
 alias $dist-tag="./builder -cf -T $(echo $dist | tr '[a-z]' '[A-Z]')-branch -r HEAD"
 alias $dist-verify=dist-verify
 
+# undo spec utf8
+# note: it will do it blindly, so any lang other than -pl is most likely broken
+specutfundo() {
+	local spec="$1"
+	iconv -futf8 -tlatin2 "$spec" > m
+	sed -e 's/\.UTF-8//' m > "$spec"
+	rm -f m
+}
+
 dist-verify() {
 	poldek --sn $dist --sn $dist-ready --up
 	poldek --sn $dist --sn $dist-ready --noignore --verify=deps "$@"
