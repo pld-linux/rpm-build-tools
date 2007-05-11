@@ -276,6 +276,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 -sd, --source-distfiles - list sources available from distfiles (intended for offline
                       operations; does not work when Icon field is present
                       but icon file is absent),
+-sc, --source-cvs - list sources available from CVS
 -sdp, --source-distfiles-paths - list sources available from distfiles -
                       paths relative to distfiles directory (intended for offline
                       operations; does not work when Icon field is present
@@ -1960,6 +1961,9 @@ while [ $# -gt 0 ]; do
 		-FRB | --force-remove-build-requires)
 			REMOVE_BUILD_REQUIRES="force"
 			shift ;;
+		-sc | --sources-cvs)
+			COMMAND="list-sources-cvs"
+			shift ;;
 		-sd | --sources-distfiles)
 			COMMAND="list-sources-distfiles"
 			shift ;;
@@ -2306,6 +2310,18 @@ case "$COMMAND" in
 		for SAP in $SOURCES $PATCHES; do
 			if [ -n "$(src_md5 "$SAP")" ]; then
 				distfiles_url "$SAP"
+			fi
+		done
+		;;
+	"list-sources-cvs" )
+		init_builder
+#		NOCVSSPEC="yes"
+		DONT_PRINT_REVISION="yes"
+		get_spec
+		parse_spec
+		for SAP in $SOURCES $PATCHES; do
+			if [ -z "$(src_md5 "$SAP")" ]; then
+				echo $SAP | awk '{gsub(/.*\//,"") ; print}'
 			fi
 		done
 		;;
