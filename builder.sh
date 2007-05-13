@@ -598,8 +598,8 @@ init_builder()
 	fi
 
 	if [ "$NOINIT" != "yes" ] ; then
-		SOURCE_DIR="`eval $RPM $RPMOPTS --define "name $ASSUMED_NAME" --eval '%{_sourcedir}'`"
-		SPECS_DIR="`eval $RPM $RPMOPTS --define "name $ASSUMED_NAME" --eval '%{_specdir}'`"
+		SOURCE_DIR="`eval $RPM $RPMOPTS --define '"name $ASSUMED_NAME"' --eval '%{_sourcedir}'`"
+		SPECS_DIR="`eval $RPM $RPMOPTS --define '"name $ASSUMED_NAME"' --eval '%{_specdir}'`"
 	else
 		SOURCE_DIR="."
 		SPECS_DIR="."
@@ -2069,7 +2069,7 @@ while [ $# -gt 0 ]; do
 				CVSTAG="${SPECFILE##*:}"
 				SPECFILE="${SPECFILE%%:*}"
 			fi
-			ASSUMED_NAME="${SPECFILE%%:.spec}"
+			ASSUMED_NAME="${SPECFILE%%.spec}"
 			shift
 	esac
 done
