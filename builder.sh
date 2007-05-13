@@ -131,8 +131,10 @@ fi
 SU_SUDO=""
 if [ -n "$HOME_ETC" ]; then
 	USER_CFG="$HOME_ETC/.builderrc"
+	BUILDER_MACROS="$HOME_ETC/.builder-rpmmacros"
 else
 	USER_CFG=~/.builderrc
+	BUILDER_MACROS=~/.builder-rpmmacros
 fi
 
 [ -f "$USER_CFG" ] && . "$USER_CFG"
@@ -384,7 +386,7 @@ minirpm() {
 	safe_macrofiles=$(rpm --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); gsub(/:.*macros.build:/, ":", $0); print $0 } ')
 
 	# TODO: move these to /usr/lib/rpm/macros
-	cat > .builder-rpmmacros <<'EOF'
+	cat > $BUILDER_MACROS <<'EOF'
 %x8664 x86_64 amd64 ia32e
 %alt_kernel %{nil}
 %_alt_kernel %{nil}
@@ -424,12 +426,12 @@ minirpm() {
 %{nil}
 EOF
 	if [ "$NOINIT" = "yes" ] ; then
-		cat >> .builder-rpmmacros <<'EOF'
+		cat >> $BUILDER_MACROS <<'EOF'
 %_specdir ./
 %_sourcedir ./
 EOF
 	fi
-	eval $RPMBUILD --macros "$safe_macrofiles:.builder-rpmmacros" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
+	eval $RPMBUILD --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
 }
 
 cache_rpm_dump() {
