@@ -79,6 +79,7 @@ ICONS=""
 PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
+ASSUMED_NAME=""
 PROTOCOL="ftp"
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
@@ -597,8 +598,8 @@ init_builder()
 	fi
 
 	if [ "$NOINIT" != "yes" ] ; then
-		SOURCE_DIR="`eval $RPM $RPMOPTS --eval '%{_sourcedir}'`"
-		SPECS_DIR="`eval $RPM $RPMOPTS --eval '%{_specdir}'`"
+		SOURCE_DIR="`eval $RPM $RPMOPTS --define "name $ASSUMED_NAME" --eval '%{_sourcedir}'`"
+		SPECS_DIR="`eval $RPM $RPMOPTS --define "name $ASSUMED_NAME" --eval '%{_specdir}'`"
 	else
 		SOURCE_DIR="."
 		SPECS_DIR="."
@@ -2068,6 +2069,7 @@ while [ $# -gt 0 ]; do
 				CVSTAG="${SPECFILE##*:}"
 				SPECFILE="${SPECFILE%%:*}"
 			fi
+			ASSUMED_NAME="${SPECFILE%%:.spec}"
 			shift
 	esac
 done
