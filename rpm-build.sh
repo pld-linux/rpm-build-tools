@@ -30,8 +30,8 @@ specutfundo() {
 }
 
 dist-verify() {
-	poldek --sn $dist --sn $dist-ready --up
-	poldek --sn $dist --sn $dist-ready --noignore --verify=deps "$@"
+	poldek --sn $dist --sn $dist-ready --sn $dist-updates --up
+	poldek --sn $dist --sn $dist-ready --sn $dist-updates --noignore --verify=deps "$@"
 }
 
 # displays latest used tag for a specfile
