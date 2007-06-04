@@ -1448,7 +1448,7 @@ function use_files_macros(	i, n, t, a)
 	}
 
 	# kill leading whitespace
-	gsub(/^ */, "");
+	gsub(/^ +/, "");
 
 	# kill default attrs
 	gsub(/%dir %attr\(755,root,root\)/, "%dir");
