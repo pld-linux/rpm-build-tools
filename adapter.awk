@@ -1654,7 +1654,7 @@ function replace_php_virtual_deps()
 
 	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
 		sub(/^php-/, "php(", pkg);
-		sub(/$/, ")", pkg);
+		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
 		$2 = pkg
 	}
 
