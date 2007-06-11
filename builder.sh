@@ -2075,7 +2075,7 @@ while [ $# -gt 0 ]; do
 				CVSTAG="${SPECFILE##*:}"
 				SPECFILE="${SPECFILE%%:*}"
 			fi
-			ASSUMED_NAME="${SPECFILE%%.spec}"
+			ASSUMED_NAME="$(basename ${SPECFILE%%.spec})"
 			shift
 	esac
 done
