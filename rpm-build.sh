@@ -114,6 +114,8 @@ pmerge() {
 sfget() {
 	local url="$1"
 	url="${url%?download}"
+	url="${url%?use_mirror=*}"
+	url="${url#http://downloads.}"
 	url="http://dl.${url#http://prdownloads.}"
 	# use mirror
 	local mirror="http://nchc.dl.sourceforge.net"
