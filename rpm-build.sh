@@ -30,8 +30,14 @@ specutfundo() {
 }
 
 dist-verify() {
+	case "$dist" in
+	ac)
+		args='--ignore=kdenetwork-kopete-tool-conectionstatus --ignore=gimp-plugin-swfdec --ignore=wine-drv-arts'
+		;;
+	esac
+
 	poldek --sn $dist --sn $dist-ready --sn $dist-updates --up
-	poldek --sn $dist --sn $dist-ready --sn $dist-updates --noignore --verify=deps "$@"
+	poldek --sn $dist --sn $dist-ready --sn $dist-updates --noignore --verify=deps $args "$@"
 }
 
 # displays latest used tag for a specfile
