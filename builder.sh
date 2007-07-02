@@ -42,6 +42,7 @@ NOCVS=""
 NOCVSSPEC=""
 NODIST=""
 NOINIT=""
+PREFMIRRORS=""
 UPDATE=""
 ADD5=""
 NO5=""
@@ -943,9 +944,9 @@ get_files()
 					fi
 					target="$fp"
 
-					# prefer mirror over distfiles if there's mirror
+					# optionally prefer mirror over distfiles if there's mirror
 					# TODO: build url list and then try each url from the list
-					if [ -z "$NOMIRRORS" ] && im=$(find_mirror "$i") && [ "$im" != "$i" ]; then
+					if [ -n "$PREFMIRRORS" ] && [ -z "$NOMIRRORS" ] && im=$(find_mirror "$i") && [ "$im" != "$i" ]; then
 						url="$im"
 					else
 						url=$(distfiles_url "$i")
@@ -1917,6 +1918,9 @@ while [ $# -gt 0 ]; do
 			NOURLS="yes"
 			NOSRCS="yes"
 			ALWAYS_CVSUP="no"
+			shift;;
+		-pm | --prefer-mirrors )
+			PREFMIRRORS="yes"
 			shift;;
 		--no-init )
 			NOINIT="yes"
