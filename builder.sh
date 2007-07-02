@@ -260,6 +260,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 -ns, --no-srcs      - don't download Sources
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
+-pm, --prefer-mirrors - prefer mirrors (if any) over distfiles for SOURCES
 --no-init           - don't initialize builder paths (SPECS and SOURCES)
 -ske,
 --skip-existing-files - skip existing files in get_files
