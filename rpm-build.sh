@@ -36,8 +36,8 @@ dist-verify() {
 		;;
 	esac
 
-	poldek --sn $dist --sn $dist-ready --sn $dist-updates --up
-	poldek --sn $dist --sn $dist-ready --sn $dist-updates --noignore --verify=deps $args "$@"
+	poldek --sn $dist --sn $dist-updates --up
+	poldek --sn $dist --sn $dist-updates --noignore --verify=deps $args "$@"
 }
 
 # displays latest used tag for a specfile
