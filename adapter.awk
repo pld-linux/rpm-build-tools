@@ -1652,11 +1652,11 @@ function replace_php_virtual_deps()
 #		return
 #	}
 
-	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
-		sub(/^php-/, "php(", pkg);
-		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
-		$2 = pkg
-	}
+#	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
+#		sub(/^php-/, "php(", pkg);
+#		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
+#		$2 = pkg
+#	}
 
 	if (pkg ~/^php$/) {
 		$2 = "webserver(php)";
