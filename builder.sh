@@ -521,7 +521,7 @@ parse_spec()
 	PACKAGE_RELEASE=$(rpm_dump | awk '$2 == "PACKAGE_RELEASE" { print $3; exit}')
 
 	if [ "$PACKAGE_NAME" != "$ASSUMED_NAME" ]; then
-		echo "WARNING! Spec name ($ASSUMED_NAME) does not agree with package name ($PACKAGE_NAME)"
+		echo >&2 "WARNING! Spec name ($ASSUMED_NAME) does not agree with package name ($PACKAGE_NAME)"
 	fi
 
 	if [ -n "$BE_VERBOSE" ]; then
