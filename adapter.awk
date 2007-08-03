@@ -3,13 +3,14 @@
 # This is adapter v0.28. Adapter adapts .spec files for PLD Linux.
 # $Id$
 #
-# Copyright (C) 1999-2006 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2007 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
 # 	Tomasz Kłoczko <kloczek@rudy.mif.pg.gda.pl>
 # 	Artur Frysiak <wiget@pld-linux.org>
 # 	Michal Kochanowicz <mkochano@pld.org.pl>
+#	Jakub Bogusz <qboosh@pld-linux.org>
 # 	Elan Ruusamäe <glen@pld-linux.org>
 #
 # See cvs log adapter{,.awk} for list of contributors
@@ -921,6 +922,9 @@ preamble == 1 {
 		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 		sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", $2)
 		sub("^http://dl\.sf\.net/", "http://dl.sourceforge.net/", $2)
+
+		sub("^ftp://ftp\.gnome\.org/", "http://ftp.gnome.org/", $2)
+		sub("^http://ftp\.gnome\.org/pub/gnome/", "http://ftp.gnome.org/pub/GNOME/", $2)
 	}
 
 
