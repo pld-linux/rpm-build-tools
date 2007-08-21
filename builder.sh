@@ -1633,8 +1633,8 @@ fetch_build_requires()
 			local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 
 			if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
-				echo "fetch builderequires: install $DEPS; remove $CNFL"
-				update_shell_title "poldek: install $DEPS; remove $CNFL"
+				echo "fetch builderequires: install [$DEPS]; remove [$CNFL]"
+				update_shell_title "poldek: install [$DEPS]; remove [$CNFL]"
 				$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
 			fi
 			if [ -n "$CNFL" ]; then
