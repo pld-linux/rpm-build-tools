@@ -211,7 +211,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 [-g|--get] [-h|--help] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T|--tag <cvstag>]
 [-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
-[{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
+[{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}] [--use-greed-sources]
 [-nu|--no-urls] [-v|--verbose] [--opts <rpm opts>] [--short-circuit]
 [--show-bconds] [--with/--without <feature>] [--define <macro> <value>]
 <package>[.spec][:cvstag]
@@ -313,6 +313,9 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
                     - as above, but allow float version
+--use-greed-sources
+                    - try download source from tag head if don't find it in
+                      current tag	
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
