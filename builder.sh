@@ -48,6 +48,7 @@ ADD5=""
 NO5=""
 ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 CVSROOT=""
+GREEDSRC=""
 
 # user agent when fetching files
 USER_AGENT="PLD/Builder($VERSION)"
@@ -1036,7 +1037,11 @@ get_files()
 
 			# the md5 check must be moved elsewhere as if we've called from update_md5 the md5 is wrong.
 			if [ ! -f "$fp" -a "$FAIL_IF_NO_SOURCES" != "no" ]; then
-				Exit_error err_no_source_in_repo $i
+				if [ -n "GREEDSRC" ]; then
+					get_greed_sources $i
+				else
+					Exit_error err_no_source_in_repo $i
+				fi
 			fi
 
 			# we check md5 here just only to refetch immediately
@@ -1140,6 +1145,8 @@ tag_files()
 		local fp=`nourl "$i"`
 		if [ -f "$fp" ]; then
 			tag_files="$tag_files $fp"
+		elif [ -n "GREEDSRC" ]; then
+			get_greed_sources $i
 		else
 			Exit_error err_no_source_in_repo $i
 		fi
@@ -1190,6 +1197,8 @@ branch_files()
 		local fp=`nourl "$i"`
 		if [ -f "$fp" ]; then
 			tag_files="$tag_files $fp"
+		elif [ -n "GREEDSRC" ]; then
+			get_greed_sources $i
 		else
 			Exit_error err_no_source_in_repo $i
 		fi
@@ -1828,6 +1837,18 @@ init_rpm_dir() {
 	echo "- edit $SOURCE_DIR/CVS/Root"
 }
 
+get_greed_sources() {
+	CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
+	if [ -n "BE_VERBOSE" ]; then
+		echo "Try greed download: $1 from: $CVSROOT"
+	fi
+	cvs -d $CVSROOT get SOURCES/$1
+	if [ $? != 0 ]; then
+		Exit_error err_no_source_in_repo $1
+	fi
+	
+}
+
 #---------------------------------------------
 # main()
 
@@ -2033,6 +2054,9 @@ while [ $# -gt 0 ]; do
 		--init-rpm-dir)
 			COMMAND="init_rpm_dir"
 			shift ;;
+		--use-greed-sources )
+			GREEDSRC="1"
+			shift;;
 		-u | --try-upgrade )
 			TRY_UPGRADE="1"; shift ;;
 		-un | --try-upgrade-with-float-version )
