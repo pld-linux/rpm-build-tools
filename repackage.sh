@@ -38,4 +38,4 @@ BCONDS=$(./builder -nn -ncs --show-bcond-args $specfile)
 if [[ *$@* != *-bb* ]]; then
 	rpmbuild -bi "$@"
 fi
-rpmbuild -bb --define 'clean %{nil}' "$@"
+rpmbuild -bb --define 'clean exit 0; %{nil}' "$@"
