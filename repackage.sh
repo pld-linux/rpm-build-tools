@@ -21,7 +21,7 @@ set -e
 
 rpmbuild() {
 	set -x
-	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} $BCONDS --short-circuit --define '_source_payload w9.gzdio' "$@" || exit
+	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} $BCONDS --short-circuit --define '_source_payload w9.gzdio' --define 'check exit 0; %{nil}' "$@" || exit
 }
 
 specfile="${1%.spec}.spec"; shift
