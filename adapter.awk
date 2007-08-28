@@ -698,6 +698,8 @@ preamble == 1 {
 		sub(/^Applications\/Productivity$/, "X11/Applications", group)
 		sub(/^Database$/, "Applications/Databases", group)
 		sub(/^Development\/Code Generators$/, "Development", group)
+		sub(/^Emulators$/, "Applications/Emulators", group)
+		sub(/^System\/Libraries$/, "Libraries", group)
 
 		$0 = "Group:\t\t" group
 
