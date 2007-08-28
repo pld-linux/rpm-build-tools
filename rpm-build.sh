@@ -32,7 +32,7 @@ specutfundo() {
 dist-verify() {
 	case "$dist" in
 	ac)
-		args='--ignore=kdenetwork-kopete-tool-conectionstatus --ignore=gimp-plugin-swfdec --ignore=wine-drv-arts'
+		args='--ignore=kdenetwork-kopete-tool-conectionstatus --ignore=gimp-plugin-swfdec --ignore=wine-drv-arts --ignore=ntp-ntptrace'
 		;;
 	esac
 
