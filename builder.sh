@@ -22,7 +22,7 @@
 RCSID='$Id$'
 r=${RCSID#* * }
 rev=${r%% *}
-VERSION="v0.18/$rev"
+VERSION="v0.19/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
 $VERSION (C) 1999-2007 Free Penguins".
@@ -610,8 +610,12 @@ init_builder()
 	fi
 
 	if [ "$NOINIT" != "yes" ] ; then
-		SOURCE_DIR="`eval $RPM $RPMOPTS --define '"name $ASSUMED_NAME"' --eval '%{_sourcedir}'`"
-		SPECS_DIR="`eval $RPM $RPMOPTS --define '"name $ASSUMED_NAME"' --eval '%{_specdir}'`"
+		local extra
+		if [ "$ASSUMED_NAME" ]; then
+			extra="--define 'name $ASSUMED_NAME'"
+		fi
+		SOURCE_DIR="`eval $RPM $RPMOPTS $extra --eval '%{_sourcedir}'`"
+		SPECS_DIR="`eval $RPM $RPMOPTS $extra --eval '%{_specdir}'`"
 	else
 		SOURCE_DIR="."
 		SPECS_DIR="."
