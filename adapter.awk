@@ -129,25 +129,25 @@ function b_makekey(a, b,	s) {
 	gsub(/^#[ \t]*/, "", s);
 
 	# force order
-	gsub(/^Summary\(/i, "11Summary(", s);
-	gsub(/^Summary/i, "10Summary", s);
-	gsub(/^Name/i, "2Name", s);
-	gsub(/^Version/i, "3Version", s);
-	gsub(/^Release/i, "4Release", s);
-	gsub(/^Epoch/i, "5Epoch", s);
-	gsub(/^License/i, "5License", s);
-	gsub(/^Group/i, "6Group", s);
-	gsub(/^URL/i, "7URL", s);
+	gsub(/^Summary\(/, "11Summary(", s);
+	gsub(/^Summary/, "10Summary", s);
+	gsub(/^Name/, "2Name", s);
+	gsub(/^Version/, "3Version", s);
+	gsub(/^Release/, "4Release", s);
+	gsub(/^Epoch/, "5Epoch", s);
+	gsub(/^License/, "5License", s);
+	gsub(/^Group/, "6Group", s);
+	gsub(/^URL/, "7URL", s);
 
-	gsub(/^BuildRequires/i, "B1BuildRequires", s);
-	gsub(/^BuildConflicts/i, "B2BuildConflicts", s);
-	gsub(/^Provides/i, "X1Provides", s);
-	gsub(/^Obsoletes/i, "X2Obsoletes", s);
-	gsub(/^Conflicts/i, "X3Conflicts", s);
-	gsub(/^BuildArch/i, "X4BuildArch", s);
-	gsub(/^ExclusiveArch/i, "X6ExclusiveArch", s);
-	gsub(/^ExcludeArch/i, "X7ExcludeArch", s);
-	gsub(/^BuildRoot/i, "X9BuildRoot", s);
+	gsub(/^BuildRequires/, "B1BuildRequires", s);
+	gsub(/^BuildConflicts/, "B2BuildConflicts", s);
+	gsub(/^Provides/, "X1Provides", s);
+	gsub(/^Obsoletes/, "X2Obsoletes", s);
+	gsub(/^Conflicts/, "X3Conflicts", s);
+	gsub(/^BuildArch/, "X4BuildArch", s);
+	gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
+	gsub(/^ExcludeArch/, "X7ExcludeArch", s);
+	gsub(/^BuildRoot/, "X9BuildRoot", s);
 
 #	printf("%s -> %s\n", a""b, s);
 	return s;
