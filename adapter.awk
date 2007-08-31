@@ -29,7 +29,7 @@ BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
-	PREAMBLE_TAGS = "(Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
+	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
 
 	preamble = 1	# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
@@ -961,6 +961,12 @@ preamble == 1 {
 ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS, $0 ~ PREAMBLE_TAGS {
 	if ($1 ~ /Pre[Rr]eq:/) {
 		sub(/Pre[Rr]eq:/, "Requires:", $1);
+	}
+	if ($1 == "BR:" ) {
+		$1 = "BuildRequires:"
+	}
+	if ($1 == "R:" ) {
+		$1 = "Requires:"
 	}
 	format_preamble()
 #	kill_preamble_macros(); # breaks tabbing
