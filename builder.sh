@@ -414,10 +414,10 @@ minirpm() {
 %__php_api_requires() %{nil}
 %php_major_version ERROR
 %php_api_version ERROR
-%requires_xorg_xserver_extension ERROR
-%requires_xorg_xserver_xinput ERROR
-%requires_xorg_xserver_font ERROR
-%requires_xorg_xserver_videodrv ERROR
+%requires_xorg_xserver_extension %{nil}
+%requires_xorg_xserver_xinput %{nil}
+%requires_xorg_xserver_font %{nil}
+%requires_xorg_xserver_videodrv %{nil}
 %py_ver ERROR
 %perl_vendorarch ERROR
 %perl_vendorlib ERROR
