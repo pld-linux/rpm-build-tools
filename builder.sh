@@ -414,6 +414,11 @@ minirpm() {
 %__php_api_requires() %{nil}
 %php_major_version ERROR
 %php_api_version ERROR
+%xorg_xserver_server_ansic_abi ERROR
+%xorg_xserver_server_extension_abi ERROR
+%xorg_xserver_server_font_abi ERROR
+%xorg_xserver_server_videodrv_abi ERROR
+%xorg_xserver_server_xinput_abi ERROR
 %py_ver ERROR
 %perl_vendorarch ERROR
 %perl_vendorlib ERROR
