@@ -36,7 +36,7 @@ dist-verify() {
 		;;
 	esac
 
-	poldek --sn $dist --sn $dist-updates --up
+	poldek --sn $dist --sn $dist-updates --up --upa -q
 	poldek --sn $dist --sn $dist-updates --noignore --verify=deps $args "$@"
 }
 
@@ -98,8 +98,9 @@ kdediff() {
 	r1=${r1%:*}
 
 	#  http://websvn.kde.org/branches/KDE/3.5/kdepim/kpilot/conduits/vcalconduit/vcalRecord.cc?rev=624745&r1=612579&r2=624745&makepatch=1&diff_format=u
+	#  http://websvn.kde.org/branches/KDE/3.5/kdenetwork/kopete/protocols/oscar/aim/aimcontact.cpp?r1=609808&r2=673027&view=patch
 	url=http://websvn.kde.org/${url% *}
-	url="$url?r1=$r1&r2=$r2&makepatch=1&diff_format=u"
+	url="$url?r1=$r1&r2=$r2&view=patch"
 
 	if [ -t 1 ]; then
 		wget "$url" -O -| tee m.patch | diffcol
