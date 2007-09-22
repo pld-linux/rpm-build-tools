@@ -1166,10 +1166,12 @@ tag_files()
 	if [ "$tag_files" ]; then
 		if [ "$TAG_VERSION" = "yes" ]; then
 			update_shell_title "tag sources: $TAGVER"
+			printf "Tagging %d files\n" $(echo $tag_files | wc -w)
 			cvs $OPTIONS $TAGVER $tag_files || exit
 		fi
 		if [ -n "$TAG" ]; then
 			update_shell_title "tag sources: $TAG"
+			printf "Tagging %d files\n" $(echo $tag_files | wc -w)
 			cvs $OPTIONS $TAG $tag_files || exit
 		fi
 	fi
