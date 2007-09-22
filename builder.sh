@@ -1171,8 +1171,13 @@ tag_files()
 		fi
 		if [ -n "$TAG" ]; then
 			update_shell_title "tag sources: $TAG"
-			printf "Tagging %d files\n" $(echo $tag_files | wc -w)
-			cvs $OPTIONS $TAG $tag_files || exit
+
+			while [ "$tag_files" ]; do
+				local chunk=$(echo $tag_files | tr ' ' '\n' | head -n 100)
+				printf "Tagging %d files\n" $(echo $chunk | wc -w)
+				cvs $OPTIONS $TAG $chunk || exit
+				tag_files=$(echo $tag_files | tr ' ' '\n' | tail +101)
+			done
 		fi
 	fi
 
