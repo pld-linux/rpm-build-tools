@@ -29,7 +29,7 @@ BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
-	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires)"
+	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests)"
 
 	preamble = 1	# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
@@ -141,7 +141,10 @@ function b_makekey(a, b,	s) {
 
 	gsub(/^BuildRequires/, "B1BuildRequires", s);
 	gsub(/^BuildConflicts/, "B2BuildConflicts", s);
+
 	gsub(/^Provides/, "X1Provides", s);
+	gsub(/^Requires/, "X1Requires", s);
+	gsub(/^Suggests/, "X1Suggests", s);
 	gsub(/^Obsoletes/, "X2Obsoletes", s);
 	gsub(/^Conflicts/, "X3Conflicts", s);
 	gsub(/^BuildArch/, "X4BuildArch", s);
@@ -1321,6 +1324,7 @@ function use_macros()
 	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("CXXFLAGS=%{rpmcflags} %configure", "CXXFLAGS=%{rpmcflags}\n%configure", $0);
+	$0 = fixedsub("%__install", "install", $0);
 
 	# split configure line to multiple lines
 	if (/%configure / && !/\\$/) {
