@@ -142,12 +142,11 @@ function b_makekey(a, b,	s) {
 	gsub(/^BuildRequires/, "B1BuildRequires", s);
 	gsub(/^BuildConflicts/, "B2BuildConflicts", s);
 
-	gsub(/^Provides/, "X1Provides", s);
-	gsub(/^Requires/, "X1Requires", s);
 	gsub(/^Suggests/, "X1Suggests", s);
-	gsub(/^Obsoletes/, "X2Obsoletes", s);
-	gsub(/^Conflicts/, "X3Conflicts", s);
-	gsub(/^BuildArch/, "X4BuildArch", s);
+	gsub(/^Provides/, "X2Provides", s);
+	gsub(/^Obsoletes/, "X3Obsoletes", s);
+	gsub(/^Conflicts/, "X4Conflicts", s);
+	gsub(/^BuildArch/, "X5BuildArch", s);
 	gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
 	gsub(/^ExcludeArch/, "X7ExcludeArch", s);
 	gsub(/^BuildRoot/, "X9BuildRoot", s);
