@@ -32,7 +32,17 @@ specutfundo() {
 dist-verify() {
 	case "$dist" in
 	ac)
-		args='--ignore=kdenetwork-kopete-tool-conectionstatus --ignore=gimp-plugin-swfdec --ignore=wine-drv-arts --ignore=ntp-ntptrace'
+		local a ignores
+		# typo
+		ignore="$ignore kdenetwork-kopete-tool-conectionstatus"
+	   	# obsoleted
+		ignore="$ignore gimp-plugin-swfdec wine-drv-arts ntp-ntptrace"
+		# quake2@MAIN is now quake2forge, original quake2 restored to quake2
+		ignore="$ignore quake2-3dfx quake2-sdl quake2-sgl quake2-snd-alsa quake2-snd-ao quake2-snd-oss quake2-snd-sdl quake2-static"
+
+		for a in $ignores; do
+			args="$args --ignore=$a"
+		done
 		;;
 	esac
 
