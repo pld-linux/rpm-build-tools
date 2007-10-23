@@ -32,7 +32,7 @@ specutfundo() {
 dist-verify() {
 	case "$dist" in
 	ac)
-		local a ignores
+		local a ignore
 		# typo
 		ignore="$ignore kdenetwork-kopete-tool-conectionstatus"
 	   	# obsoleted
@@ -40,7 +40,7 @@ dist-verify() {
 		# quake2@MAIN is now quake2forge, original quake2 restored to quake2
 		ignore="$ignore quake2-3dfx quake2-sdl quake2-sgl quake2-snd-alsa quake2-snd-ao quake2-snd-oss quake2-snd-sdl quake2-static"
 
-		for a in $ignores; do
+		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
 		;;
