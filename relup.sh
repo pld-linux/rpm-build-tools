@@ -29,17 +29,31 @@ get_release() {
 	echo $rel
 }
 
+set_release() {
+	local specfile="$1"
+	local rel="$2"
+	sed -i -e "
+		s/^\(%define[ \t]\+_rel[ \t]\+\).\+/\1$rel/
+	" $specfile
+}
+
 if [ ! -x /usr/bin/getopt ]; then
 	echo >&1 "You need to install util-linux to use relup.sh"
 	exit 1
 fi
 
-t=`getopt -o 'm:' -n $(dirname "$0") -- "$@"` || exit $?
-# Note the quotes around `$TEMP': they are essential!
+t=$(getopt -o 'm:it' -n $(dirname "$0") -- "$@") || exit $?
+# Note the quotes around `$t': they are essential!
 eval set -- "$t"
 
 while true; do
 	case "$1" in
+	-t)
+		test=1
+		;;
+	-i)
+		inc=1
+		;;
 	-m)
 		shift
 		message="${1#- }"
@@ -60,6 +74,13 @@ tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 for spec in "$@"; do
 	spec=${spec%.spec}.spec
 	rel=$(get_release "$spec")
+	if [ "$inc" = 1 ]; then
+		rel=$(expr $rel + 1)
+		set_release "$spec" $rel
+
+		# refetch release
+		rel=$(get_release "$spec")
+	fi
 	echo "$spec" >> "$tmpd/$rel"
 done
 
@@ -68,6 +89,8 @@ for file in $(ls "$tmpd" 2>/dev/null); do
 	rel=$(basename "$file")
 	msg="- rel $rel${message:+ ($message)}"
 	echo cvs ci -m "'$msg'"
-	cvs ci -m "$msg" $files
+	if [ "$test" != 1 ]; then
+		cvs ci -m "$msg" $files
+	fi
 done
 rm -rf $tmpd
