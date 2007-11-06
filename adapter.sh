@@ -139,25 +139,26 @@ adapterize()
 	else
 		awk=awk
 	fi
-	local diff=$tmpdir/$(basename SPECFILE) || exit
-	$awk -f $adapter $SPECFILE > $diff || exit
 
-	if [ "$(diff --brief $SPECFILE $diff)" ]; then
-		diff -u $SPECFILE $diff > $diff.diff
+	local tmp=$tmpdir/$(basename $SPECFILE) || exit
+	$awk -f $adapter $SPECFILE > $tmp || exit
+
+	if [ "$(diff --brief $SPECFILE $tmp)" ]; then
+		diff -u $SPECFILE $tmp > $tmp.diff
 		if [ -t 1 ]; then
-				diffcol $diff.diff | less -r
+				diffcol $tmp.diff | less -r
 				while : ; do
 					echo -n "Accept? (Yes, No, Confirm each chunk)? "
 					read ans
 					case "$ans" in
 					[yYoO]) # y0 mama
-						mv -f $diff $SPECFILE
+						mv -f $tmp $SPECFILE
 						echo "Ok, adapterized."
 						break
 					;;
 					[cC]) # confirm each chunk
-						diff2hunks $diff.diff
-						for t in $(ls $diff-*.diff); do
+						diff2hunks $tmp.diff
+						for t in $(ls $tmp-*.diff); do
 								diffcol $t | less -r
 								echo -n "Accept? (Yes, [N]o, Quit)? "
 								read ans
@@ -179,7 +180,7 @@ adapterize()
 					esac
 				done
 		else
-				cat $diff.diff
+				cat $tmp.diff
 		fi
 	else
 		echo "The SPEC is perfect ;)"
