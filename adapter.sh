@@ -16,7 +16,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 self=$(basename "$0")
-dir=$(dirname "$0")
+adapter=$(dirname "$0")/adapter.awk
 usage="Usage: $self [FLAGS] SPECFILE
 
 -s|--no-sort|--skip-sort
@@ -140,7 +140,7 @@ adapterize()
 		awk=awk
 	fi
 	local diff=$tmpdir/$(basename SPECFILE) || exit
-	$awk -f $dir/adapter.awk $SPECFILE > $diff || exit
+	$awk -f $adapter $SPECFILE > $diff || exit
 
 	if [ "$(diff --brief $SPECFILE $diff)" ]; then
 		diff -u $SPECFILE $diff > $diff.diff
