@@ -16,6 +16,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 self=$(basename "$0")
+dir=$(dirname "$0")
 usage="Usage: $self [FLAGS] SPECFILE
 
 -s|--no-sort|--skip-sort
@@ -138,24 +139,25 @@ adapterize()
 	else
 		awk=awk
 	fi
-	$awk -f adapter.awk $SPECFILE > $tmpdir/$SPECFILE || exit
+	local diff=$tmpdir/$(basename SPECFILE) || exit
+	$awk -f $dir/adapter.awk $SPECFILE > $diff || exit
 
-	if [ "`diff --brief $SPECFILE $tmpdir/$SPECFILE`" ]; then
-		diff -u $SPECFILE $tmpdir/$SPECFILE > $tmpdir/$SPECFILE.diff
+	if [ "$(diff --brief $SPECFILE $diff)" ]; then
+		diff -u $SPECFILE $diff > $diff.diff
 		if [ -t 1 ]; then
-				diffcol $tmpdir/$SPECFILE.diff | less -r
+				diffcol $diff.diff | less -r
 				while : ; do
 					echo -n "Accept? (Yes, No, Confirm each chunk)? "
 					read ans
 					case "$ans" in
 					[yYoO]) # y0 mama
-						mv -f $tmpdir/$SPECFILE $SPECFILE
+						mv -f $diff $SPECFILE
 						echo "Ok, adapterized."
 						break
 					;;
 					[cC]) # confirm each chunk
-						diff2hunks $tmpdir/$SPECFILE.diff
-						for t in $(ls $tmpdir/$SPECFILE-*.diff); do
+						diff2hunks $diff.diff
+						for t in $(ls $diff-*.diff); do
 								diffcol $t | less -r
 								echo -n "Accept? (Yes, [N]o, Quit)? "
 								read ans
@@ -177,7 +179,7 @@ adapterize()
 					esac
 				done
 		else
-				cat $tmpdir/$SPECFILE.diff
+				cat $diff.diff
 		fi
 	else
 		echo "The SPEC is perfect ;)"
