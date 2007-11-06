@@ -8,16 +8,19 @@ Group:		Applications/File
 Requires:	rpm-build
 Name:		rpm-build-tools
 Version:	4.4.9
-Release:	9
+Release:	10
 License:	GPL
 Group:		Base
-Source30:	builder
-Source31:	adapter.awk
-Source32:	pldnotify.awk
+Source0:	builder
+Source1:	adapter.awk
+Source2:	adapter
+Source3:	pldnotify.awk
 Requires:	wget
 Suggests:	cvs
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_libdir	%{_prefix}/lib
 
 %description
 Scripts for managing .spec files and building RPM packages.
@@ -42,13 +45,15 @@ construir pacotes usando o RPM.
 
 %prep
 %setup -qcT
+sed -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' %{SOURCE2} > adapter
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_bindir}
-install %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}/builder
-install %{SOURCE31} $RPM_BUILD_ROOT%{_bindir}/adapter.awk
-install %{SOURCE32} $RPM_BUILD_ROOT%{_bindir}/pldnotify.awk
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
+install %{SOURCE0} $RPM_BUILD_ROOT%{_bindir}/builder
+install adapter $RPM_BUILD_ROOT%{_bindir}/adapter
+cp -a %{SOURCE1} $RPM_BUILD_ROOT%{_libdir}/adapter.awk
+install %{SOURCE3} $RPM_BUILD_ROOT%{_bindir}/pldnotify.awk
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -56,5 +61,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/builder
-%attr(755,root,root) %{_bindir}/adapter.awk
+%attr(755,root,root) %{_bindir}/adapter
 %attr(755,root,root) %{_bindir}/pldnotify.awk
+%{_libdir}/adapter.awk
