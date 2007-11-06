@@ -26,7 +26,7 @@
 RCSID='$Id$'
 r=${RCSID#* * }
 rev=${r%% *}
-VERSION="v0.19/$rev"
+VERSION="v0.20/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
 $VERSION (C) 1999-2007 Free Penguins".
@@ -1923,7 +1923,7 @@ while [ $# -gt 0 ]; do
 		-c | --clean )
 			CLEAN="--clean --rmspec --rmsource"; shift ;;
 		-cf | --cvs-force )
-			CVS_FORCE="-F"; shift;;
+			CVS_FORCE="-F -B"; shift;;
 		-d | --cvsroot )
 			shift; CVSROOT="${1}"; shift ;;
 		-g | --get )
