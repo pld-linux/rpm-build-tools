@@ -16,6 +16,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 self=$(basename "$0")
+adapter=$(dirname "$0")/adapter.awk
 usage="Usage: $self [FLAGS] SPECFILE
 
 -s|--no-sort|--skip-sort
@@ -62,12 +63,12 @@ while true; do
 	;;
 	--)
 		shift
-	   	break
+		break
 	;;
 	*)
 		echo 2>&1 "$self: Internal error: [$1] not recognized!"
 		exit 1
-	   	;;
+		;;
 	esac
 	shift
 done
@@ -98,64 +99,66 @@ diff2hunks()
 use strict;
 
 for my $filename (@ARGV) {
-    my $counter = 1;
-    my $fh;
-    open $fh, "<", $filename or die "$filename: open for reading: $!";
-    my @lines = <$fh>;
-    my @hunks;
-    my @curheader;
-    for my $i (0 ... $#lines) {
-        next unless $lines[$i] =~ m/^\@\@ /;
-        if ($i >= 2 and $lines[$i - 2] =~ m/^--- / and $lines[$i - 1] =~ m/^\+\+\+ /) {
-            @curheader = @lines[$i - 2 ... $i - 1];
-        }
-        next unless @curheader;
-        my $j = $i + 1;
-        while ($j < @lines and $lines[$j] !~ m/^\@\@ /) {$j++}
-        $j -= 2
-            if $j >= 3 and $j < @lines
-                and $lines[$j - 2] =~ m/^--- /
-                and $lines[$j - 1] =~ m/^\+\+\+ /;
-        $j--;
-        $j-- until $lines[$j] =~ m/^[ @+-]/;
-        my $hunkfilename = $filename;
-        $hunkfilename =~ s/((\.(pat(ch)?|diff?))?)$/"-".sprintf("%03i",$counter++).$1/ei;
-        my $ofh;
-        open $ofh, ">", $hunkfilename or die "$hunkfilename: open for writing: $!";
-        print $ofh @curheader, @lines[$i ... $j];
-        close $ofh;
-    }
+	my $counter = 1;
+	my $fh;
+	open $fh, "<", $filename or die "$filename: open for reading: $!";
+	my @lines = <$fh>;
+	my @hunks;
+	my @curheader;
+	for my $i (0 ... $#lines) {
+		next unless $lines[$i] =~ m/^\@\@ /;
+		if ($i >= 2 and $lines[$i - 2] =~ m/^--- / and $lines[$i - 1] =~ m/^\+\+\+ /) {
+			@curheader = @lines[$i - 2 ... $i - 1];
+		}
+		next unless @curheader;
+		my $j = $i + 1;
+		while ($j < @lines and $lines[$j] !~ m/^\@\@ /) {$j++}
+		$j -= 2
+			if $j >= 3 and $j < @lines
+				and $lines[$j - 2] =~ m/^--- /
+				and $lines[$j - 1] =~ m/^\+\+\+ /;
+		$j--;
+		$j-- until $lines[$j] =~ m/^[ @+-]/;
+		my $hunkfilename = $filename;
+		$hunkfilename =~ s/((\.(pat(ch)?|diff?))?)$/"-".sprintf("%03i",$counter++).$1/ei;
+		my $ofh;
+		open $ofh, ">", $hunkfilename or die "$hunkfilename: open for writing: $!";
+		print $ofh @curheader, @lines[$i ... $j];
+		close $ofh;
+	}
 }
 ' "$@"
 }
 
 adapterize()
 {
-	 local tmpdir
-	 tmpdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
-	 if grep -q '\.UTF-8' $SPECFILE; then
-		 awk=gawk
-	 else
-		 awk=awk
-	 fi
-	 $awk -f adapter.awk $SPECFILE > $tmpdir/$SPECFILE || exit
+	local tmpdir
+	tmpdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
+	if grep -q '\.UTF-8' $SPECFILE; then
+		awk=gawk
+	else
+		awk=awk
+	fi
 
-	 if [ "`diff --brief $SPECFILE $tmpdir/$SPECFILE`" ]; then
-		  diff -u $SPECFILE $tmpdir/$SPECFILE > $tmpdir/$SPECFILE.diff
-		  if [ -t 1 ]; then
-				diffcol $tmpdir/$SPECFILE.diff | less -r
+	local tmp=$tmpdir/$(basename $SPECFILE) || exit
+	$awk -f $adapter $SPECFILE > $tmp || exit
+
+	if [ "$(diff --brief $SPECFILE $tmp)" ]; then
+		diff -u $SPECFILE $tmp > $tmp.diff
+		if [ -t 1 ]; then
+				diffcol $tmp.diff | less -r
 				while : ; do
-					 echo -n "Accept? (Yes, No, Confirm each chunk)? "
-					 read ans
-					 case "$ans" in
-					 [yYoO]) # y0 mama
-						  mv -f $tmpdir/$SPECFILE $SPECFILE
-						  echo "Ok, adapterized."
-						  break
-					 ;;
-					 [cC]) # confirm each chunk
-						  diff2hunks $tmpdir/$SPECFILE.diff
-						  for t in $(ls $tmpdir/$SPECFILE-*.diff); do
+					echo -n "Accept? (Yes, No, Confirm each chunk)? "
+					read ans
+					case "$ans" in
+					[yYoO]) # y0 mama
+						mv -f $tmp $SPECFILE
+						echo "Ok, adapterized."
+						break
+					;;
+					[cC]) # confirm each chunk
+						diff2hunks $tmp.diff
+						for t in $(ls $tmp-*.diff); do
 								diffcol $t | less -r
 								echo -n "Accept? (Yes, [N]o, Quit)? "
 								read ans
@@ -163,27 +166,27 @@ adapterize()
 								[yYoO]) # y0 mama
 									patch < $t
 									;;
-								[Q])  # Abort
+								[Q]) # Abort
 									break
 									;;
 								esac
-						  done
-						  break
-					 ;;
-					 [QqnNsS])
-						  echo "Ok, exiting."
-						  break
-					 ;;
-					 esac
+						done
+						break
+					;;
+					[QqnNsS])
+						echo "Ok, exiting."
+						break
+					;;
+					esac
 				done
-		  else
-				cat $tmpdir/$SPECFILE.diff
-		  fi
-	 else
-		  echo "The SPEC is perfect ;)"
-	 fi
+		else
+				cat $tmp.diff
+		fi
+	else
+		echo "The SPEC is perfect ;)"
+	fi
 
-	 rm -rf $tmpdir
+	rm -rf $tmpdir
 }
 
 if [ $# -ne 1 -o ! -f "$1" ]; then
