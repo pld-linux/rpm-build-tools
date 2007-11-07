@@ -41,6 +41,8 @@ dist-verify() {
 		ignore="$ignore quake2-3dfx quake2-sdl quake2-sgl quake2-snd-alsa quake2-snd-ao quake2-snd-oss quake2-snd-sdl quake2-static"
 		# obsoleted
 		ignore="$ignore mozilla-firefox-lang-en apache1-mod_perl-devel libyasm-static"
+		# renamed (courier-authlib.spec, r1.54)
+		ignore="$ignore courier-authlib-userdb courier-authlib-pipe"
 
 		for a in $ignore; do
 			args="$args --ignore=$a"
