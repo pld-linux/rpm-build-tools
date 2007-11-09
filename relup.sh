@@ -32,8 +32,10 @@ get_release() {
 set_release() {
 	local specfile="$1"
 	local rel="$2"
+	local newrel="$3"
 	sed -i -e "
-		s/^\(%define[ \t]\+_rel[ \t]\+\).\+/\1$rel/
+		s/^\(%define[ \t]\+_rel[ \t]\+\)$rel\$/\1$newrel/
+		s/^\(Release:[ \t]\+\)$rel\$/\1$newrel/
 	" $specfile
 }
 
@@ -48,11 +50,11 @@ eval set -- "$t"
 
 while true; do
 	case "$1" in
-	-t)
-		test=1
-		;;
 	-i)
 		inc=1
+		;;
+	-t)
+		test=1
 		;;
 	-m)
 		shift
@@ -75,8 +77,8 @@ for spec in "$@"; do
 	spec=${spec%.spec}.spec
 	rel=$(get_release "$spec")
 	if [ "$inc" = 1 ]; then
-		rel=$(expr $rel + 1)
-		set_release "$spec" $rel
+		newrel=$(expr $rel + 1)
+		set_release "$spec" $rel $newrel
 
 		# refetch release
 		rel=$(get_release "$spec")
