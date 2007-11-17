@@ -921,6 +921,7 @@ preamble == 1 {
 
 		sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 		sub("^http://download\.sf\.net/", "http://dl.sourceforge.net/", $2)
+		sub("^http://download\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 		sub("^http://downloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
 
 		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
