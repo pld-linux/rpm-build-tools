@@ -1,5 +1,5 @@
 #!/bin/ksh
-# 
+#
 # This program is free software, distributed under the terms of
 # the GNU General Public License Version 2.
 #
@@ -247,6 +247,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
                     - setup \$CVSROOT,
 --define <macro> <value>
                     - define a macro <macro> with value <value>,
+--alt_kernel <kernel>
+                    - same as --define 'alt_kernel <kernel>'
 --nodeps            - rpm won't check any dependences
 -g, --get           - get <package>.spec and all related files from CVS repo
                       or HTTP/FTP,
@@ -1923,7 +1925,7 @@ while [ $# -gt 0 ]; do
 		-c | --clean )
 			CLEAN="--clean --rmspec --rmsource"; shift ;;
 		-cf | --cvs-force )
-			CVS_FORCE="-F -B"; shift;;
+			CVS_FORCE="-F"; shift;;
 		-d | --cvsroot )
 			shift; CVSROOT="${1}"; shift ;;
 		-g | --get )
@@ -2096,6 +2098,11 @@ while [ $# -gt 0 ]; do
 				shift
 				RPMOPTS="${RPMOPTS} --define \"${MACRO} ${VALUE}\""
 			fi
+			;;
+		--alt_kernel)
+			shift
+			RPMOPTS="${RPMOPTS} --define \"alt_kernel $1\""
+			shift
 			;;
 		--short-circuit)
 			RPMBUILDOPTS="${RPMBUILDOPTS} --short-circuit"
