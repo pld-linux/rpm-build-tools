@@ -518,7 +518,7 @@ parse_spec()
 	# icons are needed for successful spec parse
 	get_icons
 
-	cd $SPECS_DIR
+	cd $SPEC_DIR
 	cache_rpm_dump
 
 	if [ "$NOSRCS" != "yes" ]; then
@@ -626,10 +626,10 @@ init_builder()
 			extra="--define 'name $ASSUMED_NAME'"
 		fi
 		SOURCE_DIR="`eval $RPM $RPMOPTS $extra --eval '%{_sourcedir}'`"
-		SPECS_DIR="`eval $RPM $RPMOPTS $extra --eval '%{_specdir}'`"
+		SPEC_DIR="`eval $RPM $RPMOPTS $extra --eval '%{_specdir}'`"
 	else
 		SOURCE_DIR="."
-		SPECS_DIR="."
+		SPEC_DIR="."
 	fi
 
 	__PWD="`pwd`"
@@ -645,7 +645,7 @@ get_spec()
 		set -v
 	fi
 
-	cd "$SPECS_DIR"
+	cd "$SPEC_DIR"
 	if [ ! -f "$SPECFILE" ]; then
 		SPECFILE="`basename $SPECFILE .spec`.spec"
 	fi
@@ -674,7 +674,7 @@ get_spec()
 
 find_mirror()
 {
-	cd "$SPECS_DIR"
+	cd "$SPEC_DIR"
 	local url="$1"
 	if [ ! -f "mirrors" -a "$NOCVSSPEC" != "yes" ] ; then
 		cvs update mirrors >&2
@@ -701,7 +701,7 @@ find_mirror()
 # Warning: unpredictable results if same URL used twice
 src_no ()
 {
-	cd $SPECS_DIR
+	cd $SPEC_DIR
 	rpm_dump | \
 	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
 	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
@@ -713,7 +713,7 @@ src_md5()
 	[ "$NO5" = "yes" ] && return
 	no=$(src_no "$1")
 	[ -z "$no" ] && return
-	cd $SPECS_DIR
+	cd $SPEC_DIR
 	local md5
 
 	if [ -f additional-md5sums ]; then
@@ -865,9 +865,9 @@ update_md5()
 		local srcno=$(src_no "$i")
 		if [ -n "$ADD5" ]; then
 			[ "$fp" = "$i" ] && continue # FIXME what is this check doing?
-			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE && continue
+			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE && continue
 		else
-			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE || continue
+			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE || continue
 		fi
 		if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 			need_files="$need_files $i"
@@ -883,7 +883,7 @@ update_md5()
 	for i in "$@"; do
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
-		local md5=$(grep -iE '^#[ 	]*(No)?Source'$srcno'-md5[ 	]*:' $SPECS_DIR/$SPECFILE )
+		local md5=$(grep -iE '^#[ 	]*(No)?Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE )
 		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
 			local tag="Source$srcno-md5"
 			if [[ "$md5" == *NoSource* ]]; then
@@ -895,7 +895,7 @@ update_md5()
 				print unless /^\s*#\s*(No)?Source'$srcno'-md5\s*:/i;
 				print "# '$tag':\t'$md5'\n" if /^Source'$srcno'\s*:\s+/;
 			' \
-			$SPECS_DIR/$SPECFILE
+			$SPEC_DIR/$SPECFILE
 		fi
 	done
 }
@@ -1188,7 +1188,7 @@ tag_files()
 		fi
 	fi
 
-	cd "$SPECS_DIR"
+	cd "$SPEC_DIR"
 	if [ "$TAG_VERSION" = "yes" ]; then
 		update_shell_title "tag spec: $TAGVER"
 		cvs $OPTIONS $TAGVER $SPECFILE || exit
@@ -1232,7 +1232,7 @@ branch_files()
 		cvs $OPTIONS $TAG $tag_files || exit
 	fi
 
-	cd "$SPECS_DIR"
+	cd "$SPEC_DIR"
 	cvs $OPTIONS $TAG $SPECFILE || exit
 }
 
@@ -1258,7 +1258,7 @@ build_package()
 		set -v
 	fi
 
-	cd "$SPECS_DIR"
+	cd "$SPEC_DIR"
 
 	if [ -n "$TRY_UPGRADE" ]; then
 		update_shell_title "build_package: try_upgrade"
@@ -1286,7 +1286,7 @@ build_package()
 			unset TOLDVER TNEWVER TNOTIFY
 		fi
 	fi
-	cd "$SPECS_DIR"
+	cd "$SPEC_DIR"
 
 	case "$COMMAND" in
 		build )
@@ -1539,12 +1539,12 @@ run_sub_builder()
 	parent_spec_name=''
 
 	# Istnieje taki spec? ${package}.spec
-	if [ -f "${SPECS_DIR}/${package}.spec" ]; then
+	if [ -f "${SPEC_DIR}/${package}.spec" ]; then
 		parent_spec_name=${package}.spec
-	elif [ -f "${SPECS_DIR}/`echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
+	elif [ -f "${SPEC_DIR}/`echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
 		parent_spec_name="`echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g`.spec"
 	else
-		for provides_line in `grep ^Provides:.*$package  ${SPECS_DIR} -R`
+		for provides_line in `grep ^Provides:.*$package  ${SPEC_DIR} -R`
 		do
 			echo $provides_line
 		done
@@ -1574,7 +1574,7 @@ spawn_sub_builder()
 		sub_builder_opts="${sub_builder_opts} -Upi"
 	fi
 
-	cd "${SPECS_DIR}"
+	cd "${SPEC_DIR}"
 	./builder ${sub_builder_opts} "$@"
 }
 
@@ -1853,12 +1853,12 @@ init_rpm_dir() {
 	init_builder
 
 	echo "To checkout *all* .spec files:"
-	echo "- remove $SPECS_DIR/CVS/Entries.Static"
-	echo "- run cvs up in $SPECS_DIR dir"
+	echo "- remove $SPEC_DIR/CVS/Entries.Static"
+	echo "- run cvs up in $SPEC_DIR dir"
 
 	echo ""
 	echo "To commit with your developer account:"
-	echo "- edit $SPECS_DIR/CVS/Root"
+	echo "- edit $SPEC_DIR/CVS/Root"
 	echo "- edit $SOURCE_DIR/CVS/Root"
 }
 
@@ -1898,7 +1898,7 @@ mr_proper() {
 	parse_spec
 
 	# remove from CVS/Entries
-	cvs_entry_remove $SPECS_DIR $SPECFILE
+	cvs_entry_remove $SPEC_DIR $SPECFILE
 	cvs_entry_remove $SOURCE_DIR $SOURCES $PATCHES
 
 	# remove spec and sources
