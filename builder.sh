@@ -241,7 +241,10 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 --short-circuit     - short-circuit build
 -B, --branch        - add branch
 -c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
-                      SPECS and \$RPM_BUILD_ROOT),
+                      SPECS and \$RPM_BUILD_ROOT and CVS/Entries) after rpmbuild commands.
+-m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES,
+					  SPECS and \$RPM_BUILD_ROOT and CVS/Entries). Doesn't run
+					  any rpm building.
 -cf, --cvs-force	- use -F when tagging (useful when moving branches)
 -d <cvsroot>, --cvsroot <cvsroot>
                     - setup \$CVSROOT,
@@ -256,8 +259,6 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 --http              - use http instead of ftp,
 -l <logfile>, --logtofile <logfile>
                     - log all to file,
--m, --mr-proper     - only remove all files related to spec file and all work
-                      resources,
 -nc, --no-cvs       - don't download sources from CVS, if source URL is given,
 -ncs, --no-cvs-specs
                     - don't check specs in CVS
@@ -1873,6 +1874,37 @@ get_greed_sources() {
 	
 }
 
+# remove entries from CVS/Entries
+cvs_entry_remove() {
+	local cvsdir="$1"; shift
+	if [ ! -d "$cvsdir" ]; then
+		echo >&2 "cvs_entry_remove: $cvsdir is not a directory"
+		exit 1
+	fi
+
+	for file in "$@"; do
+		rm -f $cvsdir/CVS/Entries.new || return 1
+		awk -ve="${file##*/}" -F/ '$2 != e {print}' $cvsdir/CVS/Entries > $cvsdir/CVS/Entries.new || return 1
+		mv -f $cvsdir/CVS/Entries.new $cvsdir/CVS/Entries || return 1
+	done
+	return 0
+}
+
+mr_proper() {
+	init_builder
+	NOCVSSPEC="yes"
+	DONT_PRINT_REVISION="yes"
+	get_spec
+	parse_spec
+
+	# remove from CVS/Entries
+	cvs_entry_remove $SPECS_DIR $SPECFILE
+	cvs_entry_remove $SOURCE_DIR $SOURCES $PATCHES
+
+	# remove spec and sources
+	$RPMBUILD --clean --rmsource --rmspec --nodeps $SPECFILE
+}
+
 #---------------------------------------------
 # main()
 
@@ -2322,7 +2354,7 @@ case "$COMMAND" in
 		fi
 		;;
 	"mr-proper" )
-		$RPM --clean --rmsource --rmspec --force --nodeps $SPECFILE
+		mr_proper
 		;;
 	"list-sources-files" )
 		init_builder
