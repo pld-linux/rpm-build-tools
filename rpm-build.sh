@@ -43,7 +43,8 @@ dist-verify() {
 		ignore="$ignore mozilla-firefox-lang-en apache1-mod_perl-devel libyasm-static"
 		# renamed (courier-authlib.spec, r1.54)
 		ignore="$ignore courier-authlib-userdb courier-authlib-pipe"
-
+		# obsoleted, squid 2.6
+		ignore="$ignore squid-winbind_acl squid-winbind_auth"
 		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
