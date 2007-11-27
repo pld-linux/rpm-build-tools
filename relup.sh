@@ -19,6 +19,19 @@ get_dump() {
 	echo "$out"
 }
 
+usage="Usage:
+${0##*/} [-i] [-t] [-m <MESSAGE>] <SPECLIST>
+
+Options:
+-i
+  Try to increment package release
+-t
+  Test mode. do not commit
+-m
+  Specify commit message
+
+"
+
 get_release() {
 	local specfile="$1"
 	rel=$(awk '/^%define[ 	]*_rel[ 	]/{print $NF}' $specfile)
@@ -44,7 +57,7 @@ if [ ! -x /usr/bin/getopt ]; then
 	exit 1
 fi
 
-t=$(getopt -o 'm:it' -n $(dirname "$0") -- "$@") || exit $?
+t=$(getopt -o 'm:ith' -n "${0##*/}" -- "$@") || exit $?
 # Note the quotes around `$t': they are essential!
 eval set -- "$t"
 
@@ -59,6 +72,10 @@ while true; do
 	-m)
 		shift
 		message="${1#- }"
+		;;
+	-h)
+		echo "$usage"
+		exit 0
 		;;
 	--)
 		shift
