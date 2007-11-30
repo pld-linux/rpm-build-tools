@@ -1957,7 +1957,7 @@ while [ $# -gt 0 ]; do
 		-c | --clean )
 			CLEAN="--clean --rmspec --rmsource"; shift ;;
 		-cf | --cvs-force )
-			CVS_FORCE="-B -F"; shift;;
+			CVS_FORCE="-F"; shift;;
 		-d | --cvsroot )
 			shift; CVSROOT="${1}"; shift ;;
 		-g | --get )
