@@ -48,7 +48,7 @@ set_release() {
 	local newrel="$3"
 	sed -i -e "
 		s/^\(%define[ \t]\+_rel[ \t]\+\)$rel\$/\1$newrel/
-		s/^\(Release:[ \t]\+\)$rel\(%{[^}]\+}\)\?$/\1$newrel\2/
+		s/^\(Release:[ \t]\+\)$rel\$/\1$newrel/
 	" $specfile
 }
 
