@@ -773,6 +773,7 @@ preamble == 1 {
 		sub(/^saxon-scripts$/, "saxon", $2);
 		sub(/^xalan-j2$/, "xalan-j", $2);
 		sub(/^xerces-j2$/, "xerces-j", $2);
+		sub(/^gnu-regexp$/, "gnu.regexp", $2);
 
 		replace_php_virtual_deps();
 	}
