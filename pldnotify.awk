@@ -1,6 +1,19 @@
 #!/bin/awk -f
 # $Revision$, $Date$
-# TODO: "SourceXDownload" support (use given URLs if present instead of cut-down SourceX URLs)
+#
+# Copyright (C) 2000-2006 PLD-Team <feedback@pld-linux.org>
+# Authors:
+#	Sebastian Zagrodzki <zagrodzki@pld-linux.org>
+#	Jacek Konieczny <jajcus@pld-linux.org>
+#	Andrzej Krzysztofowicz <ankry@pld-linux.org>
+#	Jakub Bogusz <qboosh@pld-linux.org>
+#	Elan Ruusamäe <glen@pld-linux.org>
+#
+# See cvs log pldnotify.awk for list of contributors
+#
+# TODO:
+# - "SourceXDownload" support (use given URLs if present instead of cut-down SourceX URLs)
+# - "SourceXActiveFTP" support
 
 function fixedsub(s1,s2,t,	ind) {
 # substitutes fixed strings (not regexps)
