@@ -760,26 +760,11 @@ preamble == 1 {
 			next
 		}
 
-		# perhaps we have common known name?
-
-		# jpackages
-		sub(/^java-devel$/, "jdk", $2);
-		sub(/^log4j$/, "logging-log4j", $2);
-		sub(/^jakarta-log4j$/, "logging-log4j", $2);
-		sub(/^oro$/, "jakarta-oro", $2);
-		sub(/^jakarta-ant$/, "ant", $2);
-		sub(/^xerces-j2$/, "xerces-j", $2);
-		sub(/^ldapjdk$/, "ldapsdk", $2);
-		sub(/^saxon-scripts$/, "saxon", $2);
-		sub(/^xalan-j2$/, "xalan-j", $2);
-		sub(/^xerces-j2$/, "xerces-j", $2);
-		sub(/^gnu-regexp$/, "gnu.regexp", $2);
-
-		replace_php_virtual_deps();
+		replace_requires();
 	}
 
 	if (field ~ /^requires:/) {
-		replace_php_virtual_deps();
+		replace_requires();
 	}
 
 
@@ -1662,6 +1647,28 @@ function use_tabs()
 function add_br(br)
 {
 	BR[BR_count++] = br
+}
+
+function replace_requires()
+{
+
+	# jpackages
+	sub(/^java-devel$/, "jdk", $2);
+	sub(/^log4j$/, "logging-log4j", $2);
+	sub(/^jakarta-log4j$/, "logging-log4j", $2);
+	sub(/^oro$/, "jakarta-oro", $2);
+	sub(/^jakarta-ant$/, "ant", $2);
+	sub(/^xerces-j2$/, "xerces-j", $2);
+	sub(/^ldapjdk$/, "ldapsdk", $2);
+	sub(/^saxon-scripts$/, "saxon", $2);
+	sub(/^xalan-j2$/, "xalan-j", $2);
+	sub(/^xerces-j2$/, "xerces-j", $2);
+	sub(/^gnu-regexp$/, "gnu.regexp", $2);
+
+	# redhat virtual
+	sub(/^tftp-server$/, "tftpdaemon", $2);
+
+	replace_php_virtual_deps()
 }
 
 # php virtual deps as discussed in devel-en
