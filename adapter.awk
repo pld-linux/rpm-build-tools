@@ -917,6 +917,9 @@ preamble == 1 {
 
 		sub("^ftp://ftp\.gnome\.org/", "http://ftp.gnome.org/", $2)
 		sub("^http://ftp\.gnome\.org/pub/gnome/", "http://ftp.gnome.org/pub/GNOME/", $2)
+
+		# apache urls
+		sub("^http://apache.zone-h.org/", "http://www.apache.org/dist/", $2)
 	}
 
 
