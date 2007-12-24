@@ -30,8 +30,12 @@ specutfundo() {
 }
 
 dist-verify() {
+	local args sn
+	sn="--sn $dist"
 	case "$dist" in
 	ac)
+		sn="$sn --sn $dist-updates"
+
 		local a ignore
 		# typo
 		ignore="$ignore kdenetwork-kopete-tool-conectionstatus"
@@ -51,8 +55,8 @@ dist-verify() {
 		;;
 	esac
 
-	poldek --sn $dist --sn $dist-updates --up --upa -q "$@"
-	poldek --sn $dist --sn $dist-updates --noignore --verify=deps $args "$@"
+	poldek $sn --up --upa -q "$@"
+	poldek $sn --noignore --verify=deps $args "$@"
 }
 
 # displays latest used tag for a specfile
