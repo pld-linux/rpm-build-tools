@@ -5,7 +5,7 @@
 [ -n "$dist" ] || dist=$(awk '/PLD Linux/ {print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
 
 case "$dist" in
-ac|th)
+ac|th|ti)
 	;;
 *)
 	# invalid one ;)
@@ -51,7 +51,7 @@ dist-verify() {
 		;;
 	esac
 
-	poldek --sn $dist --sn $dist-updates --up --upa -q
+	poldek --sn $dist --sn $dist-updates --up --upa -q "$@"
 	poldek --sn $dist --sn $dist-updates --noignore --verify=deps $args "$@"
 }
 
