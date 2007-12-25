@@ -1,11 +1,16 @@
 #!/bin/sh
 # $Id$
 #
+# Sending by
+MAILER='/usr/sbin/sendmail'
+# MAILER='/usr/bin/msmtp'
 # Sending via
 VIA="SENDMAIL"
 #VIA="localhost"
 VIA_ARGS=""
 #VIA_ARGS="some additional flags"
+# e.g. for msmtp:
+# VIA_ARGS='-a gmail'
 #
 # DISTFILES EMAIL
 DMAIL="distfiles@pld-linux.org"
@@ -45,8 +50,8 @@ if [[ "$SPEC" != *.spec ]]; then
 fi
 
 if [ "$VIA" = "SENDMAIL" ]; then
-	echo >&2 "Requesting $SPEC:$BRANCH via sendmail${VIA_ARGS:+ ($VIA_ARGS)}"
-	cat <<EOF | /usr/sbin/sendmail -t $VIA_ARGS
+	echo >&2 "Requesting $SPEC:$BRANCH via $MAILER ${VIA_ARGS:+ ($VIA_ARGS)}"
+	cat <<EOF | "$MAILER" -t -i $VIA_ARGS
 To: $DMAIL
 From: $LOGIN <$LOGIN@$HOST>
 Subject: fetchsrc_request notify
