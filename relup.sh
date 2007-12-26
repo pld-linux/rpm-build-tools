@@ -34,7 +34,7 @@ Options:
 
 get_release() {
 	local specfile="$1"
-	rel=$(awk '/^%define[ 	]*_rel[ 	]/{print $NF}' $specfile)
+	rel=$(awk '/^%define[ 	]+_?rel[ 	]+/{print $NF}' $specfile)
 	if [ -z "$rel" ]; then
 		dump=$(get_dump "$specfile")
 		rel=$(echo "$dump" | awk '/PACKAGE_RELEASE/{print $NF; exit}')
@@ -47,7 +47,7 @@ set_release() {
 	local rel="$2"
 	local newrel="$3"
 	sed -i -e "
-		s/^\(%define[ \t]\+_rel[ \t]\+\)$rel\$/\1$newrel/
+		s/^\(%define[ \t]\+_\?rel[ \t]\+\)$rel\$/\1$newrel/
 		s/^\(Release:[ \t]\+\)$rel\$/\1$newrel/
 	" $specfile
 }
