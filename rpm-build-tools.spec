@@ -15,6 +15,7 @@ Source0:	builder
 Source1:	adapter.awk
 Source2:	adapter
 Source3:	pldnotify.awk
+Requires:	less
 Requires:	wget
 Suggests:	cvs
 BuildArch:	noarch
