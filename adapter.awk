@@ -703,6 +703,7 @@ preamble == 1 {
 		sub(/^Development\/Code Generators$/, "Development", group)
 		sub(/^Emulators$/, "Applications/Emulators", group)
 		sub(/^System\/Libraries$/, "Libraries", group)
+		sub(/^Development\/Libraries\/C and C\+\+$/, "Development/Libraries", group)
 
 		$0 = "Group:\t\t" group
 
