@@ -1672,6 +1672,8 @@ function replace_requires()
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 
+	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
+
 	replace_php_virtual_deps()
 }
 
