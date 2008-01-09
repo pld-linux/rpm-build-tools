@@ -54,6 +54,9 @@ ALWAYS_CVSUP=${ALWAYS_CVSUP:-"yes"}
 CVSROOT=""
 GREEDSRC=""
 
+# use rpm 4.4.6+ digest format instead of comments if non-zero
+USEDIGEST=
+
 # user agent when fetching files
 USER_AGENT="PLD/Builder($VERSION)"
 
@@ -871,8 +874,9 @@ update_md5()
 		if [ -n "$ADD5" ]; then
 			[ "$fp" = "$i" ] && continue # FIXME what is this check doing?
 			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE && continue
+			grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $SPEC_DIR/$SPECFILE && continue
 		else
-			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE || continue
+			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE || grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $SPEC_DIR/$SPECFILE || continue
 		fi
 		if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 			need_files="$need_files $i"
@@ -889,16 +893,21 @@ update_md5()
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
 		local md5=$(grep -iE '^#[ 	]*(No)?Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE )
+		if [ -z "$md5"]; then
+			md5=$(grep -iE '^[ 	]*BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $SPEC_DIR/$SPECFILE )
+		fi
 		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
-			local tag="Source$srcno-md5"
+			local tag="# Source$srcno-md5:\t"
 			if [[ "$md5" == *NoSource* ]]; then
-				tag="NoSource$srcno-md5"
+				tag="# NoSource$srcno-md5:\t"
+			elif [ -n "$USEDIGEST" ]; then
+				tag="BuildRequires:\tdigest(%SOURCE$srcno) = "
 			fi
 			md5=$(md5sum "$fp" | cut -f1 -d' ')
 			echo "Updating $tag ($md5: $fp)."
 			perl -i -ne '
-				print unless /^\s*#\s*(No)?Source'$srcno'-md5\s*:/i;
-				print "# '$tag':\t'$md5'\n" if /^Source'$srcno'\s*:\s+/;
+				print unless (/^\s*#\s*(No)?Source'$srcno'-md5\s*:/i or /^\s*BuildRequires:\s*digest\(%SOURCE'$srcno'\)/i);
+				print "'"$tag$md5"'\n" if /^Source'$srcno'\s*:\s+/;
 			' \
 			$SPEC_DIR/$SPECFILE
 		fi
