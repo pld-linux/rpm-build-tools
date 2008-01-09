@@ -31,6 +31,8 @@ BEGIN {
 
 	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests)"
 
+	usedigest = 0	# Enable to switch to rpm 4.4.6+ md5 digests
+
 	preamble = 1	# Is it part of preamble? Default - yes
 	boc = 4			# Beginning of %changelog
 	bod = 0			# Beginning of %description
@@ -168,7 +170,11 @@ function b_makekey(a, b,	s) {
 	# Generally, comments are printed without touching
 	sub(/[ \t]+$/, "")
 
-	if (/Source.*md5/) {
+	if (/#[ \t]*Source.*md5/) {
+		if (usedigest == 1) {
+			sub(/^#[ \t]*Source/, "BuildRequires:\tdigest(%SOURCE", $0)
+			sub(/-md5[ \t]*:[ \t]*/, ") = ", $0)
+		}
 		print $0
 		next
 	}
