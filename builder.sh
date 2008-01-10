@@ -893,7 +893,7 @@ update_md5()
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
 		local md5=$(grep -iE '^#[ 	]*(No)?Source'$srcno'-md5[ 	]*:' $SPEC_DIR/$SPECFILE )
-		if [ -z "$md5"]; then
+		if [ -z "$md5" ]; then
 			md5=$(grep -iE '^[ 	]*BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $SPEC_DIR/$SPECFILE )
 		fi
 		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
