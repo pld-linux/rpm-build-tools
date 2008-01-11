@@ -250,6 +250,8 @@ function b_makekey(a, b,	s) {
 		_pre = $3
 	if ($2 ~ /^_snap$/)
 		_snap = $3
+	if ($2 ~ /^subver$/)
+		subver = $3
 
 	# these are used usually when adapterizing external spec
 	if ($2 ~ /^name$/)
@@ -350,6 +352,9 @@ function b_makekey(a, b,	s) {
 		}
 		if (_snap) {
 			$0 = fixedsub(_snap, "%{_snap}", $0);
+		}
+		if (subver) {
+			$0 = fixedsub(subver, "%{subver}", $0);
 		}
 	}
 
@@ -903,6 +908,9 @@ preamble == 1 {
 			}
 			if (_snap) {
 				url[n] = fixedsub(_snap, "%{_snap}", url[n])
+			}
+			if (subver) {
+				url[n] = fixedsub(subver, "%{subver}", url[n])
 			}
 		}
 		# assigning to $2 kills preamble formatting
@@ -1596,6 +1604,9 @@ function demacroize(str)
 	}
 	if (_snap) {
 		sub("%{_snap}", _snap, str);
+	}
+	if (subver) {
+		sub("%{subver}", subver, str);
 	}
 	return str;
 }
