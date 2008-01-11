@@ -674,6 +674,7 @@ preamble == 1 {
 		sub(/^Games/,"Applications/Games", group)
 		sub(/^X11\/Games/,"X11/Applications/Games", group)
 		sub(/^X11\/GNOME\/Development\/Libraries/,"X11/Development/Libraries", group)
+		sub(/^Development\/Other/,"Development", group)
 		sub(/^X11\/GNOME\/Applications/,"X11/Applications", group)
 		sub(/^X11\/GNOME/,"X11/Applications", group)
 		sub(/^X11\/Utilities/,"X11/Applications", group)
