@@ -354,6 +354,16 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 "
 }
 
+# change dependency to specname
+# common changes:
+# - perl(Package::Name) -> perl-Package-Name
+depspecname() {
+	local package="$1"
+
+	package=$(echo "$package" | sed -e '/perl(.*)/{s,perl(\(.*\)),perl-\1,;s,::,-,g}')
+	echo "$package"
+}
+
 update_shell_title() {
 	[ -t 1 ] || return
 	local len=${COLUMNS:-80}
@@ -1709,13 +1719,12 @@ fetch_build_requires()
 					echo "Trying to install dependencies ($DEPS):"
 					local log=.${SPECFILE}_poldek.log
 					$SU_SUDO /usr/bin/poldek --caplookup -uGq $DEPS | tee $log
-					failed=$(awk -F: '/^error:/{print $2}' $log)
+					failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
 					rm -f $log
 					local ok
 					if [ -n "$failed" ]; then
 						for package in $failed; do
-							# FIXME: sanitise, deps could be not .spec files
-							spawn_sub_builder -bb $package && ok="$ok $package"
+							spawn_sub_builder -bb $(depspecname $package) && ok="$ok $package"
 						done
 						DEPS="$ok"
 					else
