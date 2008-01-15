@@ -113,11 +113,18 @@ TRY_UPGRADE=""
 # should the specfile be restored if upgrade failed?
 REVERT_BROKEN_UPGRADE="yes"
 
-if [ -x /usr/bin/rpm-getdeps ]; then
-	FETCH_BUILD_REQUIRES_RPMGETDEPS="yes"
-else
+if rpm --specsrpm 2>/dev/null; then
+	FETCH_BUILD_REQUIRES_RPMSPECSRPM="yes"
 	FETCH_BUILD_REQUIRES_RPMGETDEPS="no"
+else
+	FETCH_BUILD_REQUIRES_RPMSPECSRPM="no"
+	if [ -x /usr/bin/rpm-getdeps ]; then
+		FETCH_BUILD_REQUIRES_RPMGETDEPS="yes"
+	else
+		FETCH_BUILD_REQUIRES_RPMGETDEPS="no"
+	fi
 fi
+
 
 # Here we load saved user environment used to
 # predefine options set above, or passed to builder
@@ -1605,7 +1612,7 @@ remove_build_requires()
 			*)
 				echo You may want to manually remove following BuildRequires fetched:
 				echo $INSTALLED_PACKAGES
-				echo Try poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`
+				echo "Try poldek -e \`cat $(pwd)/.${SPECFILE}_INSTALLED_PACKAGES\`"
 				;;
 		esac
 	fi
@@ -1675,10 +1682,16 @@ fetch_build_requires()
 {
 	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
 		update_shell_title "fetch build requires"
-		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
-			# TODO: Conflicts list doesn't check versions
-			local CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
-			local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
+		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ] || [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
+			if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
+				# TODO: Conflicts list doesn't check versions
+				local CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
+				local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
+			fi
+			if [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
+				local CNFL=$(rpm -q --specsrpm --conflicts $BCOND $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
+				local DEPS=$(rpm -q --specsrpm --requires $BCOND $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
+			fi
 
 			if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
 				echo "fetch builderequires: install [$DEPS]; remove [$CNFL]"
