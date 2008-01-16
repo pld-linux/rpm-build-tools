@@ -696,7 +696,6 @@ preamble == 1 {
 		sub(/^Library\/Development$/, "Development/Libraries", group)
 		sub(/^Networking\/Deamons$/, "Networking/Daemons", group)
 		sub(/^Shells/,"Applications/Shells", group)
-		sub(/^System Enviornment\/Daemons$/, "Daemons", group)
 		sub(/^System Environment\/Base$/, "Base", group)
 		sub(/^System Environment\/Daemons$/, "Daemons", group)
 		sub(/^System Environment\/Kernel$/, "Base/Kernel", group)
