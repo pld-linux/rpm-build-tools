@@ -694,6 +694,7 @@ preamble == 1 {
 		sub(/^Applications\/Daemons$/, "Daemons", group)
 		sub(/^Application\/Multimedia$/, "Applications/Multimedia", group)
 		sub(/^System\/Servers$/, "Daemons", group)
+		sub(/^System Enviornment\/Daemons$/, "Daemons", group)
 		sub(/^X11\/Xserver$/, "X11/Servers", group)
 		sub(/^X11\/XFree86/, "X11", group)
 		sub(/^Applications\/Compilers$/, "Development/Languages", group)
@@ -716,6 +717,7 @@ preamble == 1 {
 		sub(/^Emulators$/, "Applications/Emulators", group)
 		sub(/^System\/Libraries$/, "Libraries", group)
 		sub(/^Development\/Libraries\/C and C\+\+$/, "Development/Libraries", group)
+		sub(/^System\/Base$/, "Base", group)
 
 		$0 = "Group:\t\t" group
 
