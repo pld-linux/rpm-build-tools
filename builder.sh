@@ -921,7 +921,7 @@ update_md5()
 				tag="BuildRequires:\tdigest(%SOURCE$srcno) = "
 			fi
 			md5=$(md5sum "$fp" | cut -f1 -d' ')
-			echo "Updating $tag ($md5: $fp)."
+			echo "Updating Source$srcno ($md5: $fp)."
 			perl -i -ne '
 				print unless (/^\s*#\s*(No)?Source'$srcno'-md5\s*:/i or /^\s*BuildRequires:\s*digest\(%SOURCE'$srcno'\)/i);
 				print "'"$tag$md5"'\n" if /^Source'$srcno'\s*:\s+/;
