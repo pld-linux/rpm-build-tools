@@ -21,7 +21,14 @@ set -e
 
 rpmbuild() {
 	set -x
-	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} $BCONDS --short-circuit --define '_source_payload w9.gzdio' --define 'check exit 0; %{nil}' "$@" || exit
+	/usr/bin/rpmbuild \
+		--define '_source_payload w9.gzdio' \
+		--define 'clean exit 0; %{nil}' \
+		--define 'check exit 0; %{nil}' \
+		${TARGET:+--target $TARGET} \
+		$BCONDS \
+		--short-circuit \
+		"$@" || exit
 }
 
 specfile="${1%.spec}.spec"; shift
@@ -38,4 +45,4 @@ BCONDS=$(./builder -nn -ncs --show-bcond-args $specfile)
 if [[ *$@* != *-bb* ]]; then
 	rpmbuild -bi "$@"
 fi
-rpmbuild -bb --define 'clean exit 0; %{nil}' "$@"
+rpmbuild -bb "$@"
