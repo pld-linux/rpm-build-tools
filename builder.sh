@@ -478,33 +478,37 @@ cache_rpm_dump() {
 	fi
 
 	update_shell_title "cache_rpm_dump"
-	local rpm_dump
-	rpm_dump=`
-		# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
-		dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
-		case "$RPMBUILD" in
-		rpm)
-			ARGS='-bp'
-			;;
-		rpmbuild)
-			ARGS='--nodigest --nosignature --nobuild'
-			;;
-		esac
-		minirpm $ARGS --define "'prep $dump'" --nodeps $SPECFILE
-	`
-	if [ $? -gt 0 ]; then
-		error=$(echo "$rpm_dump" | sed -ne '/^error:/,$p')
-		echo "$error" >&2
-		Exit_error err_build_fail
-	fi
+	if [ -x /usr/bin/rpm-specdump ]; then
+		rpm_dump_cache=`rpm-specdump $BCOND $TARGET_SWITCH $SPECFILE`
+	else
+		local rpm_dump
+		rpm_dump=`
+			# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
+			dump='%{echo:dummy: PACKAGE_NAME %{name} }%dump'
+			case "$RPMBUILD" in
+			rpm)
+				ARGS='-bp'
+				;;
+			rpmbuild)
+				ARGS='--nodigest --nosignature --nobuild'
+				;;
+			esac
+			minirpm $ARGS --define "'prep $dump'" --nodeps $SPECFILE
+		`
+		if [ $? -gt 0 ]; then
+			error=$(echo "$rpm_dump" | sed -ne '/^error:/,$p')
+			echo "$error" >&2
+			Exit_error err_build_fail
+		fi
 
-	# make small dump cache
-	rpm_dump_cache=`echo "$rpm_dump" | awk '
-		$2 ~ /^SOURCEURL/ {print}
-		$2 ~ /^PATCHURL/  {print}
-		$2 ~ /^nosource/ {print}
-		$2 ~ /^PACKAGE_/ {print}
-	'`
+		# make small dump cache
+		rpm_dump_cache=`echo "$rpm_dump" | awk '
+			$2 ~ /^SOURCEURL/ {print}
+			$2 ~ /^PATCHURL/  {print}
+			$2 ~ /^nosource/ {print}
+			$2 ~ /^PACKAGE_/ {print}
+		'`
+	fi
 
 	update_shell_title "cache_rpm_dump: OK!"
 }
