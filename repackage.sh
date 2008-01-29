@@ -21,18 +21,22 @@ set -e
 
 rpmbuild() {
 	# use gz payload as time is what we need here, not compress ratio
+
+	# we use %__ldconfig variable to test are we on rpm 4.4.9
+	# on 4.4.9 we should not redefine %clean to contain %clean, and redefine %__spec_clean_body instead
+	# on 4.4.2 we must redefine %clean to contain %clean
 	set -x
 	/usr/bin/rpmbuild \
 		${TARGET:+--target $TARGET} \
 		$BCONDS \
 		--short-circuit \
-		--define '_source_payload w9.gzdio' \
-		--define '__spec_install_pre %___build_pre' \
-		--define '__spec_clean_body %{nil}' \
-		--define 'clean %%clean \
+		--define 'clean %%%{!?__ldconfig:clean}%{?__ldconfig:check} \
 		exit 0%{nil}' \
 		--define 'check %%check \
 		exit 0%{nil}' \
+		--define '_source_payload w9.gzdio' \
+		--define '__spec_install_pre %___build_pre' \
+		--define '__spec_clean_body %{nil}' \
 		"$@" || exit
 }
 
