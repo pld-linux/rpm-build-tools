@@ -12,21 +12,5 @@
 #
 # -glen 2005-03-03
 
-set -e
-
-rpmbuild() {
-	set -x
-	/usr/bin/rpmbuild ${TARGET:+--target $TARGET} $BCONDS --short-circuit "$@" || exit
-}
-
-specfile="${1%.spec}.spec"; shift
-set -- "$specfile" "$@"
-
-tmp=$(awk '/^BuildArch:/ { print $NF}' $specfile)
-if [ "$tmp" ]; then
-	TARGET="$tmp"
-fi
-
-BCONDS=$(./builder -nn -ncs --show-bcond-args $specfile)
-
-rpmbuild -bc "$@"
+set -x
+exec ./builder --short-circuit -bc "$@"
