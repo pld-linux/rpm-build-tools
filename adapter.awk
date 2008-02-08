@@ -1314,6 +1314,7 @@ function use_macros()
 	gsub("^make$", "%{__make}")
 	gsub("^make ", "%{__make} ")
 	gsub("^gcc ", "%{__cc} ")
+	gsub("^rm --interactive=never ", "%{__rm} ")
 
 	# mandrake specs
 	gsub("^%make$", "%{__make}")
@@ -1323,7 +1324,6 @@ function use_macros()
 	gsub("^%makeinstall", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT")
 	gsub("^%{__rm} -rf %{buildroot}", "rm -rf $RPM_BUILD_ROOT")
 	gsub("^%{__install}", "install")
-	gsub("^%{__rm}", "rm")
 	gsub("%optflags", "%{rpmcflags}")
 	gsub("%{compat_perl_vendorarch}", "%{perl_vendorarch}")
 
