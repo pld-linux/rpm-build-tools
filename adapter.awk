@@ -803,6 +803,18 @@ preamble == 1 {
 		if (l == "Python Software Foundation License") {
 			l = "PSF"
 		}
+		if (l == "Apache License 2.0" || l == "Apache 2.0" || l == "Apache License Version 2.0" || l == "Apache License, Version 2.0" || l == "Apache Software License v2") {
+			l = "Apache v2.0"
+		}
+		if (l == "Apache Group License" || l == "Apache Software License" || l == "Apache License") {
+			l = "Apache"
+		}
+		if (l == "Apache-style License" || l == "Apache-style Software License") {
+			l = "Apache-like"
+		}
+		if (l == "Apache Software License 1.1" || l == "Apache 1.1") {
+			l = "Apache v1.1"
+		}
 		$0 = "License:\t" l;
 	}
 
