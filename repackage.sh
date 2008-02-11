@@ -43,7 +43,7 @@ rpmbuild() {
 specfile="${1%.spec}.spec"; shift
 set -- "$specfile" "$@"
 
-tmp=$(awk '/^BuildArch:/ { print $NF}' $specfile)
+tmp=$(rpm-specdump $specfile | awk '$2 == "_target_cpu" {print $3}')
 if [ "$tmp" ]; then
 	TARGET="$tmp"
 fi
