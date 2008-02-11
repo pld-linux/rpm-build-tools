@@ -40,10 +40,30 @@ rpmbuild() {
 		"$@" || exit
 }
 
+specdump() {
+	local a
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--target|--with|--without)
+			a="$a $1 $2"
+			shift
+			;;
+		-*)
+			;;
+		*)
+			a="$a $1"
+			;;
+		esac
+		shift
+	done
+	set -x
+	rpm-specdump $a
+}
+
 specfile="${1%.spec}.spec"; shift
 set -- "$specfile" "$@"
 
-tmp=$(rpm-specdump "$@" | awk '$2 == "_target_cpu" {print $3}')
+tmp=$(specdump "$@" | awk '$2 == "_target_cpu" {print $3}')
 if [ "$tmp" ]; then
 	TARGET="$tmp"
 fi
