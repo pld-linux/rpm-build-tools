@@ -106,7 +106,7 @@ done
 for file in $(ls "$tmpd" 2>/dev/null); do
 	files=$(cat "$tmpd/$file")
 	rel=$(basename "$file")
-	msg="- rel $rel${message:+ ($message)}"
+	msg="- release $rel${message:+ ($message)}"
 	echo cvs ci -m "'$msg'"
 	if [ "$test" != 1 ]; then
 		cvs ci -m "$msg" $files
