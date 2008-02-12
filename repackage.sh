@@ -48,6 +48,10 @@ specdump() {
 			a="$a $1 $2"
 			shift
 			;;
+		--define)
+			a="$a $1 \"$2\""
+			shift
+			;;
 		-*)
 			;;
 		*)
@@ -57,7 +61,7 @@ specdump() {
 		shift
 	done
 	set -x
-	rpm-specdump $a
+	eval rpm-specdump $a
 }
 
 specfile="${1%.spec}.spec"; shift
