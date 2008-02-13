@@ -1888,7 +1888,7 @@ init_rpm_dir() {
 
 	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
 	cd $TOP_DIR
-	cvs -d $CVSROOT co SOURCES/.cvsignore SPECS/{mirrors,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
+	cvs -d $CVSROOT co SOURCES/.cvsignore SPECS/{mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
 
 	init_builder
 
