@@ -4,18 +4,18 @@ Summary(pl.UTF-8):	Skrypty pomocnicze do zarządznia plikami .spec i budowania R
 Summary(pt_BR.UTF-8):	Scripts e programas executáveis usados para construir pacotes
 Summary(ru.UTF-8):	Скрипты и утилиты, необходимые для сборки пакетов
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
-Group:		Applications/File
-Requires:	rpm-build
 Name:		rpm-build-tools
 Version:	4.4.9
-Release:	11
+Release:	12
 License:	GPL
+Group:		Applications/File
 Group:		Base
 Source0:	builder
 Source1:	adapter.awk
 Source2:	adapter
 Source3:	pldnotify.awk
 Requires:	less
+Requires:	rpm-build
 Requires:	wget
 Suggests:	cvs
 BuildArch:	noarch
