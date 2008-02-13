@@ -8,7 +8,7 @@ Group:		Applications/File
 Requires:	rpm-build
 Name:		rpm-build-tools
 Version:	4.4.9
-Release:	10
+Release:	11
 License:	GPL
 Group:		Base
 Source0:	builder
