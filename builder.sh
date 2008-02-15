@@ -2195,10 +2195,10 @@ while [ $# -gt 0 ]; do
 		-debug)
 			RPMBUILDOPTS="${RPMBUILDOPTS} -debug"; shift
 			;;
-		-* )
+		-*)
 			Exit_error err_invalid_cmdline "$1"
 			;;
-		* )
+		*)
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
 			if [ "${SPECFILE##*:}" != "${SPECFILE}" ]; then
@@ -2211,7 +2211,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -f CVS/Entries ] && [ -z "$CVSTAG" ]; then
-	CVSTAG=$(awk -vSPECFILE="${SPECFILE%.spec}.spec" -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' CVS/Entries)
+	CVSTAG=$(awk -vSPECFILE=$(basename ${SPECFILE%.spec}.spec) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' CVS/Entries)
 	if [ "$CVSTAG" ]; then
 		echo >&2 "builder: Stick tag $CVSTAG active. Use -r TAGNAME to override."
 	fi
