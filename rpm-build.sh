@@ -15,10 +15,10 @@ esac
 if [ "$dist" ]; then
 
 alias ipoldek-$dist="poldek -q --sn $dist --cmd"
-alias $dist-requires="ipoldek-$dist what-requires"
 alias $dist-provides="ipoldek-$dist what-provides"
 alias $dist-tag="./builder -cf -T $(echo $dist | tr '[a-z]' '[A-Z]')-branch -r HEAD"
 alias $dist-verify=dist-verify
+alias $dist-requires=dist-requires
 
 # undo spec utf8
 # note: it will do it blindly, so any lang other than -pl is most likely broken
@@ -27,6 +27,26 @@ specutfundo() {
 	iconv -futf8 -tlatin2 "$spec" > m
 	sed -e 's/\.UTF-8//' m > "$spec"
 	rm -f m
+}
+
+dist-requires() {
+	local opts deps
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--sn)
+			opts="$opts $1 $2"
+			shift
+			;;
+		-*)
+			opts="$opts $1"
+			;;
+		*)
+			deps="$deps $1"
+			;;
+		esac
+		shift
+	done
+	poldek -q --sn $dist $opts --cmd what-requires $deps
 }
 
 dist-verify() {
