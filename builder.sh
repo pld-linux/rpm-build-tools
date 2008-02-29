@@ -1708,7 +1708,7 @@ fetch_build_requires()
 			fi
 
 			if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
-				echo "fetch builderequires: install [$DEPS]; remove [$CNFL]"
+				echo "fetch BuildRequires: install [$DEPS]; remove [$CNFL]"
 				update_shell_title "poldek: install [$DEPS]; remove [$CNFL]"
 				$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
 			fi
