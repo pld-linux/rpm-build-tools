@@ -1722,7 +1722,7 @@ fetch_build_requires()
 					update_shell_title "install deps: $DEPS"
 					echo "Trying to install dependencies ($DEPS):"
 					local log=.${SPECFILE}_poldek.log
-					$SU_SUDO /usr/bin/poldek --caplookup -uGq $DEPS | tee $log
+					$SU_SUDO /usr/bin/poldek --caplookup -uGqQ $DEPS | tee $log
 					failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
 					rm -f $log
 					local ok
