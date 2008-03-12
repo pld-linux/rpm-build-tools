@@ -73,6 +73,12 @@ dist-verify() {
 		ignore="$ignore python-numpy-FFT python-numpy-MA python-numpy-RNG"
 		# subpkgs renamed
 		ignore="$ignore apache1-doc apache1-index"
+		# obsoleted by kadu-module-mediaplayer-amarok
+		ignore="$ignore kadu-module-amarok"
+		# obsoleted by kadu-module-mediaplayer-xmms
+		ignore="$ignore kadu-module-xmms"
+		# obsoleted by kadu 0.6.0
+		ignore="$ignore kadu-theme-icons-crystal16 kadu-theme-icons-crystal22 kadu-theme-icons-nuvola16 kadu-theme-icons-nuvola22"
 		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
