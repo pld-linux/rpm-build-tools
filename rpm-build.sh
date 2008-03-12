@@ -69,6 +69,8 @@ dist-verify() {
 		ignore="$ignore courier-authlib-userdb courier-authlib-pipe"
 		# obsoleted, squid 2.6
 		ignore="$ignore squid-winbind_acl squid-winbind_auth"
+		# obsoleted with 1.0.4
+		ignore="$ignore python-numpy-FFT python-numpy-MA python-numpy-RNG"
 		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
@@ -76,7 +78,7 @@ dist-verify() {
 	esac
 
 	poldek $sn --up --upa -q "$@"
-	poldek $sn --noignore --verify=deps $args "$@"
+	poldek $sn --uniq --noignore --verify=deps $args "$@"
 }
 
 # displays latest used tag for a specfile
