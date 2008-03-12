@@ -71,6 +71,8 @@ dist-verify() {
 		ignore="$ignore squid-winbind_acl squid-winbind_auth"
 		# obsoleted with 1.0.4
 		ignore="$ignore python-numpy-FFT python-numpy-MA python-numpy-RNG"
+		# subpkgs renamed
+		ignore="$ignore apache1-doc apache1-index"
 		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
