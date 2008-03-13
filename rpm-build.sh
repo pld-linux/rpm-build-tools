@@ -79,6 +79,8 @@ dist-verify() {
 		ignore="$ignore kadu-module-xmms"
 		# obsoleted by kadu 0.6.0
 		ignore="$ignore kadu-theme-icons-crystal16 kadu-theme-icons-crystal22 kadu-theme-icons-nuvola16 kadu-theme-icons-nuvola22"
+		# obsoleted
+		ignore="$ignore php-pear-Net_Ping-tests"
 		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
