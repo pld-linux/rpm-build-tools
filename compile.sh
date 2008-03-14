@@ -13,4 +13,4 @@
 # -glen 2005-03-03
 
 set -x
-exec ./builder -ncs -nn --short-circuit -bc "$@"
+exec ./builder --no-md5 -ncs -nn --short-circuit -bc "$@"
