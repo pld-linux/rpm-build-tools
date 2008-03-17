@@ -78,7 +78,7 @@ dist-verify() {
 		# obsoleted by kadu-module-mediaplayer-xmms
 		ignore="$ignore kadu-module-xmms"
 		# obsoleted by kadu 0.6.0
-		ignore="$ignore kadu-theme-icons-crystal16 kadu-theme-icons-crystal22 kadu-theme-icons-nuvola16 kadu-theme-icons-nuvola22"
+		ignore="$ignore kadu-theme-icons-crystal16 kadu-theme-icons-crystal22 kadu-theme-icons-nuvola16 kadu-theme-icons-nuvola22 kadu-module-iwait4u"
 		# obsoleted
 		ignore="$ignore php-pear-Net_Ping-tests"
 		for a in $ignore; do
