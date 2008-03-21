@@ -192,6 +192,12 @@ else
 	RPMBUILD="rpmbuild"
 fi
 
+#
+# are we using cvs-nserver ?
+#
+cvs --version 2>&1 | grep -qv 'CVS-nserver'
+CVS_NSERVER=$?
+
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
 POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
 
@@ -1218,7 +1224,7 @@ tag_files()
 		_tag=$TAGVER
 	fi;
 	is_tag_a_branch $_tag
-	if [ $? -eq 0 ]; then
+	if [ $? -eq 0 -a $CVS_NSERVER -eq 0 ]; then
 		OPTIONS="$OPTIONS -B"
 	fi;
 
