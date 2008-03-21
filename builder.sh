@@ -1164,6 +1164,26 @@ make_tagver() {
 	echo -n "$TAGVER"
 }
 
+# bool is_tag_a_branch(tag)
+#
+# returns 1 if a tag is a branch set on SPECFILE
+is_tag_a_branch() {
+	if [ -n "$DEBUG" ]; then
+		set -x
+		set -v
+	fi
+
+	if [ $# -ne 1 ]; then
+		return 0;
+	fi
+
+	TAG=$1
+	
+	cd "$SPEC_DIR"
+	cvs status -v $SPECFILE | grep -Eiq "${TAG}.+(branch: [0-9.]+)"
+	return $?
+}
+
 tag_files()
 {
 	TAG_FILES="$@"
@@ -1189,6 +1209,18 @@ tag_files()
 	if [ -n "$CVSROOT" ]; then
 		OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
+
+	# if a tagname we are about to set already exists
+	# and happens to be a branch (common case with AC-branch)
+	# pass -B (allows -F to disturb branch tag)
+	local _tag=$TAG
+	if [ "$TAG_VERSION" = "yes" ]; then
+		_tag=$TAGVER
+	fi;
+	is_tag_a_branch $_tag
+	if [ $? -eq 0 ]; then
+		OPTIONS="$OPTIONS -B"
+	fi;
 
 	cd "$SOURCE_DIR"
 	local tag_files
