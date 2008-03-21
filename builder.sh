@@ -195,8 +195,9 @@ fi
 #
 # are we using cvs-nserver ?
 #
-cvs --version 2>&1 | grep -qv 'CVS-nserver'
-CVS_NSERVER=$?
+CVS_NSERVER=0
+cvs --version 2>&1 | grep -q 'CVS-nserver'
+[ $? -eq 0 ] && CVS_NSERVER=1
 
 POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
 POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
