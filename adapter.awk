@@ -18,6 +18,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # TODO
+# - really long sourceX make preamble sorting totally fcked up (try snake.spec r1.1)
 # - parse ../PLD-doc/BuildRequires.txt and setup proper BR epoches?
 # - add "-nc" option to skip CVS interaction
 # - sort Summary(XX)
@@ -1705,6 +1706,7 @@ function replace_requires()
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
+	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 
 	replace_php_virtual_deps()
 }
