@@ -1694,13 +1694,13 @@ display_branches()
 }
 
 # checks a given list of packages/files/provides agains current rpmdb.
-# outputs all dependencies whcih current rpmdb doesn't satisfy.
+# outputs all dependencies which current rpmdb doesn't satisfy.
 # input can be either STDIN or parameters
 _rpm_prov_check()
 {
 	local DEPS
 
-	if [ "$#" -gt 0 ]; then
+	if [ $# -gt 0 ]; then
 		DEPS="$@"
 	else
 		DEPS=$(cat)
@@ -1716,13 +1716,13 @@ _rpm_prov_check()
 }
 
 # checks if given package/files/provides exists in rpmdb.
-# inout can be either stdin or parameters
-# returns packages wchi hare present in the rpmdb
+# input can be either stdin or parameters
+# returns packages which are present in the rpmdb
 _rpm_cnfl_check()
 {
 	local DEPS
 
-	if [ "$#" -gt 0 ]; then
+	if [ $# -gt 0 ]; then
 		DEPS="$@"
 	else
 		DEPS=$(cat)
