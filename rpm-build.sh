@@ -46,7 +46,14 @@ dist-requires() {
 		esac
 		shift
 	done
-	poldek -q --sn $dist $opts --cmd what-requires $deps
+
+	case "$dist" in
+	ac)
+		opts="$opts --sn=$dist-updates"
+		;;
+	esac
+
+	poldek -q -Q --sn $dist $opts --cmd what-requires $deps
 }
 
 dist-verify() {
