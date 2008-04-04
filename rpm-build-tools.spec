@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.4.9
-Release:	13
+Release:	14
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -17,7 +17,7 @@ Source3:	pldnotify.awk
 Requires:	less
 Requires:	rpm-build
 Requires:	wget
-Suggests:	cvs
+Suggests:	cvs-client
 Suggests:	rpm-specdump >= 0.3
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
