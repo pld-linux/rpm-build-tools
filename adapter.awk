@@ -930,27 +930,7 @@ preamble == 1 {
 		# assigning to $2 kills preamble formatting
 		$2 = fixedsub(filename, url[n], $2)
 
-		# sourceforge urls
-		sub("[?&]big_mirror=.*$", "", $2);
-		sub("[?&]modtime=.*$", "", $2);
-
-		sub("[?]use_mirror=.*$", "", $2);
-		sub("[?]download$", "", $2);
-
-		sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
-		sub("^http://download\.sf\.net/", "http://dl.sourceforge.net/", $2)
-		sub("^http://download\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
-		sub("^http://downloads\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
-
-		sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", $2)
-		sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", $2)
-		sub("^http://dl\.sf\.net/", "http://dl.sourceforge.net/", $2)
-
-		sub("^ftp://ftp\.gnome\.org/", "http://ftp.gnome.org/", $2)
-		sub("^http://ftp\.gnome\.org/pub/gnome/", "http://ftp.gnome.org/pub/GNOME/", $2)
-
-		# apache urls
-		sub("^http://apache.zone-h.org/", "http://www.apache.org/dist/", $2)
+		$2 = unify_url($2)
 	}
 
 
@@ -1594,6 +1574,33 @@ function cflags(var)
 	if (!/!\?debug/)
 		sub("\$RPM_OPT_FLAGS", "%{rpmcflags}")
 	return 1
+}
+
+function unify_url(url)
+{
+
+	# sourceforge urls
+	sub("[?&]big_mirror=.*$", "", url);
+	sub("[?&]modtime=.*$", "", url);
+	sub("[?]use_mirror=.*$", "", url);
+	sub("[?]download$", "", url);
+
+	sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
+	sub("^http://download\.sf\.net/", "http://dl.sourceforge.net/", url)
+	sub("^http://download\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
+	sub("^http://downloads\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
+
+	sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
+	sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", url)
+	sub("^http://dl\.sf\.net/", "http://dl.sourceforge.net/", url)
+
+	sub("^ftp://ftp\.gnome\.org/", "http://ftp.gnome.org/", url)
+	sub("^http://ftp\.gnome\.org/pub/gnome/", "http://ftp.gnome.org/pub/GNOME/", url)
+
+	# apache urls
+	sub("^http://apache.zone-h.org/", "http://www.apache.org/dist/", url)
+
+	return url
 }
 
 function demacroize(str)
