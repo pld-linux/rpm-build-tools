@@ -1601,7 +1601,7 @@ function unify_url(url)
 	sub("^http://apache.zone-h.org/", "http://www.apache.org/dist/", url)
 
 	# gnu.org
-	sub("^ftp://ftp.gnu.org/gnu/", "http://ftp.gnu.org/gnu/", url)
+	sub("^ftp://ftp.gnu.org/", "http://ftp.gnu.org/", url)
 
 	return url
 }
