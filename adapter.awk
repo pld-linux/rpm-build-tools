@@ -1637,8 +1637,7 @@ function kill_preamble_macros()
 	if ($1 ~ /^URL:/ || $1 ~ /^Obsoletes:/) {
 		# NB! assigning $2 a value breaks tabbing
 		$2 = demacroize($2);
-		# unify sourceforge url
-		sub("\.sf\.net/$", ".sourceforge.net/", $2);
+		$2 = unify_url($2)
 	}
 }
 
