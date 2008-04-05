@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This is adapter v0.29. Adapter adapts .spec files for PLD Linux.
+# This is adapter v0.30. Adapter adapts .spec files for PLD Linux.
 #
 # Copyright (C) 1999-2003 PLD-Team <feedback@pld-linux.org>
 # Authors:
