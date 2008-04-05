@@ -339,7 +339,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
                     - as above, but allow float version
 --use-greed-sources
                     - try download source from tag head if don't find it in
-                      current tag	
+                      current tag
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
@@ -1185,7 +1185,7 @@ is_tag_a_branch() {
 	fi
 
 	TAG=$1
-	
+
 	cd "$SPEC_DIR"
 	cvs status -v $SPECFILE | grep -Eiq "${TAG}.+(branch: [0-9.]+)"
 	return $?
@@ -1950,7 +1950,7 @@ get_greed_sources() {
 	if [ $? != 0 ]; then
 		Exit_error err_no_source_in_repo $1
 	fi
-	
+
 }
 
 # remove entries from CVS/Entries
