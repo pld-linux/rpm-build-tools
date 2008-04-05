@@ -1602,6 +1602,7 @@ function unify_url(url)
 
 	# gnu.org
 	sub("^ftp://ftp.gnu.org/", "http://ftp.gnu.org/", url)
+	sub("^http://ftp.gnu.org/pub/gnu/", "http://ftp.gnu.org/gnu/", url)
 
 	return url
 }
