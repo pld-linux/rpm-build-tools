@@ -3,8 +3,8 @@
 # i use it a lot!
 #
 # Usage:
-# do do only %build stage (ie after %prep has been done), for example after
-# modifying some sources for more complicated specs wholse %build is not just
+# make only %build stage (i.e. after %prep has been done), for example after
+# modifying some sources for more complicated specs whose %build is not just
 # %{__make}:
 # SPECS$ ./compile.sh kdelibs.spec
 #
