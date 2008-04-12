@@ -522,7 +522,7 @@ cache_rpm_dump() {
 
 rpm_dump() {
 	if [ -z "$rpm_dump_cache" ] ; then
-		echo "internal error: cache_rpm_dump not called! (missing %prep?)" 1>&2
+		echo >&2 "internal error: cache_rpm_dump not called! (missing %prep?)"
 	fi
 	echo "$rpm_dump_cache"
 }
@@ -602,45 +602,45 @@ Exit_error()
 	case "$1" in
 		"err_no_spec_in_cmdl" )
 			remove_build_requires
-			echo "ERROR: spec file name not specified."
+			echo >&2 "ERROR: spec file name not specified."
 			exit 2 ;;
 		"err_invalid_cmdline" )
-			echo "ERROR: invalid command line arg ($2)."
+			echo >&2 "ERROR: invalid command line arg ($2)."
 			exit 2 ;;
 		"err_no_spec_in_repo" )
 			remove_build_requires
-			echo "Error: spec file not stored in CVS repo."
+			echo >&2 "Error: spec file not stored in CVS repo."
 			exit 3 ;;
 		"err_no_source_in_repo" )
 			remove_build_requires
-			echo "Error: some source, patch or icon files not stored in CVS repo. ($2)"
+			echo >&2 "Error: some source, patch or icon files not stored in CVS repo. ($2)"
 			exit 4 ;;
 		"err_build_fail" )
 			remove_build_requires
-			echo "Error: package build failed. (${2:-no more info})"
+			echo >&2 "Error: package build failed. (${2:-no more info})"
 			exit 5 ;;
 		"err_no_package_data" )
 			remove_build_requires
-			echo "Error: couldn't get out package name/version/release from spec file."
+			echo >&2 "Error: couldn't get out package name/version/release from spec file."
 			exit 6 ;;
 		"err_tag_exists" )
 			remove_build_requires
-			echo "Tag ${2} already exists (spec release: ${3})."
+			echo >&2 "Tag ${2} already exists (spec release: ${3})."
 			exit 9 ;;
 		"err_fract_rel" )
 			remove_build_requires
-			echo "Release ${2} not integer and not a snapshot."
+			echo >&2 "Release ${2} not integer and not a snapshot."
 			exit 10 ;;
 		"err_branch_exists" )
 			remove_build_requires
-			echo "Tree branch already exists (${2})."
+			echo >&2 "Tree branch already exists (${2})."
 			exit 11 ;;
 		"err_acl_deny" )
 			remove_build_requires
-			echo "Error: conditions reject building this spec (${2})."
+			echo >&2 "Error: conditions reject building this spec (${2})."
 			exit 12 ;;
 	esac
-	echo "Unknown error."
+	echo >&2 "Unknown error."
 	exit 100
 }
 
@@ -1339,12 +1339,12 @@ build_package()
 	if [ -n "$TRY_UPGRADE" ]; then
 		update_shell_title "build_package: try_upgrade"
 		if [ -n "$FLOAT_VERSION" ]; then
-			TNOTIFY=`./pldnotify.awk $SPECFILE -n` || exit 1
+			TNOTIFY=$(./pldnotify.awk $SPECFILE -n) || exit 1
 		else
-			TNOTIFY=`./pldnotify.awk $SPECFILE` || exit 1
+			TNOTIFY=$(./pldnotify.awk $SPECFILE) || exit 1
 		fi
 
-		TNEWVER=`echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }'`
+		TNEWVER=$(echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }')
 
 		if [ -n "$TNEWVER" ]; then
 			TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
@@ -1434,7 +1434,6 @@ install_required_packages()
 find_spec_bcond() {
 	# taken from find-spec-bcond, but with just getting the list
 	local SPEC="$1"
-	# quick revert hint: '$RPMBUILD --bcond $SPEC'
 	awk -F"\n" '
 	/^%changelog/ { exit }
 	/_with(out)?_[_a-zA-Z0-9]+/{
@@ -1911,7 +1910,7 @@ fetch_build_requires()
 			fi
 		done
 		if [ "$NOT_INSTALLED_PACKAGES" != "" ]; then
-			echo "Unable to install following packages and their dependencies:"
+			echo >&2 "Unable to install following packages and their dependencies:"
 			for pkg in "$NOT_INSTALLED_PACKAGES"
 			do
 				echo $pkg
@@ -1923,8 +1922,7 @@ fetch_build_requires()
 }
 
 init_rpm_dir() {
-
-	TOP_DIR="`eval $RPM $RPMOPTS --eval '%{_topdir}'`"
+	TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
 	CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
 
 	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
