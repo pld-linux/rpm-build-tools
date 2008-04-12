@@ -1732,52 +1732,61 @@ _rpm_cnfl_check()
 	rpm -q --whatprovides $DEPS 2>/dev/null | awk '!/no package provides/ { print }'
 }
 
+# install deps via information from 'rpm-getdeps' or 'rpm --specsrpm'
+install_build_requires_rpmdeps() {
+	if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
+		# TODO: Conflicts list doesn't check versions
+		local CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
+		local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
+	fi
+	if [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
+		local CNFL=$(rpm -q --specsrpm --conflicts $BCOND $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
+		local DEPS=$(rpm -q --specsrpm --requires $BCOND $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
+	fi
+
+	if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
+		echo "fetch BuildRequires: install [$DEPS]; remove [$CNFL]"
+		update_shell_title "poldek: install [$DEPS]; remove [$CNFL]"
+		$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
+	fi
+	if [ -n "$CNFL" ]; then
+		update_shell_title "uninstall conflicting packages: $CNFL"
+		echo "Trying to uninstall conflicting packages ($CNFL):"
+		$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CNFL
+	fi
+
+	while [ "$DEPS" ]; do
+			update_shell_title "install deps: $DEPS"
+			echo "Trying to install dependencies ($DEPS):"
+			local log=.${SPECFILE}_poldek.log
+			$SU_SUDO /usr/bin/poldek --caplookup -uGqQ $DEPS | tee $log
+			failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
+			rm -f $log
+			local ok
+			if [ -n "$failed" ]; then
+				for package in $failed; do
+					spawn_sub_builder -bb $(depspecname $package) && ok="$ok $package"
+				done
+				DEPS="$ok"
+			else
+				DEPS=""
+			fi
+	done
+}
+
 fetch_build_requires()
 {
-	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
-		update_shell_title "fetch build requires"
-		if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ] || [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
-			if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
-				# TODO: Conflicts list doesn't check versions
-				local CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
-				local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
-			fi
-			if [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
-				local CNFL=$(rpm -q --specsrpm --conflicts $BCOND $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
-				local DEPS=$(rpm -q --specsrpm --requires $BCOND $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
-			fi
+	if [ "${FETCH_BUILD_REQUIRES}" != "yes" ]; then
+		return
+	fi
 
-			if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
-				echo "fetch BuildRequires: install [$DEPS]; remove [$CNFL]"
-				update_shell_title "poldek: install [$DEPS]; remove [$CNFL]"
-				$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
-			fi
-			if [ -n "$CNFL" ]; then
-				update_shell_title "uninstall conflicting packages: $CNFL"
-				echo "Trying to uninstall conflicting packages ($CNFL):"
-				$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CNFL
-			fi
+	update_shell_title "fetch build requires"
+	if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ] || [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
+		install_build_requires_rpmdeps
+		return
+	fi
 
-			while [ "$DEPS" ]; do
-					update_shell_title "install deps: $DEPS"
-					echo "Trying to install dependencies ($DEPS):"
-					local log=.${SPECFILE}_poldek.log
-					$SU_SUDO /usr/bin/poldek --caplookup -uGqQ $DEPS | tee $log
-					failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
-					rm -f $log
-					local ok
-					if [ -n "$failed" ]; then
-						for package in $failed; do
-							spawn_sub_builder -bb $(depspecname $package) && ok="$ok $package"
-						done
-						DEPS="$ok"
-					else
-						DEPS=""
-					fi
-			done
-			return
-		fi
-
+		# XXX is this ugliest code written in human history still needed?
 		echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
 		echo -ne "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES\n"
 		echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
@@ -1918,7 +1927,6 @@ fetch_build_requires()
 			remove_build_requires
 			exit 8
 		fi
-	fi
 }
 
 init_rpm_dir() {
