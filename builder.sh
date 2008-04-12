@@ -944,6 +944,8 @@ update_md5()
 
 check_md5()
 {
+	[ "$NO5" = "yes" ] && return
+
 	update_shell_title "check md5"
 
 	for i in "$@"; do
