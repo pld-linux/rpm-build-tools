@@ -28,7 +28,6 @@ rpmbuild() {
 	set -x
 	/usr/bin/rpmbuild \
 		${TARGET:+--target $TARGET} \
-		$BCONDS \
 		--short-circuit \
 		--define 'clean %%%{!?__ldconfig:clean}%{?__ldconfig:check} \
 		exit 0%{nil}' \
@@ -62,18 +61,13 @@ specdump() {
 		shift
 	done
 	set -x
-	eval rpm-specdump $a
+	eval rpm-specdump $a || echo >&2 $?
 }
-
-specfile="${1%.spec}.spec"; shift
-set -- "$specfile" "$@"
 
 tmp=$(specdump "$@" | awk '$2 == "_target_cpu" {print $3}')
 if [ "$tmp" ]; then
 	TARGET="$tmp"
 fi
-
-BCONDS=$(./builder -nn -ncs --show-bcond-args $specfile)
 
 # just create the rpm's if -bb is somewhere in the args
 if [[ *$@* != *-bb* ]]; then
