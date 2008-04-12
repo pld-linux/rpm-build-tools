@@ -199,7 +199,7 @@ CVS_NSERVER=0
 cvs --version 2>&1 | grep -q 'CVS-nserver'
 [ $? -eq 0 ] && CVS_NSERVER=1
 
-POLDEK_INDEX_DIR="`$RPM --eval %_rpmdir`/"
+POLDEK_INDEX_DIR="$($RPM --eval %_rpmdir)/"
 POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
 
 run_poldek()
@@ -389,7 +389,7 @@ update_shell_title() {
 		fi
 
 		msg="$pkg: ${SHELL_TITLE_PREFIX:+$SHELL_TITLE_PREFIX }$msg"
-		msg="$(echo $msg | tr -d '\n\r')"
+		msg=$(echo $msg | tr -d '\n\r')
 		case "$TERM" in
 			cygwin|xterm*)
 			echo >&2 -ne "\033]1;$msg\007\033]2;$msg\007"
@@ -530,7 +530,7 @@ rpm_dump() {
 get_icons()
 {
 	update_shell_title "get icons"
-	ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
+	ICONS=$(awk '/^Icon:/ {print $2}' ${SPECFILE})
 	if [ -z "$ICONS" ]; then
 		return
 	fi
@@ -553,15 +553,15 @@ parse_spec()
 	cache_rpm_dump
 
 	if [ "$NOSRCS" != "yes" ]; then
-		SOURCES="`rpm_dump | awk '/SOURCEURL[0-9]+/ {print $3}'`"
+		SOURCES=$(rpm_dump | awk '/SOURCEURL[0-9]+/ {print $3}')
 	fi
 
 	if (rpm_dump | grep -qEi ":.*nosource.*1"); then
 		FAIL_IF_NO_SOURCES="no"
 	fi
 
-	PATCHES="`rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}'`"
-	ICONS="`awk '/^Icon:/ {print $2}' ${SPECFILE}`"
+	PATCHES=$(rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}')
+	ICONS=$(awk '/^Icon:/ {print $2}' ${SPECFILE})
 	PACKAGE_NAME=$(rpm_dump | awk '$2 == "PACKAGE_NAME" { print $3; exit}')
 	PACKAGE_VERSION=$(rpm_dump | awk '$2 == "PACKAGE_VERSION" { print $3; exit}')
 	PACKAGE_RELEASE=$(rpm_dump | awk '$2 == "PACKAGE_RELEASE" { print $3; exit}')
@@ -656,14 +656,14 @@ init_builder()
 		if [ "$ASSUMED_NAME" ]; then
 			extra="--define 'name $ASSUMED_NAME'"
 		fi
-		SOURCE_DIR="`eval $RPM $RPMOPTS $extra --eval '%{_sourcedir}'`"
-		SPEC_DIR="`eval $RPM $RPMOPTS $extra --eval '%{_specdir}'`"
+		SOURCE_DIR=$(eval $RPM $RPMOPTS $extra --eval '%{_sourcedir}')
+		SPEC_DIR=$(eval $RPM $RPMOPTS $extra --eval '%{_specdir}')
 	else
 		SOURCE_DIR="."
 		SPEC_DIR="."
 	fi
 
-	__PWD="`pwd`"
+	__PWD=$(pwd)
 }
 
 get_spec()
@@ -678,7 +678,7 @@ get_spec()
 
 	cd "$SPEC_DIR"
 	if [ ! -f "$SPECFILE" ]; then
-		SPECFILE="`basename $SPECFILE .spec`.spec"
+		SPECFILE="$(basename $SPECFILE .spec).spec"
 	fi
 	if [ "$NOCVSSPEC" != "yes" ]; then
 
@@ -718,10 +718,10 @@ find_mirror()
 		if [ -z "$origin" ] || [[ $origin == \#* ]]; then
 			continue
 		fi
-		ol=`echo -n "$origin"|wc -c`
-		prefix="`echo -n "$url" | head -c $ol`"
+		ol=$(echo -n "$origin" | wc -c)
+		prefix=$(echo -n "$url" | head -c $ol)
 		if [ "$prefix" = "$origin" ] ; then
-			suffix="`echo "$url"|cut -b $((ol+1))-`"
+			suffix=$(echo "$url" | cut -b $((ol+1))-)
 			echo -n "$mirror$suffix"
 			return 0
 		fi
@@ -750,7 +750,7 @@ src_md5()
 	if [ -f additional-md5sums ]; then
 		local spec_rev=$(grep $SPECFILE CVS/Entries 2>/dev/null | sed -e s:/$SPECFILE/:: -e s:/.*::)
 		if [ -z "$spec_rev" ]; then
-			spec_rev="$(head -n 1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')"
+			spec_rev=$(head -n 1 $SPECFILE | sed -e 's/.*\$Revision: \([0-9.]*\).*/\1/')
 		fi
 		local spec="$SPECFILE[0-9.,]*,$(echo $spec_rev | sed 's/\./\\./g')"
 		md5=$(grep -s -v '^#' additional-md5sums | \
@@ -809,7 +809,7 @@ good_md5 ()
 
 good_size ()
 {
-	size="$(find $(nourl "$1") -printf "%s" 2>/dev/null)"
+	size=$(find $(nourl "$1") -printf "%s" 2>/dev/null)
 	[ -n "$size" -a "$size" -gt 0 ]
 }
 
@@ -1050,7 +1050,7 @@ get_files()
 							${GETLOCAL} $url_attic $target
 						else
 							if [ -z "$NOMIRRORS" ]; then
-								url_attic="`find_mirror "$url_attic"`"
+								url_attic=$(find_mirror "$url_attic")
 							fi
 							update_shell_title "${GETURI%% *}: $url_attic"
 							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
@@ -1079,7 +1079,7 @@ get_files()
 
 				if [ -z "$NOURLS" ] && [ ! -f "$fp" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
 					if [ -z "$NOMIRRORS" ]; then
-						im="`find_mirror "$i"`"
+						im=$(find_mirror "$i")
 					else
 						im="$i"
 					fi
@@ -1140,7 +1140,7 @@ get_files()
 		fi
 
 		if [ "$CHMOD" = "yes" ]; then
-			CHMOD_FILES="`nourl "$@"`"
+			CHMOD_FILES=$(nourl "$@")
 			if [ -n "$CHMOD_FILES" ]; then
 				chmod $CHMOD_MODE $CHMOD_FILES
 			fi
@@ -1610,17 +1610,17 @@ run_sub_builder()
 	#
 	#
 	# y0shi.
+	# kurwa. translate that ^^^^
 
 	parent_spec_name=''
 
 	# Istnieje taki spec? ${package}.spec
 	if [ -f "${SPEC_DIR}/${package}.spec" ]; then
 		parent_spec_name=${package}.spec
-	elif [ -f "${SPEC_DIR}/`echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g`.spec" ]; then
-		parent_spec_name="`echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g`.spec"
+	elif [ -f "${SPEC_DIR}/$(echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g).spec" ]; then
+		parent_spec_name="$(echo ${package_name} | sed -e s,-devel.*,,g -e s,-static,,g).spec"
 	else
-		for provides_line in `grep ^Provides:.*$package  ${SPEC_DIR} -R`
-		do
+		for provides_line in $(grep -r ^Provides:.*$package ${SPEC_DIR}); do
 			echo $provides_line
 		done
 	fi
@@ -1783,13 +1783,13 @@ fetch_build_requires()
 		echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
 		echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`\n\n"
 		echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
-		for package_item in `cat $SPECFILE|grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,perl\(,perl-,g -e s,::,-,g -e s,\(.*\),,g -e s,%{,,g -e s,},,g|grep -v OpenGL-devel|sed -e s,sh-utils,coreutils,g -e s,fileutils,coreutils,g -e s,textutils,coreutils,g -e s,kgcc_package,gcc,g -e s,\),,g`
+		for package_item in $(cat $SPECFILE | grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,perl\(,perl-,g -e s,::,-,g -e s,\(.*\),,g -e s,%{,,g -e s,},,g|grep -v OpenGL-devel|sed -e s,sh-utils,coreutils,g -e s,fileutils,coreutils,g -e s,textutils,coreutils,g -e s,kgcc_package,gcc,g -e s,\),,g)
 		do
-			package_item="`echo $package_item|sed -e s,rpmbuild,rpm-build,g |sed -e s,__perl,perl,g |sed -e s,gasp,binutils-gasp,g -e s,binutils-binutils,binutils,g -e s,apxs,apache,g|sed -e s,apache\(EAPI\)-devel,apache-devel,g -e s,kernel-headers\(netfilter\),kernel-headers,g -e s,awk,mawk,g -e s,mmawk,mawk,g -e s,motif,openmotif,g -e s,openopenmotif,openmotif,g`"
+			package_item=$(echo $package_item|sed -e s,rpmbuild,rpm-build,g |sed -e s,__perl,perl,g |sed -e s,gasp,binutils-gasp,g -e s,binutils-binutils,binutils,g -e s,apxs,apache,g|sed -e s,apache\(EAPI\)-devel,apache-devel,g -e s,kernel-headers\(netfilter\),kernel-headers,g -e s,awk,mawk,g -e s,mmawk,mawk,g -e s,motif,openmotif,g -e s,openopenmotif,openmotif,g)
 			GO="yes"
-			package=`basename "$package_item"|sed -e "s/}$//g"`
-			COND_ARCH_TST="`cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g"`"
-			mach=`uname -m`
+			package=$(basename "$package_item"|sed -e "s/}$//g")
+			COND_ARCH_TST=$(cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g")
+			mach=$(uname -m)
 
 			COND_TST=`cat $SPECFILE|grep BuildRequires|grep "$package"`
 			if `echo $COND_TST|grep -q '^BuildRequires:'`; then
@@ -2244,7 +2244,7 @@ while [ $# -gt 0 ]; do
 				CVSTAG="${SPECFILE##*:}"
 				SPECFILE="${SPECFILE%%:*}"
 			fi
-			ASSUMED_NAME="$(basename ${SPECFILE%%.spec})"
+			ASSUMED_NAME=$(basename ${SPECFILE%%.spec})
 			shift
 	esac
 done
