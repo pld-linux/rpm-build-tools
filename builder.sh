@@ -204,7 +204,7 @@ POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
 
 run_poldek()
 {
-	RES_FILE=~/tmp/poldek-exit-status.$RANDOM
+	RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
 	if [ -n "$LOGFILE" ]; then
 		LOG=`eval echo $LOGFILE`
 		if [ -n "$LASTLOG_FILE" ]; then
@@ -423,7 +423,7 @@ minirpm() {
 	# we reset macros not to contain macros.build as all the %() macros are
 	# executed here, while none of them are actually needed.
 	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
-	safe_macrofiles=$(rpm --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); gsub(/:.*macros.build:/, ":", $0); print $0 } ')
+	safe_macrofiles=$(rpm $TARGET_SWITCH --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); gsub(/:.*macros.build:/, ":", $0); print $0 } ')
 
 	# TODO: move these to /usr/lib/rpm/macros
 	cat > $BUILDER_MACROS <<'EOF'
@@ -484,10 +484,11 @@ cache_rpm_dump() {
 		set -v
 	fi
 
-	update_shell_title "cache_rpm_dump"
 	if [ -x /usr/bin/rpm-specdump ]; then
-		rpm_dump_cache=`rpm-specdump $BCOND $TARGET_SWITCH $SPECFILE`
+		update_shell_title "cache_rpm_dump using rpm-specdump command"
+		rpm_dump_cache=$(rpm-specdump $BCOND $TARGET_SWITCH $SPECFILE)
 	else
+		update_shell_title "cache_rpm_dump using rpmbuild command"
 		local rpm_dump
 		rpm_dump=`
 			# what we need from dump is NAME, VERSION, RELEASE and PATCHES/SOURCES.
@@ -1393,7 +1394,8 @@ build_package()
 		if [ -n "$LASTLOG_FILE" ]; then
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
-		RES_FILE=~/tmp/$RPMBUILD-exit-status.$RANDOM
+		RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
+
 		(time eval ${NICE_COMMAND} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm $RES_FILE
