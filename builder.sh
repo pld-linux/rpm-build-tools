@@ -1396,7 +1396,6 @@ build_package()
 		fi
 		RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
 
-		set -x
 		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm $RES_FILE
@@ -1408,7 +1407,6 @@ build_package()
 			fi
 		fi
 	else
-		set -x
 		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $SPECFILE
 		RETVAL=$?
 	fi
