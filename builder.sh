@@ -475,7 +475,7 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-	eval $RPMBUILD --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $* 2>&1
+	eval $RPMBUILD $TARGET_SWITCH --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
 }
 
 cache_rpm_dump() {
@@ -486,7 +486,7 @@ cache_rpm_dump() {
 
 	if [ -x /usr/bin/rpm-specdump ]; then
 		update_shell_title "cache_rpm_dump using rpm-specdump command"
-		rpm_dump_cache=$(rpm-specdump $BCOND $TARGET_SWITCH $SPECFILE)
+		rpm_dump_cache=$(rpm-specdump $TARGET_SWITCH $BCOND $SPECFILE)
 	else
 		update_shell_title "cache_rpm_dump using rpmbuild command"
 		local rpm_dump
@@ -1396,7 +1396,8 @@ build_package()
 		fi
 		RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
 
-		(time eval ${NICE_COMMAND} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+		set -x
+		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm $RES_FILE
 		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
@@ -1407,7 +1408,8 @@ build_package()
 			fi
 		fi
 	else
-		eval ${NICE_COMMAND} $RPMBUILD $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $TARGET_SWITCH $SPECFILE
+		set -x
+		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $SPECFILE
 		RETVAL=$?
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
