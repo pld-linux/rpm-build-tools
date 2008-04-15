@@ -20,6 +20,21 @@
 set -e
 
 rpmbuild() {
+	# preprocess args, we must have --target as first arg to rpmbuild
+	local a
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--target)
+			shift
+			TARGET=$1
+			;;
+		*)
+			a="$a $1"
+			;;
+		esac
+		shift
+	done
+
 	# use gz payload as time is what we need here, not compress ratio
 
 	# we use %__ldconfig variable to test are we on rpm 4.4.9
@@ -37,7 +52,7 @@ rpmbuild() {
 		--define '_binary_payload w9.gzdio' \
 		--define '__spec_install_pre %___build_pre' \
 		--define '__spec_clean_body %{nil}' \
-		"$@" || exit
+		$a || exit
 }
 
 specdump() {
