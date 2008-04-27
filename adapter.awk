@@ -1175,7 +1175,9 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?modprobe.(d|conf)")
 			continue;
-		if ($c ~ sysconfdir "/{?udev/rules.d")
+		if ($c ~ sysconfdir "/{?udev")
+			continue;
+		if ($c ~ sysconfdir "/{?hotplug")
 			continue;
 		if ($c ~ sysconfdir "/{?logrotate.d")
 			continue;
