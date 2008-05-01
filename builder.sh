@@ -468,6 +468,8 @@ minirpm() {
 	rm -f %{tmpdir}/__ps{1,2};
 ) \
 %{nil}
+%add_etc_shells(p) %{p:<lua>}
+%remove_etc_shells(p) %{p:<lua>}
 EOF
 	if [ "$NOINIT" = "yes" ] ; then
 		cat >> $BUILDER_MACROS <<'EOF'
