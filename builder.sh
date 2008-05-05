@@ -2103,6 +2103,7 @@ while [ $# -gt 0 ]; do
 				"yes")
 					COND=${1}
 					shift
+					# XXX: broken: ./builder -bb ucspi-tcp.spec --without mysql
 					while ! `echo ${1}|grep -qE '(^-|spec)'`
 					do
 						BCOND="$BCOND $COND $1"
@@ -2250,6 +2251,7 @@ while [ $# -gt 0 ]; do
 			Exit_error err_invalid_cmdline "$1"
 			;;
 		*)
+		set -x
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
 			if [ "${SPECFILE##*:}" != "${SPECFILE}" ]; then
