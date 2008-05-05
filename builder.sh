@@ -2251,7 +2251,6 @@ while [ $# -gt 0 ]; do
 			Exit_error err_invalid_cmdline "$1"
 			;;
 		*)
-		set -x
 			SPECFILE="${1}"
 			# check if specname was passed as specname:cvstag
 			if [ "${SPECFILE##*:}" != "${SPECFILE}" ]; then
