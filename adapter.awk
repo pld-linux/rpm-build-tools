@@ -722,6 +722,7 @@ preamble == 1 {
 		sub(/^Development\/C$/, "Development/Libraries", group)
 		sub(/^Development\/Python$/, "Development/Languages/Python", group)
 		sub(/^System\/Kernel and hardware$/, "Base/Kernel", group)
+		sub(/^Application\/System$/, "Applications/System", group)
 
 		$0 = "Group:\t\t" group
 
