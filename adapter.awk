@@ -1690,6 +1690,9 @@ function replace_requires()
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 
+	# fedora
+	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
+
 	replace_php_virtual_deps()
 }
 
