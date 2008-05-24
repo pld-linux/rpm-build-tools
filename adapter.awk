@@ -79,6 +79,7 @@ BEGIN {
 	"rpm --eval %_kdedocdir"	| getline kdedocdir
 	"rpm --eval %_desktopdir" | getline desktopdir
 	"rpm --eval %_pixmapsdir" | getline pixmapsdir
+	"rpm --eval %_javadir" | getline javadir
 
 	"rpm --eval %perl_sitearch" | getline perl_sitearch
 	"rpm --eval %perl_archlib" | getline perl_archlib
@@ -718,6 +719,9 @@ preamble == 1 {
 		sub(/^X11\/Utilities/,"X11/Applications", group)
 		sub(/^X11\/XFree86/, "X11", group)
 		sub(/^X11\/Xserver$/, "X11/Servers", group)
+		sub(/^Development\/C$/, "Development/Libraries", group)
+		sub(/^Development\/Python$/, "Development/Languages/Python", group)
+		sub(/^System\/Kernel and hardware$/, "Base/Kernel", group)
 
 		$0 = "Group:\t\t" group
 
@@ -815,6 +819,12 @@ preamble == 1 {
 		}
 		if (l == "Apache Software License 1.1" || l == "Apache 1.1") {
 			l = "Apache v1.1"
+		}
+		if (l == "GPLv2") {
+			l = "GPL v2"
+		}
+		if (l == "GPLv2+") {
+			l = "GPL v2+"
 		}
 		$0 = "License:\t" l;
 	}
@@ -1135,8 +1145,10 @@ function use_macros()
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
+	gsub("%{_datadir}/java", "%{_javadir}")
 
 	gsub(libdir, "%{_libdir}")
+	gsub(javadir, "%{_javadir}")
 
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
