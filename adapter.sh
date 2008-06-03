@@ -189,10 +189,12 @@ adapterize()
 	rm -rf $tmpdir
 }
 
-if [ $# -ne 1 -o ! -f "$1" ]; then
+SPECFILE="$1"
+[ -f "$SPECFILE" ] || SPECFILE="$(basename $SPECFILE .spec).spec"
+
+if [ $# -ne 1 -o ! -f "$SPECFILE" ]; then
 	echo "$usage"
 	exit 1
 fi
 
-SPECFILE="$1"
 adapterize
