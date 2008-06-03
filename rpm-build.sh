@@ -59,6 +59,7 @@ dist-requires() {
 dist-verify() {
 	local args sn
 	sn="--sn $dist"
+
 	case "$dist" in
 	ac)
 		sn="$sn --sn $dist-updates"
@@ -88,6 +89,8 @@ dist-verify() {
 		ignore="$ignore kadu-theme-icons-crystal16 kadu-theme-icons-crystal22 kadu-theme-icons-nuvola16 kadu-theme-icons-nuvola22 kadu-module-iwait4u"
 		# obsoleted
 		ignore="$ignore php-pear-Net_Ping-tests"
+		# renamed to vim-syntax-txt2tags
+		ignore="$ignore txt2tags-vim"
 		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
