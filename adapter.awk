@@ -1317,8 +1317,9 @@ function use_macros()
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
 
-	if (/^ant /) {
+	if (/^ant / || /^%{ant}/) {
 		sub(/^ant/, "%ant")
+		sub(/^%{ant}/, "%ant")
 		add_br("BuildRequires:  jpackage-utils");
 		add_br("BuildRequires:  rpmbuild(macros) >= 1.300");
 	}
