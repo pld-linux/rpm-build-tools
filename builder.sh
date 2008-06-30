@@ -472,6 +472,8 @@ minirpm() {
 %{nil}
 %add_etc_shells(p) %{p:<lua>}
 %remove_etc_shells(p) %{p:<lua>}
+%lua_add_etc_shells()  %{nil}
+%lua_remove_etc_shells() %{nil}
 EOF
 	if [ "$NOINIT" = "yes" ] ; then
 		cat >> $BUILDER_MACROS <<'EOF'
