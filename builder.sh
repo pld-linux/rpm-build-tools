@@ -1715,7 +1715,6 @@ display_branches()
 _rpm_prov_check()
 {
 	local DEPS
-	LANG=C
 
 	if [ $# -gt 0 ]; then
 		DEPS="$@"
@@ -1723,7 +1722,7 @@ _rpm_prov_check()
 		DEPS=$(cat)
 	fi
 
-	DEPS=$(rpm -q --whatprovides $DEPS 2>&1 | awk '/^(error:|no package provides)/ { print }')
+	DEPS=$(LANG=C rpm -q --whatprovides $DEPS 2>&1 | awk '/^(error:|no package provides)/ { print }')
 
 	# packages
 	echo "$DEPS" | awk '/^no package provides/ { print $NF }'
@@ -1738,7 +1737,6 @@ _rpm_prov_check()
 _rpm_cnfl_check()
 {
 	local DEPS
-	LANG=C
 
 	if [ $# -gt 0 ]; then
 		DEPS="$@"
@@ -1746,7 +1744,7 @@ _rpm_cnfl_check()
 		DEPS=$(cat)
 	fi
 
-	rpm -q --whatprovides $DEPS 2>/dev/null | awk '!/no package provides/ { print }'
+	LANG=C rpm -q --whatprovides $DEPS 2>/dev/null | awk '!/no package provides/ { print }'
 }
 
 # install deps via information from 'rpm-getdeps' or 'rpm --specsrpm'
@@ -1776,8 +1774,7 @@ install_build_requires_rpmdeps() {
 			update_shell_title "install deps: $DEPS"
 			echo "Trying to install dependencies ($DEPS):"
 			local log=.${SPECFILE}_poldek.log
-			LANG=C
-			$SU_SUDO /usr/bin/poldek --caplookup -uGqQ $DEPS | tee $log
+			LANG=C $SU_SUDO /usr/bin/poldek --caplookup -uGqQ $DEPS | tee $log
 			failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
 			rm -f $log
 			local ok
