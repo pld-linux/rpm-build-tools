@@ -99,6 +99,7 @@ BEGIN {
 	"rpm --eval %ruby_sitelibdir" | getline ruby_sitelibdir
 
 	"rpm --eval %php_pear_dir" | getline php_pear_dir
+	"rpm --eval %php_data_dir" | getline php_data_dir
 	"rpm --eval %tmpdir" | getline tmpdir
 }
 
@@ -1185,6 +1186,7 @@ function use_macros()
 	gsub(kdedocdir, "%{_kdedocdir}")
 	gsub(docdir, "%{_docdir}")
 	gsub(php_pear_dir, "%{php_pear_dir}")
+	gsub(php_data_dir, "%{php_data_dir}")
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ datadir "/automake")
@@ -1486,6 +1488,8 @@ function use_files_macros(	i, n, t, a)
 	gsub("%{_datadir}/applications", "%{_desktopdir}");
 	gsub("%{_datadir}/icons", "%{_iconsdir}");
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}");
+	gsub("%{_datadir}/pear", "%{php_pear_dir}");
+	gsub("%{_datadir}/php", "%{php_data_dir}");
 }
 
 function use_script_macros()
