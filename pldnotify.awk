@@ -162,6 +162,13 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 		if (DEBUG) print "sf url, mungled url to: " url
 	}
 
+	if (url ~ /^http:\/\/(.*)\.googlecode\.com\//) {
+		gsub("^http://", "", url)
+		gsub("\..*", "", url)
+		url = "http://code.google.com/p/" url "/"
+		if (DEBUG) print "googlecode url, mungled url to: " url
+	}
+
 	if (DEBUG) print "Retrieving: " url
 	errno=system("wget -O - \"" url "\" -t 3 -T 300 --passive-ftp > " tmpfile " 2>/dev/null" )
 
