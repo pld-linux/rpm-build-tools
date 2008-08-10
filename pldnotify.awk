@@ -1,7 +1,7 @@
 #!/bin/awk -f
 # $Revision$, $Date$
 #
-# Copyright (C) 2000-2006 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 2000-2008 PLD-Team <feedback@pld-linux.org>
 # Authors:
 #	Sebastian Zagrodzki <zagrodzki@pld-linux.org>
 #	Jacek Konieczny <jajcus@pld-linux.org>
@@ -162,7 +162,7 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 		if (DEBUG) print "sf url, mungled url to: " url
 	}
 
-	if (url ~ /^http:\/\/(.*)\.googlecode\.com\//) {
+	if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
 		gsub("^http://", "", url)
 		gsub("\..*", "", url)
 		url = "http://code.google.com/p/" url "/"
