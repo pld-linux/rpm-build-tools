@@ -1326,6 +1326,8 @@ function use_macros()
 		add_br("BuildRequires:  rpmbuild(macros) >= 1.300");
 	}
 
+	$0 = fixedsub("%(%{__cc} -dumpversion)", "%{cc_version}", $0);
+	$0 = fixedsub("%(%{__cxx} -dumpversion)", "%{cxx_version}", $0);
 }
 
 function format_configure(line,		n, a, s) {
