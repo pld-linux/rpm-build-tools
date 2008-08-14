@@ -385,6 +385,9 @@ function process_data(name,ver,rel,src) {
 # this function checks if substitutions were valid, and if true:
 # processes each URL and tries to get current file list
 	for (i in src) {
+		if ( src[i] ~ /%{nil}/ ) {
+			gsub(/\%\{nil\}/, "", src[i])
+		}
 		if ( src[i] !~ /%{.*}/ && src[i] !~ /%[A-Za-z0-9_]/ )  {
 			if ( DEBUG ) print "Source: " src[i]
 			process_source(i,src[i],name,ver)
