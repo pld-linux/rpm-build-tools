@@ -151,7 +151,7 @@ function compare_ver_dec(v1,v2) {
 	return 0
 }
 
-function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
+function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close("mktemp /tmp/XXXXXX")
@@ -167,6 +167,12 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 		gsub("\..*", "", url)
 		url = "http://code.google.com/p/" url "/"
 		if (DEBUG) print "googlecode url, mungled url to: " url
+	}
+
+	if (url ~ /^http:\/\/pecl.php.net\/get\//) {
+		gsub("-.*", "", filename)
+		url = "http://pecl.php.net/package/" filename
+		if (DEBUG) print "pecl.php.net url, mungled url to: " url
 	}
 
 	if (DEBUG) print "Retrieving: " url
@@ -319,7 +325,7 @@ function process_source(number,lurl,name,version) {
 	references=0
 	finished=0
 	oldversion=version
-	odp=get_links(newurl)
+	odp=get_links(newurl,filename)
 	if( odp ~ "ERROR: ") {
 		print name "(" number ") " odp
 	} else {
