@@ -1,5 +1,4 @@
 # shell aliases and functions for PLD Developer
-# $Id$
 
 # set $dist, used by functions below
 [ -n "$dist" ] || dist=$(awk '/PLD Linux/ {print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
