@@ -111,6 +111,42 @@ autotag() {
 	done
 }
 
+get-buildlog() {
+	local p=$1
+	if [ -z "$p" ]; then
+		echo >&2 "Usage: get-buildlog PACKAGE"
+		echo >&2 ""
+		echo >&2 "Grabs buildlogs from pld builder for all arch."
+		return
+	fi
+
+	local al
+	case "$dist" in
+	ac)
+		al='i686,i586,i386,athlon,alpha,sparc,amd64,ppc'
+		;;
+	th)
+		al='x86_64,athlon,i486,i686,ppc'
+		;;
+	*)
+		echo >&2 "get-buildlog: $dist buildlogs are /dev/null"
+		return
+	esac
+
+	local u a s=ftp://buildlogs.pld-linux.org
+	for u in `eval echo $s/$dist/{$al}/{OK,FAIL}/$p.bz2`; do
+		a=${u#$s/$dist/}; a=${a%%/*}
+		echo -n "Fetching $u... "
+		if wget -q $u -O .$p~; then
+			echo "OK"
+			mv -f .$p~ $p.$a.bz2
+		else
+			echo "SKIP"
+			rm -f .$p~
+		fi
+	done
+}
+
 fi # no $dist set
 
 alias cv='cvs status -v'
@@ -207,7 +243,8 @@ sed -e '
 	s,^@@ ,[33m&,;
 	s,^-,[35m&,;
 	s,^+,[36m&,;
-	s,,[44m^M[49m,g;
+	s,
+,[44m^M[49m,g;
 	s,	,    ,g;
 	s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
 	s,$,[0m,
