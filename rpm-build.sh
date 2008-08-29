@@ -248,7 +248,7 @@ sed -e '
 	s,	,    ,g;
 	s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
 	s,$,[0m,
-' "$@"
+' ${1:+"$@"}
 }
 
 # chdir to file location and do 'cvs log'
