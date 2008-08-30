@@ -428,6 +428,7 @@ FNR==1 {
 		for (i in SRC) delete SRC[i]
 	}
 	FNAME=FILENAME
+	DEFS["_alt_kernel"]=""
 }
 
 /^[Uu][Rr][Ll]:/&&(URL=="") { URL=subst_defines($2,DEFS) ; DEFS["url"]=URL }
