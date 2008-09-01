@@ -175,6 +175,12 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 		if (DEBUG) print "pecl.php.net url, mungled url to: " url
 	}
 
+	if (url ~ /^(http|ftp):\/\/mysql.*\/Downloads\/MySQL-5.1\//) {
+		url = "http://dev.mysql.com/downloads/mysql/5.1.html#source"
+		 if (DEBUG) print "mysql 5.1 url, mungled url to: " url
+	}
+
+
 	if (DEBUG) print "Retrieving: " url
 	errno=system("wget -O - \"" url "\" -t 3 -T 300 --passive-ftp > " tmpfile " 2>/dev/null" )
 
