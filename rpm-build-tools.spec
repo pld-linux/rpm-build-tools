@@ -16,6 +16,7 @@ Source2:	adapter
 Source3:	pldnotify.awk
 Requires:	less
 Requires:	rpm-build
+Requires:	util-linux
 Requires:	wget
 Suggests:	cvs-client
 Suggests:	rpm-specdump >= 0.3
