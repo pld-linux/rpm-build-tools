@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# This is adapter v0.29. Adapter adapts .spec files for PLD Linux.
+# This is adapter v0.30-RELEASE. Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2003 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2008 PLD Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -83,7 +83,7 @@ diffcol()
 	 s,^@@ ,[33m&,g;
 	 s,^-,[35m&,;
 	 s,^+,[36m&,;
-	 s,,[44m^M[49m,g;
+	 s,\r,[44m^M[49m,g;
 	 s,	,    ,g;
 	 s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
 	 s,$,[0m,
@@ -189,10 +189,12 @@ adapterize()
 	rm -rf $tmpdir
 }
 
-if [ $# -ne 1 -o ! -f "$1" ]; then
+SPECFILE="$1"
+[ -f "$SPECFILE" ] || SPECFILE="$(basename $SPECFILE .spec).spec"
+
+if [ $# -ne 1 -o ! -f "$SPECFILE" ]; then
 	echo "$usage"
 	exit 1
 fi
 
-SPECFILE="$1"
 adapterize
