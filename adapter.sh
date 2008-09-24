@@ -1,8 +1,5 @@
 #!/bin/sh
 #
-# This is adapter v0.31. Adapter adapts .spec files for PLD Linux.
-#
-# Copyright (C) 1999-2003 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -14,6 +11,14 @@
 # See cvs log adapter{,.awk} for list of contributors
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+RCSID='$Id$'
+r=${RCSID#* * }
+rev=${r%% *}
+VERSION="v0.31/$rev"
+VERSIONSTRING="\
+Adapter adapts .spec files for PLD Linux.
+$VERSION (C) 1999-2008 Free Penguins".
 
 self=$(basename "$0")
 adapter=$(dirname "$0")/adapter.awk
@@ -40,7 +45,7 @@ if [ ! -x /usr/bin/patch ]; then
 	exit 1
 fi
 
-t=`getopt -o hsmda --long help,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@"` || exit $?
+t=$(getopt -o hsmdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@") || exit $?
 eval set -- "$t"
 
 while true; do
@@ -60,6 +65,10 @@ while true; do
 	;;
 	-a|--skip-defattr)
 		export SKIP_DEFATTR=1
+	;;
+	-V|--version)
+		echo "$VERSIONSTRING"
+		exit 0
 	;;
 	--)
 		shift

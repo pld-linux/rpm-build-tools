@@ -1,7 +1,6 @@
 #!/usr/bin/gawk -f
 #
-# This is adapter v0.31. Adapter adapts .spec files for PLD Linux.
-# $Id$
+# Adapter adapts .spec files for PLD Linux.
 #
 # Copyright (C) 1999-2007 PLD-Team <feedback@pld-linux.org>
 # Authors:
@@ -29,6 +28,10 @@
 BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
+
+	RCSID = "$Id$"
+	rev = RCSID # TODO: parse from RCSID
+	VERSION = "0.31/" rev
 
 	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests)"
 
