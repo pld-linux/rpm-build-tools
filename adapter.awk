@@ -1,6 +1,6 @@
 #!/usr/bin/gawk -f
 #
-# This is adapter v0.30. Adapter adapts .spec files for PLD Linux.
+# This is adapter v0.31. Adapter adapts .spec files for PLD Linux.
 # $Id$
 #
 # Copyright (C) 1999-2007 PLD-Team <feedback@pld-linux.org>
