@@ -1948,6 +1948,7 @@ init_rpm_dir() {
 	TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
 	CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
 
+	echo "Initialising rpm directories to $TOP_DIR from $CVSROOT"
 	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
 	cd $TOP_DIR
 	cvs -d $CVSROOT co SOURCES/{.cvsignore,dropin} SPECS/{mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
@@ -2109,6 +2110,10 @@ while [ $# -gt 0 ]; do
 			shift; RPMOPTS="${RPMOPTS} ${1}"; shift ;;
 		--nopatch | -np )
 			shift; RPMOPTS="${RPMOPTS} --define \"patch${1} : ignoring patch${1}; exit 1; \""; shift ;;
+		--topdir)
+			RPMOPTS="${RPMOPTS} --define \"_topdir $2\""
+			shift 2
+			;;
 		--with | --without )
 			case $GROUP_BCONDS in
 				"yes")
