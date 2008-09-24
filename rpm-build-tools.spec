@@ -14,6 +14,7 @@ Source0:	builder
 Source1:	adapter.awk
 Source2:	adapter
 Source3:	pldnotify.awk
+BuildRequires:	sed >= 4.0
 Requires:	less
 Requires:	rpm-build
 Requires:	util-linux
@@ -48,15 +49,18 @@ construir pacotes usando o RPM.
 
 %prep
 %setup -qcT
-sed -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' %{SOURCE2} > adapter
+cp -a %{SOURCE0} %{SOURCE1} %{SOURCE2} %{SOURCE3} .
+
+%{__sed} -i -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' adapter
+
+%{__sed} -i -e '/^RCSID=/,/^rev=/d;/^VERSION=/s,\([^/]\+\)/.*",\1-RELEASE",' builder adapter
+%{__sed} -i -e '/\tRCSID =/,/^\trev =/d;/\tVERSION = /s,\([^/]\+\)/.*,\1-RELEASE",' adapter.awk
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
-install %{SOURCE0} $RPM_BUILD_ROOT%{_bindir}/builder
-install adapter $RPM_BUILD_ROOT%{_bindir}/adapter
-cp -a %{SOURCE1} $RPM_BUILD_ROOT%{_libdir}/adapter.awk
-install %{SOURCE3} $RPM_BUILD_ROOT%{_bindir}/pldnotify.awk
+cp -a adapter.awk $RPM_BUILD_ROOT%{_libdir}/adapter.awk
+install pldnotify.awk builder adapter $RPM_BUILD_ROOT%{_bindir}/pldnotify.awk
 
 %clean
 rm -rf $RPM_BUILD_ROOT
