@@ -2140,9 +2140,13 @@ while [ $# -gt 0 ]; do
 		--date )
 			CVSDATE="${2}"; shift 2 ;;
 		-r | --cvstag )
-			shift; CVSTAG="${1}"; shift ;;
+			CVSTAG="$2"
+		   	shift 2
+		   	;;
 		-A)
-			shift; CVSTAG="HEAD"; ;;
+			shift
+			CVSTAG="HEAD"
+		   	;;
 		-R | --fetch-build-requires)
 			FETCH_BUILD_REQUIRES="yes"
 			NOT_INSTALLED_PACKAGES=
@@ -2281,6 +2285,11 @@ if [ -f CVS/Entries ] && [ -z "$CVSTAG" ]; then
 elif [ "$CVSTAG" = "HEAD" ]; then
 	# assume -r HEAD is same as -A
 	CVSTAG=""
+fi
+
+if [ "$CVSTAG" ]; then
+	# pass $CVSTAG used by builder to rpmbuild too, so specs could use it
+	RPMOPTS="$RPMOPTS --define \"_cvstag $CVSTAG\""
 fi
 
 if [ -n "$DEBUG" ]; then
