@@ -80,6 +80,7 @@ BEGIN {
 	"rpm --eval %_examplesdir"	| getline examplesdir
 	"rpm --eval %_defaultdocdir"	| getline docdir
 	"rpm --eval %_kdedocdir"	| getline kdedocdir
+	"rpm --eval %_gtkdocdir"	| getline gtkdocdir
 	"rpm --eval %_desktopdir" | getline desktopdir
 	"rpm --eval %_pixmapsdir" | getline pixmapsdir
 	"rpm --eval %_javadir" | getline javadir
@@ -1186,8 +1187,13 @@ function use_macros()
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
-	gsub(kdedocdir, "%{_kdedocdir}")
 	gsub(docdir, "%{_docdir}")
+
+	gsub(kdedocdir, "%{_kdedocdir}")
+
+	gsub(gtkdocdir, "%{_gtkdocdir}")
+	gsub("%{_docdir}/gtk-doc/html", "%{_gtkdocdir}")
+
 	gsub(php_pear_dir, "%{php_pear_dir}")
 	gsub(php_data_dir, "%{php_data_dir}")
 
