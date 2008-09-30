@@ -165,7 +165,7 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 	if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
 		gsub("^http://", "", url)
 		gsub("\..*", "", url)
-		url = "http://code.google.com/p/" url "/"
+		url = "http://code.google.com/p/" url "/downloads/list"
 		if (DEBUG) print "googlecode url, mungled url to: " url
 	}
 
