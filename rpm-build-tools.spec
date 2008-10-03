@@ -15,6 +15,7 @@ Source1:	adapter.awk
 Source2:	adapter
 Source3:	pldnotify.awk
 BuildRequires:	sed >= 4.0
+Requires:	gawk
 Requires:	less
 Requires:	rpm-build
 Requires:	util-linux
