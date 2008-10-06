@@ -1184,6 +1184,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/dbus-1")
 			continue;
+		if ($c ~ sysconfdir "/tmpwatch")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
@@ -1400,6 +1402,8 @@ function use_files_macros(	i, n, t, a)
 	gsub("%{_sysconfdir}/certs", "/etc/certs")
 	gsub("%{_sysconfdir}/init.d", "/etc/init.d")
 	gsub("%{_sysconfdir}/dbus-1", "/etc/dbus-1")
+	gsub("%{_sysconfdir}/pki", "/etc/pki")
+	gsub("%{_sysconfdir}/tmpwatch", "/etc/tmpwatch")
 
 	# /etc/init.d -> /etc/rc.d/init.d
 	if (!/^\/etc\/init\.d$/) {
