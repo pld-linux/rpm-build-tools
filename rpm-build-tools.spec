@@ -61,7 +61,7 @@ cp -a %{SOURCE0} %{SOURCE1} %{SOURCE2} %{SOURCE3} .
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
 cp -a adapter.awk $RPM_BUILD_ROOT%{_libdir}/adapter.awk
-install pldnotify.awk builder adapter $RPM_BUILD_ROOT%{_bindir}/pldnotify.awk
+install pldnotify.awk builder adapter $RPM_BUILD_ROOT%{_bindir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
