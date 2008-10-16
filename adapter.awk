@@ -1498,7 +1498,9 @@ function use_files_macros(	i, n, t, a, l)
 		t = substr($0, 0, l - 1);
 		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"));
 		if (match(s, "[^-]+$")) {
-			s = substr(s, 0, RSTART - 2);
+			if (RLENGTH > 1) {
+				s = substr(s, 0, RSTART - 2);
+			}
 			print "%if \"%{py_ver}\" > \"2.4\""
 			gsub(t "/.+.egg-info", t "/" s "-*.egg-info");
 			print
