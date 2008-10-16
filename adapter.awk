@@ -1493,7 +1493,7 @@ function use_files_macros(	i, n, t, a, l)
 	}
 
 	# python egg-infos
-	if (match($0, "^%{py_sitedir}/.*-[0-9.]+-py"py_ver".egg-info$")) {
+	if (match($0, "^%{py_sitedir}/.+-[0-9.]+-py"py_ver".egg-info$")) {
 		l = length("%{py_sitedir}/");
 		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"));
 		if (match(s, "[0-9.]+$")) {
@@ -1503,7 +1503,7 @@ function use_files_macros(	i, n, t, a, l)
 			print
 			print "%endif"
 			# yeah, sorry, just can't append to preable anymore
-			print "BuildRequires:\tpython-devel >= 1:2.4"
+			print "BuildRequires:\tpython-devel >= 1:2.5"
 			next
 		}
 	}
