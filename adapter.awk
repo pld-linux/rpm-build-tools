@@ -534,7 +534,9 @@ function b_makekey(a, b,	s) {
 	if ($0 ~ /^%files/)
 		defattr = 1
 
-	use_files_macros()
+	if (!use_files_macros()) {
+		next
+	}
 }
 
 ##############
@@ -1372,7 +1374,7 @@ function use_files_macros(	i, n, t, a, l)
 
 	# skip comments
 	if (/^#/) {
-		return;
+		return 1;
 	}
 
 	sub("^%doc %{_mandir}", "%{_mandir}")
@@ -1494,18 +1496,27 @@ function use_files_macros(	i, n, t, a, l)
 
 	# python egg-infos
 	if (match($0, "^%{py_site(script)?dir}/.+-py"py_ver".egg-info$")) {
+		# tests:
+		#%{py_sitedir}/*-py2.4.egg-info
+		#%{py_sitescriptdir}/GnuPGInterface-%{version}-py2.4.egg-info
+		#%{py_sitescriptdir}/python_mpd-%{version}-py2.4.egg-info
+		#%{py_sitescriptdir}/mechanize-0.1.6b-py2.4.egg-info
+
 		l = index($0, "/");
-		t = substr($0, 0, l - 1);
+		t = substr($0, 0, l);
 		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"));
 		if (match(s, "[^-]+$")) {
-			if (RLENGTH > 1) {
-				s = substr(s, 0, RSTART - 2);
+#printf("s[%s]; start[%d]; length[%d]\n", s, RSTART, RLENGTH);
+			if (RSTART > 1) {
+				s = substr(s, 0, RSTART - 1);
 			}
+#printf("s2[%s]\n", s);
 			print "%if \"%{py_ver}\" > \"2.4\""
+#print t "/.+.egg-info"
 			gsub(t "/.+.egg-info", t "/" s "-*.egg-info");
 			print
 			print "%endif"
-			next
+			return 0;
 		}
 	}
 
@@ -1523,6 +1534,8 @@ function use_files_macros(	i, n, t, a, l)
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}");
 	gsub("%{_datadir}/pear", "%{php_pear_dir}");
 	gsub("%{_datadir}/php", "%{php_data_dir}");
+
+	return 1
 }
 
 function use_script_macros()
