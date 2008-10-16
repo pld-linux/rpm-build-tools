@@ -95,6 +95,7 @@ BEGIN {
 	"rpm --eval %py_sitescriptdir 2>/dev/null" | getline py_sitescriptdir
 	"rpm --eval %py_sitedir 2>/dev/null" | getline py_sitedir
 	"rpm --eval %py_scriptdir 2>/dev/null" | getline py_scriptdir
+	"rpm --eval %py_ver 2>/dev/null" | getline py_ver
 
 	"rpm --eval %ruby_archdir" | getline ruby_archdir
 	"rpm --eval %ruby_ridir" | getline ruby_ridir
@@ -1365,7 +1366,7 @@ function isort(A,n,		i,j,hold) {
 }
 
 
-function use_files_macros(	i, n, t, a)
+function use_files_macros(	i, n, t, a, l)
 {
 	use_macros()
 
@@ -1489,6 +1490,22 @@ function use_files_macros(	i, n, t, a)
 	# locale dir and no %lang -> bad
 	if (/%{_datadir}\/locale\/.*\// && !/%(dir|lang)/) {
 		$(NF + 1) = "# FIXME consider using %find_lang"
+	}
+
+	# python egg-infos
+	if (match($0, "^%{py_sitedir}/.*-[0-9.]+-py"py_ver".egg-info$")) {
+		l = length("%{py_sitedir}/");
+		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"));
+		if (match(s, "[0-9.]+$")) {
+			s = substr(s, 0, RSTART - 2);
+			print "%if \"%{py_ver}\" > \"2.4\""
+			gsub("%{py_sitedir}/.*.egg-info", "%{py_sitedir}/" s "-*.egg-info");
+			print
+			print "%endif"
+			# yeah, sorry, just can't append to preable anymore
+			print "BuildRequires:\tpython-devel >= 1:2.4"
+			next
+		}
 	}
 
 	# atrpms
