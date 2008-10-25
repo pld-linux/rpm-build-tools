@@ -1044,11 +1044,20 @@ END {
 	}
 }
 
-function fixedsub(s1,s2,t, ind) {
 # substitutes fixed strings (not regexps)
+function fixedsub(s1,s2,t, ind) {
 	if (ind = index(t,s1))
 		t = substr(t, 1, ind-1) s2 substr(t, ind+length(s1))
 	return t
+}
+
+# replace s with s2 if it equals to s1
+function replace(s, s1, s2) {
+	if (s == s1) {
+		return s2;
+	} else {
+		return s;
+	}
 }
 
 # There should be one or two tabs after the colon.
@@ -1779,58 +1788,57 @@ function replace_php_virtual_deps()
 
 function replace_groupnames(group)
 {
-	sub(/^Amusements\/Games\/Strategy\/Real Time/, "X11/Applications/Games/Strategy", group)
-	sub(/^Application\/Multimedia$/, "Applications/Multimedia", group)
-	sub(/^Applications\/Compilers$/, "Development/Languages", group)
-	sub(/^Applications\/Daemons$/, "Daemons", group)
-	sub(/^Applications\/Internet$/, "Applications/Networking", group)
-	sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", group)
-	sub(/^Applications\/Productivity$/, "X11/Applications", group)
-	sub(/^Database$/, "Applications/Databases", group)
-	sub(/^Development\/Code Generators$/, "Development", group)
-	sub(/^Development\/Docs$/, "Documentation", group)
-	sub(/^Development\/Documentation$/, "Documentation", group)
-	sub(/^Development\/Java/, "Development/Languages/Java", group)
-	sub(/^Development\/Libraries\/C and C\+\+$/, "Development/Libraries", group)
-	sub(/^Development\/Libraries\/Java$/, "Development/Languages/Java", group)
-	sub(/^Development\/Other/,"Development", group)
-	sub(/^Development\/Testing$/, "Development", group)
-	sub(/^Emulators$/, "Applications/Emulators", group)
-	sub(/^Games/,"Applications/Games", group)
-	sub(/^Library\/Development$/, "Development/Libraries", group)
-	sub(/^Networking\/Deamons$/, "Networking/Daemons", group)
-	sub(/^Shells/,"Applications/Shells", group)
-	sub(/^System Environment\/Base$/, "Base", group)
-	sub(/^System Environment\/Daemons$/, "Daemons", group)
-	sub(/^System Environment\/Kernel$/, "Base/Kernel", group)
-	sub(/^System Environment\/Libraries$/, "Libraries", group)
-	sub(/^System$/, "Base", group)
-	sub(/^System\/Base$/, "Base", group)
-	sub(/^System\/Libraries$/, "Libraries", group)
-	sub(/^System\/Servers$/, "Daemons", group)
-	sub(/^Text Processing\/Markup\/HTML$/, "Applications/Text", group)
-	sub(/^Text Processing\/Markup\/XML$/, "Applications/Text", group)
-	sub(/^Utilities\//,"Applications/", group)
-	sub(/^Web\/Database$/, "Applications/WWW", group)
-	sub(/^X11\/GNOME/,"X11/Applications", group)
-	sub(/^X11\/GNOME\/Applications/,"X11/Applications", group)
-	sub(/^X11\/GNOME\/Development\/Libraries/,"X11/Development/Libraries", group)
-	sub(/^X11\/Games/,"X11/Applications/Games", group)
-	sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy", group)
-	sub(/^X11\/Library/,"X11/Libraries", group)
-	sub(/^X11\/Utilities/,"X11/Applications", group)
-	sub(/^X11\/XFree86/, "X11", group)
-	sub(/^X11\/Xserver$/, "X11/Servers", group)
-	sub(/^Development\/C$/, "Development/Libraries", group)
-	sub(/^Development\/Python$/, "Development/Languages/Python", group)
-	sub(/^System\/Kernel and hardware$/, "Base/Kernel", group)
-	sub(/^Application\/System$/, "Applications/System", group)
-	sub(/^Productivity\/Databases\/Servers$/, "Applications/Databases", group)
-	sub(/^Development\/Libraries\/Python$/, "Development/Languages/Python", group)
-	sub(/^Development\/Languages\/Ruby$/, "Development/Languages", group)
-	sub(/^Development\/Libraries\/TCL$/, "Development/Languages/Tcl", group);
-	sub(/^Development\/Languages\/Other$/, "Development/Languages", group);
-	sub(/^Productivity\/Networking\/Web\/Servers$/, "Networking/Daemons/HTTP", group);
+	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
+	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
+	group = replace(group, "Application/System", "Applications/System");
+	group = replace(group, "Applications/Compilers", "Development/Languages");
+	group = replace(group, "Applications/Daemons", "Daemons");
+	group = replace(group, "Applications/Internet", "Applications/Networking");
+	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking");
+	group = replace(group, "Applications/Productivity", "X11/Applications");
+	group = replace(group, "Database", "Applications/Databases");
+	group = replace(group, "Development/C", "Development/Libraries");
+	group = replace(group, "Development/Code Generators", "Development");
+	group = replace(group, "Development/Docs", "Documentation");
+	group = replace(group, "Development/Documentation", "Documentation");
+	group = replace(group, "Development/Java", "Development/Languages/Java");
+	group = replace(group, "Development/Languages/Other", "Development/Languages");;
+	group = replace(group, "Development/Languages/Ruby", "Development/Languages");
+	group = replace(group, "Development/Libraries/C and C++", "Development/Libraries");
+	group = replace(group, "Development/Libraries/Java", "Development/Languages/Java");
+	group = replace(group, "Development/Libraries/Python", "Development/Languages/Python");
+	group = replace(group, "Development/Libraries/TCL", "Development/Languages/Tcl");;
+	group = replace(group, "Development/Other", "Development");
+	group = replace(group, "Development/Python", "Development/Languages/Python");
+	group = replace(group, "Development/Testing", "Development");
+	group = replace(group, "Emulators", "Applications/Emulators");
+	group = replace(group, "Games", "Applications/Games");
+	group = replace(group, "Library/Development", "Development/Libraries");
+	group = replace(group, "Networking/Deamons", "Networking/Daemons");
+	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
+	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP");;
+	group = replace(group, "Shells", "Applications/Shells");
+	group = replace(group, "System Environment/Base", "Base");
+	group = replace(group, "System Environment/Daemons", "Daemons");
+	group = replace(group, "System Environment/Kernel", "Base/Kernel");
+	group = replace(group, "System Environment/Libraries", "Libraries");
+	group = replace(group, "System", "Base");
+	group = replace(group, "System/Base", "Base");
+	group = replace(group, "System/Kernel and hardware", "Base/Kernel");
+	group = replace(group, "System/Libraries", "Libraries");
+	group = replace(group, "System/Servers", "Daemons");
+	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
+	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
+	group = replace(group, "Web/Database", "Applications/WWW");
+	group = replace(group, "X11/GNOME", "X11/Applications");
+	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
+	group = replace(group, "X11/GNOME/Development/Libraries", "X11/Development/Libraries");
+	group = replace(group, "X11/Games", "X11/Applications/Games");
+	group = replace(group, "X11/Games/Strategy", "X11/Applications/Games/Strategy");
+	group = replace(group, "X11/Library", "X11/Libraries");
+	group = replace(group, "X11/Utilities", "X11/Applications");
+	group = replace(group, "X11/XFree86", "X11");
+	group = replace(group, "X11/Xserver", "X11/Servers");
 
 	return group;
 }
