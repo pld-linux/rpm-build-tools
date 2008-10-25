@@ -1830,7 +1830,7 @@ function replace_groupnames(group)
 	sub(/^Development\/Languages\/Ruby$/, "Development/Languages", group)
 	sub(/^Development\/Libraries\/TCL$/, "Development/Languages/Tcl", group);
 	sub(/^Development\/Languages\/Other$/, "Development/Languages", group);
-	sub(/^Productivity\/Networking\/Web\/Servers$/, "Networking/Daemons", group);
+	sub(/^Productivity\/Networking\/Web\/Servers$/, "Networking/Daemons/HTTP", group);
 
 	return group;
 }
