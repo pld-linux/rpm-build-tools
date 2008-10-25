@@ -1825,6 +1825,12 @@ function replace_groupnames(group)
 	sub(/^Development\/Python$/, "Development/Languages/Python", group)
 	sub(/^System\/Kernel and hardware$/, "Base/Kernel", group)
 	sub(/^Application\/System$/, "Applications/System", group)
+	sub(/^Productivity\/Databases\/Servers$/, "Applications/Databases", group)
+	sub(/^Development\/Libraries\/Python$/, "Development/Languages/Python", group)
+	sub(/^Development\/Languages\/Ruby$/, "Development/Languages", group)
+	sub(/^Development\/Libraries\/TCL$/, "Development/Languages/Tcl", group);
+	sub(/^Development\/Languages\/Other$/, "Development/Languages", group);
+	sub(/^Productivity\/Networking\/Web\/Servers$/, "Networking/Daemons", group);
 
 	return group;
 }
