@@ -139,17 +139,79 @@ for my $filename (@ARGV) {
 ' "$@"
 }
 
-adapterize()
-{
-	local tmpdir
-	tmpdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
+# import selected macros for adapter.awk
+# you should update the list also in adapter.awk when making changes here
+import_rpm_macros() {
+	macros="
+	_sourcedir
+	_prefix
+	_bindir
+	_sbindir
+	_libdir
+	_sysconfdir
+	_datadir
+	_includedir
+	_mandir
+	_infodir
+	_examplesdir
+	_defaultdocdir
+	_kdedocdir
+	_gtkdocdir
+	_desktopdir
+	_pixmapsdir
+	_javadir
+
+	perl_sitearch
+	perl_archlib
+	perl_privlib
+	perl_vendorlib
+	perl_vendorarch
+	perl_sitelib
+
+	py_sitescriptdir
+	py_sitedir
+	py_scriptdir
+	py_ver
+
+	ruby_archdir
+	ruby_ridir
+	ruby_rubylibdir
+	ruby_sitearchdir
+	ruby_sitelibdir
+
+	php_pear_dir
+	php_data_dir
+	tmpdir
+"
+	eval_expr=""
+	for macro in $macros; do
+		eval_expr="$eval_expr\nexport $macro='%{$macro}'"
+	done
+
+
+	# get cvsaddress for changelog section
+	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
+	eval_expr="$eval_expr
+	export _cvsmaildomain='%{?_cvsmaildomain}%{!?_cvsmaildomain:@pld-linux.org}'
+	export _cvsmailfeedback='%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <feedback@pld-linux.org>}'
+	"
+
+	eval $(rpm --eval "$(echo -e $eval_expr)")
+}
+
+adapterize() {
+	local workdir
+	workdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
 	if grep -q '\.UTF-8' $SPECFILE; then
 		awk=gawk
 	else
 		awk=awk
 	fi
 
-	local tmp=$tmpdir/$(basename $SPECFILE) || exit
+	local tmp=$workdir/$(basename $SPECFILE) || exit
+
+	import_rpm_macros
+
 	$awk -f $adapter $SPECFILE > $tmp || exit
 
 	if [ "$(diff --brief $SPECFILE $tmp)" ]; then
@@ -195,7 +257,7 @@ adapterize()
 		echo "The SPEC is perfect ;)"
 	fi
 
-	rm -rf $tmpdir
+	rm -rf $workdir
 }
 
 SPECFILE="$1"

@@ -50,62 +50,18 @@ BEGIN {
 	removed["CFLAGS"] = 0
 	removed["CXXFLAGS"] = 0
 
-	# get cvsaddress for changelog section
-	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
-	"rpm --eval '%{?_cvsmaildomain}%{!?_cvsmaildomain:@pld-linux.org}'" | getline _cvsmaildomain
-	"rpm --eval '%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <feedback@pld-linux.org>}'" | getline _cvsmailfeedback
-
 	# If 1, we are inside of comment block (started with /^#%/)
 	comment_block = 0
 
-	# File with rpm groups
-	"rpm --eval %_sourcedir" | getline groups_file
-	groups_file = groups_file "/rpm.groups"
+	import_rpm_macros()
+
+	groups_file = sourcedir "/rpm.groups"
+
 	system("cd `rpm --eval %_sourcedir`; [ -f rpm.groups ] || cvs up rpm.groups >/dev/null")
 	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
-
-	# Load rpm macros
-	"rpm --eval %_prefix"	| getline prefix
-	"rpm --eval %_bindir"	| getline bindir
-	"rpm --eval %_sbindir"	| getline sbindir
-	"rpm --eval %_libdir"	| getline libdir
-	"rpm --eval %_sysconfdir" | getline sysconfdir
-	"rpm --eval %_datadir"	| getline datadir
-	"rpm --eval %_includedir" | getline includedir
-	"rpm --eval %_mandir"	| getline mandir
-	"rpm --eval %_infodir"	| getline infodir
-	"rpm --eval %_examplesdir"	| getline examplesdir
-	"rpm --eval %_defaultdocdir"	| getline docdir
-	"rpm --eval %_kdedocdir"	| getline kdedocdir
-	"rpm --eval %_gtkdocdir"	| getline gtkdocdir
-	"rpm --eval %_desktopdir" | getline desktopdir
-	"rpm --eval %_pixmapsdir" | getline pixmapsdir
-	"rpm --eval %_javadir" | getline javadir
-
-	"rpm --eval %perl_sitearch" | getline perl_sitearch
-	"rpm --eval %perl_archlib" | getline perl_archlib
-	"rpm --eval %perl_privlib" | getline perl_privlib
-	"rpm --eval %perl_vendorlib" | getline perl_vendorlib
-	"rpm --eval %perl_vendorarch" | getline perl_vendorarch
-	"rpm --eval %perl_sitelib" | getline perl_sitelib
-
-	"rpm --eval %py_sitescriptdir 2>/dev/null" | getline py_sitescriptdir
-	"rpm --eval %py_sitedir 2>/dev/null" | getline py_sitedir
-	"rpm --eval %py_scriptdir 2>/dev/null" | getline py_scriptdir
-	"rpm --eval %py_ver 2>/dev/null" | getline py_ver
-
-	"rpm --eval %ruby_archdir" | getline ruby_archdir
-	"rpm --eval %ruby_ridir" | getline ruby_ridir
-	"rpm --eval %ruby_rubylibdir" | getline ruby_rubylibdir
-	"rpm --eval %ruby_sitearchdir" | getline ruby_sitearchdir
-	"rpm --eval %ruby_sitelibdir" | getline ruby_sitelibdir
-
-	"rpm --eval %php_pear_dir" | getline php_pear_dir
-	"rpm --eval %php_data_dir" | getline php_data_dir
-	"rpm --eval %tmpdir" | getline tmpdir
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -1786,8 +1742,58 @@ function replace_php_virtual_deps()
 	}
 }
 
-function replace_groupnames(group)
-{
+# Load rpm macros
+# you should update the list also in adapter when making changes here
+function import_rpm_macros() {
+	# get cvsaddress for changelog section
+	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
+	_cvsmaildomain = ENVIRON["_cvsmaildomain"]
+	_cvsmailfeedback = ENVIRON["_cvsmailfeedback"]
+
+	# File with rpm groups
+	sourcedir = ENVIRON["_sourcedir"]
+
+	prefix = ENVIRON["_prefix"]
+	bindir = ENVIRON["_bindir"]
+	sbindir = ENVIRON["_sbindir"]
+	libdir = ENVIRON["_libdir"]
+	sysconfdir = ENVIRON["_sysconfdir"]
+	datadir = ENVIRON["_datadir"]
+	includedir = ENVIRON["_includedir"]
+	mandir = ENVIRON["_mandir"]
+	infodir = ENVIRON["_infodir"]
+	examplesdir = ENVIRON["_examplesdir"]
+	docdir = ENVIRON["_defaultdocdir"]
+	kdedocdir = ENVIRON["_kdedocdir"]
+	gtkdocdir = ENVIRON["_gtkdocdir"]
+	desktopdir = ENVIRON["_desktopdir"]
+	pixmapsdir = ENVIRON["_pixmapsdir"]
+	javadir = ENVIRON["_javadir"]
+
+	perl_sitearch = ENVIRON["perl_sitearch"]
+	perl_archlib = ENVIRON["perl_archlib"]
+	perl_privlib = ENVIRON["perl_privlib"]
+	perl_vendorlib = ENVIRON["perl_vendorlib"]
+	perl_vendorarch = ENVIRON["perl_vendorarch"]
+	perl_sitelib = ENVIRON["perl_sitelib"]
+
+	py_sitescriptdir = ENVIRON["py_sitescriptdir"]
+	py_sitedir = ENVIRON["py_sitedir"]
+	py_scriptdir = ENVIRON["py_scriptdir"]
+	py_ver = ENVIRON["py_ver"]
+
+	ruby_archdir = ENVIRON["ruby_archdir"]
+	ruby_ridir = ENVIRON["ruby_ridir"]
+	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"]
+	ruby_sitearchdir = ENVIRON["ruby_sitearchdir"]
+	ruby_sitelibdir = ENVIRON["ruby_sitelibdir"]
+
+	php_pear_dir = ENVIRON["php_pear_dir"]
+	php_data_dir = ENVIRON["php_data_dir"]
+	tmpdir = ENVIRON["tmpdir"]
+}
+
+function replace_groupnames(group) {
 	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
 	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
 	group = replace(group, "Application/System", "Applications/System");
