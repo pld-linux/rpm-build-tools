@@ -1745,13 +1745,19 @@ function replace_php_virtual_deps()
 # Load rpm macros
 # you should update the list also in adapter when making changes here
 function import_rpm_macros() {
+	# File with rpm groups
+	sourcedir = ENVIRON["_sourcedir"]
+
+	if (!sourcedir) {
+		print "adapter.awk should not not be invoked directly, but via adapter script" > "/dev/stderr"
+		do_not_touch_anything = 1
+		exit(1);
+	}
+
 	# get cvsaddress for changelog section
 	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
 	_cvsmaildomain = ENVIRON["_cvsmaildomain"]
 	_cvsmailfeedback = ENVIRON["_cvsmailfeedback"]
-
-	# File with rpm groups
-	sourcedir = ENVIRON["_sourcedir"]
 
 	prefix = ENVIRON["_prefix"]
 	bindir = ENVIRON["_bindir"]
