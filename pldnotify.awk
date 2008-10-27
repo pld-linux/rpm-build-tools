@@ -441,7 +441,7 @@ FNR==1 {
 /^[Nn]ame:/&&(NAME=="") { NAME=subst_defines($2,DEFS) ; DEFS["name"]=NAME }
 /^[Vv]ersion:/&&(VER=="") { VER=subst_defines($2,DEFS) ; DEFS["version"]=VER }
 /^[Rr]elease:/&&(REL=="") { REL=subst_defines($2,DEFS) ; DEFS["release"]=REL }
-/^[Ss]ource[0-9]*:/ { if (/(ftp|http):\/\//) SRC[FNR]=subst_defines($2,DEFS) }
+/^[Ss]ource[0-9]*:/ { if (/(ftp|http|https):\/\//) SRC[FNR]=subst_defines($2,DEFS) }
 /%define/ { DEFS[$2]=subst_defines($3,DEFS) }
 
 END {
