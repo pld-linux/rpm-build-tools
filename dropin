@@ -1,4 +1,6 @@
 #!/bin/sh
-lftp -c "open dropin;
-mput $*
+lftp -c "
+	open dropin
+	echo Uploading $*
+	mput $*
 "
