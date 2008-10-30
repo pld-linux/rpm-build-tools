@@ -435,6 +435,7 @@ FNR==1 {
 	}
 	FNAME=FILENAME
 	DEFS["_alt_kernel"]=""
+	DEFS["20"]="\\ "
 }
 
 /^[Uu][Rr][Ll]:/&&(URL=="") { URL=subst_defines($2,DEFS) ; DEFS["url"]=URL }
