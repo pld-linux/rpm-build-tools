@@ -1774,7 +1774,7 @@ install_build_requires_rpmdeps() {
 			update_shell_title "install deps: $DEPS"
 			echo "Trying to install dependencies ($DEPS):"
 			local log=.${SPECFILE}_poldek.log
-			LANG=C $SU_SUDO /usr/bin/poldek --caplookup -uGqQ $DEPS | tee $log
+			LANG=C $SU_SUDO /usr/bin/poldek --noask --caplookup -uGqQ $DEPS | tee $log
 			failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
 			rm -f $log
 			local ok
