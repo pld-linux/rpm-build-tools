@@ -48,8 +48,8 @@ rpmbuild() {
 		exit 0%{nil}' \
 		--define 'check %%check \
 		exit 0%{nil}' \
-		--define '_source_payload w9.gzdio' \
-		--define '_binary_payload w9.gzdio' \
+		--define '_source_payload w5.gzdio' \
+		--define '_binary_payload w5.gzdio' \
 		--define '__spec_install_pre %___build_pre' \
 		--define '__spec_clean_body %{nil}' \
 		$a || exit
