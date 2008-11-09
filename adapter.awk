@@ -1564,6 +1564,7 @@ function unify_url(url)
 {
 
 	# sourceforge urls
+	# Docs about sourceforge mirror system: http://sourceforge.net/docs/B05/
 	sub("[?&]big_mirror=.*$", "", url);
 	sub("[?&]modtime=.*$", "", url);
 	sub("[?]use_mirror=.*$", "", url);
