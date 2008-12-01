@@ -164,8 +164,14 @@ function link_seen(link) {
 
 function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
+
+	wholeerr=""
+
 	"mktemp /tmp/XXXXXX" | getline tmpfile
 	close(tmpfile)
+
+	"mktemp /tmp/errXXXXXX" | getline tmpfileerr
+	close(tmpfileerr)
 
 	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
 		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
@@ -193,16 +199,25 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 
 
 	if (DEBUG) print "Retrieving: " url
-	errno=system("wget -O - \"" url "\" -t 2 -T 45 --passive-ftp > " tmpfile " 2>/dev/null" )
+	errno=system("wget -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp > " tmpfile " 2> " tmpfileerr )
 
 	if (errno==0) {
 		while (getline oneline < tmpfile)
 			wholeodp=(wholeodp " " oneline)
 		if ( DEBUG ) print "Response: " wholeodp
+	} else {
+		wholeerr = ""
+		while (getline oneline < tmpfileerr)
+			wholeerr=(wholeerr " " oneline)
+		if ( DEBUG ) print "Error Response: " wholeerr
 	}
 
 	close(tmpfile)
 	system("rm -f " tmpfile)
+
+	close(tmpfileerr)
+	system("rm -f " tmpfileerr)
+
 	urldir=url;
 	sub(/[^\/]+$/,"",urldir)
 
@@ -276,7 +291,7 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 			}
 		}
 	} else {
-		retval=("WGET ERROR: " errno)
+		retval=("WGET ERROR: " errno ": " wholeerr)
 	}
 
 
