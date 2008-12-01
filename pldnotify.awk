@@ -170,7 +170,7 @@ function mktemp(   _cmd, _tmpfile) {
 }
 
 # get all <A HREF=..> tags from specified URL
-function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
+function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile,cmd) {
 
 	wholeerr=""
 
@@ -203,7 +203,9 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 
 
 	if (DEBUG) print "Retrieving: " url
-	errno=system("wget -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp > " tmpfile " 2> " tmpfileerr )
+	cmd = "wget -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp > " tmpfile " 2> " tmpfileerr
+	if (DEBUG) print "Execute: " cmd
+	errno = system(cmd)
 
 	if (errno==0) {
 		while (getline oneline < tmpfile)
