@@ -162,16 +162,20 @@ function link_seen(link) {
 	return 0
 }
 
-function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
+function mktemp(   _cmd, _tmpfile) {
+	_cmd = "mktemp /tmp/XXXXXX"
+	_cmd | getline _tmpfile
+	close(_cmd)
+	return _tmpfile
+}
+
 # get all <A HREF=..> tags from specified URL
+function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
 
 	wholeerr=""
 
-	"mktemp /tmp/XXXXXX" | getline tmpfile
-	close("mktemp /tmp/XXXXXX")
-
-	"mktemp /tmp/errXXXXXX" | getline tmpfileerr
-	close("mktemp /tmp/errXXXXXX")
+	tmpfile = mktemp()
+	tmpfileerr = mktemp()
 
 	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
 		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
