@@ -165,7 +165,7 @@ function link_seen(link) {
 function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
-	close("mktemp /tmp/XXXXXX")
+	close(tmpfile)
 
 	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
 		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
