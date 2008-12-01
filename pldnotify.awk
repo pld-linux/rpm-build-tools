@@ -168,10 +168,10 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 	wholeerr=""
 
 	"mktemp /tmp/XXXXXX" | getline tmpfile
-	close(tmpfile)
+	close("mktemp /tmp/XXXXXX")
 
 	"mktemp /tmp/errXXXXXX" | getline tmpfileerr
-	close(tmpfileerr)
+	close("mktemp /tmp/errXXXXXX")
 
 	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
 		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
@@ -212,10 +212,7 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 		if ( DEBUG ) print "Error Response: " wholeerr
 	}
 
-	close(tmpfile)
 	system("rm -f " tmpfile)
-
-	close(tmpfileerr)
 	system("rm -f " tmpfileerr)
 
 	urldir=url;
