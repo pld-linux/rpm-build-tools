@@ -151,6 +151,17 @@ function compare_ver_dec(v1,v2) {
 	return 0
 }
 
+function link_seen(link) {
+	for (seenlink in frameseen) {
+		if (seenlink == link) {
+			if (DEBUG) print "Link: [" link "] seen already, skipping..."
+			return 1
+		}
+	}
+	frameseen[link]=1
+	return 0
+}
+
 function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
 # get all <A HREF=..> tags from specified URL
 	"mktemp /tmp/XXXXXX" | getline tmpfile
@@ -210,6 +221,12 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 					newurl=(urldir newurl)
 					if (DEBUG) print "Frame->: " newurl
 				}
+
+				if (link_seen(newurl)) {
+					newurl=""
+					continue
+				}
+
 				retval=(retval " " get_links(newurl))
 			} else if (lowerodp ~ /href=[ \t]*"[^"]*"/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*"/,"href=\"",odp)
@@ -217,6 +234,12 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+
+				if (link_seen(link)) {
+					link=""
+					continue
+				}
+
 				retval=(retval " " link)
 				if (DEBUG) print "href(\"\"): " link
 			} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
@@ -225,6 +248,12 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+
+				if (link_seen(link)) {
+					link=""
+					continue
+				}
+
 				retval=(retval " " link)
 				if (DEBUG) print "href(''): " link
 			} else if (lowerodp ~ /href=[ \t]*[^ \t>]*/) {
@@ -233,6 +262,12 @@ function get_links(url,filename,errno,link,oneline,retval,odp,wholeodp,lowerodp,
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,6,length(link)-5)
+
+				if (link_seen(link)) {
+					link=""
+					continue
+				}
+
 				retval=(retval " " link)
 				if (DEBUG) print "href(): " link
 			} else {
@@ -424,6 +459,7 @@ BEGIN {
 		for (i=3; i<ARGC; i++) ARGV[i-1]=ARGV[i]
 		ARGC=ARGC-1
 	}
+	frameseen[0] = 1
 }
 
 FNR==1 {
