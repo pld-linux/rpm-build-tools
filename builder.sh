@@ -560,14 +560,14 @@ parse_spec()
 	cache_rpm_dump
 
 	if [ "$NOSRCS" != "yes" ]; then
-		SOURCES=$(rpm_dump | awk '/SOURCEURL[0-9]+/ {print $3}')
+		SOURCES=$(rpm_dump | awk '$2 ~ /^SOURCEURL[0-9]+/ {print substr($2, length("SOURCEURL") + 1), $3}' | LC_ALL=C sort -n | awk '{print $2}')
 	fi
 
 	if (rpm_dump | grep -qEi ":.*nosource.*1"); then
 		FAIL_IF_NO_SOURCES="no"
 	fi
 
-	PATCHES=$(rpm_dump | awk '/PATCHURL[0-9]+/ {print $3}')
+	PATCHES=$(rpm_dump | awk '$2 ~ /^PATCHURL[0-9]+/ {print substr($2, length("PATCHURL") + 1), $3}' | LC_ALL=C sort -n | awk '{print $2}')
 	ICONS=$(awk '/^Icon:/ {print $2}' ${SPECFILE})
 	PACKAGE_NAME=$(rpm_dump | awk '$2 == "PACKAGE_NAME" { print $3; exit}')
 	PACKAGE_VERSION=$(rpm_dump | awk '$2 == "PACKAGE_VERSION" { print $3; exit}')
