@@ -1296,13 +1296,6 @@ branch_files()
 	fi
 
 	local OPTIONS="tag $CVS_FORCE -b"
-
-	# branch exists?
-	is_tag_a_branch $TAG
-	if [ $? -eq 1 ]; then
-		OPTIONS="$OPTIONS -B"
-	fi
-
 	if [ -n "$CVSROOT" ]; then
 		OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
