@@ -24,6 +24,6 @@ ftp://ftp.alsa-project.org/pub/|ftp://ftp.task.gda.pl/pub/linux/misc/alsa/|TASK
 ftp://ftp.kernel.org/pub/|ftp://ftp.pl.kernel.org/pub/|TASK
 http://download.kde.org/|http://ftp.man.szczecin.pl/pub/kde/|MAN.SZCZECIN
 http://www.x.org/pub/|http://ftp.task.gda.pl/mirror/ftp.x.org/pub/|TASK
-#http://dl.sourceforge.net/|http://heanet.dl.sourceforge.net/|Heanet(browsable)
-http://dl.sourceforge.net/|http://switch.dl.sourceforge.net/|Open.Source.Development.Network
+http://dl.sourceforge.net/|http://master.dl.sourceforge.net/|Heanet(browsable)
+#http://dl.sourceforge.net/|http://switch.dl.sourceforge.net/|Open.Source.Development.Network
 http://download.eclipse.org/eclipse/|http://www.eclipse.ps.pl/|Szczecin University of Technology
