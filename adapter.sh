@@ -32,7 +32,8 @@ usage="Usage: $self [FLAGS] SPECFILE
 	skip desc wrapping
 -a|--skip-defattr
 	skip %defattr corrections
-
+-o
+	do not do any diffing, just dump the output
 "
 
 if [ ! -x /usr/bin/getopt ]; then
@@ -45,7 +46,7 @@ if [ ! -x /usr/bin/patch ]; then
 	exit 1
 fi
 
-t=$(getopt -o hsmdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@") || exit $?
+t=$(getopt -o hsomdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@") || exit $?
 eval set -- "$t"
 
 while true; do
@@ -69,6 +70,9 @@ while true; do
 	-V|--version)
 		echo "$VERSIONSTRING"
 		exit 0
+		;;
+	-o)
+		outputonly=1
 	;;
 	--)
 		shift
@@ -214,7 +218,10 @@ adapterize() {
 
 	$awk -f $adapter $SPECFILE > $tmp || exit
 
-	if [ "$(diff --brief $SPECFILE $tmp)" ]; then
+	if [ "$outputonly" = 1 ]; then
+		cat $tmp
+
+	elif [ "$(diff --brief $SPECFILE $tmp)" ]; then
 		diff -u $SPECFILE $tmp > $tmp.diff
 		if [ -t 1 ]; then
 				diffcol $tmp.diff | less -r
