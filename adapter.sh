@@ -182,6 +182,7 @@ import_rpm_macros() {
 	ruby_rubylibdir
 	ruby_sitearchdir
 	ruby_sitelibdir
+	ruby_rdocdir
 
 	php_pear_dir
 	php_data_dir

@@ -1069,6 +1069,7 @@ function use_macros()
 	gsub(ruby_rubylibdir, "%{ruby_rubylibdir}")
 	gsub(ruby_sitearchdir, "%{ruby_sitearchdir}")
 	gsub(ruby_sitelibdir, "%{ruby_sitelibdir}")
+	gsub(ruby_rdocdir, "%{ruby_rdocdir}")
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
@@ -1794,6 +1795,7 @@ function import_rpm_macros() {
 	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"]
 	ruby_sitearchdir = ENVIRON["ruby_sitearchdir"]
 	ruby_sitelibdir = ENVIRON["ruby_sitelibdir"]
+	ruby_rdocdir = ENVIRON["ruby_rdocdir"]
 
 	php_pear_dir = ENVIRON["php_pear_dir"]
 	php_data_dir = ENVIRON["php_data_dir"]
