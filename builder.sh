@@ -82,7 +82,6 @@ RPMOPTS=""
 RPMBUILDOPTS=""
 BCOND=""
 GROUP_BCONDS="no"
-CVSIGNORE_DF="no"
 
 PATCHES=""
 SOURCES=""
@@ -93,13 +92,16 @@ PACKAGE_NAME=""
 ASSUMED_NAME=""
 PROTOCOL="ftp"
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
-CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
 
-CVSTAG=""
-RES_FILE=""
+CVS_COMMAND="cvs"
 CVS_FORCE=""
-
+CVSIGNORE_DF="no"
+CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
 CVS_SERVER="cvs.pld-linux.org"
+CVSTAG=""
+
+RES_FILE=""
+
 DISTFILES_SERVER="://distfiles.pld-linux.org"
 ATTICDISTFILES_SERVER="://attic-distfiles.pld-linux.org"
 
@@ -198,7 +200,7 @@ fi
 # are we using cvs-nserver ?
 #
 CVS_NSERVER=0
-cvs --version 2>&1 | grep -q 'CVS-nserver'
+$CVS_COMMAND --version 2>&1 | grep -q 'CVS-nserver'
 [ $? -eq 0 ] && CVS_NSERVER=1
 
 POLDEK_INDEX_DIR="$($RPM --eval %_rpmdir)/"
@@ -715,7 +717,7 @@ find_mirror()
 	cd "$SPEC_DIR"
 	local url="$1"
 	if [ ! -f "mirrors" -a "$NOCVSSPEC" != "yes" ] ; then
-		cvs update mirrors >&2
+		$CVS_COMMAND update mirrors >&2
 	fi
 
 	IFS="|"
@@ -859,7 +861,7 @@ cvsup()
 	fi
 	while [ "$result" != "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; do
 		retries_counter=$(( $retries_counter + 1 ))
-		output=$(LC_ALL=C cvs $OPTIONS "$@" 2>&1)
+		output=$(LC_ALL=C $CVS_COMMAND $OPTIONS "$@" 2>&1)
 		result=$?
 		[ -n "$output" ] && echo "$output"
 		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out|Unknown host)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
@@ -1196,7 +1198,7 @@ is_tag_a_branch() {
 	TAG=$1
 
 	cd "$SPEC_DIR"
-	cvs status -v $SPECFILE | grep -Eiq "${TAG}.+(branch: [0-9.]+)"
+	$CVS_COMMAND status -v $SPECFILE | grep -Eiq "${TAG}.+(branch: [0-9.]+)"
 	return $?
 }
 
@@ -1257,7 +1259,7 @@ tag_files()
 		if [ "$TAG_VERSION" = "yes" ]; then
 			update_shell_title "tag sources: $TAGVER"
 			printf "Tagging %d files\n" $(echo $tag_files | wc -w)
-			cvs $OPTIONS $TAGVER $tag_files || exit
+			$CVS_COMMAND $OPTIONS $TAGVER $tag_files || exit
 		fi
 		if [ -n "$TAG" ]; then
 			update_shell_title "tag sources: $TAG"
@@ -1265,7 +1267,7 @@ tag_files()
 			while [ "$tag_files" ]; do
 				local chunk=$(echo $tag_files | tr ' ' '\n' | head -n 100)
 				printf "Tagging %d files\n" $(echo $chunk | wc -w)
-				cvs $OPTIONS $TAG $chunk || exit
+				$CVS_COMMAND $OPTIONS $TAG $chunk || exit
 				tag_files=$(echo $tag_files | tr ' ' '\n' | tail +101)
 			done
 		fi
@@ -1274,11 +1276,11 @@ tag_files()
 	cd "$SPEC_DIR"
 	if [ "$TAG_VERSION" = "yes" ]; then
 		update_shell_title "tag spec: $TAGVER"
-		cvs $OPTIONS $TAGVER $SPECFILE || exit
+		$CVS_COMMAND $OPTIONS $TAGVER $SPECFILE || exit
 	fi
 	if [ -n "$TAG" ]; then
 		update_shell_title "tag spec: $TAG"
-		cvs $OPTIONS $TAG $SPECFILE || exit
+		$CVS_COMMAND $OPTIONS $TAG $SPECFILE || exit
 	fi
 }
 
@@ -1319,11 +1321,11 @@ branch_files()
 		fi
 	done
 	if [ "$tag_files" ]; then
-		cvs $OPTIONS $TAG $tag_files || exit
+		$CVS_COMMAND $OPTIONS $TAG $tag_files || exit
 	fi
 
 	cd "$SPEC_DIR"
-	cvs $OPTIONS $TAG $SPECFILE || exit
+	$CVS_COMMAND $OPTIONS $TAG $SPECFILE || exit
 }
 
 
@@ -1705,7 +1707,7 @@ display_branches()
 {
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		echo -ne "Available branches: "
-		cvs status -v "${SPECFILE}" | awk '!/Sticky Tag:/ && /\(branch:/ { print $1 } ' | xargs
+		$CVS_COMMAND status -v "${SPECFILE}" | awk '!/Sticky Tag:/ && /\(branch:/ { print $1 } ' | xargs
 	fi
 }
 
@@ -1951,7 +1953,7 @@ init_rpm_dir() {
 	echo "Initialising rpm directories to $TOP_DIR from $CVSROOT"
 	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
 	cd $TOP_DIR
-	cvs -d $CVSROOT co SOURCES/{.cvsignore,dropin} SPECS/{mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
+	$CVS_COMMAND -d $CVSROOT co SOURCES/{.cvsignore,dropin} SPECS/{mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
 
 	init_builder
 
@@ -1970,7 +1972,7 @@ get_greed_sources() {
 	if [ -n "BE_VERBOSE" ]; then
 		echo "Try greed download: $1 from: $CVSROOT"
 	fi
-	cvs -d $CVSROOT get SOURCES/$1
+	$CVS_COMMAND -d $CVSROOT get SOURCES/$1
 	if [ $? != 0 ]; then
 		Exit_error err_no_source_in_repo $1
 	fi
@@ -2360,7 +2362,7 @@ case "$COMMAND" in
 			if [ -n "$TEST_TAG" ]; then
 				local TAGVER=`make_tagver`
 				echo "Searching for tag $TAGVER..."
-				TAGREL=$(cvs status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
+				TAGREL=$($CVS_COMMAND status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
 				if [ -n "$TAGREL" ]; then
 					Exit_error err_tag_exists "$TAGVER" "$TAGREL"
 				fi
@@ -2369,7 +2371,7 @@ case "$COMMAND" in
 				TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto-\([a-zA-Z]\+\)-.*#\1#g')
 				if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
 					TAG_BRANCH="${TREE_PREFIX}-branch"
-					TAG_STATUS=$(cvs status -v $SPECFILE | grep -Ei "${TAG_BRANCH}.+(branch: [0-9.]+)")
+					TAG_STATUS=$($CVS_COMMAND status -v $SPECFILE | grep -Ei "${TAG_BRANCH}.+(branch: [0-9.]+)")
 					if [ -n "$TAG_STATUS" -a "$CVSTAG" = "HEAD" ]; then
 						Exit_error err_branch_exists "$TAG_STATUS"
 					fi
