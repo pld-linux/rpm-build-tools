@@ -9,5 +9,4 @@ ver=3.5.9
 svn diff \
 	svn://anonsvn.kde.org/home/kde/tags/KDE/${ver}/$1 \
 	svn://anonsvn.kde.org/home/kde/branches/KDE/3.5/$1 \
-	> $HOME/rpm/SOURCES/$1-branch.diff
-
+	> $1-branch.diff

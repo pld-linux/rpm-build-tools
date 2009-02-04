@@ -34,5 +34,5 @@ svn diff \
 	svn://anonsvn.kde.org/home/kde/tags/KDE/${ver}/$diffprog \
 	svn://anonsvn.kde.org/home/kde/branches/KDE/4.2/$diffprog \
 	| filter "$prog" \
-	> $HOME/rpm/SOURCES/kde4-$prog-branch.diff
+	> kde4-$prog-branch.diff
 
