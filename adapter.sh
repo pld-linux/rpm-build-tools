@@ -37,12 +37,12 @@ usage="Usage: $self [FLAGS] SPECFILE
 "
 
 if [ ! -x /usr/bin/getopt ]; then
-	echo >&1 "You need to install util-linux to use adapter"
+	echo >&2 "You need to install util-linux to use adapter"
 	exit 1
 fi
 
 if [ ! -x /usr/bin/patch ]; then
-	echo >&1 "You need to install patch to use adapter"
+	echo >&2 "You need to install patch to use adapter"
 	exit 1
 fi
 
@@ -79,7 +79,7 @@ while true; do
 		break
 	;;
 	*)
-		echo 2>&1 "$self: Internal error: [$1] not recognized!"
+		echo >&2 "$self: Internal error: [$1] not recognized!"
 		exit 1
 		;;
 	esac
