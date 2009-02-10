@@ -33,7 +33,7 @@ BEGIN {
 	rev = RCSID # TODO: parse from RCSID
 	VERSION = "0.31/" rev
 
-	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests)"
+	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests|Auto(Req|Prov))"
 
 	usedigest = 0	# Enable to switch to rpm 4.4.6+ md5 digests
 
@@ -95,8 +95,9 @@ function b_makekey(a, b,	s) {
 	gsub(/^#[ \t]*/, "", s);
 
 	# force order
-	gsub(/^Summary\(/, "11Summary(", s);
 	gsub(/^Summary/, "10Summary", s);
+	gsub(/^Summary\(/, "11Summary(", s);
+
 	gsub(/^Name/, "2Name", s);
 	gsub(/^Version/, "3Version", s);
 	gsub(/^Release/, "4Release", s);
@@ -116,6 +117,9 @@ function b_makekey(a, b,	s) {
 	gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
 	gsub(/^ExcludeArch/, "X7ExcludeArch", s);
 	gsub(/^BuildRoot/, "X9BuildRoot", s);
+
+	gsub(/^AutoProv/, "Xx1AutoProv", s);
+	gsub(/^AutoReq/, "Xx2AutoReq", s);
 
 #	printf("%s -> %s\n", a""b, s);
 	return s;
