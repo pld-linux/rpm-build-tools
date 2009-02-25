@@ -477,11 +477,16 @@ BEGIN {
 		for (i=3; i<ARGC; i++) ARGV[i-1]=ARGV[i]
 		ARGC=ARGC-1
 	}
-	frameseen[0] = 1
 }
 
 FNR==1 {
 	if ( ARGIND != 1 ) {
+		# clean frameseen for each ARG
+		for (i in frameseen) {
+			delete frameseen[i]
+		}
+		frameseen[0] = 1
+
 		process_data(NAME,VER,REL,SRC)
 		NAME="" ; VER="" ; REL=""
 		for (i in DEFS) delete DEFS[i]
