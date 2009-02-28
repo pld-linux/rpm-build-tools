@@ -203,7 +203,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 
 
 	if (DEBUG) print "Retrieving: " url
-	cmd = "wget -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp > " tmpfile " 2> " tmpfileerr
+	cmd = "wget -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
 	if (DEBUG) print "Execute: " cmd
 	errno = system(cmd)
 
