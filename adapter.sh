@@ -207,11 +207,7 @@ import_rpm_macros() {
 adapterize() {
 	local workdir
 	workdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
-	if grep -q '\.UTF-8' $SPECFILE; then
-		awk=gawk
-	else
-		awk=awk
-	fi
+	awk=gawk
 
 	local tmp=$workdir/$(basename $SPECFILE) || exit
 
