@@ -217,7 +217,7 @@ adapterize() {
 
 	import_rpm_macros
 
-	$awk -f $adapter $SPECFILE > $tmp || exit
+	LC_ALL=en_US.UTF-8 $awk -f $adapter $SPECFILE > $tmp || exit
 
 	if [ "$outputonly" = 1 ]; then
 		cat $tmp
