@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -x
-ver=4.2.0
+ver=4.2.1
 
 prog="$1"
 diffprog="$1"
