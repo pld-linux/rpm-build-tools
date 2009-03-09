@@ -2,15 +2,15 @@
 # $Id$
 #
 # Sending by
-MAILER='/usr/sbin/sendmail'
-# MAILER='/usr/bin/msmtp'
+#MAILER='/usr/sbin/sendmail'
+ MAILER='/usr/bin/msmtp'
 # Sending via
 VIA="SENDMAIL"
-#VIA="localhost"
-VIA_ARGS=""
+#VIA="agimoja"
+#VIA_ARGS=""
 #VIA_ARGS="some additional flags"
 # e.g. for msmtp:
-# VIA_ARGS='-a gmail'
+#VIA_ARGS='--host=agimoja.farba.eu.org --port=25 -f w.kier@farba.eu.org'
 #
 # DISTFILES EMAIL
 DMAIL="distfiles@pld-linux.org"
