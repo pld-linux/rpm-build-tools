@@ -2287,7 +2287,7 @@ done
 if [ -f CVS/Entries ] && [ -z "$CVSTAG" ]; then
 	CVSTAG=$(awk -vSPECFILE=$(basename ${SPECFILE%.spec}.spec) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' CVS/Entries)
 	if [ "$CVSTAG" ]; then
-		echo >&2 "builder: Stick tag $CVSTAG active. Use -r TAGNAME to override."
+		echo >&2 "builder: Sticky tag $CVSTAG active. Use -r TAGNAME to override."
 	fi
 elif [ "$CVSTAG" = "HEAD" ]; then
 	# assume -r HEAD is same as -A
@@ -2342,6 +2342,12 @@ case "$COMMAND" in
 	"build" | "build-binary" | "build-source" | "build-prep" | "build-build" | "build-install" | "build-list")
 		init_builder
 		if [ -n "$SPECFILE" ]; then
+			# display SMP make flags if set
+			smp_mflags=$(rpm -E %{?_smp_mflags})
+			if [ "$smp_mflags" ]; then
+				echo >&2 "builder: SMP make flags are set to $smp_mflags"
+			fi
+
 			get_spec
 			parse_spec
 			set_bconds_values
