@@ -1449,18 +1449,14 @@ install_required_packages()
 }
 
 find_spec_bcond() {
-	# taken from find-spec-bcond, but with just getting the list
+	# originally from /usr/lib/rpm/find-spec-bcond
 	local SPEC="$1"
 	awk -F"\n" '
 	/^%changelog/ { exit }
-	/_with(out)?_[_a-zA-Z0-9]+/{
-		match($0, /_with(out)?_[_a-zA-Z0-9]+/);
-		print substr($0, RSTART, RLENGTH);
-	}
 	/^%bcond_with/{
 		match($0, /bcond_with(out)?[ \t]+[_a-zA-Z0-9]+/);
-		bcond = substr($0, RSTART +5 , RLENGTH -5);
-		gsub(/[ \t]+/,"_",bcond);
+		bcond = substr($0, RSTART + 6, RLENGTH - 6);
+		gsub(/[ \t]+/, "_", bcond);
 		print bcond
 	}' $SPEC | LC_ALL=C sort -u
 }
@@ -1514,17 +1510,18 @@ process_bcondrc() {
 	update_shell_title "parse ~/.bcondrc: DONE!"
 }
 
-set_bconds_values()
-{
+set_bconds_values() {
 	update_shell_title "set bcond values"
 
 	AVAIL_BCONDS_WITHOUT=""
 	AVAIL_BCONDS_WITH=""
-	if `grep -q ^%bcond ${SPECFILE}`; then
-		BCOND_VERSION="NEW"
-	elif `egrep -q ^#\ *_with ${SPECFILE}`; then
-		BCOND_VERSION="OLD"
-	else
+
+	if egrep -q '^# *_with' ${SPECFILE}; then
+		echo >&2 "ERROR: This spec has old style bconds."
+		exit 1
+	fi
+
+	if ! grep -q '^%bcond' ${SPECFILE}; then
 		return
 	fi
 
@@ -1532,84 +1529,32 @@ set_bconds_values()
 	process_bcondrc "$SPECFILE"
 
 	update_shell_title "parse bconds"
-	case "${BCOND_VERSION}" in
-		NONE)
-			:
-			;;
-		OLD)
-			echo "Warning: This spec has old style bconds. Fix it || die."
-			for opt in `echo "$bcond_avail" | grep ^_without_`
-			do
-				AVAIL_BCOND_WITHOUT=${opt#_without_}
-				if [[ "$BCOND" = *--without?${AVAIL_BCOND_WITHOUT}* ]]; then
-					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
-				else
-					AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
-				fi
-			done
 
-			for opt in `echo "$bcond_avail" | grep ^_with_`
-			do
-				AVAIL_BCOND_WITH=${opt#_with_}
-				if [[ "$BCOND" = *--with?${AVAIL_BCOND_WITH}* ]]; then
-					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
-				else
-					AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
-				fi
-			done
+	local opt bcond
+	for opt in $bcond_avail; do
+		case "$opt" in
+		without_*)
+			bcond=${opt#without_}
+			if [[ "$BCOND" = *--without?${bcond}* ]]; then
+				AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$bcond>"
+			else
+				AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $bcond"
+			fi
 			;;
-		NEW)
-			local cond_type="" # with || without
-			for opt in $bcond_avail; do
-				case "$opt" in
-					_without)
-						cond_type="without"
-						;;
-					_with)
-						cond_type="with"
-						;;
-					_without_*)
-						AVAIL_BCOND_WITHOUT=${opt#_without_}
-						if [[ "$BCOND" = *--without?${AVAIL_BCOND_WITHOUT}* ]]; then
-							AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
-						else
-							AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
-						fi
-						;;
-					_with_*)
-						AVAIL_BCOND_WITH=${opt#_with_}
-						if [[ "$BCOND" = *--with?${AVAIL_BCOND_WITH}* ]]; then
-							AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
-						else
-							AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
-						fi
-						;;
-					*)
-						case "$cond_type" in
-							with)
-								cond_type=''
-								AVAIL_BCOND_WITH="$opt"
-								if [[ "$BCOND" = *--with?${AVAIL_BCOND_WITH}* ]]; then
-									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$AVAIL_BCOND_WITH>"
-								else
-									AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $AVAIL_BCOND_WITH"
-								fi
-								;;
-							without)
-								cond_type=''
-								AVAIL_BCOND_WITHOUT="$opt"
-								if [[ "$BCOND" = *--without?${AVAIL_BCOND_WITHOUT}* ]]; then
-									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$AVAIL_BCOND_WITHOUT>"
-								else
-									AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $AVAIL_BCOND_WITHOUT"
-								fi
-								;;
-						esac
-						;;
-				esac
-			done
+		with_*)
+			bcond=${opt#with_}
+			if [[ "$BCOND" = *--with?${bcond}* ]]; then
+				AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$bcond>"
+			else
+				AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $bcond"
+			fi
 			;;
-	esac
+		*)
+			echo >&2 "ERROR: unexpected '$opt' in set_bconds_values"
+			exit 1
+			;;
+		esac
+	done
 }
 
 run_sub_builder()
@@ -1691,8 +1636,8 @@ remove_build_requires()
 
 display_bconds()
 {
-	if [ "$AVAIL_BCONDS_WITH" != "" ] || [ "$AVAIL_BCONDS_WITHOUT" != "" ]; then
-		if [ "$BCOND" != "" ]; then
+	if [ "$AVAIL_BCONDS_WITH" -o "$AVAIL_BCONDS_WITHOUT" ]; then
+		if [ "$BCOND" ]; then
 			echo -ne "\nBuilding $SPECFILE with the following conditional flags:\n"
 			echo -ne "$BCOND"
 		else
