@@ -16,14 +16,16 @@ rundiff() {
 		svn://anonsvn.kde.org/home/kde/branches/KDE/3.5/$pkg \
 		> $pkg-branch.diff.tmp
 
-	local c=$(grep -c Index: $pkg-branch.diff.tmp)
+	local c=$(grep -c '^--- ' $pkg-branch.diff.tmp)
 	if [ "$c" = 0 ]; then
 		echo >&2 "$pkg-branch.diff: empty, skipping"
 		rm $pkg-branch.diff.tmp
+		cvs remove -f $pkg-branch.diff
 		return
 	fi
 
 	cvs up -A $pkg-branch.diff
+	cvs add $pkg-branch.diff
 	mv $pkg-branch.diff.tmp $pkg-branch.diff
 	echo >&2 "Updated $pkg-branch.diff"
 }
