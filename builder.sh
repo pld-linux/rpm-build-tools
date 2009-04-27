@@ -42,7 +42,7 @@ SPECFILE=""
 BE_VERBOSE=""
 QUIET=""
 CLEAN=""
-DEBUG=""
+DEBUG="1"
 NOURLS=""
 NOCVS=""
 NOCVSSPEC=""
@@ -1417,7 +1417,7 @@ build_package()
 		fi
 		RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
 
-		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm $RES_FILE
 		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
@@ -1428,7 +1428,7 @@ build_package()
 			fi
 		fi
 	else
-		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND $SPECFILE
+		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $SPECFILE
 		RETVAL=$?
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
@@ -1958,7 +1958,7 @@ mr_proper() {
 	cvs_entry_remove $PACKAGE_DIR $SPECFILE $SOURCES $PATCHES
 
 	# remove spec and sources
-	$RPMBUILD --clean --rmsource --rmspec --nodeps $SPECFILE
+	$RPMBUILD --clean --rmsource --rmspec --nodeps --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $SPECFILE
 }
 
 #---------------------------------------------
