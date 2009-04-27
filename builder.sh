@@ -42,7 +42,7 @@ SPECFILE=""
 BE_VERBOSE=""
 QUIET=""
 CLEAN=""
-DEBUG="1"
+DEBUG=""
 NOURLS=""
 NOCVS=""
 NOCVSSPEC=""
@@ -694,7 +694,7 @@ get_spec()
 		fi
 
 		if [ -d "$ASSUMED_NAME" ]; then
-			cvsup "packages/$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
+			cvsup "$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
 		else
 			cvsup -c -d $ASSUMED_NAME "packages/$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
 		fi
