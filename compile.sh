@@ -12,5 +12,6 @@
 #
 # -glen 2005-03-03
 
+dir=$(dirname "$0")
 set -x
-exec ./builder --no-md5 -ncs -nn --short-circuit -bc "$@"
+exec $dir/builder --no-md5 -ncs -nn --short-circuit -bc "$@"
