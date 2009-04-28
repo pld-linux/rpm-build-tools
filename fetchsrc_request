@@ -44,7 +44,7 @@ if [ "$2" != "" ]; then
 else
 	BRANCH="HEAD"
 fi
-SPEC="$1"
+SPEC="$(basename $1)"
 if [[ "$SPEC" != *.spec ]]; then
 	SPEC="$SPEC.spec"
 fi
