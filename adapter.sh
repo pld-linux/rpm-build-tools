@@ -18,11 +18,12 @@ rev=${r%% *}
 VERSION="v0.31/$rev"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
-$VERSION (C) 1999-2008 Free Penguins".
+$VERSION (C) 1999-2009 Free Penguins".
 
-self=$(basename "$0")
-adapter=$(dirname "$0")/adapter.awk
-usage="Usage: $self [FLAGS] SPECFILE
+PROGRAM=${0##*/}
+dir=$(d=$0; [ -L "$d" ] && d=$(readlink "$d"); dirname "$d")
+adapter=$dir/adapter.awk
+usage="Usage: $PROGRAM [FLAGS] SPECFILE
 
 -s|--no-sort|--skip-sort
 	skip BuildRequires, Requires sorting
@@ -46,7 +47,7 @@ if [ ! -x /usr/bin/patch ]; then
 	exit 1
 fi
 
-t=$(getopt -o hsomdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@") || exit $?
+t=$(getopt -o hsomdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$PROGRAM" -- "$@") || exit $?
 eval set -- "$t"
 
 while true; do
@@ -79,7 +80,7 @@ while true; do
 		break
 	;;
 	*)
-		echo >&2 "$self: Internal error: [$1] not recognized!"
+		echo >&2 "$PROGRAM: Internal error: \`$1' not recognized!"
 		exit 1
 		;;
 	esac
