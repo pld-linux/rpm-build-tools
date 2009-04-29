@@ -95,7 +95,7 @@ WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 
 CVS_COMMAND=${CVS_COMMAND:-cvs}
 CVS_FORCE=""
-CVSIGNORE_DF="no"
+CVSIGNORE_DF="yes"
 CVS_RETRIES=${MAX_CVS_RETRIES:-1000}
 CVS_SERVER="cvs.pld-linux.org"
 CVSTAG=""
@@ -690,6 +690,16 @@ get_spec() {
 			cvsup "$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
 		else
 			cvsup -c -d $ASSUMED_NAME "packages/$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
+
+			# remove Entries.Static -- so 'cvs up' would update all files in a repo
+			rm "$ASSUMED_NAME/CVS/Entries.Static"
+
+			# create symlinks for tools
+			for a in dropin md5 adapter builder {relup,compile,repackage}.sh; do
+				[ -f $a ] || continue
+				ln -s ../$a $ASSUMED_NAME
+				cvsignore_df $a
+			done
 		fi
 	fi
 
