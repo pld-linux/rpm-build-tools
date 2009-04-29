@@ -276,12 +276,12 @@ d() {
 }
 rpmb() {
 	local SPEC SPECDIR
-	for arg in $@; do
+	for arg in "$@"; do
 		case "$arg" in
 			*.spec)	SPEC="$arg"
 				;;
 		esac
 	done
 	SPECDIR=$(dirname "$(pwd)/${SPEC:-.}")
-	command rpmbuild --define "_specdir $SPECDIR" --define "_sourcedir $SPECDIR" $@
+	command rpmbuild --define "_specdir $SPECDIR" --define "_sourcedir $SPECDIR" "$@"
 }
