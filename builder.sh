@@ -82,6 +82,7 @@ RPMOPTS=""
 RPMBUILDOPTS=""
 BCOND=""
 GROUP_BCONDS="no"
+SYMLINK_TOOLS="yes"
 
 PATCHES=""
 SOURCES=""
@@ -695,11 +696,13 @@ get_spec() {
 			rm "$ASSUMED_NAME/CVS/Entries.Static"
 
 			# create symlinks for tools
-			for a in dropin md5 adapter builder {relup,compile,repackage}.sh; do
-				[ -f $a ] || continue
-				ln -s ../$a $ASSUMED_NAME
-				cvsignore_df $a
-			done
+			if [ "$SYMLINK_TOOLS" != "no" ]; then
+				for a in dropin md5 adapter builder {relup,compile,repackage}.sh; do
+					[ -f $a ] || continue
+					ln -s ../$a $ASSUMED_NAME
+					cvsignore_df $a
+				done
+			fi
 		fi
 	fi
 
