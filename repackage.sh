@@ -21,12 +21,17 @@ set -e
 
 rpmbuild() {
 	# preprocess args, we must have --target as first arg to rpmbuild
-	local a
+	# we need to grab also dir where spec resides
+	local a spec specdir
 	while [ $# -gt 0 ]; do
 		case "$1" in
 		--target)
 			shift
 			TARGET=$1
+			;;
+		*.spec)
+			spec="$1"
+			a="$a $1"
 			;;
 		*)
 			a="$a $1"
@@ -34,6 +39,8 @@ rpmbuild() {
 		esac
 		shift
 	done
+
+    specdir=$(dirname "$(pwd)/${spec:-.}")
 
 	# use gz payload as time is what we need here, not compress ratio
 
@@ -44,6 +51,7 @@ rpmbuild() {
 	/usr/bin/rpmbuild \
 		${TARGET:+--target $TARGET} \
 		--short-circuit \
+		--define "_specdir $specdir" --define "_sourcedir $specdir" \
 		--define 'clean %%%{!?__ldconfig:clean}%{?__ldconfig:check} \
 		exit 0%{nil}' \
 		--define 'check %%check \
