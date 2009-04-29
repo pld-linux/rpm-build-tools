@@ -56,9 +56,10 @@ BEGIN {
 
 	import_rpm_macros()
 
-	groups_file = sourcedir "/rpm.groups"
+	packages_dir = topdir "/packages"
+	groups_file = packages_dir "/rpm.groups"
 
-	system("cd `rpm --eval %_sourcedir`; [ -f rpm.groups ] || cvs up rpm.groups >/dev/null")
+	system("cd "packages_dir"; [ -f rpm.groups ] || cvs up rpm.groups > /dev/null")
 	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
 
 	# Temporary file for changelog section
@@ -1753,9 +1754,9 @@ function replace_php_virtual_deps()
 # you should update the list also in adapter when making changes here
 function import_rpm_macros() {
 	# File with rpm groups
-	sourcedir = ENVIRON["_sourcedir"]
+	topdir = ENVIRON["_topdir"]
 
-	if (!sourcedir) {
+	if (!topdir) {
 		print "adapter.awk should not not be invoked directly, but via adapter script" > "/dev/stderr"
 		do_not_touch_anything = 1
 		exit(1);

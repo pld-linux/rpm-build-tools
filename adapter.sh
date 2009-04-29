@@ -148,7 +148,7 @@ for my $filename (@ARGV) {
 # you should update the list also in adapter.awk when making changes here
 import_rpm_macros() {
 	macros="
-	_sourcedir
+	_topdir
 	_prefix
 	_bindir
 	_sbindir
