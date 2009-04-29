@@ -31,7 +31,7 @@ rev=${r%% *}
 VERSION="v0.23/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
-$VERSION (C) 1999-2008 Free Penguins".
+$VERSION (C) 1999-2009 Free Penguins".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -206,8 +206,7 @@ $CVS_COMMAND --version 2>&1 | grep -q 'CVS-nserver'
 POLDEK_INDEX_DIR="$($RPM --eval %_rpmdir)/"
 POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
 
-run_poldek()
-{
+run_poldek() {
 	RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
 	if [ -n "$LOGFILE" ]; then
 		LOG=`eval echo $LOGFILE`
@@ -226,8 +225,7 @@ run_poldek()
 #---------------------------------------------
 # functions
 
-usage()
-{
+usage() {
 	if [ -n "$DEBUG" ]; then set -xv; fi
 	echo "\
 Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|-ba|--build]
@@ -536,8 +534,7 @@ rpm_dump() {
 	echo "$rpm_dump_cache"
 }
 
-get_icons()
-{
+get_icons() {
 	update_shell_title "get icons"
 	ICONS=$(awk '/^Icon:/ {print $2}' ${ASSUMED_NAME}/${SPECFILE})
 	if [ -z "$ICONS" ]; then
@@ -547,8 +544,7 @@ get_icons()
 	rpm_dump_cache="kalasaba" NODIST="yes" get_files $ICONS
 }
 
-parse_spec()
-{
+parse_spec() {
 	update_shell_title "parsing specfile"
 	if [ -n "$DEBUG" ]; then
 		set -x
@@ -599,8 +595,7 @@ parse_spec()
 	update_shell_title "parse_spec: OK!"
 }
 
-Exit_error()
-{
+Exit_error() {
 	if [ -n "$DEBUG" ]; then
 		set -x
 		set -v
@@ -653,8 +648,7 @@ Exit_error()
 	exit 100
 }
 
-init_builder()
-{
+init_builder() {
 	if [ -n "$DEBUG" ]; then
 		set -x
 		set -v
@@ -672,8 +666,7 @@ init_builder()
 	__PWD=$(pwd)
 }
 
-get_spec()
-{
+get_spec() {
 
 	update_shell_title "get_spec"
 
@@ -713,8 +706,7 @@ get_spec()
 	set_spec_target
 }
 
-find_mirror()
-{
+find_mirror() {
 	cd "$REPO_DIR"
 	local url="$1"
 	if [ ! -f "mirrors" -a "$NOCVSSPEC" != "yes" ] ; then
@@ -740,8 +732,7 @@ find_mirror()
 }
 
 # Warning: unpredictable results if same URL used twice
-src_no ()
-{
+src_no() {
 	cd $PACKAGE_DIR
 	rpm_dump | \
 	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
@@ -749,8 +740,7 @@ src_no ()
 	head -n 1 | xargs
 }
 
-src_md5()
-{
+src_md5() {
 	[ "$NO5" = "yes" ] && return
 	no=$(src_no "$1")
 	[ -z "$no" ] && return
@@ -795,36 +785,30 @@ src_md5()
 	fi
 }
 
-distfiles_path ()
-{
+distfiles_path() {
 	echo "by-md5/$(src_md5 "$1" | sed -e 's|^\(.\)\(.\)|\1/\2/&|')/$(basename "$1")"
 }
 
-distfiles_url ()
-{
+distfiles_url() {
 	echo "$PROTOCOL$DISTFILES_SERVER/distfiles/$(distfiles_path "$1")"
 }
 
-distfiles_attic_url ()
-{
+distfiles_attic_url() {
 	echo "$PROTOCOL$ATTICDISTFILES_SERVER/distfiles/Attic/$(distfiles_path "$1")"
 }
 
-good_md5 ()
-{
+good_md5() {
 	md5=$(src_md5 "$1")
 	[ "$md5" = "" ] || \
 	[ "$md5" = "$(md5sum $(nourl "$1") 2> /dev/null | sed -e 's/ .*//')" ]
 }
 
-good_size ()
-{
+good_size() {
 	size=$(find $(nourl "$1") -printf "%s" 2>/dev/null)
 	[ -n "$size" -a "$size" -gt 0 ]
 }
 
-cvsignore_df ()
-{
+cvsignore_df() {
 	if [ "$CVSIGNORE_DF" != "yes" ]; then
 		return
 	fi
@@ -834,8 +818,7 @@ cvsignore_df ()
 	fi
 }
 
-cvsup()
-{
+cvsup() {
 	update_shell_title "cvsup"
 	local OPTIONS="up "
 
@@ -884,8 +867,7 @@ cvsup()
 }
 
 # returns true if "$1" is ftp, http or https protocol url
-is_url()
-{
+is_url() {
 	case "$1" in
 	ftp://*|http://*|https://*)
 		return 0
@@ -894,8 +876,7 @@ is_url()
 	return 1
 }
 
-update_md5()
-{
+update_md5() {
 	if [ $# -eq 0 ]; then
 		return
 	fi
@@ -957,8 +938,7 @@ update_md5()
 	done
 }
 
-check_md5()
-{
+check_md5() {
 	[ "$NO5" = "yes" ] && return
 
 	update_shell_title "check md5"
@@ -974,8 +954,7 @@ check_md5()
 	done
 }
 
-get_files()
-{
+get_files() {
 	update_shell_title "get_files"
 
 	if [ -n "$DEBUG" ]; then
@@ -1208,8 +1187,7 @@ is_tag_a_branch() {
 	return $?
 }
 
-tag_files()
-{
+tag_files() {
 	TAG_FILES="$@"
 
 	if [ -n "$DEBUG" ]; then
@@ -1290,8 +1268,7 @@ tag_files()
 	fi
 }
 
-branch_files()
-{
+branch_files() {
 	TAG=$1
 	echo "CVS branch tag: $TAG"
 	shift
@@ -1347,9 +1324,7 @@ check_buildarch() {
 	fi
 }
 
-
-build_package()
-{
+build_package() {
 	update_shell_title "build_package"
 	if [ -n "$DEBUG" ]; then
 		set -x
@@ -1443,19 +1418,16 @@ build_package()
 	unset BUILD_SWITCH
 }
 
-nourl()
-{
+nourl() {
 	echo "$@" | sed 's#\<\(ftp\|http\|https\|cvs\|svn\)://[^ ]*/##g'
 }
 
-install_required_packages()
-{
+install_required_packages() {
 	run_poldek -vi $1
 	return $?
 }
 
-find_spec_bcond() {
-	# originally from /usr/lib/rpm/find-spec-bcond
+find_spec_bcond() { # originally from /usr/lib/rpm/find-spec-bcond
 	local SPEC="$1"
 	awk -F"\n" '
 	/^%changelog/ { exit }
@@ -1563,8 +1535,7 @@ set_bconds_values() {
 	done
 }
 
-run_sub_builder()
-{
+run_sub_builder() {
 	package_name="${1}"
 	update_shell_title "run_sub_builder $package_name"
 	#
@@ -1599,8 +1570,7 @@ run_sub_builder()
 	NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package_name"
 }
 
-spawn_sub_builder()
-{
+spawn_sub_builder() {
 	package_name="${1}"
 	update_shell_title "spawn_sub_builder $package_name"
 
@@ -1621,8 +1591,7 @@ spawn_sub_builder()
 	./builder ${sub_builder_opts} "$@"
 }
 
-remove_build_requires()
-{
+remove_build_requires() {
 	if [ "$INSTALLED_PACKAGES" != "" ]; then
 		case "$REMOVE_BUILD_REQUIRES" in
 			"force")
@@ -1640,8 +1609,7 @@ remove_build_requires()
 	fi
 }
 
-display_bconds()
-{
+display_bconds() {
 	if [ "$AVAIL_BCONDS_WITH" -o "$AVAIL_BCONDS_WITHOUT" ]; then
 		if [ "$BCOND" ]; then
 			echo -ne "\nBuilding $SPECFILE with the following conditional flags:\n"
@@ -1654,8 +1622,7 @@ display_bconds()
 	fi
 }
 
-display_branches()
-{
+display_branches() {
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		echo -ne "Available branches: "
 		$CVS_COMMAND status -v "${SPECFILE}" | awk '!/Sticky Tag:/ && /\(branch:/ { print $1 } ' | xargs
@@ -1665,8 +1632,7 @@ display_branches()
 # checks a given list of packages/files/provides agains current rpmdb.
 # outputs all dependencies which current rpmdb doesn't satisfy.
 # input can be either STDIN or parameters
-_rpm_prov_check()
-{
+_rpm_prov_check() {
 	local DEPS
 
 	if [ $# -gt 0 ]; then
@@ -1687,8 +1653,7 @@ _rpm_prov_check()
 # checks if given package/files/provides exists in rpmdb.
 # input can be either stdin or parameters
 # returns packages which are present in the rpmdb
-_rpm_cnfl_check()
-{
+_rpm_cnfl_check() {
 	local DEPS
 
 	if [ $# -gt 0 ]; then
@@ -1904,7 +1869,7 @@ init_rpm_dir() {
 	echo "Initialising rpm directories to $TOP_DIR from $CVSROOT"
 	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
 	cd $TOP_DIR
-	$CVS_COMMAND -d $CVSROOT co packages/{.cvsignore,dropin,mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
+	$CVS_COMMAND -d $CVSROOT co packages/{.cvsignore,rpm.groups,dropin,mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
 
 	init_builder
 
