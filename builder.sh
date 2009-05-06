@@ -696,6 +696,7 @@ get_spec() {
 
 			# remove Entries.Static -- so 'cvs up' would update all files in a repo
 			rm "$ASSUMED_NAME/CVS/Entries.Static"
+			cvsignore_df .cvsignore
 
 			# create symlinks for tools
 			if [ "$SYMLINK_TOOLS" != "no" ]; then
