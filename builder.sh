@@ -831,7 +831,7 @@ cvsignore_df() {
 	cvsignore=${PACKAGE_DIR}/.cvsignore
 
 	# add only if not yet there
-	if awk -vf="$1" '$0 == f {exit 1}' $cvsignore; then
+	if ! awk -vf="$1" -vc=1 '$0 == f { c = 0 } END { exit c }' $cvsignore 2>/dev/null; then
 		echo "$1" >> $cvsignore
 	fi
 }
