@@ -1,7 +1,6 @@
 #!/bin/sh
-
 ver=3.5.10
-pkg="$1"
+top=$(cd "$(dirname "$0")"; pwd)
 
 # http://websvn.kde.org/tags/KDE/3.5.5/
 # http://websvn.kde.org/branches/KDE/3.5/
@@ -10,6 +9,11 @@ pkg="$1"
 rundiff() {
 	local pkg=$1 ver=$2
 	
+	echo >&2 "Checkout $pkg"
+	cd $top
+	./builder -g -ns $pkg
+
+	cd $top/$pkg
 	echo >&2 "Running diff for $pkg-$ver"
 	LC_ALL=C svn diff \
 		svn://anonsvn.kde.org/home/kde/tags/KDE/$ver/$pkg \
