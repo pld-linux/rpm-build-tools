@@ -287,7 +287,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 -nd, --no-distfiles - don't download from distfiles
 -nm, --no-mirrors   - don't download from mirror, if source URL is given,
 -nu, --no-urls      - don't try to download from FTP/HTTP location,
--ns, --no-srcs      - don't download Sources
+-ns, --no-srcs      - don't download Sources/Patches
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
 -pm, --prefer-mirrors - prefer mirrors (if any) over distfiles for SOURCES
@@ -560,16 +560,16 @@ parse_spec() {
 	cd $PACKAGE_DIR
 	cache_rpm_dump
 
-	if [ "$NOSRCS" != "yes" ]; then
-		SOURCES=$(rpm_dump | awk '$2 ~ /^SOURCEURL[0-9]+/ {print substr($2, length("SOURCEURL") + 1), $3}' | LC_ALL=C sort -n | awk '{print $2}')
-	fi
-
 	if (rpm_dump | grep -qEi ":.*nosource.*1"); then
 		FAIL_IF_NO_SOURCES="no"
 	fi
 
-	PATCHES=$(rpm_dump | awk '$2 ~ /^PATCHURL[0-9]+/ {print substr($2, length("PATCHURL") + 1), $3}' | LC_ALL=C sort -n | awk '{print $2}')
-	ICONS=$(awk '/^Icon:/ {print $2}' ${SPECFILE})
+	if [ "$NOSRCS" != "yes" ]; then
+		SOURCES=$(rpm_dump | awk '$2 ~ /^SOURCEURL[0-9]+/ {print substr($2, length("SOURCEURL") + 1), $3}' | LC_ALL=C sort -n | awk '{print $2}')
+		PATCHES=$(rpm_dump | awk '$2 ~ /^PATCHURL[0-9]+/ {print substr($2, length("PATCHURL") + 1), $3}' | LC_ALL=C sort -n | awk '{print $2}')
+		ICONS=$(awk '/^Icon:/ {print $2}' ${SPECFILE})
+	fi
+
 	PACKAGE_NAME=$(rpm_dump | awk '$2 == "PACKAGE_NAME" { print $3; exit}')
 	PACKAGE_VERSION=$(rpm_dump | awk '$2 == "PACKAGE_VERSION" { print $3; exit}')
 	PACKAGE_RELEASE=$(rpm_dump | awk '$2 == "PACKAGE_RELEASE" { print $3; exit}')
