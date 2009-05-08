@@ -20,12 +20,20 @@ rundiff() {
 	if [ "$c" = 0 ]; then
 		echo >&2 "$pkg-branch.diff: empty, skipping"
 		rm $pkg-branch.diff.tmp
-		cvs remove -f $pkg-branch.diff
+		cvs remove -f $pkg-branch.diff 2>/dev/null
 		return
 	fi
 
 	cvs up -A $pkg-branch.diff
-	cvs add $pkg-branch.diff
+	cvs add $pkg-branch.diff 2>/dev/null
+
+	local d=$(interdiff $pkg-branch.diff{,.tmp} | wc -l)
+	if [ "$d" = 0 ]; then
+		echo >&2 "$pkg-branch.diff: no new changes, skip"
+		rm $pkg-branch.diff.tmp
+		return
+	fi
+
 	mv $pkg-branch.diff.tmp $pkg-branch.diff
 	echo >&2 "Updated $pkg-branch.diff"
 }
