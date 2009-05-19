@@ -1697,16 +1697,23 @@ function replace_requires()
 
 	# jpackages
 	sub(/^java-devel$/, "jdk", $2);
-	sub(/^log4j$/, "logging-log4j", $2);
-	sub(/^jakarta-log4j$/, "logging-log4j", $2);
-	sub(/^oro$/, "jakarta-oro", $2);
+	sub(/^log4j$/, "java-log4j", $2);
+	sub(/^logging-log4j$/, "java-log4j", $2);
+	sub(/^jakarta-log4j$/, "java-log4j", $2);
+	sub(/^oro$/, "java-oro", $2);
+	sub(/^jakarta-oro$/, "java-oro", $2);
 	sub(/^jakarta-ant$/, "ant", $2);
-	sub(/^xerces-j2$/, "xerces-j", $2);
+	sub(/^xerces-j2$/, "java-xerces", $2);
+	sub(/^xerces-j$/, "java-xerces", $2);
 	sub(/^ldapjdk$/, "ldapsdk", $2);
 	sub(/^saxon-scripts$/, "saxon", $2);
-	sub(/^xalan-j2$/, "xalan-j", $2);
-	sub(/^xerces-j2$/, "xerces-j", $2);
-	sub(/^gnu-regexp$/, "gnu.regexp", $2);
+	sub(/^xalan-j2$/, "java-xalan", $2);
+	sub(/^xalan-j$/, "java-xalan", $2);
+	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
+	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
+	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
+	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
+	sub(/^axis$/, "java-axis", $2);
 
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
