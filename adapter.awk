@@ -1714,6 +1714,9 @@ function replace_requires()
 	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 	sub(/^axis$/, "java-axis", $2);
+	sub(/^wsdl4j$/, "java-wsdl4j", $2);
+	sub(/^uddi4j$/, "java-uddi4j", $2);
+	sub(/^hamcrest$/, "java-hamcrest", $2);
 
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
