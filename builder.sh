@@ -2219,8 +2219,9 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-if [ -f CVS/Entries ] && [ -z "$CVSTAG" ]; then
-	CVSTAG=$(awk -vSPECFILE=$(basename ${SPECFILE%.spec}.spec) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' CVS/Entries)
+[ -d "$ASSUMED_NAME" ] && CVS_ENTRIES="$ASSUMED_NAME/CVS/Entries" || CVS_ENTRIES="CVS/Entries"
+if [ -f "$CVS_ENTRIES" ] && [ -z "$CVSTAG" ]; then
+	CVSTAG=$(awk -vSPECFILE=$(basename ${SPECFILE%.spec}.spec) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' ${CVS_ENTRIES})
 	if [ "$CVSTAG" ]; then
 		echo >&2 "builder: Sticky tag $CVSTAG active. Use -r TAGNAME to override."
 	fi
