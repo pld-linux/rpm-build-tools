@@ -10,4 +10,6 @@ CVSUSER=cvs
 export CVSROOT=:pserver:"${CVSUSER}"@cvs.pld-linux.org:/cvsroot
 cvs login
 cd .. 
-wget http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/packages/ -O - | sed '/<a href="\./!d' | sed 's,^.*<a href="\./\(.*\)/".*$,/\1/\1.spec,' | xargs cvs get
+wget http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/packages/ -O - \
+	| perl -p -e 'if(m#a href="\./(.*?)/"#){$_=$1;s/%(..)/chr hex $1/eg;$_="packages/$_/$_.spec\0"}else{$_=undef}' \
+	| xargs -0 cvs -z3 get
