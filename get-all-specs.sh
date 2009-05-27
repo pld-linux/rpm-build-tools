@@ -1,4 +1,4 @@
-#!bin/sh
+#!/bin/sh
 # get only *.spec files from packages/
 # thx SamChi,pawelz
 
