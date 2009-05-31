@@ -69,6 +69,7 @@ DATE=`date +%Y-%m-%d_%H-%M-%S`
 # Example: LOGFILE='../log.$PACKAGE_NAME'
 # Example: LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 # Example: LOGFILE='$PACKAGE_NAME/$PACKAGE_NAME.$DATE.log'
+# Example: LOGFILE='$PACKAGE_NAME.$DATE.log'
 # Yes, you can use variable name! Note _single_ quotes!
 LOGFILE=''
 
@@ -701,7 +702,7 @@ get_spec() {
 
 			# create symlinks for tools
 			if [ "$SYMLINK_TOOLS" != "no" ]; then
-				for a in dropin md5 adapter builder {relup,compile,repackage}.sh; do
+				for a in dropin md5 adapter builder {relup,compile,repackage,rsync}.sh; do
 					[ -f $a ] || continue
 					ln -s ../$a $ASSUMED_NAME
 					cvsignore_df $a
