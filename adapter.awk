@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2007 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2008 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -24,7 +24,8 @@
 # - sort Requires, BuildRequires
 # - check if %description (lang=C) contains 8bit
 # - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
-#21:25:40  SamChi> glen: it should change: /%source([0-9]+)/i to %{SOURCE\1}
+# - it should change: /%source([0-9]+)/i to %{SOURCE\1}
+# - extra quote on LDFLAGS line: https://bugs.launchpad.net/pld-linux/+bug/385836
 
 BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
