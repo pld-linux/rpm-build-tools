@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.4.9
-Release:	17
+Release:	18
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -50,7 +50,7 @@ construir pacotes usando o RPM.
 
 %prep
 %setup -qcT
-cp -a %{SOURCE0} %{SOURCE1} %{SOURCE2} %{SOURCE3} .
+cp %{SOURCE0} %{SOURCE1} %{SOURCE2} %{SOURCE3} .
 
 %{__sed} -i -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' adapter
 
