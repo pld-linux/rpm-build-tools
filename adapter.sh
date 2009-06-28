@@ -15,7 +15,7 @@
 RCSID='$Id$'
 r=${RCSID#* * }
 rev=${r%% *}
-VERSION="v0.31/$rev"
+VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
 $VERSION (C) 1999-2009 Free Penguins".

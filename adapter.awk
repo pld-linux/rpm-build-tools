@@ -33,7 +33,7 @@ BEGIN {
 
 	RCSID = "$Id$"
 	rev = RCSID # TODO: parse from RCSID
-	VERSION = "0.31/" rev
+	VERSION = "0.35/" rev
 
 	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests|Auto(Req|Prov))"
 

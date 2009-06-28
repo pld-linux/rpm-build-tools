@@ -28,7 +28,7 @@
 RCSID='$Id$'
 r=${RCSID#* * }
 rev=${r%% *}
-VERSION="v0.23/$rev"
+VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
 $VERSION (C) 1999-2009 Free Penguins".

@@ -28,7 +28,7 @@
 RCSID='$Id$'
 r=${RCSID#* * }
 rev=${r%% *}
-VERSION="v0.23/$rev"
+VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
 $VERSION (C) 1999-2009 Free Penguins".
@@ -453,7 +453,6 @@ minirpm() {
 %ruby_ver_requires_eq() %{nil}
 %ruby_mod_ver_requires_eq() %{nil}
 %__php_api_requires() %{nil}
-%__php /usr/bin/php
 %php_major_version ERROR
 %php_api_version ERROR
 %requires_xorg_xserver_extension %{nil}
@@ -662,8 +661,8 @@ init_builder() {
 
 	if [ "$NOINIT" != "yes" ] ; then
 		TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
-		REPO_DIR=$TOP_DIR
-		PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
+		REPO_DIR=$TOP_DIR/packages
+		PACKAGE_DIR=$TOP_DIR/packages/$ASSUMED_NAME
 	else
 		REPO_DIR="."
 		PACKAGE_DIR="."

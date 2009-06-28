@@ -5,8 +5,8 @@ Summary(pt_BR.UTF-8):	Scripts e programas executáveis usados para construir pac
 Summary(ru.UTF-8):	Скрипты и утилиты, необходимые для сборки пакетов
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
-Version:	4.4.9
-Release:	18
+Version:	4.4.35
+Release:	1
 License:	GPL
 Group:		Applications/File
 Group:		Base
