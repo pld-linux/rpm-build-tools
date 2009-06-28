@@ -1,7 +1,6 @@
 #!/usr/bin/gawk -f
 #
-# This is adapter v0.30-RELEASE. Adapter adapts .spec files for PLD Linux.
-# $Id$
+# Adapter adapts .spec files for PLD Linux.
 #
 # Copyright (C) 1999-2008 PLD-Team <feedback@pld-linux.org>
 # Authors:
@@ -25,12 +24,18 @@
 # - sort Requires, BuildRequires
 # - check if %description (lang=C) contains 8bit
 # - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
+# - it should change: /%source([0-9]+)/i to %{SOURCE\1}
+# - extra quote on LDFLAGS line: https://bugs.launchpad.net/pld-linux/+bug/385836
 
 BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
-	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests)"
+	RCSID = "$Id$"
+	rev = RCSID # TODO: parse from RCSID
+	VERSION = "0.31/" rev
+
+	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests|Auto(Req|Prov))"
 
 	usedigest = 0	# Enable to switch to rpm 4.4.6+ md5 digests
 
@@ -47,60 +52,19 @@ BEGIN {
 	removed["CFLAGS"] = 0
 	removed["CXXFLAGS"] = 0
 
-	# get cvsaddress for changelog section
-	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
-	"rpm --eval '%{?_cvsmaildomain}%{!?_cvsmaildomain:@pld-linux.org}'" | getline _cvsmaildomain
-	"rpm --eval '%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <feedback@pld-linux.org>}'" | getline _cvsmailfeedback
-
 	# If 1, we are inside of comment block (started with /^#%/)
 	comment_block = 0
 
-	# File with rpm groups
-	"rpm --eval %_sourcedir" | getline groups_file
-	groups_file = groups_file "/rpm.groups"
-	system("cd `rpm --eval %_sourcedir`; [ -f rpm.groups ] || cvs up rpm.groups >/dev/null")
+	import_rpm_macros()
+
+	packages_dir = topdir "/packages"
+	groups_file = packages_dir "/rpm.groups"
+
+	system("cd "packages_dir"; [ -f rpm.groups ] || cvs up rpm.groups > /dev/null")
 	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
 
 	# Temporary file for changelog section
 	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
-
-	# Load rpm macros
-	"rpm --eval %_prefix"	| getline prefix
-	"rpm --eval %_bindir"	| getline bindir
-	"rpm --eval %_sbindir"	| getline sbindir
-	"rpm --eval %_libdir"	| getline libdir
-	"rpm --eval %_sysconfdir" | getline sysconfdir
-	"rpm --eval %_datadir"	| getline datadir
-	"rpm --eval %_includedir" | getline includedir
-	"rpm --eval %_mandir"	| getline mandir
-	"rpm --eval %_infodir"	| getline infodir
-	"rpm --eval %_examplesdir"	| getline examplesdir
-	"rpm --eval %_defaultdocdir"	| getline docdir
-	"rpm --eval %_kdedocdir"	| getline kdedocdir
-	"rpm --eval %_desktopdir" | getline desktopdir
-	"rpm --eval %_pixmapsdir" | getline pixmapsdir
-	"rpm --eval %_javadir" | getline javadir
-
-	"rpm --eval %perl_sitearch" | getline perl_sitearch
-	"rpm --eval %perl_archlib" | getline perl_archlib
-	"rpm --eval %perl_privlib" | getline perl_privlib
-	"rpm --eval %perl_vendorlib" | getline perl_vendorlib
-	"rpm --eval %perl_vendorarch" | getline perl_vendorarch
-	"rpm --eval %perl_sitelib" | getline perl_sitelib
-
-	"rpm --eval %py_sitescriptdir 2>/dev/null" | getline py_sitescriptdir
-	"rpm --eval %py_sitedir 2>/dev/null" | getline py_sitedir
-	"rpm --eval %py_scriptdir 2>/dev/null" | getline py_scriptdir
-
-	"rpm --eval %ruby_archdir" | getline ruby_archdir
-	"rpm --eval %ruby_ridir" | getline ruby_ridir
-	"rpm --eval %ruby_rubylibdir" | getline ruby_rubylibdir
-	"rpm --eval %ruby_sitearchdir" | getline ruby_sitearchdir
-	"rpm --eval %ruby_sitelibdir" | getline ruby_sitelibdir
-
-	"rpm --eval %php_pear_dir" | getline php_pear_dir
-	"rpm --eval %php_data_dir" | getline php_data_dir
-	"rpm --eval %tmpdir" | getline tmpdir
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -136,6 +100,7 @@ function b_makekey(a, b,	s) {
 	# force order
 	gsub(/^Summary\(/, "11Summary(", s);
 	gsub(/^Summary/, "10Summary", s);
+
 	gsub(/^Name/, "2Name", s);
 	gsub(/^Version/, "3Version", s);
 	gsub(/^Release/, "4Release", s);
@@ -155,6 +120,9 @@ function b_makekey(a, b,	s) {
 	gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
 	gsub(/^ExcludeArch/, "X7ExcludeArch", s);
 	gsub(/^BuildRoot/, "X9BuildRoot", s);
+
+	gsub(/^AutoProv/, "Xx1AutoProv", s);
+	gsub(/^AutoReq/, "Xx2AutoReq", s);
 
 #	printf("%s -> %s\n", a""b, s);
 	return s;
@@ -529,7 +497,9 @@ function b_makekey(a, b,	s) {
 	if ($0 ~ /^%files/)
 		defattr = 1
 
-	use_files_macros()
+	if (!use_files_macros()) {
+		next
+	}
 }
 
 ##############
@@ -1037,11 +1007,20 @@ END {
 	}
 }
 
-function fixedsub(s1,s2,t, ind) {
 # substitutes fixed strings (not regexps)
+function fixedsub(s1,s2,t, ind) {
 	if (ind = index(t,s1))
 		t = substr(t, 1, ind-1) s2 substr(t, ind+length(s1))
 	return t
+}
+
+# replace s with s2 if it equals to s1
+function replace(s, s1, s2) {
+	if (s == s1) {
+		return s2;
+	} else {
+		return s;
+	}
 }
 
 # There should be one or two tabs after the colon.
@@ -1097,6 +1076,7 @@ function use_macros()
 	gsub(ruby_rubylibdir, "%{ruby_rubylibdir}")
 	gsub(ruby_sitearchdir, "%{ruby_sitearchdir}")
 	gsub(ruby_sitelibdir, "%{ruby_sitelibdir}")
+	gsub(ruby_rdocdir, "%{ruby_rdocdir}")
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
@@ -1180,11 +1160,18 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/dbus-1")
 			continue;
+		if ($c ~ sysconfdir "/tmpwatch")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
-	gsub(kdedocdir, "%{_kdedocdir}")
 	gsub(docdir, "%{_docdir}")
+
+	gsub(kdedocdir, "%{_kdedocdir}")
+
+	gsub(gtkdocdir, "%{_gtkdocdir}")
+	gsub("%{_docdir}/gtk-doc/html", "%{_gtkdocdir}")
+
 	gsub(php_pear_dir, "%{php_pear_dir}")
 	gsub(php_data_dir, "%{php_data_dir}")
 
@@ -1354,13 +1341,13 @@ function isort(A,n,		i,j,hold) {
 }
 
 
-function use_files_macros(	i, n, t, a)
+function use_files_macros(	i, n, t, a, l)
 {
 	use_macros()
 
 	# skip comments
 	if (/^#/) {
-		return;
+		return 1;
 	}
 
 	sub("^%doc %{_mandir}", "%{_mandir}")
@@ -1391,6 +1378,8 @@ function use_files_macros(	i, n, t, a)
 	gsub("%{_sysconfdir}/certs", "/etc/certs")
 	gsub("%{_sysconfdir}/init.d", "/etc/init.d")
 	gsub("%{_sysconfdir}/dbus-1", "/etc/dbus-1")
+	gsub("%{_sysconfdir}/pki", "/etc/pki")
+	gsub("%{_sysconfdir}/tmpwatch", "/etc/tmpwatch")
 
 	# /etc/init.d -> /etc/rc.d/init.d
 	if (!/^\/etc\/init\.d$/) {
@@ -1478,6 +1467,32 @@ function use_files_macros(	i, n, t, a)
 		$(NF + 1) = "# FIXME consider using %find_lang"
 	}
 
+	# python egg-infos
+	if (match($0, "^%{py_site(script)?dir}/.+-py"py_ver".egg-info$")) {
+		# tests:
+		#%{py_sitedir}/*-py2.4.egg-info
+		#%{py_sitescriptdir}/GnuPGInterface-%{version}-py2.4.egg-info
+		#%{py_sitescriptdir}/python_mpd-%{version}-py2.4.egg-info
+		#%{py_sitescriptdir}/mechanize-0.1.6b-py2.4.egg-info
+
+		l = index($0, "/");
+		t = substr($0, 0, l);
+		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"));
+		if (match(s, "[^-]+$")) {
+#printf("s[%s]; start[%d]; length[%d]\n", s, RSTART, RLENGTH);
+			if (RSTART > 1) {
+				s = substr(s, 0, RSTART - 1);
+			}
+#printf("s2[%s]\n", s);
+			print "%if \"%{py_ver}\" > \"2.4\""
+#print t "/.+.egg-info"
+			gsub(t "/.+.egg-info", t "/" s "-*.egg-info");
+			print
+			print "%endif"
+			return 0;
+		}
+	}
+
 	# atrpms
 	$0 = fixedsub("%{perl_man1dir}", "%{_mandir}/man1", $0);
 	$0 = fixedsub("%{perl_man3dir}", "%{_mandir}/man3", $0);
@@ -1492,6 +1507,8 @@ function use_files_macros(	i, n, t, a)
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}");
 	gsub("%{_datadir}/pear", "%{php_pear_dir}");
 	gsub("%{_datadir}/php", "%{php_data_dir}");
+
+	return 1
 }
 
 function use_script_macros()
@@ -1555,6 +1572,7 @@ function unify_url(url)
 {
 
 	# sourceforge urls
+	# Docs about sourceforge mirror system: http://sourceforge.net/docs/B05/
 	sub("[?&]big_mirror=.*$", "", url);
 	sub("[?&]modtime=.*$", "", url);
 	sub("[?]use_mirror=.*$", "", url);
@@ -1680,16 +1698,26 @@ function replace_requires()
 
 	# jpackages
 	sub(/^java-devel$/, "jdk", $2);
-	sub(/^log4j$/, "logging-log4j", $2);
-	sub(/^jakarta-log4j$/, "logging-log4j", $2);
-	sub(/^oro$/, "jakarta-oro", $2);
+	sub(/^log4j$/, "java-log4j", $2);
+	sub(/^logging-log4j$/, "java-log4j", $2);
+	sub(/^jakarta-log4j$/, "java-log4j", $2);
+	sub(/^oro$/, "java-oro", $2);
+	sub(/^jakarta-oro$/, "java-oro", $2);
 	sub(/^jakarta-ant$/, "ant", $2);
-	sub(/^xerces-j2$/, "xerces-j", $2);
+	sub(/^xerces-j2$/, "java-xerces", $2);
+	sub(/^xerces-j$/, "java-xerces", $2);
 	sub(/^ldapjdk$/, "ldapsdk", $2);
 	sub(/^saxon-scripts$/, "saxon", $2);
-	sub(/^xalan-j2$/, "xalan-j", $2);
-	sub(/^xerces-j2$/, "xerces-j", $2);
-	sub(/^gnu-regexp$/, "gnu.regexp", $2);
+	sub(/^xalan-j2$/, "java-xalan", $2);
+	sub(/^xalan-j$/, "java-xalan", $2);
+	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
+	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
+	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
+	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
+	sub(/^axis$/, "java-axis", $2);
+	sub(/^wsdl4j$/, "java-wsdl4j", $2);
+	sub(/^uddi4j$/, "java-uddi4j", $2);
+	sub(/^hamcrest$/, "java-hamcrest", $2);
 
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
@@ -1733,54 +1761,116 @@ function replace_php_virtual_deps()
 	}
 }
 
-function replace_groupnames(group)
-{
-	sub(/^Amusements\/Games\/Strategy\/Real Time/, "X11/Applications/Games/Strategy", group)
-	sub(/^Application\/Multimedia$/, "Applications/Multimedia", group)
-	sub(/^Applications\/Compilers$/, "Development/Languages", group)
-	sub(/^Applications\/Daemons$/, "Daemons", group)
-	sub(/^Applications\/Internet$/, "Applications/Networking", group)
-	sub(/^Applications\/Internet\/Peer to Peer/, "Applications/Networking", group)
-	sub(/^Applications\/Productivity$/, "X11/Applications", group)
-	sub(/^Database$/, "Applications/Databases", group)
-	sub(/^Development\/Code Generators$/, "Development", group)
-	sub(/^Development\/Docs$/, "Documentation", group)
-	sub(/^Development\/Documentation$/, "Documentation", group)
-	sub(/^Development\/Java/, "Development/Languages/Java", group)
-	sub(/^Development\/Libraries\/C and C\+\+$/, "Development/Libraries", group)
-	sub(/^Development\/Libraries\/Java$/, "Development/Languages/Java", group)
-	sub(/^Development\/Other/,"Development", group)
-	sub(/^Development\/Testing$/, "Development", group)
-	sub(/^Emulators$/, "Applications/Emulators", group)
-	sub(/^Games/,"Applications/Games", group)
-	sub(/^Library\/Development$/, "Development/Libraries", group)
-	sub(/^Networking\/Deamons$/, "Networking/Daemons", group)
-	sub(/^Shells/,"Applications/Shells", group)
-	sub(/^System Environment\/Base$/, "Base", group)
-	sub(/^System Environment\/Daemons$/, "Daemons", group)
-	sub(/^System Environment\/Kernel$/, "Base/Kernel", group)
-	sub(/^System Environment\/Libraries$/, "Libraries", group)
-	sub(/^System$/, "Base", group)
-	sub(/^System\/Base$/, "Base", group)
-	sub(/^System\/Libraries$/, "Libraries", group)
-	sub(/^System\/Servers$/, "Daemons", group)
-	sub(/^Text Processing\/Markup\/HTML$/, "Applications/Text", group)
-	sub(/^Text Processing\/Markup\/XML$/, "Applications/Text", group)
-	sub(/^Utilities\//,"Applications/", group)
-	sub(/^Web\/Database$/, "Applications/WWW", group)
-	sub(/^X11\/GNOME/,"X11/Applications", group)
-	sub(/^X11\/GNOME\/Applications/,"X11/Applications", group)
-	sub(/^X11\/GNOME\/Development\/Libraries/,"X11/Development/Libraries", group)
-	sub(/^X11\/Games/,"X11/Applications/Games", group)
-	sub(/^X11\/Games\/Strategy/,"X11/Applications/Games/Strategy", group)
-	sub(/^X11\/Library/,"X11/Libraries", group)
-	sub(/^X11\/Utilities/,"X11/Applications", group)
-	sub(/^X11\/XFree86/, "X11", group)
-	sub(/^X11\/Xserver$/, "X11/Servers", group)
-	sub(/^Development\/C$/, "Development/Libraries", group)
-	sub(/^Development\/Python$/, "Development/Languages/Python", group)
-	sub(/^System\/Kernel and hardware$/, "Base/Kernel", group)
-	sub(/^Application\/System$/, "Applications/System", group)
+# Load rpm macros
+# you should update the list also in adapter when making changes here
+function import_rpm_macros() {
+	# File with rpm groups
+	topdir = ENVIRON["_topdir"]
+
+	if (!topdir) {
+		print "adapter.awk should not not be invoked directly, but via adapter script" > "/dev/stderr"
+		do_not_touch_anything = 1
+		exit(1);
+	}
+
+	# get cvsaddress for changelog section
+	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
+	_cvsmaildomain = ENVIRON["_cvsmaildomain"]
+	_cvsmailfeedback = ENVIRON["_cvsmailfeedback"]
+
+	prefix = ENVIRON["_prefix"]
+	bindir = ENVIRON["_bindir"]
+	sbindir = ENVIRON["_sbindir"]
+	libdir = ENVIRON["_libdir"]
+	sysconfdir = ENVIRON["_sysconfdir"]
+	datadir = ENVIRON["_datadir"]
+	includedir = ENVIRON["_includedir"]
+	mandir = ENVIRON["_mandir"]
+	infodir = ENVIRON["_infodir"]
+	examplesdir = ENVIRON["_examplesdir"]
+	docdir = ENVIRON["_defaultdocdir"]
+	kdedocdir = ENVIRON["_kdedocdir"]
+	gtkdocdir = ENVIRON["_gtkdocdir"]
+	desktopdir = ENVIRON["_desktopdir"]
+	pixmapsdir = ENVIRON["_pixmapsdir"]
+	javadir = ENVIRON["_javadir"]
+
+	perl_sitearch = ENVIRON["perl_sitearch"]
+	perl_archlib = ENVIRON["perl_archlib"]
+	perl_privlib = ENVIRON["perl_privlib"]
+	perl_vendorlib = ENVIRON["perl_vendorlib"]
+	perl_vendorarch = ENVIRON["perl_vendorarch"]
+	perl_sitelib = ENVIRON["perl_sitelib"]
+
+	py_sitescriptdir = ENVIRON["py_sitescriptdir"]
+	py_sitedir = ENVIRON["py_sitedir"]
+	py_scriptdir = ENVIRON["py_scriptdir"]
+	py_ver = ENVIRON["py_ver"]
+
+	ruby_archdir = ENVIRON["ruby_archdir"]
+	ruby_ridir = ENVIRON["ruby_ridir"]
+	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"]
+	ruby_sitearchdir = ENVIRON["ruby_sitearchdir"]
+	ruby_sitelibdir = ENVIRON["ruby_sitelibdir"]
+	ruby_rdocdir = ENVIRON["ruby_rdocdir"]
+
+	php_pear_dir = ENVIRON["php_pear_dir"]
+	php_data_dir = ENVIRON["php_data_dir"]
+	tmpdir = ENVIRON["tmpdir"]
+}
+
+function replace_groupnames(group) {
+	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
+	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
+	group = replace(group, "Application/System", "Applications/System");
+	group = replace(group, "Applications/Compilers", "Development/Languages");
+	group = replace(group, "Applications/Daemons", "Daemons");
+	group = replace(group, "Applications/Internet", "Applications/Networking");
+	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking");
+	group = replace(group, "Applications/Productivity", "X11/Applications");
+	group = replace(group, "Database", "Applications/Databases");
+	group = replace(group, "Development/C", "Development/Libraries");
+	group = replace(group, "Development/Code Generators", "Development");
+	group = replace(group, "Development/Docs", "Documentation");
+	group = replace(group, "Development/Documentation", "Documentation");
+	group = replace(group, "Development/Java", "Development/Languages/Java");
+	group = replace(group, "Development/Languages/Other", "Development/Languages");;
+	group = replace(group, "Development/Languages/Ruby", "Development/Languages");
+	group = replace(group, "Development/Libraries/C and C++", "Development/Libraries");
+	group = replace(group, "Development/Libraries/Java", "Development/Languages/Java");
+	group = replace(group, "Development/Libraries/Python", "Development/Languages/Python");
+	group = replace(group, "Development/Libraries/TCL", "Development/Languages/Tcl");;
+	group = replace(group, "Development/Other", "Development");
+	group = replace(group, "Development/Python", "Development/Languages/Python");
+	group = replace(group, "Development/Testing", "Development");
+	group = replace(group, "Emulators", "Applications/Emulators");
+	group = replace(group, "Games", "Applications/Games");
+	group = replace(group, "Library/Development", "Development/Libraries");
+	group = replace(group, "Networking/Deamons", "Networking/Daemons");
+	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
+	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP");;
+	group = replace(group, "Shells", "Applications/Shells");
+	group = replace(group, "System Environment/Base", "Base");
+	group = replace(group, "System Environment/Daemons", "Daemons");
+	group = replace(group, "System Environment/Kernel", "Base/Kernel");
+	group = replace(group, "System Environment/Libraries", "Libraries");
+	group = replace(group, "System", "Base");
+	group = replace(group, "System/Base", "Base");
+	group = replace(group, "System/Kernel and hardware", "Base/Kernel");
+	group = replace(group, "System/Libraries", "Libraries");
+	group = replace(group, "System/Servers", "Daemons");
+	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
+	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
+	group = replace(group, "Web/Database", "Applications/WWW");
+	group = replace(group, "X11/GNOME", "X11/Applications");
+	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
+	group = replace(group, "X11/GNOME/Development/Libraries", "X11/Development/Libraries");
+	group = replace(group, "X11/Games", "X11/Applications/Games");
+	group = replace(group, "X11/Games/Strategy", "X11/Applications/Games/Strategy");
+	group = replace(group, "X11/Library", "X11/Libraries");
+	group = replace(group, "X11/Utilities", "X11/Applications");
+	group = replace(group, "X11/XFree86", "X11");
+	group = replace(group, "X11/Xserver", "X11/Servers");
 
 	return group;
 }
