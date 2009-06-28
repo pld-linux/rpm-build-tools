@@ -1,8 +1,5 @@
 #!/bin/sh
 #
-# This is adapter v0.30-RELEASE. Adapter adapts .spec files for PLD Linux.
-#
-# Copyright (C) 1999-2008 PLD Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -15,9 +12,18 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-self=$(basename "$0")
-adapter=$(dirname "$0")/adapter.awk
-usage="Usage: $self [FLAGS] SPECFILE
+RCSID='$Id$'
+r=${RCSID#* * }
+rev=${r%% *}
+VERSION="v0.31/$rev"
+VERSIONSTRING="\
+Adapter adapts .spec files for PLD Linux.
+$VERSION (C) 1999-2009 Free Penguins".
+
+PROGRAM=${0##*/}
+dir=$(d=$0; [ -L "$d" ] && d=$(readlink "$d"); dirname "$d")
+adapter=$dir/adapter.awk
+usage="Usage: $PROGRAM [FLAGS] SPECFILE
 
 -s|--no-sort|--skip-sort
 	skip BuildRequires, Requires sorting
@@ -27,20 +33,21 @@ usage="Usage: $self [FLAGS] SPECFILE
 	skip desc wrapping
 -a|--skip-defattr
 	skip %defattr corrections
-
+-o
+	do not do any diffing, just dump the output
 "
 
 if [ ! -x /usr/bin/getopt ]; then
-	echo >&1 "You need to install util-linux to use adapter"
+	echo >&2 "You need to install util-linux to use adapter"
 	exit 1
 fi
 
 if [ ! -x /usr/bin/patch ]; then
-	echo >&1 "You need to install patch to use adapter"
+	echo >&2 "You need to install patch to use adapter"
 	exit 1
 fi
 
-t=`getopt -o hsmda --long help,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$self" -- "$@"` || exit $?
+t=$(getopt -o hsomdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$PROGRAM" -- "$@") || exit $?
 eval set -- "$t"
 
 while true; do
@@ -61,12 +68,19 @@ while true; do
 	-a|--skip-defattr)
 		export SKIP_DEFATTR=1
 	;;
+	-V|--version)
+		echo "$VERSIONSTRING"
+		exit 0
+		;;
+	-o)
+		outputonly=1
+	;;
 	--)
 		shift
 		break
 	;;
 	*)
-		echo 2>&1 "$self: Internal error: [$1] not recognized!"
+		echo >&2 "$PROGRAM: Internal error: \`$1' not recognized!"
 		exit 1
 		;;
 	esac
@@ -130,20 +144,82 @@ for my $filename (@ARGV) {
 ' "$@"
 }
 
-adapterize()
-{
-	local tmpdir
-	tmpdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
-	if grep -q '\.UTF-8' $SPECFILE; then
-		awk=gawk
-	else
-		awk=awk
-	fi
+# import selected macros for adapter.awk
+# you should update the list also in adapter.awk when making changes here
+import_rpm_macros() {
+	macros="
+	_topdir
+	_prefix
+	_bindir
+	_sbindir
+	_libdir
+	_sysconfdir
+	_datadir
+	_includedir
+	_mandir
+	_infodir
+	_examplesdir
+	_defaultdocdir
+	_kdedocdir
+	_gtkdocdir
+	_desktopdir
+	_pixmapsdir
+	_javadir
 
-	local tmp=$tmpdir/$(basename $SPECFILE) || exit
-	$awk -f $adapter $SPECFILE > $tmp || exit
+	perl_sitearch
+	perl_archlib
+	perl_privlib
+	perl_vendorlib
+	perl_vendorarch
+	perl_sitelib
 
-	if [ "$(diff --brief $SPECFILE $tmp)" ]; then
+	py_sitescriptdir
+	py_sitedir
+	py_scriptdir
+	py_ver
+
+	ruby_archdir
+	ruby_ridir
+	ruby_rubylibdir
+	ruby_sitearchdir
+	ruby_sitelibdir
+	ruby_rdocdir
+
+	php_pear_dir
+	php_data_dir
+	tmpdir
+"
+	eval_expr=""
+	for macro in $macros; do
+		eval_expr="$eval_expr\nexport $macro='%{$macro}'"
+	done
+
+
+	# get cvsaddress for changelog section
+	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
+	eval_expr="$eval_expr
+	export _cvsmaildomain='%{?_cvsmaildomain}%{!?_cvsmaildomain:@pld-linux.org}'
+	export _cvsmailfeedback='%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <feedback@pld-linux.org>}'
+	"
+
+	eval $(rpm --eval "$(echo -e $eval_expr)")
+}
+
+adapterize() {
+	local workdir
+	workdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
+	awk=gawk
+
+	local tmp=$workdir/$(basename $SPECFILE) || exit
+
+	import_rpm_macros
+
+	LC_ALL=en_US.UTF-8 $awk -f $adapter $SPECFILE > $tmp || exit
+
+	if [ "$outputonly" = 1 ]; then
+		cat $tmp
+
+	elif [ "$(diff --brief $SPECFILE $tmp)" ]; then
 		diff -u $SPECFILE $tmp > $tmp.diff
 		if [ -t 1 ]; then
 				diffcol $tmp.diff | less -r
@@ -186,7 +262,7 @@ adapterize()
 		echo "The SPEC is perfect ;)"
 	fi
 
-	rm -rf $tmpdir
+	rm -rf $workdir
 }
 
 SPECFILE="$1"
