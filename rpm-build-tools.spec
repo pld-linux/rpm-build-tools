@@ -10,9 +10,9 @@ Release:	18
 License:	GPL
 Group:		Applications/File
 Group:		Base
-Source0:	builder
+Source0:	builder.sh
 Source1:	adapter.awk
-Source2:	adapter
+Source2:	adapter.sh
 Source3:	pldnotify.awk
 BuildRequires:	sed >= 4.0
 Requires:	gawk
@@ -50,18 +50,20 @@ construir pacotes usando o RPM.
 
 %prep
 %setup -qcT
-cp %{SOURCE0} %{SOURCE1} %{SOURCE2} %{SOURCE3} .
+cp -p %{SOURCE0} %{SOURCE1} %{SOURCE2} %{SOURCE3} .
 
-%{__sed} -i -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' adapter
+%{__sed} -i -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' adapter.sh
 
-%{__sed} -i -e '/^RCSID=/,/^rev=/d;/^VERSION=/s,\([^/]\+\)/.*",\1-RELEASE",' builder adapter
+%{__sed} -i -e '/^RCSID=/,/^rev=/d;/^VERSION=/s,\([^/]\+\)/.*",\1-RELEASE",' builder.sh adapter.sh
 %{__sed} -i -e '/\tRCSID =/,/^\trev =/d;/\tVERSION = /s,\([^/]\+\)/.*,\1-RELEASE",' adapter.awk
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
 cp -a adapter.awk $RPM_BUILD_ROOT%{_libdir}/adapter.awk
-install pldnotify.awk builder adapter $RPM_BUILD_ROOT%{_bindir}
+install -p pldnotify.awk $RPM_BUILD_ROOT%{_bindir}
+install -p builder.sh $RPM_BUILD_ROOT%{_bindir}/builder
+install -p adapter.sh $RPM_BUILD_ROOT%{_bindir}/adapter
 
 %clean
 rm -rf $RPM_BUILD_ROOT
