@@ -1,6 +1,19 @@
 #!/bin/awk -f
 # $Revision$, $Date$
-# TODO: "SourceXDownload" support (use given URLs if present instead of cut-down SourceX URLs)
+#
+# Copyright (C) 2000-2008 PLD-Team <feedback@pld-linux.org>
+# Authors:
+#	Sebastian Zagrodzki <zagrodzki@pld-linux.org>
+#	Jacek Konieczny <jajcus@pld-linux.org>
+#	Andrzej Krzysztofowicz <ankry@pld-linux.org>
+#	Jakub Bogusz <qboosh@pld-linux.org>
+#	Elan Ruusamäe <glen@pld-linux.org>
+#
+# See cvs log pldnotify.awk for list of contributors
+#
+# TODO:
+# - "SourceXDownload" support (use given URLs if present instead of cut-down SourceX URLs)
+# - "SourceXActiveFTP" support
 
 function fixedsub(s1,s2,t,	ind) {
 # substitutes fixed strings (not regexps)
@@ -138,10 +151,31 @@ function compare_ver_dec(v1,v2) {
 	return 0
 }
 
-function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile) {
+function link_seen(link) {
+	for (seenlink in frameseen) {
+		if (seenlink == link) {
+			if (DEBUG) print "Link: [" link "] seen already, skipping..."
+			return 1
+		}
+	}
+	frameseen[link]=1
+	return 0
+}
+
+function mktemp(   _cmd, _tmpfile) {
+	_cmd = "mktemp /tmp/XXXXXX"
+	_cmd | getline _tmpfile
+	close(_cmd)
+	return _tmpfile
+}
+
 # get all <A HREF=..> tags from specified URL
-	"mktemp /tmp/XXXXXX" | getline tmpfile
-	close("mktemp /tmp/XXXXXX")
+function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile,cmd) {
+
+	wholeerr=""
+
+	tmpfile = mktemp()
+	tmpfileerr = mktemp()
 
 	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
 		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
@@ -149,17 +183,44 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 		if (DEBUG) print "sf url, mungled url to: " url
 	}
 
+	if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
+		gsub("^http://", "", url)
+		gsub("\..*", "", url)
+		url = "http://code.google.com/p/" url "/downloads/list"
+		if (DEBUG) print "googlecode url, mungled url to: " url
+	}
+
+	if (url ~ /^http:\/\/pecl.php.net\/get\//) {
+		gsub("-.*", "", filename)
+		url = "http://pecl.php.net/package/" filename
+		if (DEBUG) print "pecl.php.net url, mungled url to: " url
+	}
+
+	if (url ~ /^(http|ftp):\/\/mysql.*\/Downloads\/MySQL-5.1\//) {
+		url = "http://dev.mysql.com/downloads/mysql/5.1.html#source"
+		 if (DEBUG) print "mysql 5.1 url, mungled url to: " url
+	}
+
+
 	if (DEBUG) print "Retrieving: " url
-	errno=system("wget -O - \"" url "\" -t 3 -T 300 --passive-ftp > " tmpfile " 2>/dev/null" )
+	cmd = "wget -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
+	if (DEBUG) print "Execute: " cmd
+	errno = system(cmd)
 
 	if (errno==0) {
 		while (getline oneline < tmpfile)
 			wholeodp=(wholeodp " " oneline)
 		if ( DEBUG ) print "Response: " wholeodp
+	} else {
+		wholeerr = ""
+		while (getline oneline < tmpfileerr)
+			wholeerr=(wholeerr " " oneline)
+		if ( DEBUG ) print "Error Response: " wholeerr
 	}
 
-	close(tmpfile)
 	system("rm -f " tmpfile)
+	system("rm -f " tmpfileerr)
+
 	urldir=url;
 	sub(/[^\/]+$/,"",urldir)
 
@@ -178,6 +239,12 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 					newurl=(urldir newurl)
 					if (DEBUG) print "Frame->: " newurl
 				}
+
+				if (link_seen(newurl)) {
+					newurl=""
+					continue
+				}
+
 				retval=(retval " " get_links(newurl))
 			} else if (lowerodp ~ /href=[ \t]*"[^"]*"/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*"/,"href=\"",odp)
@@ -185,6 +252,12 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+
+				if (link_seen(link)) {
+					link=""
+					continue
+				}
+
 				retval=(retval " " link)
 				if (DEBUG) print "href(\"\"): " link
 			} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
@@ -193,6 +266,12 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+
+				if (link_seen(link)) {
+					link=""
+					continue
+				}
+
 				retval=(retval " " link)
 				if (DEBUG) print "href(''): " link
 			} else if (lowerodp ~ /href=[ \t]*[^ \t>]*/) {
@@ -201,6 +280,12 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,6,length(link)-5)
+
+				if (link_seen(link)) {
+					link=""
+					continue
+				}
+
 				retval=(retval " " link)
 				if (DEBUG) print "href(): " link
 			} else {
@@ -209,7 +294,7 @@ function get_links(url,	errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile)
 			}
 		}
 	} else {
-		retval=("WGET ERROR: " errno)
+		retval=("WGET ERROR: " errno ": " wholeerr)
 	}
 
 
@@ -299,7 +384,7 @@ function process_source(number,lurl,name,version) {
 	references=0
 	finished=0
 	oldversion=version
-	odp=get_links(newurl)
+	odp=get_links(newurl,filename)
 	if( odp ~ "ERROR: ") {
 		print name "(" number ") " odp
 	} else {
@@ -365,6 +450,9 @@ function process_data(name,ver,rel,src) {
 # this function checks if substitutions were valid, and if true:
 # processes each URL and tries to get current file list
 	for (i in src) {
+		if ( src[i] ~ /%{nil}/ ) {
+			gsub(/\%\{nil\}/, "", src[i])
+		}
 		if ( src[i] !~ /%{.*}/ && src[i] !~ /%[A-Za-z0-9_]/ )  {
 			if ( DEBUG ) print "Source: " src[i]
 			process_source(i,src[i],name,ver)
@@ -393,19 +481,27 @@ BEGIN {
 
 FNR==1 {
 	if ( ARGIND != 1 ) {
+		# clean frameseen for each ARG
+		for (i in frameseen) {
+			delete frameseen[i]
+		}
+		frameseen[0] = 1
+
 		process_data(NAME,VER,REL,SRC)
 		NAME="" ; VER="" ; REL=""
 		for (i in DEFS) delete DEFS[i]
 		for (i in SRC) delete SRC[i]
 	}
 	FNAME=FILENAME
+	DEFS["_alt_kernel"]=""
+	DEFS["20"]="\\ "
 }
 
 /^[Uu][Rr][Ll]:/&&(URL=="") { URL=subst_defines($2,DEFS) ; DEFS["url"]=URL }
 /^[Nn]ame:/&&(NAME=="") { NAME=subst_defines($2,DEFS) ; DEFS["name"]=NAME }
 /^[Vv]ersion:/&&(VER=="") { VER=subst_defines($2,DEFS) ; DEFS["version"]=VER }
 /^[Rr]elease:/&&(REL=="") { REL=subst_defines($2,DEFS) ; DEFS["release"]=REL }
-/^[Ss]ource[0-9]*:/ { if (/(ftp|http):\/\//) SRC[FNR]=subst_defines($2,DEFS) }
+/^[Ss]ource[0-9]*:/ { if (/(ftp|http|https):\/\//) SRC[FNR]=subst_defines($2,DEFS) }
 /%define/ { DEFS[$2]=subst_defines($3,DEFS) }
 
 END {
