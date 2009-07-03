@@ -35,7 +35,7 @@ obsolete = []
 
 for file in os.listdir(dir):
     file = os.path.basename(file)
-    if file in [ '.', '..', 'CVS', '.cvsignore', spec ]:
+    if file in [ '.', '..', 'CVS', '.cvsignore', 'dropin', 'md5', 'adapter', 'builder', 'relup.sh', 'compile.sh', 'repackage.sh', spec ]:
         continue
     if file not in files:
         print "Obsolete file: %s" % file
