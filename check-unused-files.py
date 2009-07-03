@@ -35,14 +35,14 @@ obsolete = []
 
 for file in os.listdir(dir):
     file = os.path.basename(file)
-    if file in [ '.', '..', 'CVS', spec ]:
+    if file in [ '.', '..', 'CVS', '.cvsignore', spec ]:
         continue
     if file not in files:
         print "Obsolete file: %s" % file
         obsolete.append(file)
 
 print
-print "cvs rm -f %s" % "".join(obsolete)
+print "cvs rm -f %s" % " ".join(obsolete)
 
 
 
