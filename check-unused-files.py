@@ -45,6 +45,7 @@ for file in os.listdir(dir):
 if obsolete:
     print
     print "cvs rm -f %s" % " ".join(obsolete)
+    print "cvs commit -m '- drop obsolete files' %s" % " ".join(obsolete)
 
 
 
