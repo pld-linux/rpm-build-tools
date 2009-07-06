@@ -21,6 +21,9 @@ if dir == '':
 p = subprocess.Popen(['rpm-specdump', spec], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (out, err) = p.communicate(None)
 p.wait()
+if err:
+    print >> sys.stderr, "%s: %s" % (sys.argv[0], err)
+    sys.exit(1)
 
 files = []
 
