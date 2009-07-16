@@ -1897,7 +1897,7 @@ init_rpm_dir() {
 	echo "- run cvs co SPECS"
 
 	echo "To checkout *all* packages:"
-	echo "- run cvs up -d in $TOP_DIR/packages dir"
+	echo "- run cvs up -dP in $TOP_DIR/packages dir"
 
 	echo ""
 	echo "To commit with your developer account:"
