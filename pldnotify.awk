@@ -201,6 +201,20 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		 if (DEBUG) print "mysql 5.1 url, mungled url to: " url
 	}
 
+	if (url ~/^(http|https):\/\/launchpad\.net\/(.*)\//) {
+		gsub("^(http|https):\/\/launchpad\.net\/", "", url)
+		gsub("\/.*/", "", url)
+		url = "https://code.launchpad.net/" url "/+download"
+		if (DEBUG) print "main launchpad url, mungled url to: " url
+	}
+
+	if (url ~/^(http|https):\/\/edge\.launchpad\.net\/(.*)\//) {
+		gsub("^(http|https):\/\/edge\.launchpad\.net\/", "", url)
+		gsub("\/.*/", "", url)
+		url = "https://edge.launchpad.net/" url "/+download"
+		if (DEBUG) print "edge launchpad url, mungled url to: " url
+	}
+
 
 	if (DEBUG) print "Retrieving: " url
 	cmd = "wget -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
@@ -400,7 +414,7 @@ function process_source(number,lurl,name,version) {
 				newfilename=fixedsub(prever,"",newfilename)
 				newfilename=fixedsub(postver,"",newfilename)
 				if (DEBUG) print "Version: " newfilename
-				if (newfilename ~ /\.(pkg|bin|binary|built)$/) continue
+				if (newfilename ~ /\.(asc|sig|pkg|bin|binary|built)$/) continue
 				if (NUMERIC) {
 					if ( compare_ver_dec(version, newfilename)==1 ) {
 						if (DEBUG) print "Yes, there is new one"
