@@ -179,7 +179,8 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 
 	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
 		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
-		url = "http://prdownloads.sourceforge.net/" substr(url, 1, 1) "/" substr(url, 1, 2) "/" url
+		gsub("/.*", "", url)
+		url = "http://sourceforge.net/projects/" url "/files/"
 		if (DEBUG) print "sf url, mungled url to: " url
 	}
 
