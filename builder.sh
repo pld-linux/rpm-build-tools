@@ -663,6 +663,7 @@ init_builder() {
 		TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
 		REPO_DIR=$TOP_DIR/packages
 		PACKAGE_DIR=$TOP_DIR/packages/$ASSUMED_NAME
+		[ ! -d "$REPO_DIR" ] && install -d "$REPO_DIR"
 	else
 		REPO_DIR="."
 		PACKAGE_DIR="."
