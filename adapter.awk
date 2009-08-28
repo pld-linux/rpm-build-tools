@@ -751,6 +751,9 @@ preamble == 1 {
 		if (l == "GPLv2+") {
 			l = "GPL v2+"
 		}
+		if (l == "LGPLv2+") {
+			l = "LGPL v2+"
+		}
 		$0 = "License:\t" l;
 	}
 
@@ -1403,6 +1406,11 @@ function use_files_macros(	i, n, t, a, l)
 		$0 = "%attr(755,root,root) " $0
 	}
 
+	# remove attrs from man pages
+	if (/%{_mandir}/ && /^%attr/) {
+		sub("^%attr\\(.*\\) *", "");
+	}
+
 	# /etc/sysconfig files
 	# %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
 	# attr not required, allow default 644 attr
@@ -1727,6 +1735,8 @@ function replace_requires()
 
 	# fedora
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
+	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
+	sub(/^gtk2$/, "gtk+2", $2);
 
 	replace_php_virtual_deps()
 }
