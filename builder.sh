@@ -411,7 +411,7 @@ update_shell_title() {
 # set TARGET from BuildArch: from SPECFILE
 set_spec_target() {
 	if [ -n "$SPECFILE" ] && [ -z "$TARGET" ]; then
-		tmp=$(awk '/^BuildArch:/ { print $NF}' $ASSUMED_NAME/$SPECFILE)
+		tmp=$(awk '/^BuildArch:/ { print $NF; exit }' $ASSUMED_NAME/$SPECFILE)
 		if [ "$tmp" ]; then
 				target_platform=$(rpm -E '%{_target_vendor}-%{_target_os}%{?_gnu}')
 				TARGET="$tmp"
