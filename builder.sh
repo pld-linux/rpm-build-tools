@@ -1098,11 +1098,12 @@ get_files() {
 					else
 						im="$i"
 					fi
+					lf=$(basename $im)
 					update_shell_title "${GETURI%% *}: $im"
-					${GETURI} "$im" || \
+					${GETURI} "$im" ${OUTFILEOPT} "$lf" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
 						update_shell_title "${GETURI2%% *}: $im"
-						${GETURI2} "$im"
+						${GETURI2} "$im" ${OUTFILEOPT} "$lf"
 					fi
 				fi
 
