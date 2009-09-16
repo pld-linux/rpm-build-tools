@@ -1015,13 +1015,13 @@ get_files() {
 				if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 					echo "Warning: no URL given for $i"
 				fi
+				target="$fp"
 
 				if [ -z "$NODIST" ] && [ -n "$srcmd5" ]; then
 					if good_md5 "$i" && good_size "$i"; then
 						echo "$fp having proper md5sum already exists"
 						continue
 					fi
-					target="$fp"
 
 					# optionally prefer mirror over distfiles if there's mirror
 					# TODO: build url list and then try each url from the list
@@ -1098,12 +1098,11 @@ get_files() {
 					else
 						im="$i"
 					fi
-					lf=$(basename $im)
 					update_shell_title "${GETURI%% *}: $im"
-					${GETURI} "$im" ${OUTFILEOPT} "$lf" || \
+					${GETURI} "$im" ${OUTFILEOPT} "$target" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
 						update_shell_title "${GETURI2%% *}: $im"
-						${GETURI2} "$im" ${OUTFILEOPT} "$lf"
+						${GETURI2} "$im" ${OUTFILEOPT} "$target"
 					fi
 				fi
 
