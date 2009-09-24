@@ -10,6 +10,14 @@ diffprog="$1"
 # http://websvn.kde.org/branches/KDE/3.5/
 # svn://anonsvn.kde.org/home/kde/trunk/KDE/kdelibs
 
+# anonsvn.kde.org has few IP addresses which causes
+# that svn connects to two different servers which may
+# not be in sync. That causes problems with missing revisions.
+# Resolve to one IP and use that in both svn arguments.
+
+ANONSVN=$(host anonsvn.kde.org | awk ' { print $4; exit; } ' 2> /dev/null)
+[ -z "$ANONSVN" ] && ANONSVN="anonsvn.kde.org"
+
 [ "$diffprog" = "kdebase-workspace" -o "$diffprog" = "kdebase-runtime" ] && diffprog="kdebase"
 
 filter() {
@@ -31,8 +39,8 @@ filter() {
 }
 
 svn diff \
-	svn://anonsvn.kde.org/home/kde/tags/KDE/${ver}/$diffprog \
-	svn://anonsvn.kde.org/home/kde/branches/KDE/4.3/$diffprog \
+	svn://${ANONSVN}/home/kde/tags/KDE/${ver}/$diffprog \
+	svn://${ANONSVN}/home/kde/branches/KDE/4.3/$diffprog \
 	| filter "$prog" \
 	> kde4-$prog-branch.diff
 
