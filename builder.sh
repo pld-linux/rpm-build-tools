@@ -1073,6 +1073,7 @@ get_files() {
 								update_shell_title "${GETURI2%% *}: $url_attic"
 								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 							fi
+							test -s "$target" || rm -f "$target"
 						fi
 					fi
 
@@ -1104,6 +1105,7 @@ get_files() {
 						update_shell_title "${GETURI2%% *}: $im"
 						${GETURI2} "$im" ${OUTFILEOPT} "$target"
 					fi
+					test -s "$target" || rm -f "$target"
 				fi
 
 				if [ "$cvsup" = 1 ]; then
