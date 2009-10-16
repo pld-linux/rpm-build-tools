@@ -1743,6 +1743,11 @@ function replace_requires()
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
+	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
+	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
+	sub(/^pygtk2$/, "python-pygtk", $2);
+	sub(/^qt4-devel$/, "qt4-build", $2);
+	sub(/^file-devel$/, "libmagic-devel", $2);
 
 	replace_php_virtual_deps()
 }
@@ -1887,6 +1892,7 @@ function replace_groupnames(group) {
 	group = replace(group, "X11/Utilities", "X11/Applications");
 	group = replace(group, "X11/XFree86", "X11");
 	group = replace(group, "X11/Xserver", "X11/Servers");
+	group = replace(group, "User Interface/Desktops", "X11/Applications");
 
 	return group;
 }
