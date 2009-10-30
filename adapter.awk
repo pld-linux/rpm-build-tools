@@ -1580,18 +1580,18 @@ function unify_url(url)
 {
 
 	# sourceforge urls
-	# Docs about sourceforge mirror system: http://sourceforge.net/docs/B05/
-	sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://download\.sf\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://download\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://downloads\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", url)
-	sub("^http://dl\.sf\.net/", "http://dl.sourceforge.net/", url)
+	# Docs about sourceforge mirror system: http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
+	sub("^http://prdownloads\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://download\.sf\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://download\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://dl\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://.*\.dl\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://dl\.sf\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://downloads\.sourceforge\.net/sourceforge/", "http://downloads.sourceforge.net/", url)
 	# new style urls, strip "files/" between and prepend dl.
 	if (match(url, "^http://sourceforge.net/projects/[^/]+/files/")) {
 		url = substr(url, 1, RLENGTH - length("files/")) substr(url, RSTART + RLENGTH);
-		sub("^http://sourceforge.net/projects/", "http://dl.sourceforge.net/project/", url);
+		sub("^http://sourceforge.net/projects/", "http://downloads.sourceforge.net/project/", url);
 	}
 	if (url ~ /sourceforge.net/) {
 		sub("[?&]big_mirror=.*$", "", url);
