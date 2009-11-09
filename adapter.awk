@@ -26,6 +26,8 @@
 # - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
 # - it should change: /%source([0-9]+)/i to %{SOURCE\1}
 # - extra quote on LDFLAGS line: https://bugs.launchpad.net/pld-linux/+bug/385836
+# - %{with_foo:%attr()...} gets converted to %attr() %{with_foo:...} [vlc.spec]
+# - 'R: foo ' (with traliling space) gets coverted to "R: foo\nR: " [vlc.spec @ 1.199 ]
 
 BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
