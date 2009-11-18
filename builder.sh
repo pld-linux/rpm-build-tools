@@ -375,7 +375,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 depspecname() {
 	local package="$1"
 
-	package=$(echo "$package" | sed -e '/perl(.*)/{s,perl(\(.*\)),perl-\1,;s,::,-,g}')
+	package=$(echo "$package" | sed -e '/perl(.*)/{s,perl(\(.*\)),perl-\1,;s,::,-,g};'
+		-e 's/-\(devel\|static)$//' )
 	echo "$package"
 }
 
