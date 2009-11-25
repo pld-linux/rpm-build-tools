@@ -683,7 +683,8 @@ get_spec() {
 
 	cd "$REPO_DIR"
 	if [ ! -f "$ASSUMED_NAME/$SPECFILE" ]; then
-		SPECFILE="$(basename $SPECFILE .spec).spec"
+		# XXX: still needed?
+		SPECFILE=$(basename $SPECFILE)
 	fi
 	if [ "$NOCVSSPEC" != "yes" ]; then
 
@@ -2226,7 +2227,7 @@ done
 
 [ -d "$ASSUMED_NAME" ] && CVS_ENTRIES="$ASSUMED_NAME/CVS/Entries" || CVS_ENTRIES="CVS/Entries"
 if [ -f "$CVS_ENTRIES" ] && [ -z "$CVSTAG" ]; then
-	CVSTAG=$(awk -vSPECFILE=$(basename ${SPECFILE%.spec}.spec) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' ${CVS_ENTRIES})
+	CVSTAG=$(awk -vSPECFILE=$(basename $SPECFILE) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' ${CVS_ENTRIES})
 	if [ "$CVSTAG" ]; then
 		echo >&2 "builder: Sticky tag $CVSTAG active. Use -r TAGNAME to override."
 	fi
