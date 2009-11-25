@@ -32,6 +32,9 @@ filter() {
 		kdebase-runtime)
 		cat - | filterdiff -i "runtime/*"
 		;;
+		kdepim)
+		cat - | filterdiff -x "akonadi/*"
+		;;
 		*)
 		cat -
 		;;
