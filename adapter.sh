@@ -251,7 +251,7 @@ adapterize() {
 								read ans
 								case "$ans" in
 								[yYoO]) # y0 mama
-									patch < $t
+									patch -p0 < $t
 									;;
 								[Q]) # Abort
 									break
@@ -285,3 +285,5 @@ if [ $# -ne 1 -o ! -f "$SPECFILE" ]; then
 fi
 
 adapterize
+
+# vim: ts=4:sw=4
