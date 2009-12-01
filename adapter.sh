@@ -104,6 +104,17 @@ diffcol()
 	 ' "$@"
 }
 
+showdiff()
+{
+	l=$(cat $1 | wc -l)
+	eval $(resize) # get terminal size
+	if [ $l -gt $LINES ]; then
+		diffcol $1 | less -r
+	else
+		diffcol $1
+	fi
+}
+
 diff2hunks()
 {
 	 # diff2hunks orignally by dig
@@ -222,7 +233,7 @@ adapterize() {
 	elif [ "$(diff --brief $SPECFILE $tmp)" ]; then
 		diff -u $SPECFILE $tmp > $tmp.diff
 		if [ -t 1 ]; then
-				diffcol $tmp.diff | less -r
+				showdiff $tmp.diff
 				while : ; do
 					echo -n "Accept? (Yes, No, Confirm each chunk)? "
 					read ans
@@ -235,7 +246,7 @@ adapterize() {
 					[cC]) # confirm each chunk
 						diff2hunks $tmp.diff
 						for t in $(ls $tmp-*.diff); do
-								diffcol $t | less -r
+								showdiff $t
 								echo -n "Accept? (Yes, [N]o, Quit)? "
 								read ans
 								case "$ans" in
