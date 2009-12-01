@@ -47,6 +47,18 @@ if [ ! -x /usr/bin/patch ]; then
 	exit 1
 fi
 
+[ -n "$PAGER" ] || PAGER="/usr/bin/less -r"
+
+if [ -n "$CONFIG_DIR" ]; then
+	USER_CFG="$CONFIG_DIR/.adapterrc"
+elif [ -n "$HOME_ETC" ]; then
+	USER_CFG="$HOME_ETC/.adapterrc"
+else
+	USER_CFG=~/.adapterrc
+fi
+
+[ -f $USER_CFG ] && . $USER_CFG
+
 t=$(getopt -o hsomdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$PROGRAM" -- "$@") || exit $?
 eval set -- "$t"
 
@@ -102,17 +114,6 @@ diffcol()
 	 s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
 	 s,$,[0m,
 	 ' "$@"
-}
-
-showdiff()
-{
-	l=$(cat $1 | wc -l)
-	eval $(resize) # get terminal size
-	if [ $l -gt $LINES ]; then
-		diffcol $1 | less -r
-	else
-		diffcol $1
-	fi
 }
 
 diff2hunks()
@@ -233,7 +234,7 @@ adapterize() {
 	elif [ "$(diff --brief $SPECFILE $tmp)" ]; then
 		diff -u $SPECFILE $tmp > $tmp.diff
 		if [ -t 1 ]; then
-				showdiff $tmp.diff
+				diffcol $tmp.diff | $PAGER
 				while : ; do
 					echo -n "Accept? (Yes, No, Confirm each chunk)? "
 					read ans
@@ -246,7 +247,7 @@ adapterize() {
 					[cC]) # confirm each chunk
 						diff2hunks $tmp.diff
 						for t in $(ls $tmp-*.diff); do
-								showdiff $t
+								diffcol $t | $PAGER
 								echo -n "Accept? (Yes, [N]o, Quit)? "
 								read ans
 								case "$ans" in
