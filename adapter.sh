@@ -65,7 +65,7 @@ eval set -- "$t"
 while true; do
 	case "$1" in
 	-h|--help)
- 		echo 2>&1 "$usage"
+		echo 2>&1 "$usage"
 		exit 1
 	;;
 	-s|--no-sort|--skip-sort)
@@ -101,25 +101,42 @@ done
 
 diffcol()
 {
-	 # vim like diff colourization
-	 sed -e '
-	 s,,[44m^[[49m,g;
-	 s,,[44m^G[49m,g;
-	 s,^\(Index:\|diff\|---\|+++\) .*$,[32m&,;
-	 s,^@@ ,[33m&,g;
-	 s,^-,[35m&,;
-	 s,^+,[36m&,;
-	 s,\r,[44m^M[49m,g;
-	 s,	,    ,g;
-	 s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
-	 s,$,[0m,
-	 ' "$@"
+	# vim like diff colourization
+LC_ALL=en_US.UTF-8 gawk ' {
+	split( $0, S, /\t/ );
+	$0 = S[ 1 ];
+	for ( i = 2; i in S; i++ ) {
+		spaces = 7 - ( (length( $0 ) - 1) % 8 );
+		$0 = $0 "\xE2\x9E\x94";
+		for ( y = 0; y < spaces; y++ )
+			$0 = $0 "\xE2\x87\xBE";
+		$0 = $0 S[ i ];
+	}
+	gsub( /\033/, "\033[44m^[\033[49m" );
+	cmd = "";
+	if ( sub( /^ /, "" ) )
+		cmd = " ";
+	sub( /(\xE2\x9E\x94(\xE2\x87\xBE)*| )+$/, "\033[31;41m&\033[39;49m" );
+	gsub( /\xE2\x9E\x94(\xE2\x87\xBE)*/, "\033[7m&\033[27m" );
+	gsub( /\xE2\x87\xBE/, " " );
+	# uncomment if you do not like utf-8 arrow
+	# gsub( /\xE2\x9E\x94/, ">" );
+	$0 = cmd $0;
+	gsub( /\007/, "\033[44m^G\033[49m" );
+	gsub( /\r/, "\033[44m^M\033[49m" );
+}
+/^(Index:|diff|---|\+\+\+) / { $0 = "\033[32m" $0 }
+/^@@ / { $0 = "\033[33m" $0 }
+/^-/ { $0 = "\033[35m" $0 }
+/^+/ { $0 = "\033[36m" $0 }
+{ $0 = $0 "\033[0m"; print }
+' "$@"
 }
 
 diff2hunks()
 {
-	 # diff2hunks orignally by dig
-	 perl -e '
+	# diff2hunks orignally by dig
+	perl -e '
 #! /usr/bin/perl -w
 
 use strict;
