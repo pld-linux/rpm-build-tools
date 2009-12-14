@@ -961,18 +961,27 @@ update_md5() {
 }
 
 check_md5() {
+	local bad
 	[ "$NO5" = "yes" ] && return
 
 	update_shell_title "check md5"
 
 	for i in "$@"; do
-		if good_md5 "$i" && good_size "$i"; then
-			continue
+		bad=0
+		if ! good_md5 "$i"; then
+			echo -n "MD5 sum mismatch."
+			bad=1
+		fi
+		if ! good_size "$i"; then
+			echo -n "0 sized file."
+			bad=1
 		fi
 
-		echo "MD5 sum mismatch or 0 size.  Use -U to refetch sources,"
-		echo "or -5 to update md5 sums, if you're sure files are correct."
-		Exit_error err_no_source_in_repo $i
+		if [ $bad -eq 1 ]; then
+			echo " Use -U to refetch sources,"
+			echo "or -5 to update md5 sums, if you're sure files are correct."
+			Exit_error err_no_source_in_repo $i
+		fi
 	done
 }
 
