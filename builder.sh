@@ -87,7 +87,7 @@ BCOND=""
 GROUP_BCONDS="no"
 
 # create symlinks for tools in PACKAGE_DIR, see get_spec()
-SYMLINK_TOOLS="yes"
+SYMLINK_TOOLS="no"
 
 PATCHES=""
 SOURCES=""
