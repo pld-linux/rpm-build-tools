@@ -28,15 +28,18 @@ HOST=`hostname -f`
 
 usage()
 {
-	echo "\
-Usage: fetchsrc_request file.spec [BRANCH]
-"
+	echo "Usage: fetchsrc_request file.spec [BRANCH]"
+	echo
 }
 
 #------------------
 # main()
 if [ "$#" = 0 ]; then
-	usage;
+	usage
+	exit 1
+fi
+if [ "$LOGIN" == "cvs" ]; then
+	echo "Use fetchsrc_request from your R/W CVS tree or set LOGIN by hand" >&2
 	exit 1
 fi
 if [ "$2" != "" ]; then
