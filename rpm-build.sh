@@ -88,8 +88,16 @@ dist-verify() {
 		ignore="$ignore kadu-theme-icons-crystal16 kadu-theme-icons-crystal22 kadu-theme-icons-nuvola16 kadu-theme-icons-nuvola22 kadu-module-iwait4u"
 		# obsoleted
 		ignore="$ignore php-pear-Net_Ping-tests"
+		# obsoleted
+		ignore="$ignore nmap-X11"
+		# mksd dependency not distributale
+		ignore="$ignore samba-vfs-vscan-mks"
+		# ibbackup is not distributale
+		ignore="$ignore innobackup"
+
 		# renamed to vim-syntax-txt2tags
 		ignore="$ignore txt2tags-vim"
+
 		for a in $ignore; do
 			args="$args --ignore=$a"
 		done
