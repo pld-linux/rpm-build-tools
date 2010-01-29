@@ -98,6 +98,9 @@ tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 for spec in "$@"; do
 	spec=${spec%.spec}.spec
 	rel=$(get_release "$spec")
+	if [ "$update" = "1" ]; then
+		cvs up "$spec"
+	fi
 	if [ "$inc" = 1 ]; then
 		newrel=$(expr $rel + 1)
 		set_release "$spec" $rel $newrel
@@ -114,9 +117,6 @@ for file in $(ls "$tmpd" 2>/dev/null); do
 	msg="- release $rel${message:+ ($message)}"
 	echo cvs ci -m "'$msg'"
 	if [ "$test" != 1 ]; then
-		if [ "$update" = "1" ]; then
-			cvs up $files
-		fi
 		cvs ci -m "$msg" $files
 	fi
 done
