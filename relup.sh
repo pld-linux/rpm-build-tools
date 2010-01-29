@@ -59,7 +59,7 @@ if [ ! -x /usr/bin/getopt ]; then
 	exit 1
 fi
 
-t=$(getopt -o 'm:ith' -n "${0##*/}" -- "$@") || exit $?
+t=$(getopt -o 'm:iuth' -n "${0##*/}" -- "$@") || exit $?
 # Note the quotes around `$t': they are essential!
 eval set -- "$t"
 
