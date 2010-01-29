@@ -97,10 +97,10 @@ done
 tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 for spec in "$@"; do
 	spec=${spec%.spec}.spec
-	rel=$(get_release "$spec")
 	if [ "$update" = "1" ]; then
 		cvs up "$spec"
 	fi
+	rel=$(get_release "$spec")
 	if [ "$inc" = 1 ]; then
 		newrel=$(expr $rel + 1)
 		set_release "$spec" $rel $newrel
