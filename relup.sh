@@ -20,11 +20,13 @@ get_dump() {
 }
 
 usage="Usage:
-${0##*/} [-i] [-t] [-m <MESSAGE>] <SPECLIST>
+${0##*/} [-i] [-u] [-t] [-m <MESSAGE>] <SPECLIST>
 
 Options:
 -i
   Try to increment package release
+-u
+  cvs update first
 -t
   Test mode. do not commit
 -m
@@ -65,6 +67,9 @@ while true; do
 	case "$1" in
 	-i)
 		inc=1
+		;;
+	-u)
+		update=1
 		;;
 	-t)
 		test=1
@@ -109,6 +114,9 @@ for file in $(ls "$tmpd" 2>/dev/null); do
 	msg="- release $rel${message:+ ($message)}"
 	echo cvs ci -m "'$msg'"
 	if [ "$test" != 1 ]; then
+		if [ "$update" = "1" ]; then
+			cvs up $files
+		fi
 		cvs ci -m "$msg" $files
 	fi
 done
