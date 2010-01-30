@@ -1891,6 +1891,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
 	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
 	group = replace(group, "User Interface/Desktops", "X11/Applications");
+	group = replace(group, "Utilities/System", "Applications/System");
 	group = replace(group, "Web/Database", "Applications/WWW");
 	group = replace(group, "X11/GNOME", "X11/Applications");
 	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
