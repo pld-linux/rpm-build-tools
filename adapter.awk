@@ -730,6 +730,11 @@ preamble == 1 {
 		$1 = "License:"
 	}
 
+	# ease updating from debian .dsc
+	if (field ~ /homepage:/) {
+		$1 = "URL:"
+	}
+
 	if (field ~ /license:/) {
 		l = substr($0, index($0, $2));
 		if (l == "Python Software Foundation License") {
@@ -1877,6 +1882,7 @@ function replace_groupnames(group) {
 	group = replace(group, "System Environment/Daemons", "Daemons");
 	group = replace(group, "System Environment/Kernel", "Base/Kernel");
 	group = replace(group, "System Environment/Libraries", "Libraries");
+	group = replace(group, "System Tools", "Applications/System");
 	group = replace(group, "System", "Base");
 	group = replace(group, "System/Base", "Base");
 	group = replace(group, "System/Kernel and hardware", "Base/Kernel");
@@ -1884,6 +1890,7 @@ function replace_groupnames(group) {
 	group = replace(group, "System/Servers", "Daemons");
 	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
 	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
+	group = replace(group, "User Interface/Desktops", "X11/Applications");
 	group = replace(group, "Web/Database", "Applications/WWW");
 	group = replace(group, "X11/GNOME", "X11/Applications");
 	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
@@ -1894,7 +1901,6 @@ function replace_groupnames(group) {
 	group = replace(group, "X11/Utilities", "X11/Applications");
 	group = replace(group, "X11/XFree86", "X11");
 	group = replace(group, "X11/Xserver", "X11/Servers");
-	group = replace(group, "User Interface/Desktops", "X11/Applications");
 
 	return group;
 }
