@@ -1756,6 +1756,14 @@ function replace_requires()
 	sub(/^qt4-devel$/, "qt4-build", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
 
+	# debian
+	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
+	sub(/^libglib2.0-dev$/, "glib2-devel", $2);
+	sub(/^libgtk2.0-dev$/, "gtk+2-devel", $2);
+	sub(/^libhunspell-dev$/, "hunspell-devel", $2);
+	sub(/^libpango1.0-dev$/, "pango-devel", $2);
+	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
+
 	replace_php_virtual_deps()
 }
 
