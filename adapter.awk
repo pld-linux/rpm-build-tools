@@ -1763,6 +1763,11 @@ function replace_requires()
 	sub(/^libhunspell-dev$/, "hunspell-devel", $2);
 	sub(/^libpango1.0-dev$/, "pango-devel", $2);
 	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
+	sub(/^libgl1-mesa-dev$/, "OpenGL-devel", $2);
+	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
+	sub(/^libgl1-mesa-dri$/, "OpenGL", $2);
+	sub(/^libglu1-mesa-dev$/, "OpenGL-GLU-devel", $2);
+	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
 
 	replace_php_virtual_deps()
 }
