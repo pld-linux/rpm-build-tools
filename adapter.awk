@@ -1755,6 +1755,7 @@ function replace_requires()
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^qt4-devel$/, "qt4-build", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
+	sub(/^gamin-python$/, "python-gamin", $2);
 
 	# debian
 	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
