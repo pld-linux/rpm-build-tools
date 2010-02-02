@@ -13,5 +13,13 @@
 # -glen 2005-03-03
 
 dir=$(dirname "$0")
-set -x
+if [ $# = 0 ]; then
+	# if no spec name passed, glob *.spec
+	set -- *.spec
+	if [ ! -f "$1" -o $# -gt 1 ]; then
+		echo >&2 "ERROR: Too many or too few .spec files found"
+		echo >&2 "Usage: ${0##*/} PACKAGE.spec"
+		exit 1
+	fi
+fi
 exec $dir/builder --no-md5 -ncs -nn --short-circuit -bc "$@"
