@@ -87,6 +87,16 @@ specdump() {
 	eval rpm-specdump $a || echo >&2 $?
 }
 
+if [ $# = 0 ]; then
+	# if no spec name passed, glob *.spec
+	set -- *.spec
+	if [ ! -f "$1" -o $# -gt 1 ]; then
+		echo >&2 "ERROR: Too many or too few .spec files found"
+		echo >&2 "Usage: ${0##*/} PACKAGE.spec"
+		exit 1
+	fi
+fi
+
 tmp=$(specdump "$@" | awk '$2 == "_target_cpu" {print $3}')
 if [ "$tmp" ]; then
 	TARGET="$tmp"
