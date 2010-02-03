@@ -265,8 +265,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
                       them into src.rpm,
 --short-circuit     - short-circuit build
 -B, --branch        - add branch
--c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
-                      SPECS and \$RPM_BUILD_ROOT and CVS/Entries) after rpmbuild commands.
+-c, --clean         - clean all temporarily created files (in BUILD\$RPM_BUILD_ROOT) after rpmbuild commands.
+                      may be used with building process.
 -m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES,
 					  SPECS and \$RPM_BUILD_ROOT and CVS/Entries). Doesn't run
 					  any rpm building.
@@ -704,7 +704,7 @@ get_spec() {
 
 			# create symlinks for tools
 			if [ "$SYMLINK_TOOLS" != "no" ]; then
-				for a in dropin md5 adapter builder {relup,compile,repackage,rsync}.sh; do
+				for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh; do
 					[ -f $a ] || continue
 					ln -s ../$a $ASSUMED_NAME
 					cvsignore_df $a
@@ -2009,7 +2009,7 @@ while [ $# -gt 0 ]; do
 		-B | --branch )
 			COMMAND="branch"; shift; TAG="${1}"; shift;;
 		-c | --clean )
-			CLEAN="--clean --rmspec --rmsource"; shift ;;
+			CLEAN="--clean"; shift ;;
 		-cf | --cvs-force )
 			CVS_FORCE="-F"; shift;;
 		-d | --cvsroot )
