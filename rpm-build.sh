@@ -94,6 +94,8 @@ dist-verify() {
 		ignore="$ignore samba-vfs-vscan-mks"
 		# ibbackup is not distributale
 		ignore="$ignore innobackup"
+		# use ac-updates
+		ignore="$ignore ntp-client ntp"
 
 		# renamed to vim-syntax-txt2tags
 		ignore="$ignore txt2tags-vim"
