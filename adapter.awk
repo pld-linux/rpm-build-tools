@@ -1714,6 +1714,95 @@ function add_br(br)
 	BR[BR_count++] = br
 }
 
+
+# Load rpm macros
+# you should update the list also in adapter when making changes here
+function import_rpm_macros() {
+	# File with rpm groups
+	topdir = ENVIRON["_topdir"]
+
+	if (!topdir) {
+		print "adapter.awk should not not be invoked directly, but via adapter script" > "/dev/stderr"
+		do_not_touch_anything = 1
+		exit(1);
+	}
+
+	# get cvsaddress for changelog section
+	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
+	_cvsmaildomain = ENVIRON["_cvsmaildomain"]
+	_cvsmailfeedback = ENVIRON["_cvsmailfeedback"]
+
+	prefix = ENVIRON["_prefix"]
+	bindir = ENVIRON["_bindir"]
+	sbindir = ENVIRON["_sbindir"]
+	libdir = ENVIRON["_libdir"]
+	sysconfdir = ENVIRON["_sysconfdir"]
+	datadir = ENVIRON["_datadir"]
+	includedir = ENVIRON["_includedir"]
+	mandir = ENVIRON["_mandir"]
+	infodir = ENVIRON["_infodir"]
+	examplesdir = ENVIRON["_examplesdir"]
+	docdir = ENVIRON["_defaultdocdir"]
+	kdedocdir = ENVIRON["_kdedocdir"]
+	gtkdocdir = ENVIRON["_gtkdocdir"]
+	desktopdir = ENVIRON["_desktopdir"]
+	pixmapsdir = ENVIRON["_pixmapsdir"]
+	javadir = ENVIRON["_javadir"]
+
+	perl_sitearch = ENVIRON["perl_sitearch"]
+	perl_archlib = ENVIRON["perl_archlib"]
+	perl_privlib = ENVIRON["perl_privlib"]
+	perl_vendorlib = ENVIRON["perl_vendorlib"]
+	perl_vendorarch = ENVIRON["perl_vendorarch"]
+	perl_sitelib = ENVIRON["perl_sitelib"]
+
+	py_sitescriptdir = ENVIRON["py_sitescriptdir"]
+	py_sitedir = ENVIRON["py_sitedir"]
+	py_scriptdir = ENVIRON["py_scriptdir"]
+	py_ver = ENVIRON["py_ver"]
+
+	ruby_archdir = ENVIRON["ruby_archdir"]
+	ruby_ridir = ENVIRON["ruby_ridir"]
+	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"]
+	ruby_sitearchdir = ENVIRON["ruby_sitearchdir"]
+	ruby_sitelibdir = ENVIRON["ruby_sitelibdir"]
+	ruby_rdocdir = ENVIRON["ruby_rdocdir"]
+
+	php_pear_dir = ENVIRON["php_pear_dir"]
+	php_data_dir = ENVIRON["php_data_dir"]
+	tmpdir = ENVIRON["tmpdir"]
+}
+
+
+# php virtual deps as discussed in devel-en
+function replace_php_virtual_deps() {
+	pkg = $2
+#	if (pkg == "php-program") {
+#		$0 = $1 "\t/usr/bin/php"
+#		return
+#	}
+
+#	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
+#		sub(/^php-/, "php(", pkg);
+#		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
+#		$2 = pkg
+#	}
+
+	if (pkg ~/^php$/) {
+		$2 = "webserver(php)";
+		if ($4 ~ /^[0-9]:/) {
+			$4 = substr($4, 3);
+		}
+	}
+
+	if (pkg ~/^php4$/) {
+		$2 = "webserver(php)";
+		if ($4 ~ /^[0-9]:/) {
+			$4 = substr($4, 3);
+		}
+	}
+}
+
 function replace_requires() {
 
 	# jpackages
@@ -1775,94 +1864,6 @@ function replace_requires() {
 	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
 
 	replace_php_virtual_deps()
-}
-
-# php virtual deps as discussed in devel-en
-function replace_php_virtual_deps()
-{
-	pkg = $2
-#	if (pkg == "php-program") {
-#		$0 = $1 "\t/usr/bin/php"
-#		return
-#	}
-
-#	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
-#		sub(/^php-/, "php(", pkg);
-#		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
-#		$2 = pkg
-#	}
-
-	if (pkg ~/^php$/) {
-		$2 = "webserver(php)";
-		if ($4 ~ /^[0-9]:/) {
-			$4 = substr($4, 3);
-		}
-	}
-
-	if (pkg ~/^php4$/) {
-		$2 = "webserver(php)";
-		if ($4 ~ /^[0-9]:/) {
-			$4 = substr($4, 3);
-		}
-	}
-}
-
-# Load rpm macros
-# you should update the list also in adapter when making changes here
-function import_rpm_macros() {
-	# File with rpm groups
-	topdir = ENVIRON["_topdir"]
-
-	if (!topdir) {
-		print "adapter.awk should not not be invoked directly, but via adapter script" > "/dev/stderr"
-		do_not_touch_anything = 1
-		exit(1);
-	}
-
-	# get cvsaddress for changelog section
-	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
-	_cvsmaildomain = ENVIRON["_cvsmaildomain"]
-	_cvsmailfeedback = ENVIRON["_cvsmailfeedback"]
-
-	prefix = ENVIRON["_prefix"]
-	bindir = ENVIRON["_bindir"]
-	sbindir = ENVIRON["_sbindir"]
-	libdir = ENVIRON["_libdir"]
-	sysconfdir = ENVIRON["_sysconfdir"]
-	datadir = ENVIRON["_datadir"]
-	includedir = ENVIRON["_includedir"]
-	mandir = ENVIRON["_mandir"]
-	infodir = ENVIRON["_infodir"]
-	examplesdir = ENVIRON["_examplesdir"]
-	docdir = ENVIRON["_defaultdocdir"]
-	kdedocdir = ENVIRON["_kdedocdir"]
-	gtkdocdir = ENVIRON["_gtkdocdir"]
-	desktopdir = ENVIRON["_desktopdir"]
-	pixmapsdir = ENVIRON["_pixmapsdir"]
-	javadir = ENVIRON["_javadir"]
-
-	perl_sitearch = ENVIRON["perl_sitearch"]
-	perl_archlib = ENVIRON["perl_archlib"]
-	perl_privlib = ENVIRON["perl_privlib"]
-	perl_vendorlib = ENVIRON["perl_vendorlib"]
-	perl_vendorarch = ENVIRON["perl_vendorarch"]
-	perl_sitelib = ENVIRON["perl_sitelib"]
-
-	py_sitescriptdir = ENVIRON["py_sitescriptdir"]
-	py_sitedir = ENVIRON["py_sitedir"]
-	py_scriptdir = ENVIRON["py_scriptdir"]
-	py_ver = ENVIRON["py_ver"]
-
-	ruby_archdir = ENVIRON["ruby_archdir"]
-	ruby_ridir = ENVIRON["ruby_ridir"]
-	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"]
-	ruby_sitearchdir = ENVIRON["ruby_sitearchdir"]
-	ruby_sitelibdir = ENVIRON["ruby_sitelibdir"]
-	ruby_rdocdir = ENVIRON["ruby_rdocdir"]
-
-	php_pear_dir = ENVIRON["php_pear_dir"]
-	php_data_dir = ENVIRON["php_data_dir"]
-	tmpdir = ENVIRON["tmpdir"]
 }
 
 function replace_groupnames(group) {
