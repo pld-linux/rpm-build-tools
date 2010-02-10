@@ -710,7 +710,7 @@ preamble == 1 {
 		replace_requires();
 	}
 
-	if (field ~ /^requires:/) {
+	if (field ~ /^requires:/ || field ~ /^requires\(/) {
 		replace_requires();
 	}
 
@@ -1714,8 +1714,7 @@ function add_br(br)
 	BR[BR_count++] = br
 }
 
-function replace_requires()
-{
+function replace_requires() {
 
 	# jpackages
 	sub(/^java-devel$/, "jdk", $2);
@@ -1757,6 +1756,10 @@ function replace_requires()
 	sub(/^file-devel$/, "libmagic-devel", $2);
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
+	sub(/^tkinter$/, "python-tkinter", $2);
+	sub(/^python-imaging$/, "python-PIL", $2);
+	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
+	sub(/^initscripts$/, "rc-scripts", $2);
 
 	# debian
 	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
@@ -1863,6 +1866,7 @@ function import_rpm_macros() {
 }
 
 function replace_groupnames(group) {
+	group = replace(group, "Amusements/Games", "Applications/Games");
 	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
 	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
 	group = replace(group, "Application/System", "Applications/System");
