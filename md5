@@ -1,2 +1,10 @@
 #!/bin/sh
-./builder -ncs -5 "$@"
+if [ -x ./builder ]; then
+	builder=./builder
+elif [ -x ../builder ]; then
+	builder=../builder
+else
+	builder=builder
+fi
+
+$builder -ncs -5 "$@"
