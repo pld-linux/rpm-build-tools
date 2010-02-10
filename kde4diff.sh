@@ -33,7 +33,7 @@ filter() {
 		cat - | filterdiff -i "runtime/*"
 		;;
 		kdepim)
-		cat - | filterdiff -x "akonadi/*"
+		cat - | filterdiff -x "akonadi/*" | filterdiff -x "runtime/*"
 		;;
 		*)
 		cat -
