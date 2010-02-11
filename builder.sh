@@ -662,8 +662,8 @@ init_builder() {
 
 	if [ "$NOINIT" != "yes" ] ; then
 		TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
-		REPO_DIR=$TOP_DIR/packages
-		PACKAGE_DIR=$TOP_DIR/packages/$ASSUMED_NAME
+		REPO_DIR=$TOP_DIR
+		PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
 	else
 		REPO_DIR="."
 		PACKAGE_DIR="."

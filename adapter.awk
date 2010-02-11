@@ -59,7 +59,7 @@ BEGIN {
 
 	import_rpm_macros()
 
-	packages_dir = topdir "/packages"
+	packages_dir = topdir
 	groups_file = packages_dir "/rpm.groups"
 
 	system("cd "packages_dir"; [ -f rpm.groups ] || cvs up rpm.groups > /dev/null")
