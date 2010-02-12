@@ -129,26 +129,31 @@ get-buildlog() {
 		return
 	fi
 
-	local al
+	local archlist
 	case "$dist" in
 	ac)
-		al='i686,i586,i386,athlon,alpha,sparc,amd64,ppc'
+		archlist='i686 i586 i386 athlon alpha sparc amd64 ppc'
 		;;
 	th)
-		al='x86_64,athlon,i486,i686,ppc'
+		archlist='x86_64 i486 i686'
 		;;
 	*)
 		echo >&2 "get-buildlog: $dist buildlogs are /dev/null"
 		return
 	esac
 
-	local u a s=ftp://buildlogs.pld-linux.org
-	for u in `eval echo $s/$dist/{$al}/{OK,FAIL}/$p.bz2`; do
-		a=${u#$s/$dist/}; a=${a%%/*}
-		echo -n "Fetching $u... "
-		if wget -q $u -O .$p~; then
+	local url arch ftp=ftp://buildlogs.pld-linux.org
+	for arch in $archlist; do
+		[ "$arch" ] || continue
+		path=${url#$ftp}
+		echo -n "Checking $p.$arch... "
+		url=$(lftp -c "debug 0;open $ftp; cls --sort=date -r /$dist/$arch/OK/$p,*.bz2 /$dist/$arch/FAIL/$p,*.bz2 | tail -n1")
+		url=$ftp$url
+
+		echo -n "$url... "
+		if wget -q $url -O .$p~; then
 			echo "OK"
-			mv -f .$p~ $p.$a.bz2
+			mv -f .$p~ $p.$arch.bz2
 		else
 			echo "SKIP"
 			rm -f .$p~
@@ -238,9 +243,9 @@ sfget() {
 
 dif() {
 	if [ -t 1 ]; then
-		diff -ur "$@" | diffcol | less -R
+		diff -ur -x .svn -x .git -x .bzr -x CVS "$@" | diffcol | less -R
 	else
-		diff -ur "$@"
+		diff -ur -x .svn -x .git -x .bzr -x CVS "$@"
 	fi
 }
 
