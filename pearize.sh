@@ -4,11 +4,18 @@
 # it is still better than nothing. if somebody wishes to add sorting in this
 # script. i'd be just glad :)
 #
-# needs 'pear' for 'pear makerpm' command, ./builder for fetching sources.
+# needs 'pear' for 'pear make-rpm-spec' command, ./builder for fetching sources.
 # You should have all PEAR packages installed to get best results (needed for epoch autodetection)
 #
-# todo: adjust similiarily noautoreqdeps
-# bugs: the beta portions in version deps could be wrong (php-4.3.0b1 and alike)
+# To create completely new PEAR package spec, follow something like this:
+# $ pear download RDF-alpha
+# File RDF-0.1.0alpha1.tgz downloaded
+# $ pear make-rpm-spec RDF-0.1.0alpha1.tgz
+# Wrote RPM spec file php-pear-RDF.spec
+# $
+#
+# TODO: adjust similiarily noautoreqdeps
+# BUGS: the beta portions in version deps could be wrong (php-4.3.0b1 and alike)
 # see php-pear-DBA_Relational.spec
 # Something strange: Requires:	php-common < 4:3:5.1
 #
