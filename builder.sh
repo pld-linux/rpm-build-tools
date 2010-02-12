@@ -438,16 +438,16 @@ minirpm() {
 %x8664 x86_64 amd64 ia32e
 %alt_kernel %{nil}
 %_alt_kernel %{nil}
-%requires_releq_kernel_up %{nil}
-%requires_releq_kernel_smp %{nil}
-%requires_releq_kernel %{nil}
+%requires_releq_kernel_up(s:n:) %{nil}
+%requires_releq_kernel_smp(s:n:) %{nil}
+%requires_releq_kernel(s:n:) %{nil}
 %requires_releq() %{nil}
 %pyrequires_eq() %{nil}
 %requires_eq() %{nil}
 %requires_eq_to() %{nil}
-%releq_kernel_up ERROR
-%releq_kernel_smp ERROR
-%releq_kernel ERROR
+%releq_kernel_up(n:) ERROR
+%releq_kernel_smp(n:) ERROR
+%releq_kernel(n:) ERROR
 %kgcc_package ERROR
 %_fontsdir ERROR
 %ruby_version ERROR
