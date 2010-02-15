@@ -1862,6 +1862,15 @@ function replace_requires() {
 	sub(/^libgl1-mesa-dri$/, "OpenGL", $2);
 	sub(/^libglu1-mesa-dev$/, "OpenGL-GLU-devel", $2);
 	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
+	sub(/^libboost-filesystem[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libboost-program-options[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libboost-regex[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libboost-thread[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libmcrypt-dev$/, "libmcrypt-devel", $2);
+	sub(/^libcurl4-openssl-dev$/, "curl-devel", $2);
+	sub(/^libmhash-dev$/, "mhash-devel", $2);
+	sub(/^libqt4-dev$/, "qt4-build", $2);
+	sub(/^libssl-dev$/, "openssl-devel", $2);
 
 	replace_php_virtual_deps()
 }
