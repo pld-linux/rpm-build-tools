@@ -2296,7 +2296,7 @@ case "$COMMAND" in
 			# display SMP make flags if set
 			smp_mflags=$(rpm -E %{?_smp_mflags})
 			if [ "$smp_mflags" ]; then
-				echo >&2 "builder: SMP make flags are set to $smp_mflags"
+				echo "builder: SMP make flags are set to $smp_mflags"
 			fi
 
 			get_spec
