@@ -47,13 +47,25 @@ if [ ! -x /usr/bin/patch ]; then
 	exit 1
 fi
 
+[ -n "$PAGER" ] || PAGER="/usr/bin/less -r"
+
+if [ -n "$CONFIG_DIR" ]; then
+	USER_CFG="$CONFIG_DIR/.adapterrc"
+elif [ -n "$HOME_ETC" ]; then
+	USER_CFG="$HOME_ETC/.adapterrc"
+else
+	USER_CFG=~/.adapterrc
+fi
+
+[ -f $USER_CFG ] && . $USER_CFG
+
 t=$(getopt -o hsomdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$PROGRAM" -- "$@") || exit $?
 eval set -- "$t"
 
 while true; do
 	case "$1" in
 	-h|--help)
- 		echo 2>&1 "$usage"
+		echo 2>&1 "$usage"
 		exit 1
 	;;
 	-s|--no-sort|--skip-sort)
@@ -89,25 +101,42 @@ done
 
 diffcol()
 {
-	 # vim like diff colourization
-	 sed -e '
-	 s,,[44m^[[49m,g;
-	 s,,[44m^G[49m,g;
-	 s,^\(Index:\|diff\|---\|+++\) .*$,[32m&,;
-	 s,^@@ ,[33m&,g;
-	 s,^-,[35m&,;
-	 s,^+,[36m&,;
-	 s,\r,[44m^M[49m,g;
-	 s,	,    ,g;
-	 s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
-	 s,$,[0m,
-	 ' "$@"
+	# vim like diff colourization
+LC_ALL=en_US.UTF-8 gawk ' {
+	split( $0, S, /\t/ );
+	$0 = S[ 1 ];
+	for ( i = 2; i in S; i++ ) {
+		spaces = 7 - ( (length( $0 ) - 1) % 8 );
+		$0 = $0 "\xE2\x9E\x94";
+		for ( y = 0; y < spaces; y++ )
+			$0 = $0 "\xE2\x87\xBE";
+		$0 = $0 S[ i ];
+	}
+	gsub( /\033/, "\033[44m^[\033[49m" );
+	cmd = "";
+	if ( sub( /^ /, "" ) )
+		cmd = " ";
+	sub( /(\xE2\x9E\x94(\xE2\x87\xBE)*| )+$/, "\033[31;41m&\033[39;49m" );
+	gsub( /\xE2\x9E\x94(\xE2\x87\xBE)*/, "\033[7m&\033[27m" );
+	gsub( /\xE2\x87\xBE/, " " );
+	# uncomment if you do not like utf-8 arrow
+	# gsub( /\xE2\x9E\x94/, ">" );
+	$0 = cmd $0;
+	gsub( /\007/, "\033[44m^G\033[49m" );
+	gsub( /\r/, "\033[44m^M\033[49m" );
+}
+/^(Index:|diff|---|\+\+\+) / { $0 = "\033[32m" $0 }
+/^@@ / { $0 = "\033[33m" $0 }
+/^-/ { $0 = "\033[35m" $0 }
+/^+/ { $0 = "\033[36m" $0 }
+{ $0 = $0 "\033[0m"; print }
+' "$@"
 }
 
 diff2hunks()
 {
-	 # diff2hunks orignally by dig
-	 perl -e '
+	# diff2hunks orignally by dig
+	perl -e '
 #! /usr/bin/perl -w
 
 use strict;
@@ -222,7 +251,7 @@ adapterize() {
 	elif [ "$(diff --brief $SPECFILE $tmp)" ]; then
 		diff -u $SPECFILE $tmp > $tmp.diff
 		if [ -t 1 ]; then
-				diffcol $tmp.diff | less -r
+				diffcol $tmp.diff | $PAGER
 				while : ; do
 					echo -n "Accept? (Yes, No, Confirm each chunk)? "
 					read ans
@@ -235,12 +264,12 @@ adapterize() {
 					[cC]) # confirm each chunk
 						diff2hunks $tmp.diff
 						for t in $(ls $tmp-*.diff); do
-								diffcol $t | less -r
+								diffcol $t | $PAGER
 								echo -n "Accept? (Yes, [N]o, Quit)? "
 								read ans
 								case "$ans" in
 								[yYoO]) # y0 mama
-									patch < $t
+									patch -p0 < $t
 									;;
 								[Q]) # Abort
 									break
@@ -274,3 +303,5 @@ if [ $# -ne 1 -o ! -f "$SPECFILE" ]; then
 fi
 
 adapterize
+
+# vim: ts=4:sw=4

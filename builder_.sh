@@ -22,6 +22,7 @@
 # - builder -u fetches current version first (well that's okay, how you compare versions if you have no old spec?)
 # - when Icon: field is present, -5 and -a5 doesn't work
 # - builder -R skips installing BR if spec is not present before builder invocation (need to run builder twice)
+# - does not respect NoSource: X, and tries to cvs up such files [ example: VirtualBox-bin.spec and its Source0 ]
 # TODO:
 # - ability to do ./builder -bb foo.spec foo2.spec foo3.spec
 
@@ -86,7 +87,7 @@ BCOND=""
 GROUP_BCONDS="no"
 
 # create symlinks for tools in PACKAGE_DIR, see get_spec()
-SYMLINK_TOOLS="yes"
+SYMLINK_TOOLS="no"
 
 PATCHES=""
 SOURCES=""
@@ -264,8 +265,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
                       them into src.rpm,
 --short-circuit     - short-circuit build
 -B, --branch        - add branch
--c, --clean         - clean all temporarily created files (in BUILD, SOURCES,
-                      SPECS and \$RPM_BUILD_ROOT and CVS/Entries) after rpmbuild commands.
+-c, --clean         - clean all temporarily created files (in BUILD\$RPM_BUILD_ROOT) after rpmbuild commands.
+                      may be used with building process.
 -m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES,
 					  SPECS and \$RPM_BUILD_ROOT and CVS/Entries). Doesn't run
 					  any rpm building.
@@ -374,7 +375,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 depspecname() {
 	local package="$1"
 
-	package=$(echo "$package" | sed -e '/perl(.*)/{s,perl(\(.*\)),perl-\1,;s,::,-,g}')
+	package=$(echo "$package" | sed -e '/perl(.*)/{s,perl(\(.*\)),perl-\1,;s,::,-,g};' -e 's/-\(devel\|static\)$//' )
 	echo "$package"
 }
 
@@ -411,7 +412,7 @@ update_shell_title() {
 # set TARGET from BuildArch: from SPECFILE
 set_spec_target() {
 	if [ -n "$SPECFILE" ] && [ -z "$TARGET" ]; then
-		tmp=$(awk '/^BuildArch:/ { print $NF}' $ASSUMED_NAME/$SPECFILE)
+		tmp=$(awk '/^BuildArch:/ { print $NF; exit }' $ASSUMED_NAME/$SPECFILE)
 		if [ "$tmp" ]; then
 				target_platform=$(rpm -E '%{_target_vendor}-%{_target_os}%{?_gnu}')
 				TARGET="$tmp"
@@ -437,16 +438,16 @@ minirpm() {
 %x8664 x86_64 amd64 ia32e
 %alt_kernel %{nil}
 %_alt_kernel %{nil}
-%requires_releq_kernel_up %{nil}
-%requires_releq_kernel_smp %{nil}
-%requires_releq_kernel %{nil}
+%requires_releq_kernel_up(s:n:) %{nil}
+%requires_releq_kernel_smp(s:n:) %{nil}
+%requires_releq_kernel(s:n:) %{nil}
 %requires_releq() %{nil}
 %pyrequires_eq() %{nil}
 %requires_eq() %{nil}
 %requires_eq_to() %{nil}
-%releq_kernel_up ERROR
-%releq_kernel_smp ERROR
-%releq_kernel ERROR
+%releq_kernel_up(n:) ERROR
+%releq_kernel_smp(n:) ERROR
+%releq_kernel(n:) ERROR
 %kgcc_package ERROR
 %_fontsdir ERROR
 %ruby_version ERROR
@@ -661,8 +662,8 @@ init_builder() {
 
 	if [ "$NOINIT" != "yes" ] ; then
 		TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
-		REPO_DIR=$TOP_DIR/packages
-		PACKAGE_DIR=$TOP_DIR/packages/$ASSUMED_NAME
+		REPO_DIR=$TOP_DIR
+		PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
 	else
 		REPO_DIR="."
 		PACKAGE_DIR="."
@@ -682,7 +683,8 @@ get_spec() {
 
 	cd "$REPO_DIR"
 	if [ ! -f "$ASSUMED_NAME/$SPECFILE" ]; then
-		SPECFILE="$(basename $SPECFILE .spec).spec"
+		# XXX: still needed?
+		SPECFILE=$(basename $SPECFILE)
 	fi
 	if [ "$NOCVSSPEC" != "yes" ]; then
 
@@ -702,7 +704,7 @@ get_spec() {
 
 			# create symlinks for tools
 			if [ "$SYMLINK_TOOLS" != "no" ]; then
-				for a in dropin md5 adapter builder {relup,compile,repackage,rsync}.sh; do
+				for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh; do
 					[ -f $a ] || continue
 					ln -s ../$a $ASSUMED_NAME
 					cvsignore_df $a
@@ -959,18 +961,27 @@ update_md5() {
 }
 
 check_md5() {
+	local bad
 	[ "$NO5" = "yes" ] && return
 
 	update_shell_title "check md5"
 
 	for i in "$@"; do
-		if good_md5 "$i" && good_size "$i"; then
-			continue
+		bad=0
+		if ! good_md5 "$i"; then
+			echo -n "MD5 sum mismatch."
+			bad=1
+		fi
+		if ! good_size "$i"; then
+			echo -n "0 sized file."
+			bad=1
 		fi
 
-		echo "MD5 sum mismatch or 0 size.  Use -U to refetch sources,"
-		echo "or -5 to update md5 sums, if you're sure files are correct."
-		Exit_error err_no_source_in_repo $i
+		if [ $bad -eq 1 ]; then
+			echo " Use -U to refetch sources,"
+			echo "or -5 to update md5 sums, if you're sure files are correct."
+			Exit_error err_no_source_in_repo $i
+		fi
 	done
 }
 
@@ -1014,13 +1025,13 @@ get_files() {
 				if echo $i | grep -vE '(http|ftp|https|cvs|svn)://' | grep -qE '\.(gz|bz2)$']; then
 					echo "Warning: no URL given for $i"
 				fi
+				target="$fp"
 
 				if [ -z "$NODIST" ] && [ -n "$srcmd5" ]; then
 					if good_md5 "$i" && good_size "$i"; then
 						echo "$fp having proper md5sum already exists"
 						continue
 					fi
-					target="$fp"
 
 					# optionally prefer mirror over distfiles if there's mirror
 					# TODO: build url list and then try each url from the list
@@ -1072,6 +1083,7 @@ get_files() {
 								update_shell_title "${GETURI2%% *}: $url_attic"
 								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
 							fi
+							test -s "$target" || rm -f "$target"
 						fi
 					fi
 
@@ -1098,11 +1110,12 @@ get_files() {
 						im="$i"
 					fi
 					update_shell_title "${GETURI%% *}: $im"
-					${GETURI} "$im" || \
+					${GETURI} "$im" ${OUTFILEOPT} "$target" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
 						update_shell_title "${GETURI2%% *}: $im"
-						${GETURI2} "$im"
+						${GETURI2} "$im" ${OUTFILEOPT} "$target"
 					fi
+					test -s "$target" || rm -f "$target"
 				fi
 
 				if [ "$cvsup" = 1 ]; then
@@ -1897,7 +1910,7 @@ init_rpm_dir() {
 	echo "- run cvs co SPECS"
 
 	echo "To checkout *all* packages:"
-	echo "- run cvs up in $TOP_DIR/packages dir"
+	echo "- run cvs up -dP in $TOP_DIR/packages dir"
 
 	echo ""
 	echo "To commit with your developer account:"
@@ -1996,7 +2009,7 @@ while [ $# -gt 0 ]; do
 		-B | --branch )
 			COMMAND="branch"; shift; TAG="${1}"; shift;;
 		-c | --clean )
-			CLEAN="--clean --rmspec --rmsource"; shift ;;
+			CLEAN="--clean"; shift ;;
 		-cf | --cvs-force )
 			CVS_FORCE="-F"; shift;;
 		-d | --cvsroot )
@@ -2209,20 +2222,21 @@ while [ $# -gt 0 ]; do
 			Exit_error err_invalid_cmdline "$1"
 			;;
 		*)
-			SPECFILE="${1}"
+			SPECFILE=$1; shift
 			# check if specname was passed as specname:cvstag
 			if [ "${SPECFILE##*:}" != "${SPECFILE}" ]; then
 				CVSTAG="${SPECFILE##*:}"
 				SPECFILE="${SPECFILE%%:*}"
 			fi
+			# always have SPECFILE ending with .spec extension
+			SPECFILE=${SPECFILE%%.spec}.spec
 			ASSUMED_NAME=$(basename ${SPECFILE%%.spec})
-			shift
 	esac
 done
 
 [ -d "$ASSUMED_NAME" ] && CVS_ENTRIES="$ASSUMED_NAME/CVS/Entries" || CVS_ENTRIES="CVS/Entries"
 if [ -f "$CVS_ENTRIES" ] && [ -z "$CVSTAG" ]; then
-	CVSTAG=$(awk -vSPECFILE=$(basename ${SPECFILE%.spec}.spec) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' ${CVS_ENTRIES})
+	CVSTAG=$(awk -vSPECFILE=$(basename $SPECFILE) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' ${CVS_ENTRIES})
 	if [ "$CVSTAG" ]; then
 		echo >&2 "builder: Sticky tag $CVSTAG active. Use -r TAGNAME to override."
 	fi
@@ -2282,7 +2296,7 @@ case "$COMMAND" in
 			# display SMP make flags if set
 			smp_mflags=$(rpm -E %{?_smp_mflags})
 			if [ "$smp_mflags" ]; then
-				echo >&2 "builder: SMP make flags are set to $smp_mflags"
+				echo "builder: SMP make flags are set to $smp_mflags"
 			fi
 
 			get_spec

@@ -26,6 +26,8 @@
 # - desc wrapping is totally fucked up on global.spec,1.25, dosemu.spec,1.115-
 # - it should change: /%source([0-9]+)/i to %{SOURCE\1}
 # - extra quote on LDFLAGS line: https://bugs.launchpad.net/pld-linux/+bug/385836
+# - %{with_foo:%attr()...} gets converted to %attr() %{with_foo:...} [vlc.spec]
+# - 'R: foo ' (with traliling space) gets coverted to "R: foo\nR: " [vlc.spec @ 1.199 ]
 
 BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
@@ -57,7 +59,7 @@ BEGIN {
 
 	import_rpm_macros()
 
-	packages_dir = topdir "/packages"
+	packages_dir = topdir
 	groups_file = packages_dir "/rpm.groups"
 
 	system("cd "packages_dir"; [ -f rpm.groups ] || cvs up rpm.groups > /dev/null")
@@ -708,7 +710,7 @@ preamble == 1 {
 		replace_requires();
 	}
 
-	if (field ~ /^requires:/) {
+	if (field ~ /^requires:/ || field ~ /^requires\(/) {
 		replace_requires();
 	}
 
@@ -726,6 +728,11 @@ preamble == 1 {
 	# Use "License" instead of "Copyright" if it is (L)GPL or BSD
 	if (field ~ /copyright:/ && $2 ~ /GPL|BSD/) {
 		$1 = "License:"
+	}
+
+	# ease updating from debian .dsc
+	if (field ~ /homepage:/) {
+		$1 = "URL:"
 	}
 
 	if (field ~ /license:/) {
@@ -750,6 +757,9 @@ preamble == 1 {
 		}
 		if (l == "GPLv2+") {
 			l = "GPL v2+"
+		}
+		if (l == "LGPLv2+") {
+			l = "LGPL v2+"
 		}
 		$0 = "License:\t" l;
 	}
@@ -1403,6 +1413,11 @@ function use_files_macros(	i, n, t, a, l)
 		$0 = "%attr(755,root,root) " $0
 	}
 
+	# remove attrs from man pages
+	if (/%{_mandir}/ && /^%attr/) {
+		sub("^%attr\\(.*\\) *", "");
+	}
+
 	# /etc/sysconfig files
 	# %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
 	# attr not required, allow default 644 attr
@@ -1572,20 +1587,26 @@ function unify_url(url)
 {
 
 	# sourceforge urls
-	# Docs about sourceforge mirror system: http://sourceforge.net/docs/B05/
-	sub("[?&]big_mirror=.*$", "", url);
-	sub("[?&]modtime=.*$", "", url);
-	sub("[?]use_mirror=.*$", "", url);
-	sub("[?]download$", "", url);
-
-	sub("^http://prdownloads\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://download\.sf\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://download\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://downloads\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-
-	sub("^http://.*\.dl\.sourceforge\.net/", "http://dl.sourceforge.net/", url)
-	sub("^http://dl\.sourceforge\.net/sourceforge/", "http://dl.sourceforge.net/", url)
-	sub("^http://dl\.sf\.net/", "http://dl.sourceforge.net/", url)
+	# Docs about sourceforge mirror system: http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
+	sub("^http://prdownloads\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://download\.sf\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://download\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://dl\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://.*\.dl\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://dl\.sf\.net/", "http://downloads.sourceforge.net/", url)
+	sub("^http://downloads\.sourceforge\.net/sourceforge/", "http://downloads.sourceforge.net/", url)
+	# new style urls, strip "files/" between and prepend dl.
+	if (match(url, "^http://sourceforge.net/projects/[^/]+/files/")) {
+		url = substr(url, 1, RLENGTH - length("files/")) substr(url, RSTART + RLENGTH);
+		sub("^http://sourceforge.net/projects/", "http://downloads.sourceforge.net/project/", url);
+	}
+	if (url ~ /sourceforge.net/) {
+		sub("[?&]big_mirror=.*$", "", url);
+		sub("[?&]modtime=.*$", "", url);
+		sub("[?]use_mirror=.*$", "", url);
+		sub("[?]download$", "", url);
+		sub("/download$", "", url);
+	}
 
 	sub("^ftp://ftp\.gnome\.org/", "http://ftp.gnome.org/", url)
 	sub("^http://ftp\.gnome\.org/pub/gnome/", "http://ftp.gnome.org/pub/GNOME/", url)
@@ -1693,73 +1714,6 @@ function add_br(br)
 	BR[BR_count++] = br
 }
 
-function replace_requires()
-{
-
-	# jpackages
-	sub(/^java-devel$/, "jdk", $2);
-	sub(/^log4j$/, "java-log4j", $2);
-	sub(/^logging-log4j$/, "java-log4j", $2);
-	sub(/^jakarta-log4j$/, "java-log4j", $2);
-	sub(/^oro$/, "java-oro", $2);
-	sub(/^jakarta-oro$/, "java-oro", $2);
-	sub(/^jakarta-ant$/, "ant", $2);
-	sub(/^xerces-j2$/, "java-xerces", $2);
-	sub(/^xerces-j$/, "java-xerces", $2);
-	sub(/^ldapjdk$/, "ldapsdk", $2);
-	sub(/^saxon-scripts$/, "saxon", $2);
-	sub(/^xalan-j2$/, "java-xalan", $2);
-	sub(/^xalan-j$/, "java-xalan", $2);
-	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
-	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
-	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
-	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
-	sub(/^axis$/, "java-axis", $2);
-	sub(/^wsdl4j$/, "java-wsdl4j", $2);
-	sub(/^uddi4j$/, "java-uddi4j", $2);
-	sub(/^hamcrest$/, "java-hamcrest", $2);
-
-	# redhat virtual
-	sub(/^tftp-server$/, "tftpdaemon", $2);
-
-	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
-	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
-
-	# fedora
-	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
-
-	replace_php_virtual_deps()
-}
-
-# php virtual deps as discussed in devel-en
-function replace_php_virtual_deps()
-{
-	pkg = $2
-#	if (pkg == "php-program") {
-#		$0 = $1 "\t/usr/bin/php"
-#		return
-#	}
-
-#	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
-#		sub(/^php-/, "php(", pkg);
-#		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
-#		$2 = pkg
-#	}
-
-	if (pkg ~/^php$/) {
-		$2 = "webserver(php)";
-		if ($4 ~ /^[0-9]:/) {
-			$4 = substr($4, 3);
-		}
-	}
-
-	if (pkg ~/^php4$/) {
-		$2 = "webserver(php)";
-		if ($4 ~ /^[0-9]:/) {
-			$4 = substr($4, 3);
-		}
-	}
-}
 
 # Load rpm macros
 # you should update the list also in adapter when making changes here
@@ -1819,7 +1773,110 @@ function import_rpm_macros() {
 	tmpdir = ENVIRON["tmpdir"]
 }
 
+
+# php virtual deps as discussed in devel-en
+function replace_php_virtual_deps() {
+	pkg = $2
+#	if (pkg == "php-program") {
+#		$0 = $1 "\t/usr/bin/php"
+#		return
+#	}
+
+#	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
+#		sub(/^php-/, "php(", pkg);
+#		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
+#		$2 = pkg
+#	}
+
+	if (pkg ~/^php$/) {
+		$2 = "webserver(php)";
+		if ($4 ~ /^[0-9]:/) {
+			$4 = substr($4, 3);
+		}
+	}
+
+	if (pkg ~/^php4$/) {
+		$2 = "webserver(php)";
+		if ($4 ~ /^[0-9]:/) {
+			$4 = substr($4, 3);
+		}
+	}
+}
+
+function replace_requires() {
+
+	# jpackages
+	sub(/^java-devel$/, "jdk", $2);
+	sub(/^log4j$/, "java-log4j", $2);
+	sub(/^logging-log4j$/, "java-log4j", $2);
+	sub(/^jakarta-log4j$/, "java-log4j", $2);
+	sub(/^oro$/, "java-oro", $2);
+	sub(/^jakarta-oro$/, "java-oro", $2);
+	sub(/^jakarta-ant$/, "ant", $2);
+	sub(/^xerces-j2$/, "java-xerces", $2);
+	sub(/^xerces-j$/, "java-xerces", $2);
+	sub(/^ldapjdk$/, "ldapsdk", $2);
+	sub(/^saxon-scripts$/, "saxon", $2);
+	sub(/^xalan-j2$/, "java-xalan", $2);
+	sub(/^xalan-j$/, "java-xalan", $2);
+	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
+	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
+	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
+	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
+	sub(/^axis$/, "java-axis", $2);
+	sub(/^wsdl4j$/, "java-wsdl4j", $2);
+	sub(/^uddi4j$/, "java-uddi4j", $2);
+	sub(/^hamcrest$/, "java-hamcrest", $2);
+
+	# redhat virtual
+	sub(/^tftp-server$/, "tftpdaemon", $2);
+
+	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
+	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
+
+	# fedora
+	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
+	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
+	sub(/^gtk2$/, "gtk+2", $2);
+	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
+	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
+	sub(/^pygtk2$/, "python-pygtk", $2);
+	sub(/^qt4-devel$/, "qt4-build", $2);
+	sub(/^file-devel$/, "libmagic-devel", $2);
+	sub(/^gamin-python$/, "python-gamin", $2);
+	sub(/^pygobject2$/, "python-pygobject", $2);
+	sub(/^tkinter$/, "python-tkinter", $2);
+	sub(/^python-imaging$/, "python-PIL", $2);
+	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
+	sub(/^initscripts$/, "rc-scripts", $2);
+
+	# debian
+	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
+	sub(/^libglib2.0-dev$/, "glib2-devel", $2);
+	sub(/^libgtk2.0-dev$/, "gtk+2-devel", $2);
+	sub(/^libhunspell-dev$/, "hunspell-devel", $2);
+	sub(/^libpango1.0-dev$/, "pango-devel", $2);
+	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
+	sub(/^libgl1-mesa-dev$/, "OpenGL-devel", $2);
+	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
+	sub(/^libgl1-mesa-dri$/, "OpenGL", $2);
+	sub(/^libglu1-mesa-dev$/, "OpenGL-GLU-devel", $2);
+	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
+	sub(/^libboost-filesystem[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libboost-program-options[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libboost-regex[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libboost-thread[0-9.]+-dev$/, "boost-devel", $2);
+	sub(/^libmcrypt-dev$/, "libmcrypt-devel", $2);
+	sub(/^libcurl4-openssl-dev$/, "curl-devel", $2);
+	sub(/^libmhash-dev$/, "mhash-devel", $2);
+	sub(/^libqt4-dev$/, "qt4-build", $2);
+	sub(/^libssl-dev$/, "openssl-devel", $2);
+
+	replace_php_virtual_deps()
+}
+
 function replace_groupnames(group) {
+	group = replace(group, "Amusements/Games", "Applications/Games");
 	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
 	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
 	group = replace(group, "Application/System", "Applications/System");
@@ -1854,6 +1911,7 @@ function replace_groupnames(group) {
 	group = replace(group, "System Environment/Daemons", "Daemons");
 	group = replace(group, "System Environment/Kernel", "Base/Kernel");
 	group = replace(group, "System Environment/Libraries", "Libraries");
+	group = replace(group, "System Tools", "Applications/System");
 	group = replace(group, "System", "Base");
 	group = replace(group, "System/Base", "Base");
 	group = replace(group, "System/Kernel and hardware", "Base/Kernel");
@@ -1861,6 +1919,8 @@ function replace_groupnames(group) {
 	group = replace(group, "System/Servers", "Daemons");
 	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
 	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
+	group = replace(group, "User Interface/Desktops", "X11/Applications");
+	group = replace(group, "Utilities/System", "Applications/System");
 	group = replace(group, "Web/Database", "Applications/WWW");
 	group = replace(group, "X11/GNOME", "X11/Applications");
 	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
