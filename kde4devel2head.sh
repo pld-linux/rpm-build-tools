@@ -3,6 +3,9 @@
 # so the actual merge must be done earlier manually.
 #
 # Author: Bartosz Swiatek (shadzik@pld-linux.org)
+#
+# TODO:
+# - find a way to automatically detect whether to merge _all_ patches, or which to merge and which don't
 
 usage() {
 	echo "Usage: $0 [-b] [-d] [-h] kde4-kdemodule[.spec]"
