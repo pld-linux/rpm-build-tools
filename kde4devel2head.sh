@@ -2,7 +2,7 @@
 # merge kde4@DEVEL with kde4@HEAD - actually it replaces HEAD with DEVEL
 # so the actual merge must be done earlier manually.
 #
-# Author: Bartosz Swiatek (shadzik@pld-linux.org)
+# Author: Bartosz Świątek (shadzik@pld-linux.org)
 #
 # TODO:
 # - find a way to automatically detect whether to merge _all_ patches, or which to merge and which don't
