@@ -36,6 +36,9 @@ $VERSION (C) 1999-2009 Free Penguins".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
+# required rpm-build-macros
+RPM_MACROS_VER=1.534
+
 COMMAND="build"
 TARGET=""
 
@@ -662,8 +665,19 @@ init_builder() {
 
 	if [ "$NOINIT" != "yes" ] ; then
 		TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
-		REPO_DIR=$TOP_DIR
-		PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
+
+		local macros_ver=$(rpm -E %rpm_build_macros)
+		if [ -z "$macros_ver" ]; then
+			REPO_DIR=$TOP_DIR/packages
+			PACKAGE_DIR=$TOP_DIR/packages/$ASSUMED_NAME
+		else
+			if awk "BEGIN{exit($macros_ver>=$RPM_MACROS_VER)}"; then
+				echo >&2 "builder requires rpm-build-macros >= $RPM_MACROS_VER"
+				exit 1
+			fi
+			REPO_DIR=$TOP_DIR
+			PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
+		fi
 	else
 		REPO_DIR="."
 		PACKAGE_DIR="."
@@ -1899,7 +1913,7 @@ init_rpm_dir() {
 	TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
 	CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
 
-	echo "Initialising rpm directories to $TOP_DIR from $CVSROOT"
+	echo "Initializing rpm directories to $TOP_DIR from $CVSROOT"
 	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
 	cd $TOP_DIR
 	$CVS_COMMAND -d $CVSROOT co packages/{.cvsignore,rpm.groups,dropin,mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
