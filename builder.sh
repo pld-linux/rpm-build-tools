@@ -666,7 +666,7 @@ init_builder() {
 	if [ "$NOINIT" != "yes" ] ; then
 		TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
 
-		local macros_ver=$(rpm -E %rpm_build_macros)
+		local macros_ver=$(rpm -E %?rpm_build_macros)
 		if [ -z "$macros_ver" ]; then
 			REPO_DIR=$TOP_DIR/packages
 			PACKAGE_DIR=$TOP_DIR/packages/$ASSUMED_NAME
