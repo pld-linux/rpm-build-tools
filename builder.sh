@@ -361,6 +361,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 --show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by
                       ./repackage.sh script. in other words, the output is
                       parseable by scripts.
+--show-avail-bconds - show available bconds
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
                       %_without_<feature> macro switch.  You may now use
@@ -2225,6 +2226,10 @@ while [ $# -gt 0 ]; do
 			COMMAND="show_bcond_args"
 			shift
 			;;
+		--show-avail-bconds)
+			COMMAND="show_avail_bconds"
+			shift
+			;;
 		--nodeps)
 			shift
 			RPMOPTS="${RPMOPTS} --nodeps"
@@ -2303,6 +2308,33 @@ case "$COMMAND" in
 			set_bconds_values
 			echo "$BCOND"
 		fi
+		;;
+	"show_avail_bconds")
+		init_builder
+		if [ -n "$SPECFILE" ]; then
+			get_spec > /dev/null
+			parse_spec
+			local bcond_avail=$(find_spec_bcond $SPECFILE)
+			local opt bcond bconds
+			for opt in $bcond_avail; do
+				case "$opt" in
+				without_*)
+					bcond=${opt#without_}
+					bconds="$bconds $bcond"
+					;;
+				with_*)
+					bcond=${opt#with_}
+					bconds="$bconds $bcond"
+					;;
+				*)
+					echo >&2 "ERROR: unexpected '$opt' in show_avail_bconds"
+					exit 1
+					;;
+				esac
+			done
+			echo $bconds
+		fi
+
 		;;
 	"build" | "build-binary" | "build-source" | "build-prep" | "build-build" | "build-install" | "build-list")
 		init_builder
