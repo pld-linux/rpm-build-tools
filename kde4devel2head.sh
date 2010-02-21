@@ -10,7 +10,7 @@
 usage() {
 	echo "Usage: $0 [-b] [-d] [-h] kde4-kdemodule[.spec]"
 	echo ""
-	echo "-b => merge also the branchdiff"
+	echo "-b => move also the branchdiff"
 	echo "-d => debug mode \(set +e\)"
 	echo "-h => show this help"
 	echo ""
@@ -64,7 +64,7 @@ mv /tmp/$kde4spec-dev packages/$PKG/$kde4spec
 echo "Changing to stable"
 sed -i -e 's/unstable/stable/g' packages/$PKG/$kde4spec
 echo "Done, seding"
-cvs ci -m "- merged from DEVEL" packages/$PKG/$kde4spec
+cvs ci -m "- moved from DEVEL" packages/$PKG/$kde4spec
 echo "Deleting DEVEL branch from spec"
 cvs tag -B -d DEVEL packages/$PKG/$kde4spec
 
@@ -73,7 +73,7 @@ if [ "x$BRANCHDIFF" == "xyes" ]; then
 	mv packages/$PKG/$PKG-branch.diff /tmp/$PKG-branch.diff-dev
 	cvs get packages/$PKG/$PKG-branch.diff
 	mv /tmp/$PKG-branch.diff-dev packages/$PKG/$PKG-branch.diff
-	cvs ci -m "- merged from DEVEL" packages/$PKG/$PKG-branch.diff
+	cvs ci -m "- moved from DEVEL" packages/$PKG/$PKG-branch.diff
 	echo "Deleting DEVEL branch from branchdiff"
 	cvs tag -B -d DEVEL packages/$PKG/$PKG-branch.diff
 fi
