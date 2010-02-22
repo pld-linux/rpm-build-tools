@@ -20,7 +20,7 @@ Adapter adapts .spec files for PLD Linux.
 $VERSION (C) 1999-2010 Free Penguins".
 
 PROGRAM=${0##*/}
-dir=$(d=$0; [ -L "$d" ] && d=$(readlink "$d"); dirname "$d")
+dir=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
 adapter=$dir/adapter.awk
 usage="Usage: $PROGRAM [FLAGS] SPECFILE
 
