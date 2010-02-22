@@ -228,8 +228,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		if ( DEBUG ) print "Reading succeess response..."
 		while (getline oneline < tmpfile)
 			wholeodp=(wholeodp " " oneline)
-		printf ""
-		if ( DEBUG ) print "Response: " wholeodp
+		# if ( DEBUG ) print "Response: " wholeodp
 	} else {
 		if ( DEBUG ) print "Reading failure response..."
 		wholeerr = ""
@@ -379,12 +378,16 @@ function process_source(number,lurl,name,version) {
 	filename=url[4]
 
 	if (index(dir,version)) {
+		# directory name as version maching mode:
+		# if /something/version/name-version.tarball then check
+		# in /something/ looking for newer directory
 		dir=substr(dir,1,index(dir,version)-1)
 		sub("[^/]*$","",dir)
 		sub("(\.tar\.(bz|bz2|gz)|zip)$","",filename)
-		if ( DEBUG ) print "Will check a directory: " dir
-		if ( DEBUG ) print "and a file: " filename
 	}
+
+	if ( DEBUG ) print "Will check a directory: " dir
+	if ( DEBUG ) print "and a file: " filename
 
 	filenameexp=filename
 	gsub("\+","\\+",filenameexp)
@@ -422,6 +425,8 @@ function process_source(number,lurl,name,version) {
 				newfilename=fixedsub(postver,"",newfilename)
 				if (DEBUG) print "Version: " newfilename
 				if (newfilename ~ /\.(asc|sig|pkg|bin|binary|built)$/) continue
+				# strip ending (happens when in directiory name as version matching mode)
+				sub("(\.tar\.(bz|bz2|gz)|zip)$","",newfilename)
 				if (NUMERIC) {
 					if ( compare_ver_dec(version, newfilename)==1 ) {
 						if (DEBUG) print "Yes, there is new one"
