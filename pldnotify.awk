@@ -1,7 +1,7 @@
 #!/bin/awk -f
 # $Revision$, $Date$
 #
-# Copyright (C) 2000-2009 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 2000-2010 PLD-Team <feedback@pld-linux.org>
 # Authors:
 #	Sebastian Zagrodzki <zagrodzki@pld-linux.org>
 #	Jacek Konieczny <jajcus@pld-linux.org>
@@ -221,12 +221,17 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	cmd = "wget --user-agent \"Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2) Gecko/20100129 PLD/3.0 (Th) Iceweasel/3.6\" -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
 	if (DEBUG) print "Execute: " cmd
 	errno = system(cmd)
+	if (DEBUG) print "Execute done"
 
 	if (errno==0) {
+		wholeodp = ""
+		if ( DEBUG ) print "Reading succeess response..."
 		while (getline oneline < tmpfile)
 			wholeodp=(wholeodp " " oneline)
+		printf ""
 		if ( DEBUG ) print "Response: " wholeodp
 	} else {
+		if ( DEBUG ) print "Reading failure response..."
 		wholeerr = ""
 		while (getline oneline < tmpfileerr)
 			wholeerr=(wholeerr " " oneline)
@@ -241,6 +246,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 
 	if ( errno==0) {
 		while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
+			if (DEBUG) print "Processing links..."
 			odp=substr(wholeodp,RSTART,RLENGTH);
 			wholeodp=substr(wholeodp,RSTART+RLENGTH);
 
