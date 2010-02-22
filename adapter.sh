@@ -13,12 +13,11 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 RCSID='$Id$'
-r=${RCSID#* * }
-rev=${r%% *}
-VERSION="v0.35/$rev"
+REVISION=${RCSID#* * } REVISION=${REVISION%% *}
+VERSION="v0.35/$REVISION"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
-$VERSION (C) 1999-2009 Free Penguins".
+$VERSION (C) 1999-2010 Free Penguins".
 
 PROGRAM=${0##*/}
 dir=$(d=$0; [ -L "$d" ] && d=$(readlink "$d"); dirname "$d")
@@ -194,6 +193,7 @@ import_rpm_macros() {
 	_desktopdir
 	_pixmapsdir
 	_javadir
+	_pkgconfigdir
 
 	perl_sitearch
 	perl_archlib
@@ -231,19 +231,21 @@ import_rpm_macros() {
 	export _cvsmailfeedback='%{?_cvsmailfeedback}%{!?_cvsmailfeedback:PLD Team <feedback@pld-linux.org>}'
 	"
 
+	export ADAPTER_REVISION=$REVISION
+
 	eval $(rpm --eval "$(echo -e $eval_expr)")
 }
 
 adapterize() {
 	local workdir
-	workdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit
+	workdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit $?
 	awk=gawk
 
-	local tmp=$workdir/$(basename $SPECFILE) || exit
+	local tmp=$workdir/$(basename $SPECFILE) || exit $?
 
 	import_rpm_macros
 
-	LC_ALL=en_US.UTF-8 $awk -f $adapter $SPECFILE > $tmp || exit
+	LC_ALL=en_US.UTF-8 $awk -f $adapter $SPECFILE > $tmp || exit $?
 
 	if [ "$outputonly" = 1 ]; then
 		cat $tmp

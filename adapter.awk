@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2008 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2010 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -137,7 +137,7 @@ function b_makekey(a, b,	s) {
 		while (getline)		# print the rest of spec as it is
 			print
 		do_not_touch_anything = 1 # do not touch anything in END()
-		exit 0
+		exit(rc = 0)
 	}
 
 	# Generally, comments are printed without touching
@@ -975,8 +975,9 @@ preamble == 1 {
 
 
 END {
-	if (do_not_touch_anything)
-		exit 0
+	if (do_not_touch_anything) {
+		exit(rc)
+	}
 
 	# TODO: need to output these in proper place
 	if (BR_count > 0) {
@@ -1091,6 +1092,9 @@ function use_macros()
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
 	gsub("%{_datadir}/java", "%{_javadir}")
+
+	gsub("%{_libdir}/pkgconfig", "%{_pkgconfigdir}")
+	gsub(pkgconfigdir, "%{_pkgconfigdir}")
 
 	gsub(libdir, "%{_libdir}")
 	gsub(javadir, "%{_javadir}")
@@ -1724,7 +1728,13 @@ function import_rpm_macros() {
 	if (!topdir) {
 		print "adapter.awk should not not be invoked directly, but via adapter script" > "/dev/stderr"
 		do_not_touch_anything = 1
-		exit(1);
+		exit(rc = 1);
+	}
+
+	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.44) {
+		print "adapter shell script is outdated, please cvs up it" > "/dev/stderr"
+		do_not_touch_anything = 1
+		exit(rc = 1);
 	}
 
 	# get cvsaddress for changelog section
@@ -1748,6 +1758,7 @@ function import_rpm_macros() {
 	desktopdir = ENVIRON["_desktopdir"]
 	pixmapsdir = ENVIRON["_pixmapsdir"]
 	javadir = ENVIRON["_javadir"]
+	pkgconfigdir = ENVIRON["_pkgconfigdir"]
 
 	perl_sitearch = ENVIRON["perl_sitearch"]
 	perl_archlib = ENVIRON["perl_archlib"]
