@@ -802,7 +802,7 @@ src_md5() {
 		fi
 	fi
 
-	source_md5=`grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+	source_md5=`grep -i "^#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
 	if [ -n "$source_md5" ]; then
 		echo $source_md5
 	else
@@ -812,7 +812,7 @@ src_md5() {
 		else
 			# we have empty SourceX-md5, but it is still possible
 			# that we have NoSourceX-md5 AND NoSource: X
-			nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
+			nosource_md5=`grep -i "^#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
 			if [ -n "$nosource_md5" -a -n "`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" ] ; then
 				echo $nosource_md5
 			fi
