@@ -1,0 +1,92 @@
+#!/bin/sh
+
+SPECFILE="$1"
+SPECFILE="${SPECFILE%%/*}"
+SPECFILE="$(basename $SPECFILE .spec)"
+SPEC="$SPECFILE/$SPECFILE.spec"
+CLEANBUILDDIR="$HOME/PLD"
+
+if [ $# -ne 1 -o ! -d "$SPECFILE" -o ! -f "$SPEC" ]; then
+	echo "spec file missing"
+	exit 1
+fi
+
+diffcol()
+{
+	# vim like diff colourization
+LC_ALL=en_US.UTF-8 gawk ' {
+	split( $0, S, /\t/ );
+	$0 = S[ 1 ];
+	for ( i = 2; i in S; i++ ) {
+		spaces = 7 - ( (length( $0 ) - 1) % 8 );
+		$0 = $0 "\xE2\x9E\x94";
+		for ( y = 0; y < spaces; y++ )
+			$0 = $0 "\xE2\x87\xBE";
+		$0 = $0 S[ i ];
+	}
+	gsub( /\033/, "\033[44m^[\033[49m" );
+	cmd = "";
+	if ( sub( /^ /, "" ) )
+		cmd = " ";
+	sub( /(\xE2\x9E\x94(\xE2\x87\xBE)*| )+$/, "\033[31;41m&\033[39;49m" );
+	gsub( /\xE2\x9E\x94(\xE2\x87\xBE)*/, "\033[7m&\033[27m" );
+	gsub( /\xE2\x87\xBE/, " " );
+	$0 = cmd $0;
+	gsub( /\007/, "\033[44m^G\033[49m" );
+	gsub( /\r/, "\033[44m^M\033[49m" );
+}
+/^(Index:|diff|---|\+\+\+) / { $0 = "\033[32m" $0 }
+/^@@ / { $0 = "\033[33m" $0 }
+/^-/ { $0 = "\033[35m" $0 }
+/^+/ { $0 = "\033[36m" $0 }
+{ $0 = $0 "\033[0m"; print }
+' "$@"
+}
+
+cvs -z9 diff -u $SPECFILE | diffcol
+
+echo -n "Proceed ? "
+read ans
+
+if [ "$ans" != "y" ]; then
+	exit
+fi
+
+sed '/^# AUTO: /d' -i "$SPEC"
+SIMPLE_DIFF="$(cvs -z9 diff "$SPEC")"
+
+./adapter "$SPEC"
+
+diff="$(cvs -z9 diff -u $SPEC)"
+
+echo "$diff" | diffcol
+
+add=$(echo "$diff" | awk '/^\+BuildRequires/ { add[ $2 ] = 1; }; /^-BuildRequires/ { del[ $2 ] = 1; };
+	END { for ( n in add ) { if ( !del[ n ] ) print n; } }' | 
+	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }')
+
+del=$(echo "$diff" | awk '/^\+BuildRequires/ { add[ $2 ] = 1; }; /^-BuildRequires/ { del[ $2 ] = 1; };
+	END { for ( n in del ) { if ( !add[ n ] ) print n; } }' |
+	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }')
+
+n="$(echo -e '\nn')"
+n="${n%%n}"
+msg=""
+[ -n "$add" ] && msg="$msg- BR: $add$n"
+[ -n "$del" ] && msg="$msg- dropped BR: $del$n"
+
+echo
+echo "Message:"
+echo "$msg"
+echo -n "Commit ? "
+read ans
+if [ "$ans" != "y" ]; then
+	exit
+fi
+
+export COMMIT_MESSAGE="$msg"
+export COMMIT_PACKAGES="$SPECFILE"
+export VISUAL="$PWD/civim"
+cvs -z9 ci "$SPECFILE"
+
+[ -n "$CLEANBUILDDIR" ] && rm -f $CLEANBUILDDIR/installed/$SPECFILE
