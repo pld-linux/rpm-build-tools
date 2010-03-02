@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -x
-ver=4.4.0
+ver=4.4.1
 
 prog="$1"
 diffprog="$1"
@@ -19,6 +19,7 @@ ANONSVN=$(host anonsvn.kde.org | awk ' { print $4; exit; } ' 2> /dev/null)
 [ -z "$ANONSVN" ] && ANONSVN="anonsvn.kde.org"
 
 [ "$diffprog" = "kdebase-workspace" -o "$diffprog" = "kdebase-runtime" ] && diffprog="kdebase"
+[ "$diffprog" = "kdepim-runtime" ] && diffprog="kdepim"
 
 filter() {
 	set -x
@@ -34,6 +35,9 @@ filter() {
 		;;
 		kdepim)
 		cat - | filterdiff -x "akonadi/*" | filterdiff -x "runtime/*"
+		;;
+		kdepim-runtime)
+		cat - | filterdiff -i "runtime/*"
 		;;
 		*)
 		cat -
