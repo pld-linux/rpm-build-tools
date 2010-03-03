@@ -169,6 +169,17 @@ function mktemp(   _cmd, _tmpfile) {
 	return _tmpfile
 }
 
+# fix link to artificial one that will be recognized rest of this script
+function postfix_link(url, link) {
+	oldlink = link
+	if ((url ~/^(http|https):\/\/github.com\//) && (link ~ /.*\/tarball\//)) {
+		gsub(".*\/tarball\/", "", link)
+		link = link ".tar.gz"
+	}
+	if (DEBUG) print "POST FIXING URL [ " oldlink " ] to [ " link " ]"
+	return link
+}
+
 # get all <A HREF=..> tags from specified URL
 function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile,cmd) {
 
@@ -277,6 +288,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+				link=postfix_link(url, link)
 
 				if (link_seen(link)) {
 					link=""
@@ -291,6 +303,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+				link=postfix_link(url, link)
 
 				if (link_seen(link)) {
 					link=""
@@ -421,8 +434,17 @@ function process_source(number,lurl,name,version) {
 		c=split(odp,linki)
 		for (nr=1; nr<=c; nr++) {
 			addr=linki[nr]
+
 			if (DEBUG) print "Found link: " addr
-			if ((addr ~ filenameexp) && !(addr ~ "[-_.0-9A-Za-z~]" filenameexp)) {
+
+			# github has very different tarball links that clash with this safe check
+			if (!(newurl ~/^(http|https):\/\/github.com\/.*\/tarball/)) {
+				if (addr ~ "[-_.0-9A-Za-z~]" filenameexp) {
+					continue
+				}
+			}
+
+			if (addr ~ filenameexp) {
 				match(addr,filenameexp)
 				newfilename=substr(addr,RSTART,RLENGTH)
 				if (DEBUG) print "Hypothetical new: " newfilename
