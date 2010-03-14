@@ -25,6 +25,9 @@
 # - does not respect NoSource: X, and tries to cvs up such files [ example: VirtualBox-bin.spec and its Source0 ]
 # TODO:
 # - ability to do ./builder -bb foo.spec foo2.spec foo3.spec
+# - funny bug, if source-md5 is set then builder will download from distfiles even if there is no url present:
+#   Source10:	forwardfix.pl
+#   # Source10-md5:	8bf85f7368933a4e0cb4f875bac28733
 
 RCSID='$Id$'
 r=${RCSID#* * }
