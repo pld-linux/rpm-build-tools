@@ -418,6 +418,9 @@ function b_makekey(a, b,	s) {
 	# atrpms
 	$0 = fixedsub("%perl_configure", "%{__perl} Makefile.PL \\\n\tINSTALLDIRS=vendor", $0);
 	$0 = fixedsub("%perl_makecheck", "%{?with_tests:%{__make} test}", $0);
+
+	# alt linux
+	$0 = fixedsub("%make_build", "%{__make}", $0);
 }
 
 ##########
@@ -487,6 +490,9 @@ function b_makekey(a, b,	s) {
 
 	# atrpms
 	$0 = fixedsub("%perl_makeinstall", "%{__make} pure_install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0);
+
+	# alt linux
+	$0 = fixedsub("%make_install DESTDIR=$RPM_BUILD_ROOT install", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0);
 }
 
 ##########
@@ -1860,6 +1866,7 @@ function replace_requires() {
 	sub(/^python-imaging$/, "python-PIL", $2);
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
+	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 
 	# debian
 	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
@@ -1912,6 +1919,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Development/Python", "Development/Languages/Python");
 	group = replace(group, "Development/Testing", "Development");
 	group = replace(group, "Emulators", "Applications/Emulators");
+	group = replace(group, "File tools", "Applications/File");
 	group = replace(group, "Games", "Applications/Games");
 	group = replace(group, "Library/Development", "Development/Libraries");
 	group = replace(group, "Networking/Deamons", "Networking/Daemons");
