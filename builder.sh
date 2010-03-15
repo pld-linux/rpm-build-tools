@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/sh
 #
 # This program is free software, distributed under the terms of
 # the GNU General Public License Version 2.
@@ -389,13 +389,13 @@ depspecname() {
 update_shell_title() {
 	[ -t 1 ] || return
 	local len=${COLUMNS:-80}
-	local msg=$(echo "$*" | cut -c-$len)
+	local msg="$(echo "$*" | cut -c-$len)"
 
 	if [ -n "$BE_VERBOSE" ]; then
 		echo >&2 "$(date +%s.%N) $*"
 	fi
 
-	if [ "x$TITLECHANGE" == "xyes" -o "x$TITLECHANGE" == "x" ]; then
+	if [ "x$TITLECHANGE" = "xyes" -o "x$TITLECHANGE" = "x" ]; then
 		local pkg
 		if [ -n "$PACKAGE_NAME" ]; then
 			pkg=${PACKAGE_NAME}-${PACKAGE_VERSION}-${PACKAGE_RELEASE}
