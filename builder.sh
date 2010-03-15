@@ -755,7 +755,7 @@ find_mirror() {
 	local origin mirror name rest ol prefix
 	while read origin mirror name rest; do
 		# skip comments and empty lines
-		if [ -z "$origin" ] || [[ $origin == \#* ]]; then
+		if [ -z "$origin" ] || [ "${origin#\#}" != "$origin" ]; then
 			continue
 		fi
 		ol=$(echo -n "$origin" | wc -c)
