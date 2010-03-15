@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/ksh
 #
 # This program is free software, distributed under the terms of
 # the GNU General Public License Version 2.
@@ -35,7 +35,7 @@ rev=${r%% *}
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
-$VERSION (C) 1999-2009 Free Penguins".
+$VERSION (C) 1999-2010 Free Penguins".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -1564,19 +1564,25 @@ set_bconds_values() {
 		case "$opt" in
 		without_*)
 			bcond=${opt#without_}
-			if [[ "$BCOND" = *--without?${bcond}* ]]; then
+			case "$BCOND" in
+			*--without?${bcond}*)
 				AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$bcond>"
-			else
+				;;
+			*)
 				AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $bcond"
-			fi
+				;;
+			esac
 			;;
 		with_*)
 			bcond=${opt#with_}
-			if [[ "$BCOND" = *--with?${bcond}* ]]; then
+			case "$BCOND" in
+			*--with?${bcond}*)
 				AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$bcond>"
-			else
+				;;
+			*)
 				AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $bcond"
-			fi
+				;;
+			esac
 			;;
 		*)
 			echo >&2 "ERROR: unexpected '$opt' in set_bconds_values"
@@ -1663,19 +1669,24 @@ remove_build_requires() {
 display_bconds() {
 	if [ "$AVAIL_BCONDS_WITH" -o "$AVAIL_BCONDS_WITHOUT" ]; then
 		if [ "$BCOND" ]; then
-			echo -ne "\nBuilding $SPECFILE with the following conditional flags:\n"
-			echo -ne "$BCOND"
+			echo ""
+			echo "Building $SPECFILE with the following conditional flags:"
+			echo -n "$BCOND"
 		else
-			echo -ne "\nNo conditional flags passed"
+			echo ""
+			echo "No conditional flags passed"
 		fi
-		echo -ne "\n\nfrom available:\n"
-		echo -ne "--with   :\t$AVAIL_BCONDS_WITH\n--without:\t$AVAIL_BCONDS_WITHOUT\n\n"
+		echo ""
+		echo "from available:"
+		echo "--with   :\t$AVAIL_BCONDS_WITH"
+		echo "--without:\t$AVAIL_BCONDS_WITHOUT"
+		echo ""
 	fi
 }
 
 display_branches() {
 	if [ "$NOCVSSPEC" != "yes" ]; then
-		echo -ne "Available branches: "
+		echo -n "Available branches: "
 		$CVS_COMMAND status -v "${SPECFILE}" | awk '!/Sticky Tag:/ && /\(branch:/ { print $1 } ' | xargs
 	fi
 }
@@ -1771,10 +1782,12 @@ fetch_build_requires()
 	fi
 
 		# XXX is this ugliest code written in human history still needed?
-		echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
-		echo -ne "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES\n"
-		echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
-		echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`\n\n"
+		echo "All packages installed by fetch_build_requires() are written to:"
+		echo "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES"
+		echo ""
+		echo "If anything fails, you may get rid of them by executing:"
+		echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`"
+		echo ""
 		echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 		for package_item in $(cat $SPECFILE | grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,perl\(,perl-,g -e s,::,-,g -e s,\(.*\),,g -e s,%{,,g -e s,},,g|grep -v OpenGL-devel|sed -e s,sh-utils,coreutils,g -e s,fileutils,coreutils,g -e s,textutils,coreutils,g -e s,kgcc_package,gcc,g -e s,\),,g)
 		do
@@ -1847,11 +1860,11 @@ fetch_build_requires()
 						for package_name in `cat ".$package-req.txt"|grep -v ^#`
 						do
 							if [ "$package_name" = "$package" ]; then
-								echo -ne "Installing BuildRequired package:\t$package_name\n"
+								echo "Installing BuildRequired package:\t$package_name"
 								update_shell_title "Installing BuildRequired package: ${package_name}"
 								install_required_packages $package
 							else
-								echo -ne "Installing (sub)Required package:\t$package_name\n"
+								echo "Installing (sub)Required package:\t$package_name"
 								update_shell_title "Installing (sub)Required package: ${package_name}"
 								install_required_packages $package_name
 							fi
@@ -1862,7 +1875,7 @@ fetch_build_requires()
 									;;
 								*)
 									echo "Attempting to run spawn sub - builder..."
-									echo -ne "Package installation failed:\t$package_name\n"
+									echo "Package installation failed:\t$package_name"
 									run_sub_builder $package_name
 									if [ $? -eq 0 ]; then
 										install_required_packages $package_name
@@ -1882,7 +1895,7 @@ fetch_build_requires()
 						rm -f ".$package-req.txt"
 					else
 						echo "Attempting to run spawn sub - builder..."
-						echo -ne "Package installation failed:\t$package\n"
+						echo "Package installation failed:\t$package"
 						run_sub_builder $package
 						if [ $? -eq 0 ]; then
 							install_required_packages $package
