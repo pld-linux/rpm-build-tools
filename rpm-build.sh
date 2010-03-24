@@ -272,7 +272,7 @@ cvslog() {
 	(builtin cd $d && cvs log ${f##*/})
 }
 
-# does diff between FILE and FILE~
+# does diff between FILE~ and FILE
 # the diff can be applied with patch -p1
 d() {
 	local file="$1"
