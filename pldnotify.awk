@@ -475,7 +475,7 @@ function process_source(number,lurl,name,version) {
 }
 
 # upgrade check for pear package using PEAR CLI
-function pear_upgrade(name, ver) {
+function pear_upgrade(name, ver,    pname, pearcmd, nver) {
 	pname = name;
 	sub(/^php-pear-/, "", pname);
 
@@ -495,9 +495,29 @@ function pear_upgrade(name, ver) {
 	return
 }
 
+function vim_upgrade(name, ver,     mver, nver, vimcmd) {
+	# %patchset_source -f ftp://ftp.vim.org/pub/editors/vim/patches/7.2/7.2.%03g 1 %{patchlevel}
+	mver = substr(ver, 0, 4)
+	vimcmd = "wget -q -O - ftp://ftp.vim.org/pub/editors/vim/patches/"mver"/MD5SUMS|grep -vF .gz|tail -n1|awk '{print $2}'"
+	if (DEBUG) {
+		print "vimcmd: " vimcmd
+	}
+	vimcmd | getline nver
+	close(vimcmd)
+
+	if (compare_ver(ver, nver)) {
+		print name " [OLD] " ver " [NEW] " nver
+	} else {
+		print name " seems ok: " ver
+	}
+}
+
 function process_data(name,ver,rel,src) {
 	if (name ~ /^php-pear-/) {
 		return pear_upgrade(name, ver);
+	}
+	if (name == "vim") {
+		return vim_upgrade(name, ver);
 	}
 
 # this function checks if substitutions were valid, and if true:
