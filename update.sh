@@ -90,7 +90,7 @@ printf "Commit log:\n$LOG\nCommit (Yes, No)? "
 read ans
 case "$ans" in
 	[yY])
-		cvs ci -m "$LOG" ${dst[0]} ${dst[1]} ${dst[2]} ${dst[3]} ;;
+		cvs ci -m "$(printf $LOG)" ${dst[0]} ${dst[1]} ${dst[2]} ${dst[3]} ;;
 	*)
 		msg ":(" ;;
 esac
