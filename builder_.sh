@@ -25,6 +25,9 @@
 # - does not respect NoSource: X, and tries to cvs up such files [ example: VirtualBox-bin.spec and its Source0 ]
 # TODO:
 # - ability to do ./builder -bb foo.spec foo2.spec foo3.spec
+# - funny bug, if source-md5 is set then builder will download from distfiles even if there is no url present:
+#   Source10:	forwardfix.pl
+#   # Source10-md5:	8bf85f7368933a4e0cb4f875bac28733
 
 RCSID='$Id$'
 r=${RCSID#* * }
@@ -32,9 +35,12 @@ rev=${r%% *}
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
-$VERSION (C) 1999-2009 Free Penguins".
+$VERSION (C) 1999-2010 Free Penguins".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
+
+# required rpm-build-macros
+RPM_MACROS_VER=1.534
 
 COMMAND="build"
 TARGET=""
@@ -358,6 +364,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 --show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by
                       ./repackage.sh script. in other words, the output is
                       parseable by scripts.
+--show-avail-bconds - show available bconds
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
                       %_without_<feature> macro switch.  You may now use
@@ -382,13 +389,13 @@ depspecname() {
 update_shell_title() {
 	[ -t 1 ] || return
 	local len=${COLUMNS:-80}
-	local msg=$(echo "$*" | cut -c-$len)
+	local msg="$(echo "$*" | cut -c-$len)"
 
 	if [ -n "$BE_VERBOSE" ]; then
 		echo >&2 "$(date +%s.%N) $*"
 	fi
 
-	if [ "x$TITLECHANGE" == "xyes" -o "x$TITLECHANGE" == "x" ]; then
+	if [ "x$TITLECHANGE" = "xyes" -o "x$TITLECHANGE" = "x" ]; then
 		local pkg
 		if [ -n "$PACKAGE_NAME" ]; then
 			pkg=${PACKAGE_NAME}-${PACKAGE_VERSION}-${PACKAGE_RELEASE}
@@ -662,8 +669,19 @@ init_builder() {
 
 	if [ "$NOINIT" != "yes" ] ; then
 		TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
-		REPO_DIR=$TOP_DIR
-		PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
+
+		local macros_ver=$(rpm -E %?rpm_build_macros)
+		if [ -z "$macros_ver" ]; then
+			REPO_DIR=$TOP_DIR/packages
+			PACKAGE_DIR=$TOP_DIR/packages/$ASSUMED_NAME
+		else
+			if awk "BEGIN{exit($macros_ver>=$RPM_MACROS_VER)}"; then
+				echo >&2 "builder requires rpm-build-macros >= $RPM_MACROS_VER"
+				exit 1
+			fi
+			REPO_DIR=$TOP_DIR
+			PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
+		fi
 	else
 		REPO_DIR="."
 		PACKAGE_DIR="."
@@ -737,7 +755,7 @@ find_mirror() {
 	local origin mirror name rest ol prefix
 	while read origin mirror name rest; do
 		# skip comments and empty lines
-		if [ -z "$origin" ] || [[ $origin == \#* ]]; then
+		if [ -z "$origin" ] || [ "${origin#\#}" != "$origin" ]; then
 			continue
 		fi
 		ol=$(echo -n "$origin" | wc -c)
@@ -787,7 +805,7 @@ src_md5() {
 		fi
 	fi
 
-	source_md5=`grep -i "#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+	source_md5=`grep -i "^#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
 	if [ -n "$source_md5" ]; then
 		echo $source_md5
 	else
@@ -797,7 +815,7 @@ src_md5() {
 		else
 			# we have empty SourceX-md5, but it is still possible
 			# that we have NoSourceX-md5 AND NoSource: X
-			nosource_md5=`grep -i "#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
+			nosource_md5=`grep -i "^#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
 			if [ -n "$nosource_md5" -a -n "`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" ] ; then
 				echo $nosource_md5
 			fi
@@ -1546,19 +1564,25 @@ set_bconds_values() {
 		case "$opt" in
 		without_*)
 			bcond=${opt#without_}
-			if [[ "$BCOND" = *--without?${bcond}* ]]; then
+			case "$BCOND" in
+			*--without?${bcond}*)
 				AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$bcond>"
-			else
+				;;
+			*)
 				AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT $bcond"
-			fi
+				;;
+			esac
 			;;
 		with_*)
 			bcond=${opt#with_}
-			if [[ "$BCOND" = *--with?${bcond}* ]]; then
+			case "$BCOND" in
+			*--with?${bcond}*)
 				AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$bcond>"
-			else
+				;;
+			*)
 				AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH $bcond"
-			fi
+				;;
+			esac
 			;;
 		*)
 			echo >&2 "ERROR: unexpected '$opt' in set_bconds_values"
@@ -1645,19 +1669,24 @@ remove_build_requires() {
 display_bconds() {
 	if [ "$AVAIL_BCONDS_WITH" -o "$AVAIL_BCONDS_WITHOUT" ]; then
 		if [ "$BCOND" ]; then
-			echo -ne "\nBuilding $SPECFILE with the following conditional flags:\n"
-			echo -ne "$BCOND"
+			echo ""
+			echo "Building $SPECFILE with the following conditional flags:"
+			echo -n "$BCOND"
 		else
-			echo -ne "\nNo conditional flags passed"
+			echo ""
+			echo "No conditional flags passed"
 		fi
-		echo -ne "\n\nfrom available:\n"
-		echo -ne "--with   :\t$AVAIL_BCONDS_WITH\n--without:\t$AVAIL_BCONDS_WITHOUT\n\n"
+		echo ""
+		echo "from available:"
+		echo "--with   :\t$AVAIL_BCONDS_WITH"
+		echo "--without:\t$AVAIL_BCONDS_WITHOUT"
+		echo ""
 	fi
 }
 
 display_branches() {
 	if [ "$NOCVSSPEC" != "yes" ]; then
-		echo -ne "Available branches: "
+		echo -n "Available branches: "
 		$CVS_COMMAND status -v "${SPECFILE}" | awk '!/Sticky Tag:/ && /\(branch:/ { print $1 } ' | xargs
 	fi
 }
@@ -1753,10 +1782,12 @@ fetch_build_requires()
 	fi
 
 		# XXX is this ugliest code written in human history still needed?
-		echo -ne "\nAll packages installed by fetch_build_requires() are written to:\n"
-		echo -ne "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES\n"
-		echo -ne "\nIf anything fails, you may get rid of them by executing:\n"
-		echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`\n\n"
+		echo "All packages installed by fetch_build_requires() are written to:"
+		echo "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES"
+		echo ""
+		echo "If anything fails, you may get rid of them by executing:"
+		echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`"
+		echo ""
 		echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
 		for package_item in $(cat $SPECFILE | grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,perl\(,perl-,g -e s,::,-,g -e s,\(.*\),,g -e s,%{,,g -e s,},,g|grep -v OpenGL-devel|sed -e s,sh-utils,coreutils,g -e s,fileutils,coreutils,g -e s,textutils,coreutils,g -e s,kgcc_package,gcc,g -e s,\),,g)
 		do
@@ -1829,11 +1860,11 @@ fetch_build_requires()
 						for package_name in `cat ".$package-req.txt"|grep -v ^#`
 						do
 							if [ "$package_name" = "$package" ]; then
-								echo -ne "Installing BuildRequired package:\t$package_name\n"
+								echo "Installing BuildRequired package:\t$package_name"
 								update_shell_title "Installing BuildRequired package: ${package_name}"
 								install_required_packages $package
 							else
-								echo -ne "Installing (sub)Required package:\t$package_name\n"
+								echo "Installing (sub)Required package:\t$package_name"
 								update_shell_title "Installing (sub)Required package: ${package_name}"
 								install_required_packages $package_name
 							fi
@@ -1844,7 +1875,7 @@ fetch_build_requires()
 									;;
 								*)
 									echo "Attempting to run spawn sub - builder..."
-									echo -ne "Package installation failed:\t$package_name\n"
+									echo "Package installation failed:\t$package_name"
 									run_sub_builder $package_name
 									if [ $? -eq 0 ]; then
 										install_required_packages $package_name
@@ -1864,7 +1895,7 @@ fetch_build_requires()
 						rm -f ".$package-req.txt"
 					else
 						echo "Attempting to run spawn sub - builder..."
-						echo -ne "Package installation failed:\t$package\n"
+						echo "Package installation failed:\t$package"
 						run_sub_builder $package
 						if [ $? -eq 0 ]; then
 							install_required_packages $package
@@ -1899,7 +1930,7 @@ init_rpm_dir() {
 	TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
 	CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
 
-	echo "Initialising rpm directories to $TOP_DIR from $CVSROOT"
+	echo "Initializing rpm directories to $TOP_DIR from $CVSROOT"
 	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
 	cd $TOP_DIR
 	$CVS_COMMAND -d $CVSROOT co packages/{.cvsignore,rpm.groups,dropin,mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
@@ -2211,6 +2242,10 @@ while [ $# -gt 0 ]; do
 			COMMAND="show_bcond_args"
 			shift
 			;;
+		--show-avail-bconds)
+			COMMAND="show_avail_bconds"
+			shift
+			;;
 		--nodeps)
 			shift
 			RPMOPTS="${RPMOPTS} --nodeps"
@@ -2289,6 +2324,33 @@ case "$COMMAND" in
 			set_bconds_values
 			echo "$BCOND"
 		fi
+		;;
+	"show_avail_bconds")
+		init_builder
+		if [ -n "$SPECFILE" ]; then
+			get_spec > /dev/null
+			parse_spec
+			local bcond_avail=$(find_spec_bcond $SPECFILE)
+			local opt bcond bconds
+			for opt in $bcond_avail; do
+				case "$opt" in
+				without_*)
+					bcond=${opt#without_}
+					bconds="$bconds $bcond"
+					;;
+				with_*)
+					bcond=${opt#with_}
+					bconds="$bconds $bcond"
+					;;
+				*)
+					echo >&2 "ERROR: unexpected '$opt' in show_avail_bconds"
+					exit 1
+					;;
+				esac
+			done
+			echo $bconds
+		fi
+
 		;;
 	"build" | "build-binary" | "build-source" | "build-prep" | "build-build" | "build-install" | "build-list")
 		init_builder

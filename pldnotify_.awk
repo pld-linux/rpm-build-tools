@@ -1,7 +1,7 @@
 #!/bin/awk -f
 # $Revision$, $Date$
 #
-# Copyright (C) 2000-2009 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 2000-2010 PLD-Team <feedback@pld-linux.org>
 # Authors:
 #	Sebastian Zagrodzki <zagrodzki@pld-linux.org>
 #	Jacek Konieczny <jajcus@pld-linux.org>
@@ -169,6 +169,17 @@ function mktemp(   _cmd, _tmpfile) {
 	return _tmpfile
 }
 
+# fix link to artificial one that will be recognized rest of this script
+function postfix_link(url, link) {
+	oldlink = link
+	if ((url ~/^(http|https):\/\/github.com\//) && (link ~ /.*\/tarball\//)) {
+		gsub(".*\/tarball\/", "", link)
+		link = link ".tar.gz"
+	}
+	if (DEBUG) print "POST FIXING URL [ " oldlink " ] to [ " link " ]"
+	return link
+}
+
 # get all <A HREF=..> tags from specified URL
 function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile,cmd) {
 
@@ -216,17 +227,26 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		if (DEBUG) print "edge launchpad url, mungled url to: " url
 	}
 
+	if (url ~/^(http|https):\/\/github.com\/.*\/(.*)\/tarball\//) {
+		gsub("\/tarball\/.*", "/downloads", url)
+		if (DEBUG) print "github tarball url, mungled url to: " url
+	}
+
 
 	if (DEBUG) print "Retrieving: " url
 	cmd = "wget --user-agent \"Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2) Gecko/20100129 PLD/3.0 (Th) Iceweasel/3.6\" -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
 	if (DEBUG) print "Execute: " cmd
 	errno = system(cmd)
+	if (DEBUG) print "Execute done"
 
 	if (errno==0) {
+		wholeodp = ""
+		if ( DEBUG ) print "Reading succeess response..."
 		while (getline oneline < tmpfile)
 			wholeodp=(wholeodp " " oneline)
-		if ( DEBUG ) print "Response: " wholeodp
+		# if ( DEBUG ) print "Response: " wholeodp
 	} else {
+		if ( DEBUG ) print "Reading failure response..."
 		wholeerr = ""
 		while (getline oneline < tmpfileerr)
 			wholeerr=(wholeerr " " oneline)
@@ -241,6 +261,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 
 	if ( errno==0) {
 		while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
+			if (DEBUG) print "Processing links..."
 			odp=substr(wholeodp,RSTART,RLENGTH);
 			wholeodp=substr(wholeodp,RSTART+RLENGTH);
 
@@ -267,6 +288,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+				link=postfix_link(url, link)
 
 				if (link_seen(link)) {
 					link=""
@@ -281,6 +303,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				link=substr(odp,RSTART,RLENGTH)
 				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
 				link=substr(link,7,length(link)-7)
+				link=postfix_link(url, link)
 
 				if (link_seen(link)) {
 					link=""
@@ -373,12 +396,16 @@ function process_source(number,lurl,name,version) {
 	filename=url[4]
 
 	if (index(dir,version)) {
+		# directory name as version maching mode:
+		# if /something/version/name-version.tarball then check
+		# in /something/ looking for newer directory
 		dir=substr(dir,1,index(dir,version)-1)
 		sub("[^/]*$","",dir)
 		sub("(\.tar\.(bz|bz2|gz)|zip)$","",filename)
-		if ( DEBUG ) print "Will check a directory: " dir
-		if ( DEBUG ) print "and a file: " filename
 	}
+
+	if ( DEBUG ) print "Will check a directory: " dir
+	if ( DEBUG ) print "and a file: " filename
 
 	filenameexp=filename
 	gsub("\+","\\+",filenameexp)
@@ -407,8 +434,17 @@ function process_source(number,lurl,name,version) {
 		c=split(odp,linki)
 		for (nr=1; nr<=c; nr++) {
 			addr=linki[nr]
+
 			if (DEBUG) print "Found link: " addr
-			if ((addr ~ filenameexp) && !(addr ~ "[-_.0-9A-Za-z~]" filenameexp)) {
+
+			# github has very different tarball links that clash with this safe check
+			if (!(newurl ~/^(http|https):\/\/github.com\/.*\/tarball/)) {
+				if (addr ~ "[-_.0-9A-Za-z~]" filenameexp) {
+					continue
+				}
+			}
+
+			if (addr ~ filenameexp) {
 				match(addr,filenameexp)
 				newfilename=substr(addr,RSTART,RLENGTH)
 				if (DEBUG) print "Hypothetical new: " newfilename
@@ -416,6 +452,8 @@ function process_source(number,lurl,name,version) {
 				newfilename=fixedsub(postver,"",newfilename)
 				if (DEBUG) print "Version: " newfilename
 				if (newfilename ~ /\.(asc|sig|pkg|bin|binary|built)$/) continue
+				# strip ending (happens when in directiory name as version matching mode)
+				sub("(\.tar\.(bz|bz2|gz)|zip)$","",newfilename)
 				if (NUMERIC) {
 					if ( compare_ver_dec(version, newfilename)==1 ) {
 						if (DEBUG) print "Yes, there is new one"
@@ -437,7 +475,7 @@ function process_source(number,lurl,name,version) {
 }
 
 # upgrade check for pear package using PEAR CLI
-function pear_upgrade(name, ver) {
+function pear_upgrade(name, ver,    pname, pearcmd, nver) {
 	pname = name;
 	sub(/^php-pear-/, "", pname);
 
@@ -457,9 +495,29 @@ function pear_upgrade(name, ver) {
 	return
 }
 
+function vim_upgrade(name, ver,     mver, nver, vimcmd) {
+	# %patchset_source -f ftp://ftp.vim.org/pub/editors/vim/patches/7.2/7.2.%03g 1 %{patchlevel}
+	mver = substr(ver, 0, 4)
+	vimcmd = "wget -q -O - ftp://ftp.vim.org/pub/editors/vim/patches/"mver"/MD5SUMS|grep -vF .gz|tail -n1|awk '{print $2}'"
+	if (DEBUG) {
+		print "vimcmd: " vimcmd
+	}
+	vimcmd | getline nver
+	close(vimcmd)
+
+	if (compare_ver(ver, nver)) {
+		print name " [OLD] " ver " [NEW] " nver
+	} else {
+		print name " seems ok: " ver
+	}
+}
+
 function process_data(name,ver,rel,src) {
 	if (name ~ /^php-pear-/) {
 		return pear_upgrade(name, ver);
+	}
+	if (name == "vim") {
+		return vim_upgrade(name, ver);
 	}
 
 # this function checks if substitutions were valid, and if true:
