@@ -767,6 +767,12 @@ preamble == 1 {
 		if (l == "LGPLv2+") {
 			l = "LGPL v2+"
 		}
+		if (l == "GPLv3") {
+			l = "GPL v3"
+		}
+		if (l == "GPLv3+") {
+			l = "GPL v3+"
+		}
 		$0 = "License:\t" l;
 	}
 
@@ -806,6 +812,9 @@ preamble == 1 {
 	# proper caps
 	if (field ~ /^url:$/)
 		$1 = "URL:"
+
+	if (field ~ /^patch/)
+		$1 = "Patch" substr(field, 6);
 
 	if (field ~ /^description:$/)
 		$1 = "\n%description\n"
@@ -1182,6 +1191,10 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/tmpwatch")
 			continue;
+		if ($c ~ sysconfdir "/acpi")
+			continue;
+		if ($c ~ sysconfdir "/apm")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
@@ -1285,6 +1298,10 @@ function use_macros()
 	gsub("^make ", "%{__make} ")
 	gsub("^gcc ", "%{__cc} ")
 	gsub("^rm --interactive=never ", "%{__rm} ")
+
+	# fedora
+	gsub("%{ruby_sitearch}", "%{ruby_sitearchdir}")
+	gsub("%{python_sitearch}", "%{py_sitedir}")
 
 	# mandrake specs
 	gsub("^%make$", "%{__make}")
@@ -1854,6 +1871,7 @@ function replace_requires() {
 	# fedora
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
+	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
 	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
@@ -1867,6 +1885,9 @@ function replace_requires() {
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
+	sub(/^dbus-python$/, "python-dbus", $2);
+	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
+	sub(/^notify-python$/, "python-pynotify", $2);
 
 	# debian
 	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
