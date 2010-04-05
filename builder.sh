@@ -28,6 +28,11 @@
 # - funny bug, if source-md5 is set then builder will download from distfiles even if there is no url present:
 #   Source10:	forwardfix.pl
 #   # Source10-md5:	8bf85f7368933a4e0cb4f875bac28733
+# - builder --help:
+#	basename: missing operand
+#	Try `basename --help' for more information.
+#	-- and the normal usage info --
+
 
 RCSID='$Id$'
 r=${RCSID#* * }
