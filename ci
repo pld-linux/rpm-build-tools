@@ -61,18 +61,32 @@ diff="$(cvs -z9 diff -u $SPEC)"
 
 echo "$diff" | diffcol
 
-ver=$(echo "$diff" | awk '/^\+Version/ { ver = $2 } /^\+%define[ \t]+[_a-zA-Z0-9]*ver/ { ver = $3 }
-	END { print ver }')
-rel=$(echo "$diff" | awk '/^\+Release/ { rel = $2 } /^\+%define[ \t]+_?rel/ { rel = $3 }
-	END { print rel }')
+ver=$(echo "$diff" | awk '
+	/^\+Version/ { ver = $2 }
+	/^\+%define[ \t]+[_a-zA-Z0-9]*ver/ { ver = $3 }
+	END { print ver }
+')
+rel=$(echo "$diff" | awk '
+	/^\+Release/ { rel = $2 }
+	/^\+%define[ \t]+_?rel/ { rel = $3 }
+	END { print rel }
+')
 
-add=$(echo "$diff" | awk '/^\+BuildRequires/ { add[ $2 ] = 1; }; /^-BuildRequires/ { del[ $2 ] = 1; };
+add=$(echo "$diff" | awk '
+	function s( n ) { sub(/}/,"",n); return n; }
+	/^\+(%{[a-zA-Z0-9_]+:)?BuildRequires/ { add[ s( $2 ) ] = 1; };
+	/^-(%{[a-zA-Z0-9_]+:)?BuildRequires/ { del[ s( $2 ) ] = 1; };
 	END { for ( n in add ) { if ( !del[ n ] ) print n; } }' | 
-	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }')
+	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }
+')
 
-del=$(echo "$diff" | awk '/^\+BuildRequires/ { add[ $2 ] = 1; }; /^-BuildRequires/ { del[ $2 ] = 1; };
+del=$(echo "$diff" | awk '
+	function s( n ) { sub(/}/,"",n); return n; }
+	/^\+(%{[a-zA-Z0-9_]+:)?BuildRequires/ { add[ s( $2 ) ] = 1; };
+	/^-(%{[a-zA-Z0-9_]+:)?BuildRequires/ { del[ s( $2 ) ] = 1; };
 	END { for ( n in del ) { if ( !add[ n ] ) print n; } }' |
-	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }')
+	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }
+')
 
 n="$(echo -e '\nn')"
 n="${n%%n}"
