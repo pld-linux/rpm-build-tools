@@ -1870,6 +1870,7 @@ function replace_requires() {
 	sub(/^jmx$/, "java(jmx)", $2);
 	sub(/^jndi$/, "java(jndi)", $2);
 	sub(/^jsse$/, "java(jsse)", $2);
+	sub(/^javamail$/, "java(javamail)", $2);
 
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
