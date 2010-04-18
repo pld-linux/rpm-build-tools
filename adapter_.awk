@@ -767,6 +767,12 @@ preamble == 1 {
 		if (l == "LGPLv2+") {
 			l = "LGPL v2+"
 		}
+		if (l == "GPLv3") {
+			l = "GPL v3"
+		}
+		if (l == "GPLv3+") {
+			l = "GPL v3+"
+		}
 		$0 = "License:\t" l;
 	}
 
@@ -806,6 +812,9 @@ preamble == 1 {
 	# proper caps
 	if (field ~ /^url:$/)
 		$1 = "URL:"
+
+	if (field ~ /^patch/)
+		$1 = "Patch" substr(field, 6);
 
 	if (field ~ /^description:$/)
 		$1 = "\n%description\n"
@@ -1182,6 +1191,10 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/tmpwatch")
 			continue;
+		if ($c ~ sysconfdir "/acpi")
+			continue;
+		if ($c ~ sysconfdir "/apm")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
@@ -1285,6 +1298,10 @@ function use_macros()
 	gsub("^make ", "%{__make} ")
 	gsub("^gcc ", "%{__cc} ")
 	gsub("^rm --interactive=never ", "%{__rm} ")
+
+	# fedora
+	gsub("%{ruby_sitearch}", "%{ruby_sitearchdir}")
+	gsub("%{python_sitearch}", "%{py_sitedir}")
 
 	# mandrake specs
 	gsub("^%make$", "%{__make}")
@@ -1824,26 +1841,45 @@ function replace_requires() {
 
 	# jpackages
 	sub(/^java-devel$/, "jdk", $2);
-	sub(/^log4j$/, "java-log4j", $2);
-	sub(/^logging-log4j$/, "java-log4j", $2);
-	sub(/^jakarta-log4j$/, "java-log4j", $2);
-	sub(/^oro$/, "java-oro", $2);
-	sub(/^jakarta-oro$/, "java-oro", $2);
-	sub(/^jakarta-ant$/, "ant", $2);
-	sub(/^xerces-j2$/, "java-xerces", $2);
-	sub(/^xerces-j$/, "java-xerces", $2);
-	sub(/^ldapjdk$/, "ldapsdk", $2);
-	sub(/^saxon-scripts$/, "saxon", $2);
-	sub(/^xalan-j2$/, "java-xalan", $2);
-	sub(/^xalan-j$/, "java-xalan", $2);
+	sub(/^axis$/, "java-axis", $2);
 	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
 	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
-	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
-	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
-	sub(/^axis$/, "java-axis", $2);
-	sub(/^wsdl4j$/, "java-wsdl4j", $2);
-	sub(/^uddi4j$/, "java-uddi4j", $2);
 	sub(/^hamcrest$/, "java-hamcrest", $2);
+	sub(/^jaas$/, "java(jaas)", $2);
+	sub(/^jaf$/, "java(jaf)", $2);
+	sub(/^jakarta-ant$/, "ant", $2);
+	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
+	sub(/^jakarta-log4j$/, "java-log4j", $2);
+	sub(/^jakarta-oro$/, "java-oro", $2);
+	sub(/^javamail$/, "java(javamail)", $2);
+	sub(/^jaxp$/, "java(jaxp)", $2);
+	sub(/^jaxp_parser_impl$/, "java(jaxp_parser_impl)", $2);
+	sub(/^jaxp_transform_impl$/, "java(jaxp_transform_impl)", $2);
+	sub(/^jce$/, "java(jce)", $2);
+	sub(/^jdbc-stdext$/, "java(jdbc-stdext)", $2);
+	sub(/^jmx$/, "java(jmx)", $2);
+	sub(/^jndi$/, "java(jndi)", $2);
+	sub(/^jsse$/, "java(jsse)", $2);
+	sub(/^jta$/, "java(jta)", $2);
+	sub(/^ldapjdk$/, "ldapsdk", $2);
+	sub(/^log4j$/, "java-log4j", $2);
+	sub(/^logging-log4j$/, "java-log4j", $2);
+	sub(/^oro$/, "java-oro", $2);
+	sub(/^rhino$/, "java-rhino", $2);
+	sub(/^saxon-scripts$/, "saxon", $2);
+	sub(/^servlet$/, "java(servlet)", $2);
+	sub(/^uddi4j$/, "java-uddi4j", $2);
+	sub(/^wsdl4j$/, "java-wsdl4j", $2);
+	sub(/^xalan-j2$/, "java-xalan", $2);
+	sub(/^xalan-j$/, "java-xalan", $2);
+	sub(/^xerces-j2$/, "java-xerces", $2);
+	sub(/^xerces-j$/, "java-xerces", $2);
+	sub(/^xml-commons-apis$/, "java-xml-commons-apis", $2);
+	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
+	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
+	sub(/^java\(Servlet\)$/, "java(servlet)", $2);
+	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
+	sub(/^java\(JSP\)$/, "java(jsp)", $2);
 
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
@@ -1854,6 +1890,7 @@ function replace_requires() {
 	# fedora
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
+	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
 	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
@@ -1867,6 +1904,9 @@ function replace_requires() {
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
+	sub(/^dbus-python$/, "python-dbus", $2);
+	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
+	sub(/^notify-python$/, "python-pynotify", $2);
 
 	# debian
 	sub(/^libgconf2-dev$/, "GConf2-devel", $2);

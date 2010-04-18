@@ -15,6 +15,14 @@
 # - "SourceXDownload" support (use given URLs if present instead of cut-down SourceX URLs)
 # - "SourceXActiveFTP" support
 
+
+function d(s) {
+	if (!DEBUG) {
+		return
+	}
+	print s >> "/dev/stderr"
+}
+
 function fixedsub(s1,s2,t,	ind) {
 # substitutes fixed strings (not regexps)
 	if (ind = index(t,s1)) {
@@ -25,7 +33,7 @@ function fixedsub(s1,s2,t,	ind) {
 
 function ispre(s) {
 	if ((s~"pre")||(s~"PRE")||(s~"beta")||(s~"BETA")||(s~"alpha")||(s~"ALPHA")||(s~"rc")||(s~"RC")) {
-		if (DEBUG) print "pre-version"
+		d("pre-version")
 		return 1
 	} else {
 		return 0
@@ -42,8 +50,8 @@ function compare_ver(v1,v2) {
 	sub("^0*","",v2)
 	gsub("\.0*",".",v1)
 	gsub("\.0*",".",v2)
-	if (DEBUG) print "v1 == " v1
-	if (DEBUG) print "v2 == " v2
+	d("v1 == " v1)
+	d("v2 == " v2)
 	count=split(v1,v1a,"\.")
 	count2=split(v2,v2a,"\.")
 
@@ -53,9 +61,9 @@ function compare_ver(v1,v2) {
 	for (i=1; i<=mincount; i++) {
 		if (v1a[i]=="") v1a[i]=0
 		if (v2a[i]=="") v2a[i]=0
-		if (DEBUG) print "i == " i
-		if (DEBUG) print "v1[i] == " v1a[i]
-		if (DEBUG) print "v2[i] == " v2a[i]
+		d("i == " i)
+		d("v1[i] == " v1a[i])
+		d("v2[i] == " v2a[i])
 		if ((v1a[i]~/[0-9]/)&&(v2a[i]~/[0-9]/)) {
 			if (length(v2a[i])>length(v1a[i]))
 				return 1
@@ -97,8 +105,8 @@ function compare_ver_dec(v1,v2) {
 		v2=(substr(v2,1,RSTART) "." substr(v2,RSTART+RLENGTH-1))
 	sub("^0*","",v1)
 	sub("^0*","",v2)
-	if (DEBUG) print "v1 == " v1
-	if (DEBUG) print "v2 == " v2
+	d("v1 == " v1)
+	d("v2 == " v2)
 	count=split(v1,v1a,"\.")
 	count2=split(v2,v2a,"\.")
 
@@ -108,9 +116,9 @@ function compare_ver_dec(v1,v2) {
 	for (i=1; i<=mincount; i++) {
 		if (v1a[i]=="") v1a[i]=0
 		if (v2a[i]=="") v2a[i]=0
-		if (DEBUG) print "i == " i
-		if (DEBUG) print "v1[i] == " v1a[i]
-		if (DEBUG) print "v2[i] == " v2a[i]
+		d("i == " i)
+		d("v1[i] == " v1a[i])
+		d("v2[i] == " v2a[i])
 		if ((v1a[i]~/[0-9]/)&&(v2a[i]~/[0-9]/)) {
 			if (i==2) {
 				if (0+("." v2a[i])>0+("." v1a[i]))
@@ -154,7 +162,7 @@ function compare_ver_dec(v1,v2) {
 function link_seen(link) {
 	for (seenlink in frameseen) {
 		if (seenlink == link) {
-			if (DEBUG) print "Link: [" link "] seen already, skipping..."
+			d("Link: [" link "] seen already, skipping...")
 			return 1
 		}
 	}
@@ -176,7 +184,7 @@ function postfix_link(url, link) {
 		gsub(".*\/tarball\/", "", link)
 		link = link ".tar.gz"
 	}
-	if (DEBUG) print "POST FIXING URL [ " oldlink " ] to [ " link " ]"
+	d("POST FIXING URL [ " oldlink " ] to [ " link " ]")
 	return link
 }
 
@@ -192,65 +200,65 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
 		gsub("/.*", "", url)
 		url = "http://sourceforge.net/projects/" url "/files/"
-		if (DEBUG) print "sf url, mungled url to: " url
+		d("sf url, mungled url to: " url)
 	}
 
 	if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
 		gsub("^http://", "", url)
 		gsub("\..*", "", url)
 		url = "http://code.google.com/p/" url "/downloads/list"
-		if (DEBUG) print "googlecode url, mungled url to: " url
+		d("googlecode url, mungled url to: " url)
 	}
 
 	if (url ~ /^http:\/\/pecl.php.net\/get\//) {
 		gsub("-.*", "", filename)
 		url = "http://pecl.php.net/package/" filename
-		if (DEBUG) print "pecl.php.net url, mungled url to: " url
+		d("pecl.php.net url, mungled url to: " url)
 	}
 
 	if (url ~ /^(http|ftp):\/\/mysql.*\/Downloads\/MySQL-5.1\//) {
 		url = "http://dev.mysql.com/downloads/mysql/5.1.html#source"
-		 if (DEBUG) print "mysql 5.1 url, mungled url to: " url
+		 d("mysql 5.1 url, mungled url to: " url)
 	}
 
 	if (url ~/^(http|https):\/\/launchpad\.net\/(.*)\//) {
 		gsub("^(http|https):\/\/launchpad\.net\/", "", url)
 		gsub("\/.*/", "", url)
 		url = "https://code.launchpad.net/" url "/+download"
-		if (DEBUG) print "main launchpad url, mungled url to: " url
+		d("main launchpad url, mungled url to: " url)
 	}
 
 	if (url ~/^(http|https):\/\/edge\.launchpad\.net\/(.*)\//) {
 		gsub("^(http|https):\/\/edge\.launchpad\.net\/", "", url)
 		gsub("\/.*/", "", url)
 		url = "https://edge.launchpad.net/" url "/+download"
-		if (DEBUG) print "edge launchpad url, mungled url to: " url
+		d("edge launchpad url, mungled url to: " url)
 	}
 
 	if (url ~/^(http|https):\/\/github.com\/.*\/(.*)\/tarball\//) {
 		gsub("\/tarball\/.*", "/downloads", url)
-		if (DEBUG) print "github tarball url, mungled url to: " url
+		d("github tarball url, mungled url to: " url)
 	}
 
 
-	if (DEBUG) print "Retrieving: " url
+	d("Retrieving: " url)
 	cmd = "wget --user-agent \"Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2) Gecko/20100129 PLD/3.0 (Th) Iceweasel/3.6\" -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
-	if (DEBUG) print "Execute: " cmd
+	d("Execute: " cmd)
 	errno = system(cmd)
-	if (DEBUG) print "Execute done"
+	d("Execute done")
 
 	if (errno==0) {
 		wholeodp = ""
-		if ( DEBUG ) print "Reading succeess response..."
+		d("Reading succeess response...")
 		while (getline oneline < tmpfile)
 			wholeodp=(wholeodp " " oneline)
-		# if ( DEBUG ) print "Response: " wholeodp
+#			d("Response: " wholeodp)
 	} else {
-		if ( DEBUG ) print "Reading failure response..."
+		d("Reading failure response...")
 		wholeerr = ""
 		while (getline oneline < tmpfileerr)
 			wholeerr=(wholeerr " " oneline)
-		if ( DEBUG ) print "Error Response: " wholeerr
+		d("Error Response: " wholeerr)
 	}
 
 	system("rm -f " tmpfile)
@@ -261,7 +269,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 
 	if ( errno==0) {
 		while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
-			if (DEBUG) print "Processing links..."
+			d("Processing links...")
 			odp=substr(wholeodp,RSTART,RLENGTH);
 			wholeodp=substr(wholeodp,RSTART+RLENGTH);
 
@@ -270,10 +278,10 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				sub(/[sS][rR][cC]=[ \t]*/,"src=",odp);
 				match(odp,/src="[^"]+"/)
 				newurl=substr(odp,RSTART+5,RLENGTH-6)
-				if (DEBUG) print "Frame: " newurl
+				d("Frame: " newurl)
 				if (newurl !~ /\//) {
 					newurl=(urldir newurl)
-					if (DEBUG) print "Frame->: " newurl
+					d("Frame->: " newurl)
 				}
 
 				if (link_seen(newurl)) {
@@ -296,7 +304,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				}
 
 				retval=(retval " " link)
-				if (DEBUG) print "href(\"\"): " link
+				d("href(\"\"): " link)
 			} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*'/,"href='",odp)
 				match(odp,/href='[^']*'/)
@@ -311,7 +319,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				}
 
 				retval=(retval " " link)
-				if (DEBUG) print "href(''): " link
+				d("href(''): " link)
 			} else if (lowerodp ~ /href=[ \t]*[^ \t>]*/) {
 				sub(/[hH][rR][eE][fF]=[ \t]*/,"href=",odp)
 				match(odp,/href=[^ \t>]*/)
@@ -325,10 +333,10 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 				}
 
 				retval=(retval " " link)
-				if (DEBUG) print "href(): " link
+				d("href(): " link)
 			} else {
 				# <a ...> but not href - skip
-				if (DEBUG) print "skipping <a > without href: " odp
+				d("skipping <a > without href: " odp)
 			}
 		}
 	} else {
@@ -336,7 +344,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	}
 
 
-	if (DEBUG) print "Returning: " retval
+	d("Returning: " retval)
 	return retval
 }
 
@@ -349,7 +357,11 @@ function subst_defines(var,defs) {
 			gsub("%" j , defs[j], var)
 		}
 		if (var==oldvar) {
-			if ( DEBUG ) for (i in defs) print i " == " defs[i]
+			if (DEBUG) {
+				for (i in defs) {
+					d(i " == " defs[i])
+				}
+			}
 			return var
 		}
 	}
@@ -367,7 +379,7 @@ function find_mirror(url) {
 			mname=fields[3]
 			prefix=substr(url,1,length(origin))
 			if (prefix==origin){
-				if ( DEBUG ) print "Mirror fount at " mname
+				d("Mirror fount at " mname)
 				close("mirrors")
 				return mirror substr(url,length(origin)+1)
 			}
@@ -379,10 +391,10 @@ function find_mirror(url) {
 
 function process_source(number,lurl,name,version) {
 # fetches file list, and compares version numbers
-	if ( DEBUG ) print "Processing " lurl
+	d("Processing " lurl)
 
 	if ( index(lurl,version)==0 ) {
-		if (DEBUG) print "There is no version number."
+		d("There is no version number.")
 		return 0
 	}
 
@@ -404,24 +416,24 @@ function process_source(number,lurl,name,version) {
 		sub("(\.tar\.(bz|bz2|gz)|zip)$","",filename)
 	}
 
-	if ( DEBUG ) print "Will check a directory: " dir
-	if ( DEBUG ) print "and a file: " filename
+	d("Will check a directory: " dir)
+	d("and a file: " filename)
 
 	filenameexp=filename
 	gsub("\+","\\+",filenameexp)
 	sub(version,"[A-Za-z0-9.]+",filenameexp)
 	gsub("\.","\\.",filenameexp)
-	if ( DEBUG ) print "Expression: " filenameexp
+	d("Expression: " filenameexp)
 	match(filename,version)
 	prever=substr(filename,1,RSTART-1)
 	postver=substr(filename,RSTART+RLENGTH)
-	if ( DEBUG ) print "Before number: " prever
-	if ( DEBUG ) print "and after: " postver
+	d("Before number: " prever)
+	d("and after: " postver)
 	newurl=find_mirror(acc "://" host dir)
 	#print acc "://" host dir
 	#newurl=url[1]"://"url[2]url[3]url[4]
 	#newurl=acc "://" host dir filename
-	if ( DEBUG ) print "Looking at " newurl
+	d("Looking at " newurl)
 
 	references=0
 	finished=0
@@ -430,12 +442,12 @@ function process_source(number,lurl,name,version) {
 	if( odp ~ "ERROR: ") {
 		print name "(" number ") " odp
 	} else {
-		if (DEBUG) print "WebPage downloaded"
+		d("WebPage downloaded")
 		c=split(odp,linki)
 		for (nr=1; nr<=c; nr++) {
 			addr=linki[nr]
 
-			if (DEBUG) print "Found link: " addr
+			d("Found link: " addr)
 
 			# github has very different tarball links that clash with this safe check
 			if (!(newurl ~/^(http|https):\/\/github.com\/.*\/tarball/)) {
@@ -447,21 +459,21 @@ function process_source(number,lurl,name,version) {
 			if (addr ~ filenameexp) {
 				match(addr,filenameexp)
 				newfilename=substr(addr,RSTART,RLENGTH)
-				if (DEBUG) print "Hypothetical new: " newfilename
+				d("Hypothetical new: " newfilename)
 				newfilename=fixedsub(prever,"",newfilename)
 				newfilename=fixedsub(postver,"",newfilename)
-				if (DEBUG) print "Version: " newfilename
+				d("Version: " newfilename)
 				if (newfilename ~ /\.(asc|sig|pkg|bin|binary|built)$/) continue
 				# strip ending (happens when in directiory name as version matching mode)
 				sub("(\.tar\.(bz|bz2|gz)|zip)$","",newfilename)
 				if (NUMERIC) {
 					if ( compare_ver_dec(version, newfilename)==1 ) {
-						if (DEBUG) print "Yes, there is new one"
+						d("Yes, there is new one")
 						version=newfilename
 						finished=1
 					}
 				} else if ( compare_ver(version, newfilename)==1 ) {
-					if (DEBUG) print "Yes, there is new one"
+					d("Yes, there is new one")
 					version=newfilename
 					finished=1
 				}
@@ -480,9 +492,7 @@ function pear_upgrade(name, ver,    pname, pearcmd, nver) {
 	sub(/^php-pear-/, "", pname);
 
 	pearcmd = "pear remote-info " pname " | awk '/^Latest/{print $NF}'"
-	if (DEBUG) {
-		print "pearcmd: " pearcmd
-	}
+	d("pearcmd: " pearcmd)
 	pearcmd | getline nver
 	close(pearcmd)
 
@@ -499,9 +509,7 @@ function vim_upgrade(name, ver,     mver, nver, vimcmd) {
 	# %patchset_source -f ftp://ftp.vim.org/pub/editors/vim/patches/7.2/7.2.%03g 1 %{patchlevel}
 	mver = substr(ver, 0, 4)
 	vimcmd = "wget -q -O - ftp://ftp.vim.org/pub/editors/vim/patches/"mver"/MD5SUMS|grep -vF .gz|tail -n1|awk '{print $2}'"
-	if (DEBUG) {
-		print "vimcmd: " vimcmd
-	}
+	d("vimcmd: " vimcmd)
 	vimcmd | getline nver
 	close(vimcmd)
 
@@ -527,7 +535,7 @@ function process_data(name,ver,rel,src) {
 			gsub(/\%\{nil\}/, "", src[i])
 		}
 		if ( src[i] !~ /%{.*}/ && src[i] !~ /%[A-Za-z0-9_]/ )  {
-			if ( DEBUG ) print "Source: " src[i]
+			d("Source: " src[i])
 			process_source(i,src[i],name,ver)
 		} else {
 			print FNAME ":" i ": impossible substitution: " src[i]

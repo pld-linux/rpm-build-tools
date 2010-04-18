@@ -33,10 +33,9 @@
 #	Try `basename --help' for more information.
 #	-- and the normal usage info --
 
-
-RCSID='$Id$'
-r=${RCSID#* * }
-rev=${r%% *}
+PROGRAM=${0##*/}
+APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
+RCSID='$Id$' r=${RCSID#* * } rev=${r%% *}
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux CVS repository
@@ -211,6 +210,15 @@ if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
 else
 	RPM="rpm"
 	RPMBUILD="rpmbuild"
+fi
+
+#
+# sanity checks
+#
+if [ -d $HOME/rpm/SOURCES ]; then
+	echo "ERROR: ~/rpm/{SPECS,SOURCES} structure is obsolete" >&2
+	echo "ERROR: get rid of your ~/rpm/SOURCES" >&2
+	exit 1
 fi
 
 #
@@ -554,7 +562,7 @@ rpm_dump() {
 
 get_icons() {
 	update_shell_title "get icons"
-	ICONS=$(awk '/^Icon:/ {print $2}' ${ASSUMED_NAME}/${SPECFILE})
+	ICONS=$(awk '/^Icon:/ {print $2}' $PACKAGE_DIR/${SPECFILE})
 	if [ -z "$ICONS" ]; then
 		return
 	fi
@@ -1380,6 +1388,27 @@ check_buildarch() {
 	fi
 }
 
+# from relup.sh
+set_release() {
+	local specfile="$1"
+	local rel="$2"
+	local newrel="$3"
+	sed -i -e "
+		s/^\(%define[ \t]\+_\?rel[ \t]\+\)$rel\$/\1$newrel/
+		s/^\(Release:[ \t]\+\)$rel\$/\1$newrel/
+	" $specfile
+}
+
+set_version() {
+	local specfile="$1"
+	local ver="$2"
+	local newver="$3"
+	sed -i -e "
+		s/^\(%define[ \t]\+_\?ver[ \t]\+\)$ver\$/\1$newver/
+		s/^\(Version:[ \t]\+\)$ver\$/\1$newver/
+	" $specfile
+}
+
 build_package() {
 	update_shell_title "build_package"
 	if [ -n "$DEBUG" ]; then
@@ -1390,29 +1419,29 @@ build_package() {
 	cd "$PACKAGE_DIR"
 
 	if [ -n "$TRY_UPGRADE" ]; then
+		local TNOTIFY TNEWVER TOLDVER
 		update_shell_title "build_package: try_upgrade"
+
 		if [ -n "$FLOAT_VERSION" ]; then
-			TNOTIFY=$(./pldnotify.awk $SPECFILE -n) || exit 1
+			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
 		else
-			TNOTIFY=$(./pldnotify.awk $SPECFILE) || exit 1
+			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
 		fi
 
 		TNEWVER=$(echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }')
 
 		if [ -n "$TNEWVER" ]; then
 			TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
-			echo "New version found, updating spec file to version " $TNEWVER
+			echo "New version found, updating spec file from $TOLDVER to version $TNEWVER"
 			if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
 				cp -f $SPECFILE $SPECFILE.bak
 			fi
 			chmod +w $SPECFILE
-			eval "perl -pi -e 's/Version:\t"$TOLDVER"/Version:\t"$TNEWVER"/gs' $SPECFILE"
-			eval "perl -pi -e 's/Release:\t[1-9]{0,4}/Release:\t0.1/' $SPECFILE"
+			set_release $SPECFILE $PACKAGE_RELEASE 0.1
+			set_version $SPECFILE $PACKAGE_VERSION $TNEWVER
 			parse_spec
 			NODIST="yes" get_files $SOURCES $PATCHES
 			update_md5 $SOURCES
-
-			unset TOLDVER TNEWVER TNOTIFY
 		fi
 	fi
 	cd "$PACKAGE_DIR"
