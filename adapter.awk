@@ -1861,6 +1861,15 @@ function replace_requires() {
 	sub(/^wsdl4j$/, "java-wsdl4j", $2);
 	sub(/^uddi4j$/, "java-uddi4j", $2);
 	sub(/^hamcrest$/, "java-hamcrest", $2);
+	sub(/^jaas$/, "java(jaas)", $2);
+	sub(/^jaf$/, "java(jaf)", $2);
+	sub(/^jaxp$/, "java(jaxp)", $2);
+	sub(/^jaxp_parser_impl$/, "java(jaxp_parser_impl)", $2);
+	sub(/^jce$/, "java(jce)", $2);
+	sub(/^jdbc-stdext$/, "java(jdbc-stdext)", $2);
+	sub(/^jmx$/, "java(jmx)", $2);
+	sub(/^jndi$/, "java(jndi)", $2);
+	sub(/^jsse$/, "java(jsse)", $2);
 
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
