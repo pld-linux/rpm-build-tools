@@ -213,6 +213,15 @@ else
 fi
 
 #
+# sanity checks
+#
+if [ -d $HOME/rpm/SOURCES ]; then
+	echo "ERROR: ~/rpm/{SPECS,SOURCES} structure is obsolete" >&2
+	echo "ERROR: get rid of your ~/rpm/SOURCES" >&2
+	exit 1
+fi
+
+#
 # are we using cvs-nserver ?
 #
 CVS_NSERVER=0
