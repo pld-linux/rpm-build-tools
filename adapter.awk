@@ -1856,7 +1856,9 @@ function replace_requires() {
 	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
 	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
 	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
+	sub(/^xml-commons-apis$/, "java-xml-commons-apis", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
+	sub(/^rhino$/, "java-rhino", $2);
 	sub(/^axis$/, "java-axis", $2);
 	sub(/^wsdl4j$/, "java-wsdl4j", $2);
 	sub(/^uddi4j$/, "java-uddi4j", $2);
@@ -1865,14 +1867,19 @@ function replace_requires() {
 	sub(/^jaf$/, "java(jaf)", $2);
 	sub(/^jaxp$/, "java(jaxp)", $2);
 	sub(/^jaxp_parser_impl$/, "java(jaxp_parser_impl)", $2);
+	sub(/^jaxp_transform_impl$/, "java(jaxp_transform_impl)", $2);
 	sub(/^jce$/, "java(jce)", $2);
 	sub(/^jdbc-stdext$/, "java(jdbc-stdext)", $2);
 	sub(/^jmx$/, "java(jmx)", $2);
 	sub(/^jndi$/, "java(jndi)", $2);
 	sub(/^jsse$/, "java(jsse)", $2);
+	sub(/^jta$/, "java(jta)", $2);
+	sub(/^servlet$/, "java(servlet)", $2);
 	sub(/^javamail$/, "java(javamail)", $2);
+	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
 	sub(/^java\(Servlet\)$/, "java(servlet)", $2);
 	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
+	sub(/^java\(JSP\)$/, "java(jsp)", $2);
 
 	# redhat virtual
 	sub(/^tftp-server$/, "tftpdaemon", $2);
