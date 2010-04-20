@@ -1,7 +1,9 @@
 #!/bin/ksh -e
 
 # Usage:
-#   Just run this script in your rpm/packages/rpm-build-tools directory.
+#   Just run this script in your rpm/packages/rpm-build-tools directory with
+#   no arguments to release new version of rpm-build-tools.
+#   Run "update.sh clean" to clean all local modifications.
 
 # Note:
 #   shebang is /bin/ksh, because arrays are non-posix ksh extension.
@@ -29,6 +31,16 @@ dst[1]=${src[1]}
 dst[2]=builder.sh
 dst[3]=${src[3]}
 dst[4]=${src[4]}
+
+#
+# parse args
+#
+
+if [ "$1" = "clean" ]; then
+		rm ${dst[@]}
+		cvs up ${dst[@]}
+		exit 0
+fi
 
 #
 # Checkout on involved files and check for local modifications.
@@ -94,7 +106,9 @@ printf "Commit log:\n$LOG\nCommit (Yes, No)? "
 read ans
 case "$ans" in
 	[yY])
-		cvs ci -m "$(printf $LOG)" ${dst[@]} ;;
+	  echo "sorry, don't know how to commit"
+		false
+		cvs ci -m $(printf "$LOG") ${dst[@]} ;;
 	*)
 		msg ":(" ;;
 esac
