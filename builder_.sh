@@ -458,6 +458,7 @@ minirpm() {
 %x8664 x86_64 amd64 ia32e
 %alt_kernel %{nil}
 %_alt_kernel %{nil}
+%bootstrap_release() %{1}
 %requires_releq_kernel_up(s:n:) %{nil}
 %requires_releq_kernel_smp(s:n:) %{nil}
 %requires_releq_kernel(s:n:) %{nil}
@@ -500,6 +501,8 @@ minirpm() {
 %remove_etc_shells(p) %{p:<lua>}
 %lua_add_etc_shells()  %{nil}
 %lua_remove_etc_shells() %{nil}
+%required_jdk %{nil}
+%buildrequires_jdk %{nil}
 EOF
 	if [ "$NOINIT" = "yes" ] ; then
 		cat >> $BUILDER_MACROS <<'EOF'
