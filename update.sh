@@ -81,7 +81,7 @@ done
 LOG=""
 msg "Checking wich files need update."
 for I in 0 1 2 3; do
-	if [ "$(diff -I'$Id$Revision: ' -q ../${src[$I]} ${dst[$I]})" ]; then
+	if [ "$(diff -I'$Id[:] ' -I'$Revision[:] ' ../${src[$I]} ${dst[$I]})" ]; then
 	  cat ../${src[$I]} > ${dst[$I]}
 		LOG="$LOG- ${dst[$I]} up to ${rev[$I]}\n"
 	fi
