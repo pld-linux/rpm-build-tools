@@ -1096,6 +1096,8 @@ function use_macros()
 	gsub(py_scriptdir, "%{py_scriptdir}")
 	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
 	gsub("%{python_sitelib}", "%{py_sitedir}")
+#	%{py_sitescriptdir}/*.py[co]
+#	%{python_site}/abrt.pth
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
 	gsub(ruby_ridir, "%{ruby_ridir}")
@@ -1929,6 +1931,16 @@ function replace_requires() {
 	sub(/^libmhash-dev$/, "mhash-devel", $2);
 	sub(/^libqt4-dev$/, "qt4-build", $2);
 	sub(/^libssl-dev$/, "openssl-devel", $2);
+	sub(/^libvorbis-dev$/, "libvorbis-devel", $2);
+	sub(/^libspeex-dev$/, "speex-devel", $2);
+	sub(/^libsndfile1-dev$/, "libsndfile-devel", $2);
+	sub(/^libao-dev$/, "libao-devel", $2);
+	sub(/^libdnet-dev$/, "libdnet-devel", $2);
+	sub(/^libshout3-dev$/, "libshout-devel", $2);
+	sub(/^libesd0-dev$/, "esound-devel", $2);
+	sub(/^liboggz1-dev$/, "libggz-devel", $2);
+	sub(/^libfishsound1-dev$/, "libfishsound-devel", $2);
+	sub(/^libslp-dev$/, "openslp-devel", $2);
 
 	replace_php_virtual_deps()
 }
