@@ -1,7 +1,10 @@
-#!/bin/sh -e
+#!/bin/ksh -e
 
 # Usage:
 #   Just run this script in your rpm/packages/rpm-build-tools directory.
+
+# Note:
+#   shebang is /bin/ksh, because arrays are non-posix ksh extension.
 
 die() {
 	>&2 printf '*** '${1:+"$@\n"}
@@ -25,6 +28,7 @@ dst[0]=adapter.sh
 dst[1]=${src[1]}
 dst[2]=builder.sh
 dst[3]=${src[3]}
+dst[4]=${src[4]}
 
 #
 # Checkout on involved files and check for local modifications.
@@ -90,7 +94,7 @@ printf "Commit log:\n$LOG\nCommit (Yes, No)? "
 read ans
 case "$ans" in
 	[yY])
-		cvs ci -m "$(printf $LOG)" ${dst[0]} ${dst[1]} ${dst[2]} ${dst[3]} ;;
+		cvs ci -m "$(printf $LOG)" ${dst[@]} ;;
 	*)
 		msg ":(" ;;
 esac
