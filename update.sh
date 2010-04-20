@@ -100,15 +100,13 @@ LOG="- up to $ver\n$LOG"
 # Show changes and ask user for confirmation.
 #
 
-cvs di -u | diffcol | ${PAGER:-'less -r'}
+cvs di -u ${dst[@]} | diffcol | ${PAGER:-'less -r'}
 
 printf "Commit log:\n$LOG\nCommit (Yes, No)? "
 read ans
 case "$ans" in
 	[yY])
-	  echo "sorry, don't know how to commit"
-		false
-		cvs ci -m $(printf "$LOG") ${dst[@]} ;;
+		cvs ci -m "$(printf "$LOG")" ${dst[@]} ;;
 	*)
 		msg ":(" ;;
 esac
