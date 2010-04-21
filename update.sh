@@ -6,7 +6,7 @@
 #   Run "update.sh clean" to clean all local modifications.
 
 # Note:
-#   shebang is /bin/ksh, because arrays are non-posix ksh extension.
+#   shebang is /bin/ksh, because arrays are non-posix bash/ksh extension.
 
 die() {
 	>&2 printf '*** '${1:+"$@\n"}
