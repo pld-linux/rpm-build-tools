@@ -1096,8 +1096,6 @@ function use_macros()
 	gsub(py_scriptdir, "%{py_scriptdir}")
 	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
 	gsub("%{python_sitelib}", "%{py_sitedir}")
-#	%{py_sitescriptdir}/*.py[co]
-#	%{python_site}/abrt.pth
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
 	gsub(ruby_ridir, "%{ruby_ridir}")
@@ -1910,7 +1908,7 @@ function replace_requires() {
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 
-	# debian
+	# debian / ubuntu
 	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
 	sub(/^libglib2.0-dev$/, "glib2-devel", $2);
 	sub(/^libgtk2.0-dev$/, "gtk+2-devel", $2);
@@ -1941,6 +1939,8 @@ function replace_requires() {
 	sub(/^liboggz1-dev$/, "libggz-devel", $2);
 	sub(/^libfishsound1-dev$/, "libfishsound-devel", $2);
 	sub(/^libslp-dev$/, "openslp-devel", $2);
+	sub(/^blkid-dev$/, "libblkid-devel", $2);
+	sub(/^ext2fs-dev$/, "e2fsprogs-devel", $2);
 
 	replace_php_virtual_deps()
 }
