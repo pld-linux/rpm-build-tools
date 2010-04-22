@@ -1840,7 +1840,6 @@ function replace_php_virtual_deps() {
 function replace_requires() {
 
 	# jpackages
-	sub(/^java-devel$/, "jdk", $2);
 	sub(/^axis$/, "java-axis", $2);
 	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
 	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
@@ -1851,6 +1850,11 @@ function replace_requires() {
 	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
 	sub(/^jakarta-log4j$/, "java-log4j", $2);
 	sub(/^jakarta-oro$/, "java-oro", $2);
+	sub(/^java-devel$/, "jdk", $2);
+	sub(/^java\(JSP\)$/, "java(jsp)", $2);
+	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
+	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
+	sub(/^java\(Servlet\)$/, "java(servlet)", $2);
 	sub(/^javamail$/, "java(javamail)", $2);
 	sub(/^jaxp$/, "java(jaxp)", $2);
 	sub(/^jaxp_parser_impl$/, "java(jaxp_parser_impl)", $2);
@@ -1870,77 +1874,70 @@ function replace_requires() {
 	sub(/^servlet$/, "java(servlet)", $2);
 	sub(/^uddi4j$/, "java-uddi4j", $2);
 	sub(/^wsdl4j$/, "java-wsdl4j", $2);
-	sub(/^xalan-j2$/, "java-xalan", $2);
 	sub(/^xalan-j$/, "java-xalan", $2);
-	sub(/^xerces-j2$/, "java-xerces", $2);
+	sub(/^xalan-j2$/, "java-xalan", $2);
 	sub(/^xerces-j$/, "java-xerces", $2);
+	sub(/^xerces-j2$/, "java-xerces", $2);
 	sub(/^xml-commons-apis$/, "java-xml-commons-apis", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
-	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
-	sub(/^java\(Servlet\)$/, "java(servlet)", $2);
-	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
-	sub(/^java\(JSP\)$/, "java(jsp)", $2);
 
-	# redhat virtual
-	sub(/^tftp-server$/, "tftpdaemon", $2);
-
-	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
+	# fedora / redhat
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
-
-	# fedora
-	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
+	sub(/^dbus-python$/, "python-dbus", $2);
+	sub(/^file-devel$/, "libmagic-devel", $2);
+	sub(/^gamin-python$/, "python-gamin", $2);
+	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
 	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
 	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
-	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
-	sub(/^pygtk2$/, "python-pygtk", $2);
-	sub(/^qt4-devel$/, "qt4-build", $2);
-	sub(/^file-devel$/, "libmagic-devel", $2);
-	sub(/^gamin-python$/, "python-gamin", $2);
+	sub(/^initscripts$/, "rc-scripts", $2);
+	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
+	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
+	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
-	sub(/^tkinter$/, "python-tkinter", $2);
+	sub(/^pygtk2$/, "python-pygtk", $2);
+	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
-	sub(/^initscripts$/, "rc-scripts", $2);
-	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
-	sub(/^dbus-python$/, "python-dbus", $2);
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
-	sub(/^notify-python$/, "python-pynotify", $2);
+	sub(/^qt4-devel$/, "qt4-build", $2);
+	sub(/^tftp-server$/, "tftpdaemon", $2);
+	sub(/^tkinter$/, "python-tkinter", $2);
 
 	# debian / ubuntu
-	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
-	sub(/^libglib2.0-dev$/, "glib2-devel", $2);
-	sub(/^libgtk2.0-dev$/, "gtk+2-devel", $2);
-	sub(/^libhunspell-dev$/, "hunspell-devel", $2);
-	sub(/^libpango1.0-dev$/, "pango-devel", $2);
-	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
-	sub(/^libgl1-mesa-dev$/, "OpenGL-devel", $2);
-	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
-	sub(/^libgl1-mesa-dri$/, "OpenGL", $2);
-	sub(/^libglu1-mesa-dev$/, "OpenGL-GLU-devel", $2);
-	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
+	sub(/^blkid-dev$/, "libblkid-devel", $2);
+	sub(/^ext2fs-dev$/, "e2fsprogs-devel", $2);
+	sub(/^libao-dev$/, "libao-devel", $2);
 	sub(/^libboost-filesystem[0-9.]+-dev$/, "boost-devel", $2);
 	sub(/^libboost-program-options[0-9.]+-dev$/, "boost-devel", $2);
 	sub(/^libboost-regex[0-9.]+-dev$/, "boost-devel", $2);
 	sub(/^libboost-thread[0-9.]+-dev$/, "boost-devel", $2);
-	sub(/^libmcrypt-dev$/, "libmcrypt-devel", $2);
 	sub(/^libcurl4-openssl-dev$/, "curl-devel", $2);
+	sub(/^libdnet-dev$/, "libdnet-devel", $2);
+	sub(/^libesd0-dev$/, "esound-devel", $2);
+	sub(/^libfishsound1-dev$/, "libfishsound-devel", $2);
+	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
+	sub(/^libgl1-mesa-dev$/, "OpenGL-devel", $2);
+	sub(/^libgl1-mesa-dri$/, "OpenGL", $2);
+	sub(/^libglib2.0-dev$/, "glib2-devel", $2);
+	sub(/^libglu1-mesa-dev$/, "OpenGL-GLU-devel", $2);
+	sub(/^libgtk2.0-dev$/, "gtk+2-devel", $2);
+	sub(/^libhunspell-dev$/, "hunspell-devel", $2);
+	sub(/^libmcrypt-dev$/, "libmcrypt-devel", $2);
 	sub(/^libmhash-dev$/, "mhash-devel", $2);
+	sub(/^liboggz1-dev$/, "libggz-devel", $2);
+	sub(/^libpango1.0-dev$/, "pango-devel", $2);
 	sub(/^libqt4-dev$/, "qt4-build", $2);
+	sub(/^libshout3-dev$/, "libshout-devel", $2);
+	sub(/^libslp-dev$/, "openslp-devel", $2);
+	sub(/^libsndfile1-dev$/, "libsndfile-devel", $2);
+	sub(/^libspeex-dev$/, "speex-devel", $2);
 	sub(/^libssl-dev$/, "openssl-devel", $2);
 	sub(/^libvorbis-dev$/, "libvorbis-devel", $2);
-	sub(/^libspeex-dev$/, "speex-devel", $2);
-	sub(/^libsndfile1-dev$/, "libsndfile-devel", $2);
-	sub(/^libao-dev$/, "libao-devel", $2);
-	sub(/^libdnet-dev$/, "libdnet-devel", $2);
-	sub(/^libshout3-dev$/, "libshout-devel", $2);
-	sub(/^libesd0-dev$/, "esound-devel", $2);
-	sub(/^liboggz1-dev$/, "libggz-devel", $2);
-	sub(/^libfishsound1-dev$/, "libfishsound-devel", $2);
-	sub(/^libslp-dev$/, "openslp-devel", $2);
-	sub(/^blkid-dev$/, "libblkid-devel", $2);
-	sub(/^ext2fs-dev$/, "e2fsprogs-devel", $2);
+	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
+	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
+	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
 
 	replace_php_virtual_deps()
 }
