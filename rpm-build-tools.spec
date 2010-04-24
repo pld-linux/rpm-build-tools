@@ -16,6 +16,7 @@ Source2:	adapter.sh
 Source3:	pldnotify.awk
 BuildRequires:	sed >= 4.0
 Requires:	gawk
+Requires:	grep
 Requires:	less
 Requires:	perl
 Requires:	rpm-build
