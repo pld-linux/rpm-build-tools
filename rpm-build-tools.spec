@@ -17,12 +17,15 @@ Source3:	pldnotify.awk
 BuildRequires:	sed >= 4.0
 Requires:	gawk
 Requires:	less
+Requires:	perl
 Requires:	rpm-build
 Requires:	rpm-build-macros >= 1.539
+Requires:	sed >= 4.0
 Requires:	util-linux
 Requires:	wget
 Suggests:	cvs-client
 Suggests:	rpm-specdump >= 0.3
+Suggests:	schedtool
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
