@@ -18,7 +18,7 @@ BuildRequires:	sed >= 4.0
 Requires:	gawk
 Requires:	grep
 Requires:	less
-Requires:	perl
+Requires:	perl-base
 Requires:	rpm-build
 Requires:	rpm-build-macros >= 1.539
 Requires:	sed >= 4.0
