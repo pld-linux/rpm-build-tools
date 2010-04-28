@@ -1840,7 +1840,9 @@ function replace_php_virtual_deps() {
 function replace_requires() {
 
 	# jpackages
+	sub(/^antlr3$/, "java-antlr3", $2);
 	sub(/^axis$/, "java-axis", $2);
+	sub(/^bsf$/, "java-bsf", $2);
 	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
 	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
 	sub(/^hamcrest$/, "java-hamcrest", $2);
@@ -1861,10 +1863,13 @@ function replace_requires() {
 	sub(/^jaxp_transform_impl$/, "java(jaxp_transform_impl)", $2);
 	sub(/^jce$/, "java(jce)", $2);
 	sub(/^jdbc-stdext$/, "java(jdbc-stdext)", $2);
+	sub(/^jdepend$/, "java-jdepend", $2);
 	sub(/^jmx$/, "java(jmx)", $2);
 	sub(/^jndi$/, "java(jndi)", $2);
+	sub(/^jsch$/, "java-jsch", $2);
 	sub(/^jsse$/, "java(jsse)", $2);
 	sub(/^jta$/, "java(jta)", $2);
+	sub(/^junit$/, "java-junit", $2);
 	sub(/^ldapjdk$/, "ldapsdk", $2);
 	sub(/^log4j$/, "java-log4j", $2);
 	sub(/^logging-log4j$/, "java-log4j", $2);
