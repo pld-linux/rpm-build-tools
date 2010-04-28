@@ -1862,8 +1862,10 @@ function replace_requires() {
 	sub(/^jaxp_parser_impl$/, "java(jaxp_parser_impl)", $2);
 	sub(/^jaxp_transform_impl$/, "java(jaxp_transform_impl)", $2);
 	sub(/^jce$/, "java(jce)", $2);
+	sub(/^jcommon$/, "java-jcommon", $2);
 	sub(/^jdbc-stdext$/, "java(jdbc-stdext)", $2);
 	sub(/^jdepend$/, "java-jdepend", $2);
+	sub(/^jfreechart$/, "java-jfreechart", $2);
 	sub(/^jmx$/, "java(jmx)", $2);
 	sub(/^jndi$/, "java(jndi)", $2);
 	sub(/^jsch$/, "java-jsch", $2);
