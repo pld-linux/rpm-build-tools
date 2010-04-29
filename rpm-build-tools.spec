@@ -27,6 +27,7 @@ Requires:	wget
 Suggests:	cvs-client
 Suggests:	rpm-specdump >= 0.3
 Suggests:	schedtool
+Suggests:	vim-syntax-spec
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
