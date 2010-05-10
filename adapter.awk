@@ -1890,6 +1890,7 @@ function replace_requires() {
 
 	# fedora / redhat
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
+	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
 	sub(/^gamin-python$/, "python-gamin", $2);
@@ -1901,6 +1902,7 @@ function replace_requires() {
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
+	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
@@ -1909,6 +1911,7 @@ function replace_requires() {
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
 	sub(/^qt4-devel$/, "qt4-build", $2);
+	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 	sub(/^tkinter$/, "python-tkinter", $2);
 
