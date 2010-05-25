@@ -39,7 +39,9 @@ obsolete = []
 for file in os.listdir(dir):
     file = os.path.basename(file)
     if file in [ '.', '..', 'CVS', '.cvsignore', 'dropin', 'md5', 'adapter', 'builder',
-            'relup.sh', 'compile.sh', 'repackage.sh', 'TODO', os.path.basename(spec) ]:
+            'relup.sh', 'compile.sh', 'repackage.sh', 'rsync.sh', 'TODO', os.path.basename(spec) ]:
+        continue
+    if file[:4] == 'log.' or file[:2] == '.#' or file[-1] == '~': # IndexError: or file[-5] == '.orig':
         continue
     if file not in files:
         print "Obsolete file: %s" % file
@@ -49,6 +51,3 @@ if obsolete:
     print
     print "cvs rm -f %s" % " ".join(obsolete)
     print "cvs commit -m '- drop obsolete files' %s" % " ".join(obsolete)
-
-
-
