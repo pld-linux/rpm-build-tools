@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import os
+import fnmatch
 
 if len(sys.argv) != 2:
     print >> sys.stderr, "Usage: %s <spec>" % sys.argv[0]
@@ -36,13 +37,22 @@ for l in out.split('\n'):
 
 obsolete = []
 
-for file in os.listdir(dir):
-    file = os.path.basename(file)
+def blacklisted(file):
     if file in [ '.', '..', 'CVS', '.cvsignore', 'dropin', 'md5', 'adapter', 'builder',
             'relup.sh', 'compile.sh', 'repackage.sh', 'rsync.sh', 'TODO', os.path.basename(spec) ]:
+        return True
+
+    for pat in ['log.*', '.#*', '*~', '*.orig', '*.sw?']:
+        if fnmatch.fnmatch(file, pat):
+            return True
+
+    return False
+
+for file in os.listdir(dir):
+    file = os.path.basename(file)
+    if blacklisted(file):
         continue
-    if file[:4] == 'log.' or file[:2] == '.#' or file[-1] == '~': # IndexError: or file[-5] == '.orig':
-        continue
+
     if file not in files:
         print "Obsolete file: %s" % file
         obsolete.append(file)
