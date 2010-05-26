@@ -38,8 +38,11 @@ for l in out.split('\n'):
 obsolete = []
 
 def blacklisted(file):
+    if file == os.path.basename(spec):
+        return True
+
     if file in [ '.', '..', 'CVS', '.cvsignore', 'dropin', 'md5', 'adapter', 'builder',
-            'relup.sh', 'compile.sh', 'repackage.sh', 'rsync.sh', 'TODO', os.path.basename(spec) ]:
+            'relup.sh', 'compile.sh', 'repackage.sh', 'pearize.sh', 'rsync.sh', 'TODO']:
         return True
 
     for pat in ['log.*', '.#*', '*~', '*.orig', '*.sw?']:
