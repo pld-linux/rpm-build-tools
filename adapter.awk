@@ -1648,8 +1648,13 @@ function unify_url(url)
 	sub("^http://apache.zone-h.org/", "http://www.apache.org/dist/", url)
 
 	# gnu.org
-	sub("^ftp://ftp.gnu.org/", "http://ftp.gnu.org/", url)
-	sub("^http://ftp.gnu.org/pub/gnu/", "http://ftp.gnu.org/gnu/", url)
+	sub("^ftp://ftp\.gnu\.org/", "http://ftp.gnu.org/", url)
+	sub("^http://ftp\.gnu\.org/pub/gnu/", "http://ftp.gnu.org/gnu/", url)
+
+	# debian.org
+	sub("^ftp://ftp\.[^.]+\.debian\.org/", "ftp://ftp.debian.org/", url)
+	sub("^http://ftp\.[^.]+\.debian\.org/", "ftp://ftp.debian.org/", url)
+	sub("^ftp://ftp\.debian\.org/pub/debian/", "ftp://ftp.debian.org/debian/", url)
 
 	return url
 }
