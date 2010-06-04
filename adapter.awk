@@ -773,6 +773,9 @@ preamble == 1 {
 		if (l == "GPLv3+") {
 			l = "GPL v3+"
 		}
+		if (l == "MPLv1.1") {
+			l = "MPL v1.1"
+		}
 		$0 = "License:\t" l;
 	}
 
@@ -1095,7 +1098,6 @@ function use_macros()
 	gsub(py_sitedir, "%{py_sitedir}")
 	gsub(py_scriptdir, "%{py_scriptdir}")
 	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
-	gsub("%{python_sitelib}", "%{py_sitedir}")
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
 	gsub(ruby_ridir, "%{ruby_ridir}")
@@ -1302,6 +1304,10 @@ function use_macros()
 	# fedora
 	gsub("%{ruby_sitearch}", "%{ruby_sitearchdir}")
 	gsub("%{python_sitearch}", "%{py_sitedir}")
+	gsub("%{python_sitelib}", "%{py_sitescriptdir}")
+
+	# alt linux
+	gsub("%_man1dir", "%{_mandir}/man1")
 
 	# mandrake specs
 	gsub("^%make$", "%{__make}")
@@ -1890,8 +1896,10 @@ function replace_requires() {
 
 	# fedora / redhat
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
+	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
+	sub(/^Django$/, "python-django", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
@@ -1903,13 +1911,16 @@ function replace_requires() {
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
+	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
+	sub(/^python-enchant$/, "python-pyenchant", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
+	sub(/^python2-devel$/, "python-devel", $2);
 	sub(/^qt4-devel$/, "qt4-build", $2);
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
 	sub(/^tftp-server$/, "tftpdaemon", $2);
