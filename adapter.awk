@@ -1895,11 +1895,10 @@ function replace_requires() {
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 
 	# fedora / redhat
+	sub(/^Django$/, "python-django", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
-	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
-	sub(/^Django$/, "python-django", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
@@ -1925,6 +1924,7 @@ function replace_requires() {
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 	sub(/^tkinter$/, "python-tkinter", $2);
+	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 
 	# debian / ubuntu
 	sub(/^blkid-dev$/, "libblkid-devel", $2);
