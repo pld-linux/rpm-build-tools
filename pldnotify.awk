@@ -413,7 +413,7 @@ function process_source(number,lurl,name,version) {
 		# in /something/ looking for newer directory
 		dir=substr(dir,1,index(dir,version)-1)
 		sub("[^/]*$","",dir)
-		sub("(\.tar\.(bz|bz2|gz|xz)|zip)$","",filename)
+		sub("(\.tar\.(bz|bz2|gz|lzma|xz)|zip)$","",filename)
 	}
 
 	d("Will check a directory: " dir)
@@ -465,7 +465,7 @@ function process_source(number,lurl,name,version) {
 				d("Version: " newfilename)
 				if (newfilename ~ /\.(asc|sig|pkg|bin|binary|built)$/) continue
 				# strip ending (happens when in directiory name as version matching mode)
-				sub("(\.tar\.(bz|bz2|gz|xz)|zip)$","",newfilename)
+				sub("(\.tar\.(bz|bz2|gz|lzma|xz)|zip)$","",newfilename)
 				if (NUMERIC) {
 					if ( compare_ver_dec(version, newfilename)==1 ) {
 						d("Yes, there is new one")
