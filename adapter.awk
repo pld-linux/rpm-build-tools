@@ -1852,6 +1852,8 @@ function replace_requires() {
 
 	# jpackages
 	sub(/^antlr3$/, "java-antlr3", $2);
+	sub(/^avalon-framework$/, "java-avalon-framework", $2);
+	sub(/^avalon-logkit$/, "java-avalon-logkit", $2);
 	sub(/^axis$/, "java-axis", $2);
 	sub(/^bsf$/, "java-bsf", $2);
 	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
@@ -1863,6 +1865,7 @@ function replace_requires() {
 	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
 	sub(/^jakarta-log4j$/, "java-log4j", $2);
 	sub(/^jakarta-oro$/, "java-oro", $2);
+	sub(/^jakarta-servletapi$/, "java(servlet)", $2);
 	sub(/^java-devel$/, "jdk", $2);
 	sub(/^java\(JSP\)$/, "java(jsp)", $2);
 	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
