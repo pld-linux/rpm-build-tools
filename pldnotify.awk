@@ -14,6 +14,7 @@
 # TODO:
 # - "SourceXDownload" support (use given URLs if present instead of cut-down SourceX URLs)
 # - "SourceXActiveFTP" support
+# - support debian/watch http://wiki.debian.org/debian/watch/
 
 
 function d(s) {
