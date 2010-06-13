@@ -739,7 +739,7 @@ get_spec() {
 
 			# create symlinks for tools
 			if [ "$SYMLINK_TOOLS" != "no" ]; then
-				for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh; do
+				for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
 					[ -f $a ] || continue
 					ln -s ../$a $ASSUMED_NAME
 					cvsignore_df $a
