@@ -1500,7 +1500,7 @@ build_package() {
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
 		if [ -n "$TRY_UPGRADE" ]; then
-			echo "\n!!! Package with new version cannot be built automagically\n"
+			echo "\nPackage upgrade failed. Restoring old spec file.\n"
 			if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
 				mv -f $SPECFILE.bak $SPECFILE
 			fi
