@@ -1413,19 +1413,13 @@ set_version() {
 	" $specfile
 }
 
-build_package() {
-	update_shell_title "build_package"
-	if [ -n "$DEBUG" ]; then
-		set -x
-		set -v
-	fi
-
-	cd "$PACKAGE_DIR"
-
+try_upgrade() {
 	if [ -n "$TRY_UPGRADE" ]; then
 		local TNOTIFY TNEWVER TOLDVER
 		update_shell_title "build_package: try_upgrade"
 
+		cd "$PACKAGE_DIR"
+		
 		if [ -n "$FLOAT_VERSION" ]; then
 			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
 		else
@@ -1441,13 +1435,22 @@ build_package() {
 				cp -f $SPECFILE $SPECFILE.bak
 			fi
 			chmod +w $SPECFILE
-			set_release $SPECFILE $PACKAGE_RELEASE 0.1
+			set_release $SPECFILE $PACKAGE_RELEASE 1
 			set_version $SPECFILE $PACKAGE_VERSION $TNEWVER
 			parse_spec
-			NODIST="yes" get_files $SOURCES $PATCHES
-			update_md5 $SOURCES
+			return 1
 		fi
 	fi
+	return 0
+}
+
+build_package() {
+	update_shell_title "build_package"
+	if [ -n "$DEBUG" ]; then
+		set -x
+		set -v
+	fi
+
 	cd "$PACKAGE_DIR"
 
 	case "$COMMAND" in
@@ -2439,8 +2442,17 @@ case "$COMMAND" in
 			if [ -n "$NOSOURCE0" ] ; then
 				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 			fi
-			get_files $SOURCES $PATCHES
-			check_md5 $SOURCES
+			try_upgrade
+			case $? in
+				0)
+					get_files $SOURCES $PATCHES
+					check_md5 $SOURCES
+					;;
+				*)
+					NODIST="yes" get_files $SOURCES $PATCHES
+					update_md5 $SOURCES
+					;;
+			esac
 			build_package
 			if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
 				run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
