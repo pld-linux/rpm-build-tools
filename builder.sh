@@ -19,7 +19,6 @@
 #	100 - Unknown error (should not happen)
 
 # Notes (todo/bugs):
-# - builder -u fetches current version first (well that's okay, how you compare versions if you have no old spec?)
 # - when Icon: field is present, -5 and -a5 doesn't work
 # - builder -R skips installing BR if spec is not present before builder invocation (need to run builder twice)
 # - does not respect NoSource: X, and tries to cvs up such files [ example: VirtualBox-bin.spec and its Source0 ]
