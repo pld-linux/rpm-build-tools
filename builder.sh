@@ -1500,10 +1500,12 @@ build_package() {
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
 		if [ -n "$TRY_UPGRADE" ]; then
-			echo "\nPackage upgrade failed. Restoring old spec file.\n"
+			echo "\nUpgrade package to new version failed."
 			if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
+				echo "Restoring old spec file."
 				mv -f $SPECFILE.bak $SPECFILE
 			fi
+			echo ""
 		fi
 		Exit_error err_build_fail
 	fi
