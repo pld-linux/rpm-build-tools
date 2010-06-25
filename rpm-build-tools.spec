@@ -1,3 +1,4 @@
+%define		builder_ver	1.621
 Summary:	Scripts for managing .spec files and building RPM packages
 Summary(de.UTF-8):	Scripts fürs Bauen binärer RPM-Pakete
 Summary(pl.UTF-8):	Skrypty pomocnicze do zarządznia plikami .spec i budowania RPM-ów
@@ -10,7 +11,8 @@ Release:	1
 License:	GPL
 Group:		Applications/File
 Group:		Base
-Source0:	builder.sh
+Source0:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/builder?rev=%{builder_ver}#/builder.sh
+# Source0-md5:	3e9000561e11bd2385ac14880e45db12
 Source1:	adapter.awk
 Source2:	adapter.sh
 Source3:	pldnotify.awk
