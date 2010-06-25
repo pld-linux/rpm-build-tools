@@ -12,7 +12,7 @@ License:	GPL
 Group:		Applications/File
 Group:		Base
 Source0:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/builder?rev=%{builder_ver}#/builder.sh
-# Source0-md5:	3e9000561e11bd2385ac14880e45db12
+# Source0-md5:	bc6163cd6dd40cc394c57e3805629fba
 Source1:	adapter.awk
 Source2:	adapter.sh
 Source3:	pldnotify.awk
