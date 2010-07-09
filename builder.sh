@@ -466,6 +466,8 @@ minirpm() {
 %requires_eq() %{nil}
 %requires_eq_to() %{nil}
 %requires_ge() %{nil}
+%requires_ge_to() %{nil}
+%requires_ge() %{nil}
 %releq_kernel_up(n:) ERROR
 %releq_kernel_smp(n:) ERROR
 %releq_kernel(n:) ERROR
