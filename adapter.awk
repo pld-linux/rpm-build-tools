@@ -1908,6 +1908,7 @@ function replace_requires() {
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
+	sub(/^fuse-devel$/, "libfuse-devel", $2);
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
