@@ -22,7 +22,7 @@ Requires:	grep
 Requires:	less
 Requires:	perl-base
 Requires:	rpm-build
-Requires:	rpm-build-macros >= 1.539
+Requires:	rpmbuild(macros) >= 1.539
 Requires:	sed >= 4.0
 Requires:	util-linux
 Requires:	wget
