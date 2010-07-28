@@ -1902,6 +1902,9 @@ function replace_requires() {
 	sub(/^xml-commons-apis$/, "java-xml-commons-apis", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 
+	# use virtual, not package name
+	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2);
+
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
