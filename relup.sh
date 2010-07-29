@@ -102,8 +102,15 @@ for spec in "$@"; do
 	fi
 	rel=$(get_release "$spec")
 	if [ "$inc" = 1 ]; then
-		newrel=$(expr $rel + 1)
-		set_release "$spec" $rel $newrel
+		if [[ $rel = *%* ]]; then
+			relmacro=${rel#*%}
+			relnum=${rel%%%*}
+			newrel=$(expr ${relnum} + 1)
+			set_release "$spec" $rel "${newrel}%${relmacro}"
+		else
+			newrel=$(expr ${rel} + 1)
+			set_release "$spec" $rel $newrel
+		fi
 
 		# refetch release
 		rel=$(get_release "$spec")
