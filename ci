@@ -11,6 +11,11 @@ if [ $# -ne 1 -o ! -d "$SPECFILE" -o ! -f "$SPEC" ]; then
 	exit 1
 fi
 
+if [ ! -x "$PWD/civim" ]; then
+	echo "civim missing"
+	exit 1
+fi
+
 diffcol()
 {
 	# vim like diff colourization
