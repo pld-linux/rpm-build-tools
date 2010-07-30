@@ -47,10 +47,13 @@ cvs -z9 diff -u $SPECFILE | diffcol
 
 echo -n "Proceed ? "
 read ans
-
-if [ "$ans" != "y" ]; then
+case "$ans" in
+Y|y|O|o)
+	;;
+*)
 	exit
-fi
+	;;
+esac
 
 sed '/^# AUTO: /d' -i "$SPEC"
 SIMPLE_DIFF="$(cvs -z9 diff "$SPEC")"
@@ -101,9 +104,13 @@ echo "Message:"
 echo "$msg"
 echo -n "Commit ? "
 read ans
-if [ "$ans" != "y" ]; then
+case "$ans" in
+Y|y|O|o)
+	;;
+*)
 	exit
-fi
+	;;
+esac
 
 export COMMIT_MESSAGE="$msg"
 export COMMIT_PACKAGES="$SPECFILE"
