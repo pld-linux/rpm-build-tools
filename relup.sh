@@ -1,11 +1,8 @@
 #!/bin/sh
-# script to run after "rel up" style change.
+# script to run after "release bump" style change.
 # takes Release from spec and creates commit with message
 # groups similiar commits together.
-# "- rel $rel"
-# - fails when specfile defines Icon: but the icon is not present in SOURCES
-# TODO
-# - optional message after rel: "- rel 9 (rebuild with foolib)"
+# "- release $rel"
 
 set -e
 
