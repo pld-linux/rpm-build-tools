@@ -2301,7 +2301,7 @@ while [ $# -gt 0 ]; do
 			Exit_error err_invalid_cmdline "$1"
 			;;
 		*)
-			SPECFILE=$1; shift
+			SPECFILE=${1%/}; shift
 			# check if specname was passed as specname:cvstag
 			if [ "${SPECFILE##*:}" != "${SPECFILE}" ]; then
 				CVSTAG="${SPECFILE##*:}"
