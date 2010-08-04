@@ -1850,6 +1850,11 @@ function replace_php_virtual_deps() {
 
 function replace_requires() {
 
+	sub(/^freetype2-devel$/, "freetype-devel", $2);
+
+	# use virtual, not package name
+	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2);
+
 	# jpackages
 	sub(/^antlr3$/, "java-antlr3", $2);
 	sub(/^avalon-framework$/, "java-avalon-framework", $2);
@@ -1901,9 +1906,6 @@ function replace_requires() {
 	sub(/^xerces-j2$/, "java-xerces", $2);
 	sub(/^xml-commons-apis$/, "java-xml-commons-apis", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
-
-	# use virtual, not package name
-	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2);
 
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
