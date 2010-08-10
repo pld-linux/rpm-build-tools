@@ -1927,6 +1927,7 @@ function replace_requires() {
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
+	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
