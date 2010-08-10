@@ -47,7 +47,7 @@ filter() {
 
 svn diff \
 	svn://${ANONSVN}/home/kde/tags/KDE/${ver}/$diffprog \
-	svn://${ANONSVN}/home/kde/branches/KDE/4.4/$diffprog \
+	svn://${ANONSVN}/home/kde/branches/KDE/4.5/$diffprog \
 	| filter "$prog" \
 	> kde4-$prog-branch.diff
 
