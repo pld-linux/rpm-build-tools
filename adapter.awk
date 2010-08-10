@@ -1909,6 +1909,7 @@ function replace_requires() {
 
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
+	sub(/^GitPython$/, "python-git", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
