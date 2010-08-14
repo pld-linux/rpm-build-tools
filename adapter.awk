@@ -925,7 +925,7 @@ preamble == 1 {
 #	so don't do that.
 # - comments leading the BR/R can not be associated,
 #	so don't adapterize when the BR/R are mixed with comments
-ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS, $0 ~ PREAMBLE_TAGS {
+ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS ":", $0 ~ PREAMBLE_TAGS ":"{
 	if ($1 ~ /Pre[Rr]eq:/) {
 		sub(/Pre[Rr]eq:/, "Requires:", $1);
 	}
