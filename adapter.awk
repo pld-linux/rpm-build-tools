@@ -2036,6 +2036,7 @@ function replace_groupnames(group) {
 	group = replace(group, "X11/Utilities", "X11/Applications");
 	group = replace(group, "X11/XFree86", "X11");
 	group = replace(group, "X11/Xserver", "X11/Servers");
+	group = replace(group, "Applications/Web", "Applications/WWW");
 
 	return group;
 }
