@@ -41,7 +41,7 @@ def blacklisted(file):
     if file == os.path.basename(spec):
         return True
 
-    if file in [ '.', '..', 'CVS', '.cvsignore', 'dropin', 'md5', 'adapter', 'builder',
+    if file in [ '.', '..', 'CVS', '.cvsignore', 'dropin', 'md5', 'adapter', 'builder', 'pldnotify.awk',
             'relup.sh', 'compile.sh', 'repackage.sh', 'pearize.sh', 'rsync.sh', 'TODO']:
         return True
 
