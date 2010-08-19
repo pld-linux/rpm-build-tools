@@ -128,6 +128,9 @@ optional=$(grep '^Optional:' $template || :)
 if [ -n "$optional" ]; then
 	echo "$optional" | while read tag dep; do
 		for req in $dep; do
+			# strip single quotes that default template includes in @optional@ expand
+			# TODO: remove in php-pear-PEAR_Command_Packaging package
+			req=${req#\'} req=${req%\'}
 			m=$(grep "^%define.*_noautoreq" $spec || :)
 			if [ -z "$m" ]; then
 				sed -i -e "/^BuildRoot:/{
