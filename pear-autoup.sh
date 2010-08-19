@@ -30,7 +30,7 @@ for pkg in $(cat pear.pkgs); do
 	# check for bad versions (which needs macros
 	ver=$(awk '/^Version:/{print $2; exit}' $pkg/$pkg.spec);
 	case "$ver" in
-	*RC* | *a* | *b* | *alpha* | *beta*)
+	*RC* | *a* | *b* | *alpha* | *beta* | *dev*)
 		cat >&2 <<-EOF
 
 		Package $pkg contains bad version: $ver
