@@ -37,19 +37,28 @@ for l in out.split('\n'):
 
 obsolete = []
 
+# files to exclude
+exclude = ['log.*', '.#*', '*~', '*.orig', '*.sw?']
+
+# read .cvsignore, distfiles files are filled there
+if os.path.isfile('%s/.cvsignore' % dir):
+    f = open('%s/.cvsignore' % dir , 'r')
+    for l in f.readlines():
+        exclude.append(l.rstrip())
+
 def blacklisted(file):
     if file == os.path.basename(spec):
         return True
 
-    if file in [ '.', '..', 'CVS', '.cvsignore', 'dropin', 'md5', 'adapter', 'builder', 'pldnotify.awk',
-            'relup.sh', 'compile.sh', 'repackage.sh', 'pearize.sh', 'rsync.sh', 'TODO']:
+    if file in [ '.', '..', 'CVS', 'TODO']:
         return True
 
-    for pat in ['log.*', '.#*', '*~', '*.orig', '*.sw?']:
+    for pat in exclude:
         if fnmatch.fnmatch(file, pat):
             return True
 
     return False
+
 
 for file in os.listdir(dir):
     file = os.path.basename(file)
