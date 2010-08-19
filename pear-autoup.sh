@@ -18,7 +18,7 @@ sed -i -e '/php-pear-DB_DataObject-cli/d' pear.pkgs
 
 for pkg in $(cat pear.pkgs); do
 	[ -d $pkg ] && continue
-	./builder -bb -u $pkg || {
+	./builder -bb -u $pkg --define "_unpackaged_files_terminate_build 1" || {
 		cat >&2 <<-EOF
 
 		$pkg failed
