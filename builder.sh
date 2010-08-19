@@ -738,6 +738,15 @@ get_spec() {
 			rm "$ASSUMED_NAME/CVS/Entries.Static"
 			cvsignore_df .cvsignore
 
+			# add default log format to .cvsignore if it is relative
+			if [ "$LOGFILE" == $(basename "$LOGFILE") ]; then
+				# substitute known "macros" to glob
+				local logfile=$(echo "$LOGFILE" | sed -e 's,\$\(PACKAGE_NAME\|DATE\),*,g')
+				if [ "$logfile" ]; then
+					cvsignore_df "$logfile"
+				fi
+			fi
+
 			# create symlinks for tools
 			if [ "$SYMLINK_TOOLS" != "no" ]; then
 				for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
