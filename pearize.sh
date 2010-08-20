@@ -77,7 +77,20 @@ template=.$template~
 add_epoch() {
 	local dep="$@"
 	local pkg="$1"
+	local qual="$2"
 	local ver="$3"
+
+	if [ "$pkg" == "php-pear-PEAR" ]; then
+		pkg="php-pear-PEAR-core"
+	fi
+
+	case "$pkg" in
+	php-pear-PEAR-core)
+		ver=$(echo "$ver" | sed -e 's,1.4.0b1,1.4.0-0.b1,')
+		;;
+	esac
+
+	dep="$pkg $qual $ver"
 
 	# already have epoch
 	if [[ "$ver" = *:* ]]; then
