@@ -507,6 +507,7 @@ minirpm() {
 %lua_remove_etc_shells() %{nil}
 %required_jdk %{nil}
 %buildrequires_jdk %{nil}
+%pear_package_print_optionalpackages %{nil}
 EOF
 	if [ "$NOINIT" = "yes" ] ; then
 		cat >> $BUILDER_MACROS <<'EOF'
