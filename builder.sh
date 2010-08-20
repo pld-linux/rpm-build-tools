@@ -363,6 +363,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
                     - as above, but allow float version
+					php-pear-Services_Digg/
+--upgrade-version   - upgrade to specified version in try-upgrade
 --use-greed-sources
                     - try download source from tag head if don't find it in
                       current tag
@@ -1439,13 +1441,17 @@ try_upgrade() {
 
 		cd "$PACKAGE_DIR"
 		
-		if [ -n "$FLOAT_VERSION" ]; then
-			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
+		if [ "$UPGRADE_VERSION" ]; then
+			TNEWVER=$UPGRADE_VERSION
 		else
-			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
-		fi
+			if [ -n "$FLOAT_VERSION" ]; then
+				TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
+			else
+				TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
+			fi
 
-		TNEWVER=$(echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }')
+			TNEWVER=$(echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }')
+		fi
 
 		if [ -n "$TNEWVER" ]; then
 			TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
@@ -2271,6 +2277,8 @@ while [ $# -gt 0 ]; do
 			shift;;
 		-u | --try-upgrade )
 			TRY_UPGRADE="1"; shift ;;
+		--upgrade-version )
+			shift; UPGRADE_VERSION="$1"; shift;;
 		-un | --try-upgrade-with-float-version )
 			TRY_UPGRADE="1"; FLOAT_VERSION="1"; shift ;;
 		-v | --verbose )
