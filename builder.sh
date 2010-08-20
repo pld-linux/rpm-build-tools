@@ -725,20 +725,26 @@ get_spec() {
 		# XXX: still needed?
 		SPECFILE=$(basename $SPECFILE)
 	fi
-	if [ "$NOCVSSPEC" != "yes" ]; then
 
+	if [ "$NOCVSSPEC" != "yes" ]; then
 		if [ ! -s CVS/Root -a "$NOCVSSPEC" != "yes" ]; then
 			echo "Warning: No CVS access defined - using local .spec file"
 			NOCVSSPEC="yes"
 		fi
 
-		if [ -d "$ASSUMED_NAME" ]; then
+		if [ -d "$ASSUMED_NAME" -a -s "$ASSUMED_NAME/CVS/Root" ]; then
 			cvsup "$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
 		else
-			cvsup -c -d $ASSUMED_NAME "packages/$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
+			cvsup -c -d $ASSUMED_NAME "packages/$ASSUMED_NAME/$SPECFILE" || {
+				# softfail if new package, i.e not yet added to cvs
+				[ ! -f "$ASSUMED_NAME/$SPECFILE" ] && Exit_error err_no_spec_in_repo
+				echo "Warning: package not in CVS - assuming new package"
+				NOCVSSPEC="yes"
+				NOCVS="yes"
+			}
 
 			# remove Entries.Static -- so 'cvs up' would update all files in a repo
-			rm "$ASSUMED_NAME/CVS/Entries.Static"
+			rm -f "$ASSUMED_NAME/CVS/Entries.Static"
 			cvsignore_df .cvsignore
 
 			# add default log format to .cvsignore if it is relative
@@ -754,7 +760,7 @@ get_spec() {
 			if [ "$SYMLINK_TOOLS" != "no" ]; then
 				for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
 					[ -f $a ] || continue
-					ln -s ../$a $ASSUMED_NAME
+					ln -sf ../$a $ASSUMED_NAME
 					cvsignore_df $a
 				done
 			fi
