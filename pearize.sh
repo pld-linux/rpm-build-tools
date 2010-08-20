@@ -57,6 +57,7 @@ if [ ! -f $tarball ]; then
 fi
 
 stmp=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
+template=pearize.spec
 cat > $stmp <<'EOF'
 @extra_headers@
 Optional: @optional@
@@ -65,8 +66,7 @@ Optional: @optional@
 License: @release_license@
 State: @release_state@
 EOF
-pear make-rpm-spec --spec-template=$stmp --output=pearize.spec $tarball
-template=pearize.spec
+pear make-rpm-spec --spec-template=$stmp --output=$template $tarball
 rm -f $stmp
 
 mv $template .$template~
@@ -161,6 +161,24 @@ if [ -n "$optional" ]; then
 		done
 	done
 fi
+
+optional=$(grep '^Optional-ext:' $template || :)
+if [ -n "$optional" ]; then
+	tmp=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
+	echo "$optional" | while read tag ext; do
+		grep -q "PHP extension .$ext" && continue
+		cat > $tmp <<-EOF
+		echo '%{name} can optionally use PHP extension "$ext"' >> optional-packages.txt
+		EOF
+		sed -i -e "
+		/%pear_package_setup/ {
+			r $tmp
+		}
+		" $spec
+	done
+	rm -f .ext.tmp
+fi
+
 has_opt=$(grep -Ec '^Optional-(pkg|ext):' $template || :)
 if [ "$has_opt" -gt 0 ]; then
 	if ! grep -q 'rpmbuild(macros)' $spec; then
