@@ -150,14 +150,22 @@ if [ -n "$optional" ]; then
 fi
 has_opt=$(grep -Ec '^Optional-(pkg|ext):' $template || :)
 if [ "$has_opt" -gt 0 ]; then
-	if ! grep -q '%{_docdir}/.*/optional-packages.txt' $spec; then
+	if ! grep -q 'rpmbuild(macros)' $spec; then
+		sed -i -e '
+		/rpm-php-pearprov/{
+			aBuildRequires:	rpmbuild(macros) >= 1.300
+		}
+		' $spec
+	fi
+	if ! grep -Eq '%{_docdir}/.*/optional-packages.txt|%pear_package_print_optionalpackages' $spec; then
 		sed -i -e '
 		/^%files$/{
-			i%post
-			iif [ -f %{_docdir}/%{name}-%{version}/optional-packages.txt ]; then
-			i\	cat %{_docdir}/%{name}-%{version}/optional-packages.txt
-			ifi
+			i%post -p <lua>
+			i%pear_package_print_optionalpackages
 			i
+		}
+		/rpmbuild(macros)/{
+			s/>=.*/>= 1.571/
 		}
 		' $spec
 	fi
