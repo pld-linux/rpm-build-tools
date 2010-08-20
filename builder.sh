@@ -1415,10 +1415,19 @@ set_release() {
 
 set_version() {
 	local specfile="$1"
-	local ver="$2"
-	local newver="$3"
+	local ver="$2" subver=$ver
+	local newver="$3" newsubver=$newver
+
+	# try handling subver, everything that's not numeric-dotted in version
+	if grep -Eq '%define\s+subver' $specfile; then
+		subver=$(echo "$ver" | sed -re 's,^[0-9.]+,,')
+		ver=${ver%$subver}
+		newsubver=$(echo "$newver" | sed -re 's,^[0-9.]+,,')
+		newver=${newver%$newsubver}
+	fi
 	sed -i -e "
 		s/^\(%define[ \t]\+_\?ver[ \t]\+\)$ver\$/\1$newver/
+		s/^\(%define[ \t]\+subver[ \t]\+\)$subver\$/\1$newsubver/
 		s/^\(Version:[ \t]\+\)$ver\$/\1$newver/
 	" $specfile
 }
