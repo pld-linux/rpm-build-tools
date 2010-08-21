@@ -135,6 +135,11 @@ fi
 optional=$(grep '^Suggests:' $template || :)
 if [ -n "$optional" ]; then
 	echo "$optional" | while read tag dep; do
+		dep=$(add_epoch $dep)
+		if ! grep -q "^Suggests:.*$dep" $preamble; then
+			sed -i -e "/^BuildRoot/iSuggests:\t$dep" $spec
+		fi
+
 		for req in $dep; do
 			case "$req" in
 			php-pear-*)
