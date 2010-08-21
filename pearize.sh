@@ -60,9 +60,6 @@ stmp=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
 template=pearize.spec
 cat > $stmp <<'EOF'
 @extra_headers@
-Optional: @optional@
-@optional-pkg@
-@optional-ext@
 License: @release_license@
 State: @release_state@
 EOF
@@ -115,6 +112,16 @@ sed -ne '/^Name:/,/^BuildRoot/p' $spec > $preamble
 bak=$(cp -fbv $spec $spec | awk '{print $NF}' | tr -d "['\`]" )
 
 # parse requires
+requires=$(grep '^BuildRequires:' $template || :)
+if [ -n "$requires" ]; then
+	echo "$requires" | while read tag dep; do
+		dep=$(add_epoch $dep)
+		if ! grep -q "^BuildRequires:.*$dep" $preamble; then
+			sed -i -e "/^BuildRoot/iBuildRequires:\t$dep" $spec
+		fi
+	done
+fi
+
 requires=$(grep '^Requires:' $template || :)
 if [ -n "$requires" ]; then
 	echo "$requires" | while read tag dep; do
@@ -137,7 +144,7 @@ if [ -n "$conflicts" ]; then
 fi
 
 # parse optional deps
-optional=$(grep '^Optional:' $template || :)
+optional=$(grep '^Suggests:' $template || :)
 if [ -n "$optional" ]; then
 	echo "$optional" | while read tag dep; do
 		for req in $dep; do
