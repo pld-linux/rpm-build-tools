@@ -139,7 +139,7 @@ if [ -n "$optional" ]; then
 			case "$req" in
 			php-pear-*)
 				# convert pear package name to file pattern
-				req=$(echo "$req" | sed -e 's,^php-pear-,pear(,;y,-,/,;s,$,.*),')
+				req=$(echo "$req" | sed -e 's,^php-pear-,pear(,;y,_,/,;s,$,.*),')
 				;;
 			*)
 				# process only php-pear-* packages
