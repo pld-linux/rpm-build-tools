@@ -6,6 +6,11 @@
 #
 # needs 'pear' for 'pear make-rpm-spec' command, ./builder for fetching sources.
 # You should have all PEAR packages installed to get best results (needed for epoch autodetection)
+# So far there are 3 packages with epoch > 0:
+# $ grep ^Epoch:.* php-pear-*.spec | grep -v 'Epoch:.*0'
+# php-pear-MDB2.spec:Epoch:               1
+# php-pear-MDB.spec:Epoch:                1
+# php-pear-PEAR.spec:Epoch:               1
 #
 # To create completely new PEAR package spec, follow something like this:
 # $ pear download RDF-alpha
@@ -222,6 +227,10 @@ state=$(awk '/^State:/{print $2}' $template)
 sed -i -e "/^%define.*_status/{
 	/%define.*_status.*$state/!s/.*/%define\t\t_status\t\t$state/
 }" $spec
+
+# parse license
+#license=$(awk '/^License:/{print $2}' $template)
+#sed -i -e "s/^License:.*/License:\t$license/" $spec
 
 rm -f $preamble
 
