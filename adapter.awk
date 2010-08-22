@@ -1855,6 +1855,9 @@ function replace_requires() {
 	# use virtual, not package name
 	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2);
 
+	# bad package.xml, see http://pear.php.net/bugs/bug.php?id=17779
+	sub(/^php-php-gtk/, "php-gtk2", $2);
+
 	# jpackages
 	sub(/^antlr3$/, "java-antlr3", $2);
 	sub(/^avalon-framework$/, "java-avalon-framework", $2);
