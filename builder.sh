@@ -748,7 +748,7 @@ get_spec() {
 			cvsignore_df .cvsignore
 
 			# add default log format to .cvsignore if it is relative
-			if [ "$LOGFILE" == $(basename "$LOGFILE") ]; then
+			if [ "$LOGFILE" = $(basename "$LOGFILE") ]; then
 				# substitute known "macros" to glob
 				local logfile=$(echo "$LOGFILE" | sed -e 's,\$\(PACKAGE_NAME\|DATE\),*,g')
 				if [ "$logfile" ]; then
@@ -1707,15 +1707,15 @@ spawn_sub_builder() {
 	update_shell_title "spawn_sub_builder $package_name"
 
 	sub_builder_opts=''
-	if [ "${FETCH_BUILD_REQUIRES}" == "yes" ]; then
+	if [ "${FETCH_BUILD_REQUIRES}" = "yes" ]; then
 		sub_builder_opts="${sub_builder_opts} -R"
 	fi
-	if [ "${REMOVE_BUILD_REQUIRES}" == "nice" ]; then
+	if [ "${REMOVE_BUILD_REQUIRES}" = "nice" ]; then
 		sub_builder_opts="${sub_builder_opts} -RB"
-	elif [ "${REMOVE_BUILD_REQUIRES}" == "force" ]; then
+	elif [ "${REMOVE_BUILD_REQUIRES}" = "force" ]; then
 		sub_builder_opts="${sub_builder_opts} -FRB"
 	fi
-	if [ "${UPDATE_POLDEK_INDEXES}" == "yes" ]; then
+	if [ "${UPDATE_POLDEK_INDEXES}" = "yes" ]; then
 		sub_builder_opts="${sub_builder_opts} -Upi"
 	fi
 
