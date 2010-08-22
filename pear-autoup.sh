@@ -24,7 +24,7 @@ set -e
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
 
 # test that php is working
-php -r 'echo "ok\n";'
+php -r 'echo "PHP is working OK\n";'
 
 for pkg in $(cat pear.pkgs); do
 	# check if there's update in channel
