@@ -764,6 +764,9 @@ preamble == 1 {
 		if (l == "GPLv2+") {
 			l = "GPL v2+"
 		}
+		if (l == "GPL v2 or later") {
+			l = "GPL v2+"
+		}
 		if (l == "LGPLv2+") {
 			l = "LGPL v2+"
 		}
