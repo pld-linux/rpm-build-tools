@@ -17,15 +17,15 @@ get_dump() {
 }
 
 usage="Usage:
-${0##*/} [-i] [-u] [-t] [-m <MESSAGE>] <SPECLIST>
+${0##*/} [-i] [-u] [-t] [-n] [-m <MESSAGE>] <SPECLIST>
 
 Options:
 -i
   Try to increment package release
 -u
   cvs update first
--t
-  Test mode. do not commit
+-t | -n
+  Test mode (dry-run). do not commit
 -m
   Specify commit message
 
@@ -56,7 +56,7 @@ if [ ! -x /usr/bin/getopt ]; then
 	exit 1
 fi
 
-t=$(getopt -o 'm:iuth' -n "${0##*/}" -- "$@") || exit $?
+t=$(getopt -o 'm:inuth' -n "${0##*/}" -- "$@") || exit $?
 # Note the quotes around `$t': they are essential!
 eval set -- "$t"
 
@@ -68,7 +68,7 @@ while true; do
 	-u)
 		update=1
 		;;
-	-t)
+	-t | -n)
 		test=1
 		;;
 	-m)
@@ -115,10 +115,14 @@ for spec in "$@"; do
 	echo "$spec" >> "$tmpd/$rel"
 done
 
+n="$(echo -e '\nn')"
+n="${n%%n}"
 for file in $(ls "$tmpd" 2>/dev/null); do
 	files=$(cat "$tmpd/$file")
 	rel=$(basename "$file")
-	msg="- release $rel${message:+ ($message)}"
+	msg=""
+	[ -n "$message" ] && msg="$msg- $message$n"
+	msg="$msg- release $rel$n"
 	echo cvs ci -m "'$msg'"
 	if [ "$test" != 1 ]; then
 		cvs ci -m "$msg" $files
