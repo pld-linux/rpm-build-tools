@@ -103,6 +103,10 @@ sed -ne '/^Name:/,/^BuildRoot/p' $spec > $preamble
 # create backup
 bak=$(cp -fbv $spec $spec | awk '{print $NF}' | tr -d "['\`]" )
 
+# ensure rpm-build-macros is present
+if ! grep -q "^BuildRequires:.*rpmbuild(macros)" $preamble; then
+	sed -i -e "/^BuildRequires:.*rpm-php-pearprov/aBuildRequires:\trpmbuild(macros) >= 1.300" $spec
+fi
 # parse requires
 requires=$(grep '^BuildRequires:' $template || :)
 if [ -n "$requires" ]; then
