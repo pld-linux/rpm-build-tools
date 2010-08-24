@@ -28,6 +28,9 @@
 #
 # Send blames and beerideas to glen@pld-linux.org
 
+PROGRAM=${0##*/}
+APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
+
 set -e
 spec="$1"
 if [ -z "$spec" ]; then
@@ -58,7 +61,7 @@ if [ -z "$tarball" ]; then
 fi
 
 if [ ! -f $tarball ]; then
-	./builder -g "$spec"
+	$APPDIR/builder -g "$spec"
 fi
 
 stmp=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
