@@ -9,7 +9,7 @@ set -e
 
 [ -s pear.ls ] || poldek -q --skip-installed --cmd 'ls php-pear-* | desc' > pear.ls
 [ -s pear.pkgs ] || {
-	awk '/^Source.package:/{print $3}' < pear.ls | sort -u | sed -re 's,-[^-]+-[^-]+.src.rpm$,,' > pear.pkgs
+	awk '/^Source.package:/{print $3}' < pear.ls | sed -re 's,-[^-]+-[^-]+.src.rpm$,,' | sort -u > pear.pkgs
 
 	# filter out tests, see https://bugs.launchpad.net/poldek/+bug/620362
 	sed -i -e '/-tests/d' pear.pkgs
@@ -20,7 +20,11 @@ set -e
 	sed -i -e '/^php-pear$/d' pear.pkgs
 }
 
-[ -f pear.installed ] || { sudo poldek  --update --upa; sed -e 's,^,install ,' pear.pkgs | sudo poldek; touch pear.installed; }
+[ -f pear.installed ] || {
+	sudo poldek  --update --upa
+	sed -e 's,^,install ,' pear.pkgs | sudo poldek
+	touch pear.installed
+}
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
 
 # test that php is working
