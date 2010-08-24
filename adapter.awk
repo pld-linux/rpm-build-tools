@@ -236,6 +236,8 @@ function b_makekey(a, b,	s) {
 
 	if ($2 ~ /^mod_name$/)
 		mod_name = $3
+	if ($2 ~ /^_?pearname$/)
+		pearname = $3
 
 	sub(/[ \t]+$/, "");
 	# do nothing further, otherwise adapter thinks we're at preamble
@@ -1666,6 +1668,12 @@ function demacroize(str)
 {
 	if (mod_name) {
 		sub("%{mod_name}", mod_name, str);
+	}
+	if (pearname) {
+		sub("%{_pearname}", pearname, str);
+	}
+	if (pearname) {
+		sub("%{pearname}", pearname, str);
 	}
 	if (name) {
 		sub("%{name}", name, str);
