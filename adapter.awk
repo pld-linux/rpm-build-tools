@@ -647,7 +647,6 @@ preamble == 1 {
 	}
 
 	field = tolower($1)
-	fieldnlower = $1
 	if (field ~ /summary:/ && !/etc\.$/ && !/Inc\.$/) {
 		sub(/\.$/, "", $0);
 	}
@@ -1990,6 +1989,11 @@ function replace_requires() {
 	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
 	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
 
+	# altlinux
+	sub(/^libncurses-devel$/, "ncurses-devel", $2);
+	sub(/^libncursesxx-devel$/, "ncurses-c++-devel", $2);
+	sub(/^libpcre-devel$/, "pcre-devel", $2);
+
 	replace_php_virtual_deps()
 }
 
@@ -2003,6 +2007,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Applications/Internet", "Applications/Networking");
 	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking");
 	group = replace(group, "Applications/Productivity", "X11/Applications");
+	group = replace(group, "Applications/Web", "Applications/WWW");
 	group = replace(group, "Database", "Applications/Databases");
 	group = replace(group, "Development/C", "Development/Libraries");
 	group = replace(group, "Development/Code Generators", "Development");
@@ -2018,6 +2023,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Development/Other", "Development");
 	group = replace(group, "Development/Python", "Development/Languages/Python");
 	group = replace(group, "Development/Testing", "Development");
+	group = replace(group, "Editors", "Applications/Text");
 	group = replace(group, "Emulators", "Applications/Emulators");
 	group = replace(group, "File tools", "Applications/File");
 	group = replace(group, "Games", "Applications/Games");
@@ -2038,6 +2044,7 @@ function replace_groupnames(group) {
 	group = replace(group, "System/Servers", "Daemons");
 	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
 	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
+	group = replace(group, "Text tools", "Applications/Text");
 	group = replace(group, "User Interface/Desktops", "X11/Applications");
 	group = replace(group, "Utilities/System", "Applications/System");
 	group = replace(group, "Web/Database", "Applications/WWW");
@@ -2050,7 +2057,6 @@ function replace_groupnames(group) {
 	group = replace(group, "X11/Utilities", "X11/Applications");
 	group = replace(group, "X11/XFree86", "X11");
 	group = replace(group, "X11/Xserver", "X11/Servers");
-	group = replace(group, "Applications/Web", "Applications/WWW");
 
 	return group;
 }
