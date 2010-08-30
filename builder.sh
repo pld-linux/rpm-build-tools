@@ -1457,6 +1457,13 @@ try_upgrade() {
 				TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
 			fi
 
+			# pldnotify.awk does not set exit codes, but it has match for ERROR
+			# in output which means so.
+			if [[ "$TNOTIFY" = *ERROR* ]]; then
+				echo >&2 "$TNOTIFY"
+				exit 1
+			fi
+
 			TNEWVER=$(echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }')
 		fi
 
