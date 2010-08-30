@@ -487,6 +487,23 @@ function process_source(number,lurl,name,version) {
 	}
 }
 
+# check for ZF upgrade from rss
+function zf_upgrade(name, ver,    cmd, nver) {
+	cmd = "wget -q -O - http://devzone.zend.com/tag/Zend_Framework_Management/format/rss2.0 | sed -nre 's/.*<title>Zend Framework ([^\\s]+) Released<\/title>.*/\\1/p' | head -n1"
+
+	d("zfcmd: " cmd)
+	cmd | getline nver
+	close(cmd)
+
+	if (compare_ver(ver, nver)) {
+		print name " [OLD] " ver " [NEW] " nver
+	} else {
+		print name " seems ok: " ver
+	}
+
+	return
+}
+
 # upgrade check for pear package using PEAR CLI
 function pear_upgrade(name, ver,    pname, pearcmd, nver) {
 	pname = name;
@@ -524,6 +541,9 @@ function vim_upgrade(name, ver,     mver, nver, vimcmd) {
 function process_data(name,ver,rel,src) {
 	if (name ~ /^php-pear-/) {
 		return pear_upgrade(name, ver);
+	}
+	if (name == "ZendFramework") {
+		return zf_upgrade(name, ver);
 	}
 	if (name == "vim") {
 		return vim_upgrade(name, ver);
