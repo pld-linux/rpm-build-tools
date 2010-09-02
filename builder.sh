@@ -747,8 +747,8 @@ get_spec() {
 			rm -f "$ASSUMED_NAME/CVS/Entries.Static"
 			cvsignore_df .cvsignore
 
-			# add default log format to .cvsignore if it is relative
-			if [ "$LOGFILE" = $(basename "$LOGFILE") ]; then
+			# add default log format to .cvsignore if it is relative to package dir
+			if [ -n "$LOGFILE" -a "$LOGFILE" = "${LOGFILE##*/}" ]; then
 				# substitute known "macros" to glob
 				local logfile=$(echo "$LOGFILE" | sed -e 's,\$\(PACKAGE_NAME\|DATE\),*,g')
 				if [ "$logfile" ]; then
