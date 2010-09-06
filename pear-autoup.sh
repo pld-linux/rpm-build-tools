@@ -7,7 +7,7 @@
 
 set -e
 
-[ -s pear.ls ] || poldek -q --skip-installed --cmd 'ls php-pear-*' > pear.ls
+[ -s pear.ls ] || poldek -q -Q --skip-installed --cmd 'ls php-pear-*' > pear.ls
 [ -s pear.desc ] || {
 	for pkg in $(cat pear.ls); do
 		poldek -q --skip-installed --cmd "desc $pkg"
