@@ -7,9 +7,14 @@
 
 set -e
 
-[ -s pear.ls ] || poldek -q --skip-installed --cmd 'ls php-pear-* | desc' > pear.ls
+[ -s pear.ls ] || poldek -q --skip-installed --cmd 'ls php-pear-*' > pear.ls
+[ -s pear.desc ] || {
+	for pkg in $(cat pear.ls); do
+		poldek -q --skip-installed --cmd "desc $pkg"
+	done
+} > pear.desc
 [ -s pear.pkgs ] || {
-	awk '/^Source.package:/{print $3}' < pear.ls | sed -re 's,-[^-]+-[^-]+.src.rpm$,,' | sort -u > pear.pkgs
+	awk '/^Source.package:/{print $3}' < pear.desc | sed -re 's,-[^-]+-[^-]+.src.rpm$,,' | sort -u > pear.pkgs
 
 	# filter out tests, see https://bugs.launchpad.net/poldek/+bug/620362
 	sed -i -e '/-tests/d' pear.pkgs
