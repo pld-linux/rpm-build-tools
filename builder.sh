@@ -1627,7 +1627,7 @@ set_bconds_values() {
 	AVAIL_BCONDS_WITHOUT=""
 	AVAIL_BCONDS_WITH=""
 
-	if egrep -q '^# *_with' ${SPECFILE}; then
+	if grep -Eq '^# *_with' ${SPECFILE}; then
 		echo >&2 "ERROR: This spec has old style bconds."
 		exit 1
 	fi
