@@ -742,6 +742,15 @@ preamble == 1 {
 		$1 = "URL:"
 	}
 
+	# suse
+	if (field ~ /recommends:/) {
+		$1 = "Suggests:"
+	}
+
+	if ($3 == "==") {
+		$3 = "="
+	}
+
 	if (field ~ /license:/) {
 		l = substr($0, index($0, $2));
 		if (l == "Python Software Foundation License") {
@@ -767,6 +776,9 @@ preamble == 1 {
 		}
 		if (l == "GPL v2 or later") {
 			l = "GPL v2+"
+		}
+		if (l == "LGPL v2.0 only") {
+			l = "LGPL v2"
 		}
 		if (l == "LGPLv2+") {
 			l = "LGPL v2+"
@@ -1860,7 +1872,7 @@ function replace_php_virtual_deps() {
 
 function replace_requires() {
 
-	sub(/^freetype2-devel$/, "freetype-devel", $2);
+	sub(/^python-setuptools-devel$/, "python-distribute", $2);
 
 	# use virtual, not package name
 	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2);
@@ -1923,6 +1935,7 @@ function replace_requires() {
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
+	sub(/^freetype2-devel$/, "freetype-devel", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
@@ -1994,6 +2007,14 @@ function replace_requires() {
 	sub(/^libncursesxx-devel$/, "ncurses-c++-devel", $2);
 	sub(/^libpcre-devel$/, "pcre-devel", $2);
 
+	# suse
+	sub(/^libffmpeg-devel$/, "ffmpeg-devel", $2);
+	sub(/^libexpat-devel$/, "expat-devel", $2);
+	sub(/^alsa-devel$/, "alsa-lib-devel", $2);
+	sub(/^libpulse-devel$/, "pulseaudio-devel", $2);
+	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2);
+	sub(/^monodoc-core$/, "mono-monodoc", $2);
+
 	replace_php_virtual_deps()
 }
 
@@ -2014,6 +2035,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Development/Docs", "Documentation");
 	group = replace(group, "Development/Documentation", "Documentation");
 	group = replace(group, "Development/Java", "Development/Languages/Java");
+	group = replace(group, "Development/Languages/C and C++", "Libraries");
 	group = replace(group, "Development/Languages/Other", "Development/Languages");;
 	group = replace(group, "Development/Languages/Ruby", "Development/Languages");
 	group = replace(group, "Development/Libraries/C and C++", "Development/Libraries");
@@ -2030,6 +2052,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Library/Development", "Development/Libraries");
 	group = replace(group, "Networking/Deamons", "Networking/Daemons");
 	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
+	group = replace(group, "Productivity/Multimedia/Other", "X11/Applications/Multimedia");
 	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP");;
 	group = replace(group, "Shells", "Applications/Shells");
 	group = replace(group, "System Environment/Base", "Base");
