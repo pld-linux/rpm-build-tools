@@ -2009,13 +2009,23 @@ fetch_build_requires()
 }
 
 init_rpm_dir() {
-	TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
-	CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
+	local CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"
+	local TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
+	local rpmdir=$(eval $RPM $RPMOPTS --eval '%{_rpmdir}')
+	local buildir=$(eval $RPM $RPMOPTS --eval '%{_builddir}')
+	local srpmdir=$(eval $RPM $RPMOPTS --eval '%{_srcrpmdir}')
+	local tmp
 
 	echo "Initializing rpm directories to $TOP_DIR from $CVSROOT"
-	mkdir -p $TOP_DIR/{RPMS,BUILD,SRPMS}
-	cd $TOP_DIR
+	mkdir -p $TOP_DIR $rpmdir $buildir $srpmdir
+
+	# need to checkout to tmp dir or we can't name our topdir
+	tmp=$(TMPDIR= TEMPDIR= mktemp -p $TOP_DIR -d) || exit 1
+	cd $tmp
 	$CVS_COMMAND -d $CVSROOT co packages/{.cvsignore,rpm.groups,dropin,mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
+	cd -
+	mv $tmp/packages/* $TOP_DIR
+	rm -rf $tmp
 
 	init_builder
 
@@ -2023,11 +2033,11 @@ init_rpm_dir() {
 	echo "- run cvs co SPECS"
 
 	echo "To checkout *all* packages:"
-	echo "- run cvs up -dP in $TOP_DIR/packages dir"
+	echo "- run cvs up -dP in $TOP_DIR dir"
 
 	echo ""
 	echo "To commit with your developer account:"
-	echo "- edit $TOP_DIR/packages/CVS/Root"
+	echo "- edit $TOP_DIR/CVS/Root"
 }
 
 get_greed_sources() {
