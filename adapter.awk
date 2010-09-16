@@ -1524,6 +1524,7 @@ function use_files_macros(	i, n, t, a, l)
 
 	if (/%{_mandir}/) {
 		gsub("\.gz$", "*")
+		gsub("%ext_man$", "*")
 	}
 
 	# locale dir and no %lang -> bad
