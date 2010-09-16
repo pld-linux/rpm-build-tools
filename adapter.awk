@@ -1129,6 +1129,9 @@ function use_macros()
 	gsub("%{_libdir}/pkgconfig", "%{_pkgconfigdir}")
 	gsub(pkgconfigdir, "%{_pkgconfigdir}")
 
+	gsub("%{_datadir}/pkgconfig", "%{_npkgconfigdir}")
+	gsub(npkgconfigdir, "%{_npkgconfigdir}")
+
 	gsub(libdir, "%{_libdir}")
 	gsub(javadir, "%{_javadir}")
 
@@ -1454,7 +1457,7 @@ function use_files_macros(	i, n, t, a, l)
 		}
 	}
 
-	if (/lib.+\.so/ && !/\.so$/ && !/^%attr.*/ && !/%exclude/) {
+	if (/lib.+\.so\b/ && !/\.so$/ && !/^%attr.*/ && !/%exclude/) {
 		$0 = "%attr(755,root,root) " $0
 	}
 
@@ -1788,7 +1791,7 @@ function import_rpm_macros() {
 		exit(rc = 1);
 	}
 
-	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.44) {
+	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.46) {
 		print "adapter shell script is outdated, please cvs up it" > "/dev/stderr"
 		do_not_touch_anything = 1
 		exit(rc = 1);
@@ -1816,6 +1819,7 @@ function import_rpm_macros() {
 	pixmapsdir = ENVIRON["_pixmapsdir"]
 	javadir = ENVIRON["_javadir"]
 	pkgconfigdir = ENVIRON["_pkgconfigdir"]
+	npkgconfigdir = ENVIRON["_npkgconfigdir"]
 
 	perl_sitearch = ENVIRON["perl_sitearch"]
 	perl_archlib = ENVIRON["perl_archlib"]
