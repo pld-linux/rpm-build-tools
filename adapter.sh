@@ -194,6 +194,7 @@ import_rpm_macros() {
 	_pixmapsdir
 	_javadir
 	_pkgconfigdir
+	_npkgconfigdir
 
 	perl_sitearch
 	perl_archlib
