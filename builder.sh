@@ -2022,7 +2022,7 @@ init_rpm_dir() {
 	# need to checkout to tmp dir or we can't name our topdir
 	tmp=$(TMPDIR= TEMPDIR= mktemp -p $TOP_DIR -d) || exit 1
 	cd $tmp
-	$CVS_COMMAND -d $CVSROOT co packages/{.cvsignore,rpm.groups,dropin,mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh}
+	$CVS_COMMAND -d $CVSROOT co packages/{.cvsignore,rpm.groups,dropin,mirrors,md5,adapter{,.awk},fetchsrc_request,builder,{relup,compile,repackage}.sh,ci,civim}
 	cd -
 	mv $tmp/packages/* $TOP_DIR
 	rm -rf $tmp
