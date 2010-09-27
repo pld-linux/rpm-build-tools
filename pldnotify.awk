@@ -487,11 +487,11 @@ function process_source(number,lurl,name,version) {
 	}
 }
 
-# check for ZF upgrade from rss
-function zf_upgrade(name, ver,    cmd, nver) {
-	cmd = "wget -q -O - http://devzone.zend.com/tag/Zend_Framework_Management/format/rss2.0 | sed -nre 's/.*<title>Zend Framework ([^\\s]+) Released<\/title>.*/\\1/p' | head -n1"
+function rss_upgrade(name, ver, url, regex, cmd, nver) {
+	regex = "s/.*<title>" regex "<\/title>.*/\\1/p"
+	cmd = "wget -q -O - " url " | sed -nre '" regex "' | head -n1"
 
-	d("zfcmd: " cmd)
+	d("rss_upgrade_cmd: " cmd)
 	cmd | getline nver
 	close(cmd)
 
@@ -500,8 +500,21 @@ function zf_upgrade(name, ver,    cmd, nver) {
 	} else {
 		print name " seems ok: " ver
 	}
+}
 
-	return
+# check for ZF upgrade from rss
+function zf_upgrade(name, ver) {
+	rss_upgrade(name, ver, \
+		"http://devzone.zend.com/tag/Zend_Framework_Management/format/rss2.0", \
+		"Zend Framework ([^\\s]+) Released" \
+	);
+}
+
+function hudson_upgrade(name, ver) {
+	rss_upgrade(name, ver, \
+		"https://hudson.dev.java.net/servlets/ProjectRSS?type=news", \
+		"Hudson ([0-9.]+) released" \
+	);
 }
 
 # upgrade check for pear package using PEAR CLI
@@ -544,6 +557,9 @@ function process_data(name,ver,rel,src) {
 	}
 	if (name == "ZendFramework") {
 		return zf_upgrade(name, ver);
+	}
+	if (name == "hudson") {
+		return hudson_upgrade(name, ver);
 	}
 	if (name == "vim") {
 		return vim_upgrade(name, ver);
