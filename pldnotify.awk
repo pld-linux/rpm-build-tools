@@ -241,6 +241,10 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		d("github tarball url, mungled url to: " url)
 	}
 
+	if (url ~/^(http|https):\/\/cgit\..*\/(.*)\/snapshot\//) {
+		gsub("\/snapshot\/.*", "/", url)
+		d("cgit snapshot tarball url, mungled url to: " url)
+	}
 
 	d("Retrieving: " url)
 	cmd = "wget --user-agent \"Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2) Gecko/20100129 PLD/3.0 (Th) Iceweasel/3.6\" -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
