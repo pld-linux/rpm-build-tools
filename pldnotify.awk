@@ -200,10 +200,14 @@ function extract_links_cmd(tmpfile) {
 	my $content = join q//, <>; \
 	my $root = new HTML::TreeBuilder; \
 	$root->parse($content); \
-	my $links_r = $root->extract_links(); \
 	\
+	my %links = (); \
 	for (@{$root->extract_links(qw(a iframe))}) { \
 		my($link, $element, $attr, $tag) = @$_; \
+		$links{$link} = $tag; \
+	} \
+	\
+	while (my($link, $tag) = each %links) { \
 		print $tag, q/ /, $link, $/; \
 	} \
 	' " tmpfile
