@@ -1,4 +1,4 @@
-#!/usr/bin/gawk -f
+#!/bin/awk -f
 # $Revision$, $Date$
 #
 # Copyright (C) 2000-2010 PLD-Team <feedback@pld-linux.org>
@@ -22,8 +22,8 @@ function d(s) {
 		return
 	}
 
-	print strftime("%Y-%m-%d %H:%M:%S ") s >> "/dev/stderr"
-#	print s >> "/dev/stderr"
+#	print strftime("%Y-%m-%d %H:%M:%S ") s >> "/dev/stderr"
+	print s >> "/dev/stderr"
 }
 
 function fixedsub(s1,s2,t,	ind) {
