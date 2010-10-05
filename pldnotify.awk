@@ -1,4 +1,4 @@
-#!/bin/awk -f
+#!/usr/bin/gawk -f
 # $Revision$, $Date$
 #
 # Copyright (C) 2000-2010 PLD-Team <feedback@pld-linux.org>
@@ -21,7 +21,9 @@ function d(s) {
 	if (!DEBUG) {
 		return
 	}
-	print s >> "/dev/stderr"
+
+	print strftime("%Y-%m-%d %H:%M:%S ") s >> "/dev/stderr"
+#	print s >> "/dev/stderr"
 }
 
 function fixedsub(s1,s2,t,	ind) {
@@ -256,27 +258,29 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	errno = system(cmd)
 	d("Execute done")
 
-	if (errno==0) {
-		wholeodp = ""
-		d("Reading success response...")
-		while (getline oneline < tmpfile)
-			wholeodp = (wholeodp " " oneline)
-#			d("Response: " wholeodp)
-	} else {
+	if (errno != 0) {
 		d("Reading failure response...")
 		wholeerr = ""
 		while (getline oneline < tmpfileerr)
-			wholeerr=(wholeerr " " oneline)
+			wholeerr = (wholeerr " " oneline)
 		d("Error Response: " wholeerr)
-	}
 
-	system("rm -f " tmpfile)
-	system("rm -f " tmpfileerr)
-
-	if (errno != 0) {
+		system("rm -f " tmpfile)
+		system("rm -f " tmpfileerr)
 		retval = ("WGET ERROR: " errno ": " wholeerr)
 		return retval
 	}
+
+	wholeodp = ""
+	d("Reading success response...")
+	while (getline oneline < tmpfile) {
+		wholeodp = (wholeodp " " oneline)
+#		d("Response: " wholeodp)
+	}
+	d("Reponse read done...")
+
+	system("rm -f " tmpfile)
+	system("rm -f " tmpfileerr)
 
 	urldir = url;
 	sub(/[^\/]+$/, "", urldir)
@@ -429,9 +433,9 @@ function process_source(number,lurl,name,version) {
 	d("and a file: " filename)
 
 	filenameexp=filename
-	gsub("\+","\\+",filenameexp)
+	gsub("[+]","\\+",filenameexp)
 	sub(version,"[A-Za-z0-9.]+",filenameexp)
-	gsub("\.","\\.",filenameexp)
+	gsub("[.]","\\.",filenameexp)
 	d("Expression: " filenameexp)
 	match(filename,version)
 	prever=substr(filename,1,RSTART-1)
