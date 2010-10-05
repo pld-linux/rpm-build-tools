@@ -181,13 +181,15 @@ function mktemp(   _cmd, _tmpfile) {
 }
 
 # fix link to artificial one that will be recognized rest of this script
-function postfix_link(url, link) {
+function postfix_link(url, link,   oldlink) {
 	oldlink = link
 	if ((url ~/^(http|https):\/\/github.com\//) && (link ~ /.*\/tarball\//)) {
 		gsub(".*\/tarball\/", "", link)
 		link = link ".tar.gz"
 	}
-	d("POST FIXING URL [ " oldlink " ] to [ " link " ]")
+	if (oldlink != link) {
+		d("POST FIXED URL [ " oldlink " ] to [ " link " ]")
+	}
 	return link
 }
 
