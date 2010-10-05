@@ -197,8 +197,12 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	tmpfile = mktemp()
 	tmpfileerr = mktemp()
 
-	if (url ~ /^http:\/\/(download|dl).(sf|sourceforge).net\//) {
-		gsub("^http://(download|dl).(sf|sourceforge).net/", "", url)
+	if (url ~ /^http:\/\/(download|downloads|dl)\.(sf|sourceforge)\.net\//) {
+		# http://downloads.sourceforge.net/project/mediainfo/source/mediainfo/
+		gsub("^http://(download|dl)\.(sf|sourceforge)\.net/", "", url)
+		# http://downloads.sourceforge.net/project/mediainfo/source/mediainfo/
+		gsub("^http://downloads\.(sf|sourceforge)\.net/project/", "", url)
+
 		gsub("/.*", "", url)
 		url = "http://sourceforge.net/projects/" url "/files/"
 		d("sf url, mungled url to: " url)
@@ -254,9 +258,9 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 
 	if (errno==0) {
 		wholeodp = ""
-		d("Reading succeess response...")
+		d("Reading success response...")
 		while (getline oneline < tmpfile)
-			wholeodp=(wholeodp " " oneline)
+			wholeodp = (wholeodp " " oneline)
 #			d("Response: " wholeodp)
 	} else {
 		d("Reading failure response...")
@@ -269,85 +273,85 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	system("rm -f " tmpfile)
 	system("rm -f " tmpfileerr)
 
-	urldir=url;
-	sub(/[^\/]+$/,"",urldir)
-
-	if ( errno==0) {
-		while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
-			d("Processing links...")
-			odp=substr(wholeodp,RSTART,RLENGTH);
-			wholeodp=substr(wholeodp,RSTART+RLENGTH);
-
-			lowerodp=tolower(odp);
-			if (lowerodp ~ /<frame[ \t]/) {
-				sub(/[sS][rR][cC]=[ \t]*/,"src=",odp);
-				match(odp,/src="[^"]+"/)
-				newurl=substr(odp,RSTART+5,RLENGTH-6)
-				d("Frame: " newurl)
-				if (newurl !~ /\//) {
-					newurl=(urldir newurl)
-					d("Frame->: " newurl)
-				}
-
-				if (link_seen(newurl)) {
-					newurl=""
-					continue
-				}
-
-				retval=(retval " " get_links(newurl))
-			} else if (lowerodp ~ /href=[ \t]*"[^"]*"/) {
-				sub(/[hH][rR][eE][fF]=[ \t]*"/,"href=\"",odp)
-				match(odp,/href="[^"]*"/)
-				link=substr(odp,RSTART,RLENGTH)
-				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
-				link=substr(link,7,length(link)-7)
-				link=postfix_link(url, link)
-
-				if (link_seen(link)) {
-					link=""
-					continue
-				}
-
-				retval=(retval " " link)
-				d("href(\"\"): " link)
-			} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
-				sub(/[hH][rR][eE][fF]=[ \t]*'/,"href='",odp)
-				match(odp,/href='[^']*'/)
-				link=substr(odp,RSTART,RLENGTH)
-				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
-				link=substr(link,7,length(link)-7)
-				link=postfix_link(url, link)
-
-				if (link_seen(link)) {
-					link=""
-					continue
-				}
-
-				retval=(retval " " link)
-				d("href(''): " link)
-			} else if (lowerodp ~ /href=[ \t]*[^ \t>]*/) {
-				sub(/[hH][rR][eE][fF]=[ \t]*/,"href=",odp)
-				match(odp,/href=[^ \t>]*/)
-				link=substr(odp,RSTART,RLENGTH)
-				odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
-				link=substr(link,6,length(link)-5)
-
-				if (link_seen(link)) {
-					link=""
-					continue
-				}
-
-				retval=(retval " " link)
-				d("href(): " link)
-			} else {
-				# <a ...> but not href - skip
-				d("skipping <a > without href: " odp)
-			}
-		}
-	} else {
-		retval=("WGET ERROR: " errno ": " wholeerr)
+	if (errno != 0) {
+		retval = ("WGET ERROR: " errno ": " wholeerr)
+		return retval
 	}
 
+	urldir = url;
+	sub(/[^\/]+$/, "", urldir)
+
+	while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
+		d("Processing links...")
+		odp = substr(wholeodp,RSTART,RLENGTH);
+		wholeodp = substr(wholeodp,RSTART+RLENGTH);
+
+		lowerodp = tolower(odp);
+		if (lowerodp ~ /<frame[ \t]/) {
+			sub(/[sS][rR][cC]=[ \t]*/, "src=", odp);
+			match(odp, /src="[^"]+"/)
+			newurl = substr(odp, RSTART+5, RLENGTH-6)
+			d("Frame: " newurl)
+			if (newurl !~ /\//) {
+				newurl=(urldir newurl)
+				d("Frame->: " newurl)
+			}
+
+			if (link_seen(newurl)) {
+				newurl = ""
+				continue
+			}
+
+			retval = (retval " " get_links(newurl))
+		} else if (lowerodp ~ /href=[ \t]*"[^"]*"/) {
+			sub(/[hH][rR][eE][fF]=[ \t]*"/,"href=\"",odp)
+			match(odp,/href="[^"]*"/)
+			link=substr(odp,RSTART,RLENGTH)
+			odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
+			link=substr(link,7,length(link)-7)
+			link=postfix_link(url, link)
+
+			if (link_seen(link)) {
+				link=""
+				continue
+			}
+
+			retval = (retval " " link)
+			d("href(\"\"): " link)
+		} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
+			sub(/[hH][rR][eE][fF]=[ \t]*'/,"href='",odp)
+			match(odp,/href='[^']*'/)
+			link=substr(odp,RSTART,RLENGTH)
+			odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
+			link=substr(link,7,length(link)-7)
+			link=postfix_link(url, link)
+
+			if (link_seen(link)) {
+				link=""
+				continue
+			}
+
+			retval = (retval " " link)
+			d("href(''): " link)
+		} else if (lowerodp ~ /href=[ \t]*[^ \t>]*/) {
+			sub(/[hH][rR][eE][fF]=[ \t]*/,"href=",odp)
+			match(odp,/href=[^ \t>]*/)
+			link=substr(odp,RSTART,RLENGTH)
+			odp=substr(odp,1,RSTART) substr(odp,RSTART+RLENGTH)
+			link=substr(link,6,length(link)-5)
+
+			if (link_seen(link)) {
+				link=""
+				continue
+			}
+
+			retval = (retval " " link)
+			d("href(): " link)
+		} else {
+			# <a ...> but not href - skip
+			d("skipping <a > without href: " odp)
+		}
+	}
 
 	d("Returning: " retval)
 	return retval
@@ -443,7 +447,7 @@ function process_source(number,lurl,name,version) {
 	references=0
 	finished=0
 	oldversion=version
-	odp=get_links(newurl,filename)
+	odp = get_links(newurl, filename)
 	if( odp ~ "ERROR: ") {
 		print name "(" number ") " odp
 	} else {
