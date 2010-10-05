@@ -193,6 +193,22 @@ function postfix_link(url, link,   oldlink) {
 	return link
 }
 
+# use perl HTML::TreeBuilder module to extract links from html
+# it returns TAGNAME LINK in output which is pretty stright forward to parse in awk
+function extract_links_cmd(tmpfile) {
+	return "perl -MHTML::TreeBuilder -e ' \
+	my $content = join q//, <>; \
+	my $root = new HTML::TreeBuilder; \
+	$root->parse($content); \
+	my $links_r = $root->extract_links(); \
+	\
+	for (@{$root->extract_links(qw(a iframe))}) { \
+		my($link, $element, $attr, $tag) = @$_; \
+		print $tag, q/ /, $link, $/; \
+	} \
+	' " tmpfile
+}
+
 # get all <A HREF=..> tags from specified URL
 function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowerodp,tmpfile,cmd) {
 
@@ -272,6 +288,43 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		retval = ("WGET ERROR: " errno ": " wholeerr)
 		return retval
 	}
+	system("rm -f " tmpfileerr)
+
+	urldir = url;
+	sub(/[^\/]+$/, "", urldir)
+
+if (USE_PERL) {
+	cmd = extract_links_cmd(tmpfile)
+	while (cmd | getline) {
+		tag = $1
+		link = substr($0, length(tag) + 2)
+
+		if (tag == "iframe") {
+			d("Frame: " link)
+			if (url !~ /\//) {
+				link = (urldir link)
+				d("Frame->: " link)
+			}
+
+			if (link_seen(link)) {
+				continue
+			}
+			retval = (retval " " get_links(link))
+		}
+
+		if (link_seen(link)) {
+			continue
+		}
+
+		retval = (retval " " link)
+		d("href(): " link)
+	}
+	close(cmd)
+	system("rm -f " tmpfile)
+
+	d("Returning: [" retval "]")
+	return retval
+}
 
 	wholeodp = ""
 	d("Reading success response...")
@@ -280,12 +333,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 #		d("Response: " wholeodp)
 	}
 	d("Reponse read done...")
-
 	system("rm -f " tmpfile)
-	system("rm -f " tmpfileerr)
-
-	urldir = url;
-	sub(/[^\/]+$/, "", urldir)
 
 	while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
 		d("Processing links...")
@@ -359,7 +407,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		}
 	}
 
-	d("Returning: " retval)
+	d("Returning: [" retval "]")
 	return retval
 }
 
