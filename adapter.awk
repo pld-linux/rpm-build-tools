@@ -1940,22 +1940,25 @@ function replace_requires() {
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
-	sub(/^freetype2-devel$/, "freetype-devel", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
+	sub(/^freetype2-devel$/, "freetype-devel", $2);
 	sub(/^fuse-devel$/, "libfuse-devel", $2);
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
 	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2);
+	sub(/^gtk-sharp2-devel$/, "dotnet-gtk-sharp2-devel", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
 	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
+	sub(/^iproute$/, "iproute2", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
+	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2);
