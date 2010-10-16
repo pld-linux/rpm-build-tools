@@ -221,11 +221,9 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	tmpfile = mktemp()
 	tmpfileerr = mktemp()
 
-	if (url ~ /^http:\/\/(download|downloads|dl)\.(sf|sourceforge)\.net\//) {
+	if (url ~ /^http:\/\/(download|dl)\.(sf|sourceforge)\.net\//) {
 		# http://downloads.sourceforge.net/project/mediainfo/source/mediainfo/
 		gsub("^http://(download|dl)\.(sf|sourceforge)\.net/", "", url)
-		# http://downloads.sourceforge.net/project/mediainfo/source/mediainfo/
-		gsub("^http://downloads\.(sf|sourceforge)\.net/project/", "", url)
 
 		gsub("/.*", "", url)
 		url = "http://sourceforge.net/projects/" url "/files/"
