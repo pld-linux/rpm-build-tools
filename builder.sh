@@ -1477,6 +1477,10 @@ try_upgrade() {
 			set_release $SPECFILE $PACKAGE_RELEASE 1
 			set_version $SPECFILE $PACKAGE_VERSION $TNEWVER
 			parse_spec
+			if [ "$PACKAGE_VERSION" != "$TNEWVER" ]; then
+				echo >&2 "Upgrading version failed, you need to update spec yourself"
+				exit 1
+			fi
 			return 1
 		fi
 	fi
