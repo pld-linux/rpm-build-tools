@@ -1972,6 +1972,7 @@ function replace_requires() {
 	sub(/^python2-devel$/, "python-devel", $2);
 	sub(/^qt4-devel$/, "qt4-build", $2);
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
+	sub(/^rpm-python$/, "python-rpm", $2);
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 	sub(/^tkinter$/, "python-tkinter", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
