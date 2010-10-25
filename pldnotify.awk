@@ -454,12 +454,12 @@ function find_mirror(url) {
 	return url
 }
 
-function process_source(number,lurl,name,version) {
+function process_source(number, lurl, name, version) {
 # fetches file list, and compares version numbers
 	d("Processing " lurl)
 
-	if ( index(lurl,version)==0 ) {
-		d("There is no version number.")
+	if (index(lurl, version) == 0) {
+		d("There is no version number ["version"] in ["lurl"]")
 		return 0
 	}
 
@@ -544,7 +544,7 @@ function process_source(number,lurl,name,version) {
 				}
 			}
 		}
-		if (finished==0)
+		if (finished == 0)
 			print name "(" number ") seems ok: " oldversion
 		else
 			print name "(" number ") [OLD] " oldversion " [NEW] " version
@@ -615,7 +615,7 @@ function vim_upgrade(name, ver,     mver, nver, vimcmd) {
 	}
 }
 
-function process_data(name,ver,rel,src) {
+function process_data(name, ver, rel, src) {
 	if (name ~ /^php-pear-/) {
 		return pear_upgrade(name, ver);
 	}
@@ -628,16 +628,20 @@ function process_data(name,ver,rel,src) {
 	if (name == "vim") {
 		return vim_upgrade(name, ver);
 	}
+	if (name == "xulrunner") {
+		ver = subst_defines(DEFS["firefox_ver"], DEFS)
+		d("package xulrunner, change version to firefox ["ver"]")
+	}
 
 # this function checks if substitutions were valid, and if true:
 # processes each URL and tries to get current file list
 	for (i in src) {
-		if ( src[i] ~ /%{nil}/ ) {
+		if (src[i] ~ /%{nil}/) {
 			gsub(/\%\{nil\}/, "", src[i])
 		}
 		if ( src[i] !~ /%{.*}/ && src[i] !~ /%[A-Za-z0-9_]/ )  {
 			d("Source: " src[i])
-			process_source(i,src[i],name,ver)
+			process_source(i, src[i], name, ver)
 		} else {
 			print FNAME ":" i ": impossible substitution: " src[i]
 		}
