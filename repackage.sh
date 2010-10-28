@@ -95,6 +95,10 @@ if [ $# = 0 ]; then
 		echo >&2 "Usage: ${0##*/} PACKAGE.spec"
 		exit 1
 	fi
+else
+	# $1 must be spec, ensure it has .spec ext
+	spec=$1; shift
+	set -- ${spec#.spec}.spec "$@"
 fi
 
 tmp=$(specdump "$@" | awk '$2 == "_target_cpu" {print $3}')
