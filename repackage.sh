@@ -98,7 +98,7 @@ if [ $# = 0 ]; then
 else
 	# $1 must be spec, ensure it has .spec ext
 	spec=$1; shift
-	set -- ${spec#.spec}.spec "$@"
+	set -- ${spec%.spec}.spec "$@"
 fi
 
 tmp=$(specdump "$@" | awk '$2 == "_target_cpu" {print $3}')
