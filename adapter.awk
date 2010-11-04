@@ -1961,6 +1961,7 @@ function replace_requires() {
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
+	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2);
 	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
@@ -2037,6 +2038,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Applications/Internet", "Applications/Networking");
 	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking");
 	group = replace(group, "Applications/Productivity", "X11/Applications");
+	group = replace(group, "Applications/Security", "Applications/System");
 	group = replace(group, "Applications/Web", "Applications/WWW");
 	group = replace(group, "Database", "Applications/Databases");
 	group = replace(group, "Development/C", "Development/Libraries");
