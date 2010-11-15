@@ -2062,6 +2062,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Games", "Applications/Games");
 	group = replace(group, "Library/Development", "Development/Libraries");
 	group = replace(group, "Networking/Deamons", "Networking/Daemons");
+	group = replace(group, "Networking/Other", "Networking");
 	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
 	group = replace(group, "Productivity/Multimedia/Other", "X11/Applications/Multimedia");
 	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP");;
