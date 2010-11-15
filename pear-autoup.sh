@@ -7,7 +7,13 @@
 
 set -e
 
-[ -s pear.ls ] || poldek -q -Q --skip-installed --cmd 'ls php-pear-*' > pear.ls
+# test that php is working
+php -r 'echo "PHP is working OK\n";'
+
+# test that pear is working
+pear info PEAR >/dev/null
+
+[ -s pear.ls ] || { poldek --upa; poldek -q -Q --skip-installed --cmd 'ls php-pear-*' > pear.ls; }
 [ -s pear.desc ] || {
 	for pkg in $(cat pear.ls); do
 		poldek -q --skip-installed --cmd "desc $pkg"
@@ -31,9 +37,6 @@ set -e
 	touch pear.installed
 }
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
-
-# test that php is working
-php -r 'echo "PHP is working OK\n";'
 
 for pkg in $(cat pear.pkgs); do
 	# check if there's update in channel
