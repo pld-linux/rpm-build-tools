@@ -14,7 +14,7 @@ php -r 'echo "PHP is working OK\n";'
 pear info PEAR >/dev/null
 
 # needed pkgs for upgrade test
-rpm -q php-packagexml2cl
+rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 
 [ -s pear.ls ] || { poldek --upa; poldek -q -Q --skip-installed --cmd 'ls php-pear-*' > pear.ls; }
 [ -s pear.desc ] || {
