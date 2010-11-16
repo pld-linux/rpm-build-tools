@@ -16,12 +16,7 @@ pear info PEAR >/dev/null
 # needed pkgs for upgrade test
 rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 
-[ -s pear.ls ] || { poldek --upa; poldek -q -Q --skip-installed --cmd 'ls php-pear-*' > pear.ls; }
-[ -s pear.desc ] || {
-	for pkg in $(cat pear.ls); do
-		poldek -q --skip-installed --cmd "desc $pkg"
-	done
-} > pear.desc
+[ -s pear.desc ] || { poldek --upa; poldek -q -Q --skip-installed --cmd 'desc php-pear-*' > pear.desc; }
 [ -s pear.pkgs ] || {
 	awk '/^Source.package:/{print $3}' < pear.desc | sed -re 's,-[^-]+-[^-]+.src.rpm$,,' | sort -u > pear.pkgs
 
@@ -36,7 +31,13 @@ rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 
 [ -f pear.installed ] || {
 	sudo poldek  --update --upa
+	# as sudo & poldek don't allow us to capture (no pipe or redirection work),
+	# we create markers which we could grab when invoked via "script"
+	echo "BEGIN INSTALL PACKAGES"
 	sed -e 's,^,install ,' pear.pkgs | sudo poldek
+	echo "END INSTALL PACKAGES"
+	# rm -f pear.installed && script -c ./pear-autoup.sh pear.install.log
+	# sed -ne '/BEGIN INSTALL PACKAGES/,/END INSTALL PACKAGES/p' pear.install.log | grep -vE 'poldek:/.*install|: ambiguous name|equal version installed, skipped|Nothing to do' | less
 	touch pear.installed
 }
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
