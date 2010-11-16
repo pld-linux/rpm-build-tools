@@ -48,17 +48,16 @@ LC_ALL=en_US.UTF-8 gawk ' {
 ' "$@"
 }
 
+pause()
+{
+	echo "$*"
+	echo -n "[Press ENTER to continue, ^C to abort] "
+	read ans
+}
+
 cvs -z9 diff -u $SPECFILE | diffcol
 
-echo -n "Proceed ? "
-read ans
-case "$ans" in
-Y|y|O|o)
-	;;
-*)
-	exit
-	;;
-esac
+pause "Proceed ?"
 
 sed '/^# AUTO: /d' -i "$SPEC"
 SIMPLE_DIFF="$(cvs -z9 diff "$SPEC")"
@@ -107,15 +106,7 @@ msg=""
 echo
 echo "Message:"
 echo "$msg"
-echo -n "Commit ? "
-read ans
-case "$ans" in
-Y|y|O|o)
-	;;
-*)
-	exit
-	;;
-esac
+pause "Commit ?"
 
 export COMMIT_MESSAGE="$msg"
 export COMMIT_PACKAGES="$SPECFILE"
