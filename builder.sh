@@ -252,7 +252,7 @@ run_poldek() {
 usage() {
 	if [ -n "$DEBUG" ]; then set -xv; fi
 	echo "\
-Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|-ba|--build]
+Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--add_cvs] [-b|-ba|--build]
 [-bb|--build-binary] [-bs|--build-source] [-bc] [-bi] [-bl] [-u|--try-upgrade]
 [{-cf|--cvs-force}] [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>]
 [-g|--get] [-h|--help] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
@@ -270,7 +270,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [-a|--as_anon] [-b|
 -debug              - produce rpm debug package (same as --opts -debug)
 -V, --version       - output builder version string
 --short-version     - output builder short version
--a, --as_anon       - get files via pserver as cvs@$CVS_SERVER,
+--as_anon           - get files via pserver as cvs@$CVS_SERVER,
+-a, --add_cvs       - try add new package to CVS.
 -b, -ba, --build    - get all files from CVS repo or HTTP/FTP and build package
                       from <package>.spec,
 -bb, --build-binary - get all files from CVS repo or HTTP/FTP and build binary
@@ -2117,8 +2118,11 @@ while [ $# -gt 0 ]; do
 			COMMAND="version"; shift ;;
 		--short-version )
 			COMMAND="short-version"; shift ;;
-		-a | --as_anon )
+		--as_anon )
 			CVSROOT=":pserver:cvs@$CVS_SERVER:/cvsroot"; shift ;;
+		-a | --add_cvs)
+			COMMAND="add_cvs";
+			shift ;;
 		-b | -ba | --build )
 			COMMAND="build"; shift ;;
 		-bb | --build-binary )
@@ -2452,142 +2456,142 @@ case "$COMMAND" in
 		;;
 	"build" | "build-binary" | "build-source" | "build-prep" | "build-build" | "build-install" | "build-list")
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			# display SMP make flags if set
-			smp_mflags=$(rpm -E %{?_smp_mflags})
-			if [ "$smp_mflags" ]; then
-				echo "builder: SMP make flags are set to $smp_mflags"
-			fi
-
-			get_spec
-			parse_spec
-			set_bconds_values
-			display_bconds
-			display_branches
-			if [ "$COMMAND" != "build-source" ]; then
-				check_buildarch
-			fi
-			fetch_build_requires
-			if [ "$INTEGER_RELEASE" = "yes" ]; then
-				echo "Checking release $PACKAGE_RELEASE..."
-				if echo $PACKAGE_RELEASE | grep -q '^[^.]*\.[^.]*$' 2>/dev/null ; then
-					Exit_error err_fract_rel "$PACKAGE_RELEASE"
-				fi
-			fi
-
-			# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
-			if [ -n "$TEST_TAG" ]; then
-				local TAGVER=`make_tagver`
-				echo "Searching for tag $TAGVER..."
-				TAGREL=$($CVS_COMMAND status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
-				if [ -n "$TAGREL" ]; then
-					Exit_error err_tag_exists "$TAGVER" "$TAGREL"
-				fi
-
-				# - do not allow to build from HEAD when XX-branch exists
-				TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto-\([a-zA-Z]\+\)-.*#\1#g')
-				if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
-					TAG_BRANCH="${TREE_PREFIX}-branch"
-					TAG_STATUS=$($CVS_COMMAND status -v $SPECFILE | grep -Ei "${TAG_BRANCH}.+(branch: [0-9.]+)")
-					if [ -n "$TAG_STATUS" -a "$CVSTAG" = "HEAD" ]; then
-						Exit_error err_branch_exists "$TAG_STATUS"
-					fi
-				fi
-
-			fi
-
-			if [ -n "$NOSOURCE0" ] ; then
-				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
-			fi
-			try_upgrade
-			case $? in
-				0)
-					get_files $SOURCES $PATCHES
-					check_md5 $SOURCES
-					;;
-				*)
-					NODIST="yes" get_files $SOURCES $PATCHES
-					update_md5 $SOURCES
-					;;
-			esac
-			build_package
-			if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
-				run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
-			fi
-			remove_build_requires
-		else
+		if [ -z "$SPECFILE" ]; then
 			Exit_error err_no_spec_in_cmdl
 		fi
+
+		# display SMP make flags if set
+		smp_mflags=$(rpm -E %{?_smp_mflags})
+		if [ "$smp_mflags" ]; then
+			echo "builder: SMP make flags are set to $smp_mflags"
+		fi
+
+		get_spec
+		parse_spec
+		set_bconds_values
+		display_bconds
+		display_branches
+		if [ "$COMMAND" != "build-source" ]; then
+			check_buildarch
+		fi
+		fetch_build_requires
+		if [ "$INTEGER_RELEASE" = "yes" ]; then
+			echo "Checking release $PACKAGE_RELEASE..."
+			if echo $PACKAGE_RELEASE | grep -q '^[^.]*\.[^.]*$' 2>/dev/null ; then
+				Exit_error err_fract_rel "$PACKAGE_RELEASE"
+			fi
+		fi
+
+		# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
+		if [ -n "$TEST_TAG" ]; then
+			local TAGVER=`make_tagver`
+			echo "Searching for tag $TAGVER..."
+			TAGREL=$($CVS_COMMAND status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
+			if [ -n "$TAGREL" ]; then
+				Exit_error err_tag_exists "$TAGVER" "$TAGREL"
+			fi
+
+			# - do not allow to build from HEAD when XX-branch exists
+			TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto-\([a-zA-Z]\+\)-.*#\1#g')
+			if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
+				TAG_BRANCH="${TREE_PREFIX}-branch"
+				TAG_STATUS=$($CVS_COMMAND status -v $SPECFILE | grep -Ei "${TAG_BRANCH}.+(branch: [0-9.]+)")
+				if [ -n "$TAG_STATUS" -a "$CVSTAG" = "HEAD" ]; then
+					Exit_error err_branch_exists "$TAG_STATUS"
+				fi
+			fi
+
+		fi
+
+		if [ -n "$NOSOURCE0" ] ; then
+			SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
+		fi
+		try_upgrade
+		case $? in
+			0)
+				get_files $SOURCES $PATCHES
+				check_md5 $SOURCES
+				;;
+			*)
+				NODIST="yes" get_files $SOURCES $PATCHES
+				update_md5 $SOURCES
+				;;
+		esac
+		build_package
+		if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
+			run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
+		fi
+		remove_build_requires
 		;;
 	"branch" )
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			get_spec
-			parse_spec
-			# don't fetch sources from remote locations
-			new_SOURCES=""
-			for file in $SOURCES; do
-				[ -n "`src_md5 $file`" ] && continue
-				new_SOURCES="$new_SOURCES $file"
-			done
-			SOURCES="$new_SOURCES"
-			get_files $SOURCES $PATCHES
-			check_md5 $SOURCES
-			branch_files $TAG $SOURCES $PATCHES $ICONS
-		else
+		if [ -z "$SPECFILE" ]; then
 			Exit_error err_no_spec_in_cmdl
 		fi
+
+		get_spec
+		parse_spec
+		# don't fetch sources from remote locations
+		new_SOURCES=""
+		for file in $SOURCES; do
+			[ -n "`src_md5 $file`" ] && continue
+			new_SOURCES="$new_SOURCES $file"
+		done
+		SOURCES="$new_SOURCES"
+		get_files $SOURCES $PATCHES
+		check_md5 $SOURCES
+		branch_files $TAG $SOURCES $PATCHES $ICONS
 		;;
 	"get" )
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			get_spec
-			parse_spec
-
-			if [ -n "$NOSOURCE0" ] ; then
-				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
-			fi
-			get_files $SOURCES $PATCHES
-			check_md5 $SOURCES
-		else
+		if [ -z "$SPECFILE" ]; then
 			Exit_error err_no_spec_in_cmdl
 		fi
+
+		get_spec
+		parse_spec
+
+		if [ -n "$NOSOURCE0" ] ; then
+			SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
+		fi
+		get_files $SOURCES $PATCHES
+		check_md5 $SOURCES
 		;;
 	"update_md5" )
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			get_spec
-			parse_spec
-
-			if [ -n "$NOSOURCE0" ] ; then
-				SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
-			fi
-			update_md5 $SOURCES
-		else
+		if [ -z "$SPECFILE" ]; then
 			Exit_error err_no_spec_in_cmdl
 		fi
+
+		get_spec
+		parse_spec
+
+		if [ -n "$NOSOURCE0" ] ; then
+			SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
+		fi
+		update_md5 $SOURCES
 		;;
 	"tag" )
 		NOURLS=1
 		NODIST="yes"
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			get_spec
-			parse_spec
-
-			# don't fetch sources from remote locations
-			new_SOURCES=""
-			for file in $SOURCES; do
-				[ -n "`src_md5 $file`" ] && continue
-				new_SOURCES="$new_SOURCES $file"
-			done
-			SOURCES="$new_SOURCES"
-			get_files $SOURCES $PATCHES
-			check_md5 $SOURCES
-			tag_files $SOURCES $PATCHES $ICONS
-		else
+		if [ -z "$SPECFILE" ]; then
 			Exit_error err_no_spec_in_cmdl
 		fi
+
+		get_spec
+		parse_spec
+
+		# don't fetch sources from remote locations
+		new_SOURCES=""
+		for file in $SOURCES; do
+			[ -n "`src_md5 $file`" ] && continue
+			new_SOURCES="$new_SOURCES $file"
+		done
+		SOURCES="$new_SOURCES"
+		get_files $SOURCES $PATCHES
+		check_md5 $SOURCES
+		tag_files $SOURCES $PATCHES $ICONS
 		;;
 	"mr-proper" )
 		mr_proper
