@@ -654,6 +654,9 @@ Exit_error() {
 			remove_build_requires
 			echo >&2 "Error: some source, patch or icon files not stored in CVS repo. ($2)"
 			exit 4 ;;
+		"err_cvs_add_failed" )
+			echo >&2 "Error: failed to add package to CVS repo."
+			exit 4 ;;
 		"err_build_fail" )
 			remove_build_requires
 			echo >&2 "Error: package build failed. (${2:-no more info})"
@@ -735,6 +738,14 @@ get_spec() {
 
 		if [ -d "$ASSUMED_NAME" -a -s "$ASSUMED_NAME/CVS/Root" ]; then
 			cvsup "$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
+		elif [ "$ADD_PACKAGE_CVS" = "yes" ]; then
+			if [ ! -d "$ASSUMED_NAME" ]; then
+				install -d "$ASSUMED_NAME"
+			fi
+			if [ ! -s "$ASSUMED_NAME/CVS/Root" ]; then
+				cvsup -a $ASSUMED_NAME || Exit_error err_cvs_add_failed
+			fi
+			cvsup -a "$ASSUMED_NAME/$SPECFILE" || Exit_error err_cvs_add_failed
 		else
 			cvsup -c -d $ASSUMED_NAME "packages/$ASSUMED_NAME/$SPECFILE" || {
 				# softfail if new package, i.e not yet added to cvs
@@ -746,25 +757,26 @@ get_spec() {
 
 			# remove Entries.Static -- so 'cvs up' would update all files in a repo
 			rm -f "$ASSUMED_NAME/CVS/Entries.Static"
-			cvsignore_df .cvsignore
+		fi
 
-			# add default log format to .cvsignore if it is relative to package dir
-			if [ -n "$LOGFILE" -a "$LOGFILE" = "${LOGFILE##*/}" ]; then
-				# substitute known "macros" to glob
-				local logfile=$(echo "$LOGFILE" | sed -e 's,\$\(PACKAGE_NAME\|DATE\),*,g')
-				if [ "$logfile" ]; then
-					cvsignore_df "$logfile"
-				fi
-			fi
+		cvsignore_df .cvsignore
 
-			# create symlinks for tools
-			if [ "$SYMLINK_TOOLS" != "no" ]; then
-				for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
-					[ -f $a ] || continue
-					ln -sf ../$a $ASSUMED_NAME
-					cvsignore_df $a
-				done
+		# add default log format to .cvsignore if it is relative to package dir
+		if [ -n "$LOGFILE" -a "$LOGFILE" = "${LOGFILE##*/}" ]; then
+			# substitute known "macros" to glob
+			local logfile=$(echo "$LOGFILE" | sed -e 's,\$\(PACKAGE_NAME\|DATE\),*,g')
+			if [ "$logfile" ]; then
+				cvsignore_df "$logfile"
 			fi
+		fi
+
+		# create symlinks for tools
+		if [ "$SYMLINK_TOOLS" != "no" ]; then
+			for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
+				[ -f $a ] || continue
+				ln -sf ../$a $ASSUMED_NAME
+				cvsignore_df $a
+			done
 		fi
 	fi
 
@@ -897,24 +909,36 @@ cvsignore_df() {
 
 cvsup() {
 	update_shell_title "cvsup"
-	local OPTIONS="up "
+	local OPTIONS="" ACTION="up"
 
+	# checkout
 	if [ "$1" = "-c" ]; then
-		OPTIONS="co "
+		ACTION="co"
 		shift
 	fi
+	# add
+	if [ "$1" = "-a" ]; then
+		ACTION="add"
+		shift
+	fi
+
+	OPTIONS="$ACTION "
+
 	if [ -n "$CVSROOT" ]; then
 		OPTIONS="-d $CVSROOT $OPTIONS"
 	fi
 
-	if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
-		OPTIONS="$OPTIONS -A"
-	else
-		if [ -n "$CVSDATE" ]; then
-			OPTIONS="$OPTIONS -D $CVSDATE"
-		fi
-		if [ -n "$CVSTAG" ]; then
-			OPTIONS="$OPTIONS -r $CVSTAG"
+	if [ "$ACTION" != "add" ]; then
+		if [ -z "$CVSDATE" -a -z "$CVSTAG" ]; then
+			OPTIONS="$OPTIONS -A"
+		else
+			if [ -n "$CVSDATE" ]; then
+				OPTIONS="$OPTIONS -D $CVSDATE"
+			fi
+			if [ -n "$CVSTAG" ]; then
+				# FIXME: cvs add actually works with -r ?
+				OPTIONS="$OPTIONS -r $CVSTAG"
+			fi
 		fi
 	fi
 
@@ -930,7 +954,8 @@ cvsup() {
 		output=$(LC_ALL=C $CVS_COMMAND $OPTIONS "$@" 2>&1)
 		result=$?
 		[ -n "$output" ] && echo "$output"
-		if (echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out|Unknown host)") && [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
+		if echo "$output" | grep -qE "(Cannot connect to|connect to .* failed|Connection reset by peer|Connection timed out|Unknown host)" \
+			&& [ "$result" -ne "0" -a "$retries_counter" -le "$CVS_RETRIES" ]; then
 			echo "Trying again [$*]... ($retries_counter)"
 			update_shell_title "cvsup: retry #$retries_counter"
 			sleep 2
@@ -2541,6 +2566,21 @@ case "$COMMAND" in
 		get_files $SOURCES $PATCHES
 		check_md5 $SOURCES
 		branch_files $TAG $SOURCES $PATCHES $ICONS
+		;;
+	"add_cvs" )
+		init_builder
+		if [ -z "$SPECFILE" ]; then
+			Exit_error err_no_spec_in_cmdl
+		fi
+
+		ADD_PACKAGE_CVS=yes get_spec
+		parse_spec
+
+		if [ -n "$NOSOURCE0" ] ; then
+			SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
+		fi
+		get_files $SOURCES $PATCHES
+		check_md5 $SOURCES
 		;;
 	"get" )
 		init_builder
