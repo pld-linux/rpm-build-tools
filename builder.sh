@@ -2436,47 +2436,51 @@ update_shell_title "$COMMAND"
 case "$COMMAND" in
 	"show_bconds")
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			get_spec > /dev/null
-			parse_spec
-			set_bconds_values
-			display_bconds
+		if [ -z "$SPECFILE" ]; then
+			Exit_error err_no_spec_in_cmdl
 		fi
+		get_spec > /dev/null
+		parse_spec
+		set_bconds_values
+		display_bconds
 		;;
 	"show_bcond_args")
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			get_spec > /dev/null
-			parse_spec
-			set_bconds_values
-			echo "$BCOND"
+		if [ -z "$SPECFILE" ]; then
+			Exit_error err_no_spec_in_cmdl
 		fi
+		get_spec > /dev/null
+		parse_spec
+		set_bconds_values
+		echo "$BCOND"
 		;;
 	"show_avail_bconds")
 		init_builder
-		if [ -n "$SPECFILE" ]; then
-			get_spec > /dev/null
-			parse_spec
-			local bcond_avail=$(find_spec_bcond $SPECFILE)
-			local opt bcond bconds
-			for opt in $bcond_avail; do
-				case "$opt" in
-				without_*)
-					bcond=${opt#without_}
-					bconds="$bconds $bcond"
-					;;
-				with_*)
-					bcond=${opt#with_}
-					bconds="$bconds $bcond"
-					;;
-				*)
-					echo >&2 "ERROR: unexpected '$opt' in show_avail_bconds"
-					exit 1
-					;;
-				esac
-			done
-			echo $bconds
+		if [ -z "$SPECFILE" ]; then
+			Exit_error err_no_spec_in_cmdl
 		fi
+
+		get_spec > /dev/null
+		parse_spec
+		local bcond_avail=$(find_spec_bcond $SPECFILE)
+		local opt bcond bconds
+		for opt in $bcond_avail; do
+			case "$opt" in
+			without_*)
+				bcond=${opt#without_}
+				bconds="$bconds $bcond"
+				;;
+			with_*)
+				bcond=${opt#with_}
+				bconds="$bconds $bcond"
+				;;
+			*)
+				echo >&2 "ERROR: unexpected '$opt' in show_avail_bconds"
+				exit 1
+				;;
+			esac
+		done
+		echo $bconds
 
 		;;
 	"build" | "build-binary" | "build-source" | "build-prep" | "build-build" | "build-install" | "build-list")
