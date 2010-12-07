@@ -238,6 +238,20 @@ function b_makekey(a, b,	s) {
 		mod_name = $3
 	if ($2 ~ /^_?pearname$/)
 		pearname = $3
+	if ($2 ~ /^_class$/)
+		pear_class = $3
+	if ($2 ~ /^_subclass$/)
+		pear_subclass = $3
+
+	# kill the _class and _subclass pear macros
+	if ($2 == "_pearname" || $2 == "pearname") {
+		if (pear_class) {
+			gsub("%{_class}", pear_class, $3);
+		}
+		if (pear_subclass) {
+			gsub("%{_subclass}", pear_subclass, $3);
+		}
+	}
 
 	sub(/[ \t]+$/, "");
 	# do nothing further, otherwise adapter thinks we're at preamble
@@ -1377,6 +1391,15 @@ function use_macros()
 
 	$0 = fixedsub("%(%{__cc} -dumpversion)", "%{cc_version}", $0);
 	$0 = fixedsub("%(%{__cxx} -dumpversion)", "%{cxx_version}", $0);
+
+	# kill the _class and _subclass pear macros
+	if (pear_class) {
+		gsub("%{_class}", pear_class);
+	}
+	if (pear_subclass) {
+		gsub("%{_subclass}", pear_subclass);
+	}
+
 }
 
 function format_configure(line,		n, a, s) {
