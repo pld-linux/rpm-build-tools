@@ -300,6 +300,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 -g, --get           - get <package>.spec and all related files from CVS repo
                       or HTTP/FTP,
 -h, --help          - this message,
+-jN, -j N           - set %_smp_mflags to propagate concurrent jobs
 --http              - use http instead of ftp,
 -l <logfile>, --logtofile <logfile>
                     - log all to file,
@@ -2176,6 +2177,14 @@ while [ $# -gt 0 ]; do
 			COMMAND="usage"; shift ;;
 		--http )
 			PROTOCOL="http"; shift ;;
+		-j)
+			RPMOPTS="${RPMOPTS} --define \"_smp_mflags -j$2\""
+			shift 2
+			;;
+		-j[0-9]*)
+			RPMOPTS="${RPMOPTS} --define \"_smp_mflags $1\""
+			shift
+			;;
 		-l | --logtofile )
 			shift; LOGFILE="${1}"; shift ;;
 		-ni| --nice )
