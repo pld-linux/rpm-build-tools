@@ -112,9 +112,12 @@ dist-verify() {
 
 # displays latest used tag for a specfile
 autotag() {
-	local out
-	for a in "$@"; do
-		s=${a%.spec}.spec
+	local out s
+	for s in "$@"; do
+		# strip branches
+		s=${s%:*}
+		# ensure package ends with .spec
+		s=${s%.spec}.spec
 		out=$(cvs status -v $s | awk "!/Sticky/&&/auto-$dist-/{if (!a++) print \$1}")
 		echo "$s:$out"
 	done
