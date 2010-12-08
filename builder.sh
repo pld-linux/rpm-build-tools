@@ -105,7 +105,7 @@ PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
 ASSUMED_NAME=""
-PROTOCOL="ftp"
+PROTOCOL="http"
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 
 CVS_COMMAND=${CVS_COMMAND:-cvs}
@@ -255,7 +255,7 @@ usage() {
 Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--add_cvs] [-b|-ba|--build]
 [-bb|--build-binary] [-bs|--build-source] [-bc] [-bi] [-bl] [-u|--try-upgrade]
 [{-cf|--cvs-force}] [{-B|--branch} <branch>] [{-d|--cvsroot} <cvsroot>]
-[-g|--get] [-h|--help] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
+[-g|--get] [-h|--help] [--ftp] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <cvstag>] [{-T|--tag <cvstag>]
 [-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}] [--use-greed-sources]
@@ -301,7 +301,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
                       or HTTP/FTP,
 -h, --help          - this message,
 -jN, -j N           - set %_smp_mflags to propagate concurrent jobs
---http              - use http instead of ftp,
+--ftp, --http       - use ftp or http protocol to access distfiles server
 -l <logfile>, --logtofile <logfile>
                     - log all to file,
 -nc, --no-cvs       - don't download sources from CVS, if source URL is given,
@@ -2175,6 +2175,8 @@ while [ $# -gt 0 ]; do
 			COMMAND="get"; shift ;;
 		-h | --help )
 			COMMAND="usage"; shift ;;
+		--ftp )
+			PROTOCOL="ftp"; shift ;;
 		--http )
 			PROTOCOL="http"; shift ;;
 		-j)
