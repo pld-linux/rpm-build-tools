@@ -342,7 +342,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 -sf, --source-files - list sources - bare filenames (intended for offline
                       operations; does not work when Icon field is present
                       but icon file is absent),
--sp, --source-paths - list sources - filenames with full local paths (intended for
+-lsp, --source-paths - list sources - filenames with full local paths (intended for
                       offline operations; does not work when Icon field is present
                       but icon file is absent),
 -su, --source-urls  - list urls - urls to sources and patches
@@ -373,8 +373,10 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
+-sp, --skip-patch <patchnumber>
+                    - don't apply <patchnumber>. may be repeated.
 -np, --nopatch <patchnumber>
-                    - don't apply <patchnumber>
+                    - abort instead of applying patch <patchnumber>
 --show-bconds       - show available conditional builds, which can be used
                     - with --with and/or --without switches.
 --show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by
@@ -2228,6 +2230,8 @@ while [ $# -gt 0 ]; do
 			shift; RPMOPTS="${RPMOPTS} ${1}"; shift ;;
 		--nopatch | -np )
 			shift; RPMOPTS="${RPMOPTS} --define \"patch${1} : ignoring patch${1}; exit 1; \""; shift ;;
+		--skip-patch | -sp )
+			shift; RPMOPTS="${RPMOPTS} --define \"patch${1} : skiping patch${1}\""; shift ;;
 		--topdir)
 			RPMOPTS="${RPMOPTS} --define \"_topdir $2\""
 			shift 2
@@ -2292,7 +2296,7 @@ while [ $# -gt 0 ]; do
 		-sf | --sources-files)
 			COMMAND="list-sources-files"
 			shift ;;
-		-sp | --sources-paths)
+		-lsp | --sources-paths)
 			COMMAND="list-sources-local-paths"
 			shift ;;
 		-su | --sources-urls)
