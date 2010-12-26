@@ -1664,6 +1664,9 @@ function unify_url(url)
 
 	# sourceforge urls
 	# Docs about sourceforge mirror system: http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
+	# TODO: SF unify: http://downloads.sourceforge.net/PROJECT/TARBALL
+
+	# 1. unify domains
 	sub("^http://prdownloads\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
 	sub("^http://download\.sf\.net/", "http://downloads.sourceforge.net/", url)
 	sub("^http://download\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
@@ -1671,11 +1674,15 @@ function unify_url(url)
 	sub("^http://.*\.dl\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
 	sub("^http://dl\.sf\.net/", "http://downloads.sourceforge.net/", url)
 	sub("^http://downloads\.sourceforge\.net/sourceforge/", "http://downloads.sourceforge.net/", url)
+
+	# 2. special hacks
 	# new style urls, strip "files/" between and prepend dl.
 	if (match(url, "^http://sourceforge.net/projects/[^/]+/files/")) {
 		url = substr(url, 1, RLENGTH - length("files/")) substr(url, RSTART + RLENGTH);
 		sub("^http://sourceforge.net/projects/", "http://downloads.sourceforge.net/project/", url);
 	}
+
+	# 3. unify urls
 	if (url ~ /sourceforge.net/) {
 		sub("[?&]big_mirror=.*$", "", url);
 		sub("[?&]modtime=.*$", "", url);
@@ -1963,6 +1970,8 @@ function replace_requires() {
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
+	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
+	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
@@ -1993,10 +2002,14 @@ function replace_requires() {
 	sub(/^python-imaging$/, "python-PIL", $2);
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
+	sub(/^python-twisted-core$/, "python-TwistedCore", $2);
+	sub(/^python-twisted-names$/, "python-TwistedNames", $2);
 	sub(/^python2-devel$/, "python-devel", $2);
 	sub(/^qt4-devel$/, "qt4-build", $2);
+	sub(/^qt4-webkit-devel$/, "QtWebKit-devel", $2);
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
 	sub(/^rpm-python$/, "python-rpm", $2);
+	sub(/^sip-devel$/, "python-sip-devel", $2);
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 	sub(/^tkinter$/, "python-tkinter", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
