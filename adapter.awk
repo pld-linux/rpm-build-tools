@@ -1908,6 +1908,7 @@ function replace_php_virtual_deps() {
 function replace_requires() {
 
 	sub(/^python-setuptools-devel$/, "python-distribute", $2);
+	sub(/^gcc-g77/, "gcc-fortran", $2);
 
 	# use virtual, not package name
 	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2);
