@@ -18,7 +18,8 @@ echo "Summary:        $1"
 echo "Group:          X11/Applications"
 echo ""
 echo "%description $1"
-echo "$*." |sed -e "s@^$1 @@"
+shift
+echo "$*."
 echo ""
 }
 
