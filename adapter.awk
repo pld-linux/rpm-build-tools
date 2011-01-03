@@ -1973,6 +1973,7 @@ function replace_requires() {
 	sub(/^GitPython$/, "python-git", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
+	sub(/^ccid$/, "pcsc-driver-ccid", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
@@ -1994,6 +1995,7 @@ function replace_requires() {
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
+	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
 	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2);
 	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
@@ -2055,12 +2057,13 @@ function replace_requires() {
 	sub(/^libpcre-devel$/, "pcre-devel", $2);
 
 	# suse
-	sub(/^libffmpeg-devel$/, "ffmpeg-devel", $2);
-	sub(/^libexpat-devel$/, "expat-devel", $2);
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2);
-	sub(/^libpulse-devel$/, "pulseaudio-devel", $2);
 	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2);
+	sub(/^libexpat-devel$/, "expat-devel", $2);
+	sub(/^libffmpeg-devel$/, "ffmpeg-devel", $2);
+	sub(/^libpulse-devel$/, "pulseaudio-devel", $2);
 	sub(/^monodoc-core$/, "mono-monodoc", $2);
+	sub(/^python-gtk$/, "python-pygtk-gtk", $2);
 
 	replace_php_virtual_deps()
 }
