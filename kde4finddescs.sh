@@ -4,7 +4,7 @@
 #
 # Author: Bartosz Świątek (shadzik@pld-linux.org)
 
-if [ "x$1" == "x" ]; then
+if [ "x$1" = "x" ]; then
 	echo "Usage: $0 kdemodule-version"
 	exit 1
 fi
