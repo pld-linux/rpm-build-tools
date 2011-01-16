@@ -742,8 +742,9 @@ get_spec() {
 		if [ -d "$ASSUMED_NAME" -a -s "$ASSUMED_NAME/CVS/Root" ]; then
 			cvsup "$ASSUMED_NAME/$SPECFILE" || Exit_error err_no_spec_in_repo
 		elif [ "$ADD_PACKAGE_CVS" = "yes" ]; then
-			if [ ! -d "$ASSUMED_NAME" ]; then
-				install -d "$ASSUMED_NAME"
+			if [ ! -r "$ASSUMED_NAME/$SPECFILE" ]; then
+				echo "ERROR: No package to add ($ASSUMED_NAME/$SPECFILE)" >&2
+				exit 101
 			fi
 			if [ ! -s "$ASSUMED_NAME/CVS/Root" ]; then
 				cvsup -a $ASSUMED_NAME || Exit_error err_cvs_add_failed
