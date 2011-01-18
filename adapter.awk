@@ -1570,13 +1570,10 @@ function use_files_macros(	i, n, t, a, l)
 		t = substr($0, 0, l);
 		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"));
 		if (match(s, "[^-]+$")) {
-#printf("s[%s]; start[%d]; length[%d]\n", s, RSTART, RLENGTH);
 			if (RSTART > 1) {
 				s = substr(s, 0, RSTART - 1);
 			}
-#printf("s2[%s]\n", s);
 			print "%if \"%{py_ver}\" > \"2.4\""
-#print t "/.+.egg-info"
 			gsub(t "/.+.egg-info", t "/" s "-*.egg-info");
 			print
 			print "%endif"
@@ -1821,7 +1818,8 @@ function import_rpm_macros() {
 		exit(rc = 1);
 	}
 
-	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.46) {
+	# update this version dep each time some new macro export is added
+	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.47) {
 		print "adapter shell script is outdated, please cvs up it" > "/dev/stderr"
 		do_not_touch_anything = 1
 		exit(rc = 1);
@@ -1862,6 +1860,11 @@ function import_rpm_macros() {
 	py_sitedir = ENVIRON["py_sitedir"]
 	py_scriptdir = ENVIRON["py_scriptdir"]
 	py_ver = ENVIRON["py_ver"]
+
+	py3_sitescriptdir = ENVIRON["py3_sitescriptdir"]
+	py3_sitedir = ENVIRON["py3_sitedir"]
+	py3_scriptdir = ENVIRON["py3_scriptdir"]
+	py3_ver = ENVIRON["py3_ver"]
 
 	ruby_archdir = ENVIRON["ruby_archdir"]
 	ruby_ridir = ENVIRON["ruby_ridir"]

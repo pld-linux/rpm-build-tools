@@ -208,6 +208,11 @@ import_rpm_macros() {
 	py_scriptdir
 	py_ver
 
+	py3_sitescriptdir
+	py3_sitedir
+	py3_scriptdir
+	py3_ver
+
 	ruby_archdir
 	ruby_ridir
 	ruby_rubylibdir
