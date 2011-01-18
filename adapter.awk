@@ -1993,6 +1993,7 @@ function replace_requires() {
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
+	sub(/^libsrtp-devel$/, "srtp-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
@@ -2011,11 +2012,13 @@ function replace_requires() {
 	sub(/^qt4-devel$/, "qt4-build", $2);
 	sub(/^qt4-webkit-devel$/, "QtWebKit-devel", $2);
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
+	sub(/^qtsingleapplication-devel$/, "QtSingleApplication-devel", $2);
 	sub(/^rpm-python$/, "python-rpm", $2);
 	sub(/^sip-devel$/, "python-sip-devel", $2);
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 	sub(/^tkinter$/, "python-tkinter", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
+	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
 
 	# debian / ubuntu
 	sub(/^blkid-dev$/, "libblkid-devel", $2);
@@ -2059,8 +2062,10 @@ function replace_requires() {
 	# suse
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2);
 	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2);
+	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2);
 	sub(/^libexpat-devel$/, "expat-devel", $2);
 	sub(/^libffmpeg-devel$/, "ffmpeg-devel", $2);
+	sub(/^libopenssl-devel$/, "openssl-devel", $2);
 	sub(/^libpulse-devel$/, "pulseaudio-devel", $2);
 	sub(/^monodoc-core$/, "mono-monodoc", $2);
 	sub(/^python-gtk$/, "python-pygtk-gtk", $2);
