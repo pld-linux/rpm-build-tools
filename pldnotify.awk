@@ -273,7 +273,8 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	}
 
 	d("Retrieving: " url)
-	cmd = "wget --user-agent \"Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2) Gecko/20100129 PLD/3.0 (Th) Iceweasel/3.6\" -nv -O - \"" url "\" -t 2 -T 45 --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
+	user_agent = "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2) Gecko/20100129 PLD/3.0 (Th) Iceweasel/3.6"
+	cmd = "wget -t 2 -T 45 --user-agent \"" user_agent "\" -nv -O - \"" url "\" --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
 	d("Execute: " cmd)
 	errno = system(cmd)
 	d("Execute done")
@@ -553,7 +554,7 @@ function process_source(number, lurl, name, version) {
 
 function rss_upgrade(name, ver, url, regex, cmd, nver) {
 	regex = "s/.*<title>" regex "<\/title>.*/\\1/p"
-	cmd = "wget -q -O - " url " | sed -nre '" regex "' | head -n1"
+	cmd = "wget -t 2 -T 45 -q -O - " url " | sed -nre '" regex "' | head -n1"
 
 	d("rss_upgrade_cmd: " cmd)
 	cmd | getline nver
