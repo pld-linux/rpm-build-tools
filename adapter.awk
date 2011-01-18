@@ -1127,7 +1127,10 @@ function use_macros()
 	gsub(py_sitescriptdir, "%{py_sitescriptdir}")
 	gsub(py_sitedir, "%{py_sitedir}")
 	gsub(py_scriptdir, "%{py_scriptdir}")
-	gsub("%{_libdir}/python2.4/site-packages", "%{py_sitedir}")
+
+	gsub(py3_sitescriptdir, "%{py3_sitescriptdir}")
+	gsub(py3_sitedir, "%{py3_sitedir}")
+	gsub(py3_scriptdir, "%{py3_scriptdir}")
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
 	gsub(ruby_ridir, "%{ruby_ridir}")
