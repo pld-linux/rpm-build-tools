@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -x
-ver=4.5.5
+ver=4.6.0
 
 prog="$1"
 diffprog="$1"
@@ -47,7 +47,7 @@ filter() {
 
 svn diff \
 	svn://${ANONSVN}/home/kde/tags/KDE/${ver}/$diffprog \
-	svn://${ANONSVN}/home/kde/branches/KDE/4.5/$diffprog \
+	svn://${ANONSVN}/home/kde/branches/KDE/4.6/$diffprog \
 	| filter "$prog" \
 	> kde4-$prog-branch.diff
 
