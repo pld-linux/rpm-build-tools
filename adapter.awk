@@ -71,9 +71,11 @@ BEGIN {
 
 # There should be a comment with CVS keywords on the first line of file.
 FNR == 1 {
-	if (!/# \$Revision:/)	# If this line is already OK?
+	if (!/^# \$()Revision: .* \$, \$()Date: .* \$$/) {	# If this line is already OK?
 		print "# $" "Revision:$, " "$" "Date:$"	# No
-	else {
+		if ( /^#.*([rR]evision|[dD]ate)/ ) # There was something similar, but incorrect
+			 next
+	} else {
 		print $0				# Yes
 		next		# It is enough for first line
 	}
