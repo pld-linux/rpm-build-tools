@@ -1366,7 +1366,9 @@ function use_macros()
 	$0 = fixedsub("%__install", "install", $0);
 
 	# split configure line to multiple lines
-	if (/%configure / && !/\\$/) {
+	if (/%configure +$/) {
+		sub( / +$/, "" );
+	} else if (/%configure / && !/\\$/) {
 		$0 = format_configure($0);
 	}
 
