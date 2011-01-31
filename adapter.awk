@@ -2065,9 +2065,11 @@ function replace_requires() {
 	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
 
 	# altlinux
+	sub(/^libgit-devel$/, "git-core-devel", $2);
 	sub(/^libncurses-devel$/, "ncurses-devel", $2);
 	sub(/^libncursesxx-devel$/, "ncurses-c++-devel", $2);
 	sub(/^libpcre-devel$/, "pcre-devel", $2);
+	sub(/^libssl-devel$/, "openssl-devel", $2);
 
 	# suse
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2);
@@ -2117,6 +2119,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Games", "Applications/Games");
 	group = replace(group, "Library/Development", "Development/Libraries");
 	group = replace(group, "Networking/Deamons", "Networking/Daemons");
+	group = replace(group, "Networking/Mail", "Applications/Mail");
 	group = replace(group, "Networking/Other", "Networking");
 	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
 	group = replace(group, "Productivity/Multimedia/Other", "X11/Applications/Multimedia");
