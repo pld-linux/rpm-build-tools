@@ -37,8 +37,8 @@ APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
 RCSID='$Id$' r=${RCSID#* * } rev=${r%% *}
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
-Build package utility from PLD Linux CVS repository
-$VERSION (C) 1999-2010 Free Penguins".
+Build package utility from PLD Linux Packages repository
+$VERSION (C) 1999-2011 Free Penguins".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
