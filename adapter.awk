@@ -1984,8 +1984,9 @@ function replace_requires() {
 	sub(/^wsdl4j$/, "java-wsdl4j", $2);
 	sub(/^xalan-j$/, "java-xalan", $2);
 	sub(/^xalan-j2$/, "java-xalan", $2);
-	sub(/^xerces-j$/, "java-xerces", $2);
-	sub(/^xerces-j2$/, "java-xerces", $2);
+	sub(/^xerces-j$/, "java(jaxp_parser_impl)", $2);
+	sub(/^xerces-j2$/, "java(jaxp_parser_impl)", $2);
+	sub(/^java-xerces$/, "java(jaxp_parser_impl)", $2);
 	sub(/^xml-commons-apis$/, "java-xml-commons-apis", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 
