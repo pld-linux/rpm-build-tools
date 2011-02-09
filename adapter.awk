@@ -1663,12 +1663,18 @@ function cflags(var)
 	return 1
 }
 
+# return whole matched pattern
+function matchstr(str, pat)
+{
+	match(str, "[^/]+$");
+	return substr(str, RSTART, RLENGTH);
+}
+
 function unify_url(url)
 {
 
 	# sourceforge urls
 	# Docs about sourceforge mirror system: http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
-	# TODO: SF unify: http://downloads.sourceforge.net/PROJECT/TARBALL
 
 	# 1. unify domains
 	sub("^http://prdownloads\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
@@ -1679,13 +1685,6 @@ function unify_url(url)
 	sub("^http://dl\.sf\.net/", "http://downloads.sourceforge.net/", url)
 	sub("^http://downloads\.sourceforge\.net/sourceforge/", "http://downloads.sourceforge.net/", url)
 
-	# 2. special hacks
-	# new style urls, strip "files/" between and prepend dl.
-	if (match(url, "^http://sourceforge.net/projects/[^/]+/files/")) {
-		url = substr(url, 1, RLENGTH - length("files/")) substr(url, RSTART + RLENGTH);
-		sub("^http://sourceforge.net/projects/", "http://downloads.sourceforge.net/project/", url);
-	}
-
 	# 3. unify urls
 	if (url ~ /sourceforge.net/) {
 		sub("[?&]big_mirror=.*$", "", url);
@@ -1693,6 +1692,18 @@ function unify_url(url)
 		sub("[?]use_mirror=.*$", "", url);
 		sub("[?]download$", "", url);
 		sub("/download$", "", url);
+	}
+
+	# SF: new style urls, strip "files/" between and prepend dl.
+	if (match(url, "^http://sourceforge.net/projects/[^/]+/files/")) {
+		url = substr(url, 1, RLENGTH - length("files/")) substr(url, RSTART + RLENGTH);
+		sub("^http://sourceforge.net/projects/", "http://downloads.sourceforge.net/project/", url);
+	}
+
+	# SF unify: http://downloads.sourceforge.net/PROJECT/TARBALL
+	# http://downloads.sourceforge.net/project/PROJECT/FILE/VERSION/%{name}-%{version}.zip
+	if (match(url, "^http://downloads.sourceforge.net/project/[^/]+")) {
+		url = sprintf("http://downloads.sourceforge.net/%s/%s", substr(url, 42, RLENGTH - 41), matchstr(url, "[^/]+$"));
 	}
 
 	sub("^ftp://ftp\.gnome\.org/", "http://ftp.gnome.org/", url)
