@@ -231,7 +231,7 @@ POLDEK_INDEX_DIR="$($RPM --eval %_rpmdir)/"
 POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
 
 run_poldek() {
-	RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
+	RES_FILE=$(tempfile)
 	if [ -n "$LOGFILE" ]; then
 		LOG=`eval echo $LOGFILE`
 		if [ -n "$LASTLOG_FILE" ]; then
@@ -392,6 +392,11 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
                      - build for platform <platform>.
 --init-rpm-dir       - initialize ~/rpm directory structure
 "
+}
+
+# create tempfile. as secure as possible
+tempfile() {
+	mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM.$$
 }
 
 # change dependency to specname
@@ -1555,7 +1560,7 @@ build_package() {
 		if [ -n "$LASTLOG_FILE" ]; then
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
-		RES_FILE=$(mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM)
+		RES_FILE=$(tempfile)
 
 		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
