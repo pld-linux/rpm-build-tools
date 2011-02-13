@@ -2288,19 +2288,19 @@ while [ $# -gt 0 ]; do
 		-sc | --sources-cvs)
 			COMMAND="list-sources-cvs"
 			shift ;;
-		-sd | --sources-distfiles)
+		-sd | --source-distfiles)
 			COMMAND="list-sources-distfiles"
 			shift ;;
-		-sdp | --sources-distfiles-paths)
+		-sdp | --source-distfiles-paths)
 			COMMAND="list-sources-distfiles-paths"
 			shift ;;
-		-sf | --sources-files)
+		-sf | --source-files)
 			COMMAND="list-sources-files"
 			shift ;;
-		-lsp | --sources-paths)
+		-lsp | --source-paths)
 			COMMAND="list-sources-local-paths"
 			shift ;;
-		-su | --sources-urls)
+		-su | --source-urls)
 			COMMAND="list-sources-urls"
 			shift ;;
 		-Tvs | --tag-version-stable )
