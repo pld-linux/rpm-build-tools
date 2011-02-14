@@ -92,10 +92,13 @@ while true; do
 done
 
 tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
-for spec in "$@"; do
-	spec=${spec%.spec}.spec
+topdir=$(rpm -E '%{_topdir}')
+cd "$topdir"
+for pkg in "$@"; do
+	spec=$(rpm -D "name ${pkg%.spec}" -E '%{_specdir}/%{name}.spec')
+	spec=${spec#$topdir/}
 	if [ "$update" = "1" ]; then
-		cvs up "$spec"
+		./builder -g -ns "$spec"
 	fi
 	rel=$(get_release "$spec")
 	if [ "$inc" = 1 ]; then
