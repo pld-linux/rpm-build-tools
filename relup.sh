@@ -95,7 +95,8 @@ tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 topdir=$(rpm -E '%{_topdir}')
 cd "$topdir"
 for pkg in "$@"; do
-	spec=$(rpm -D "name ${pkg%.spec}" -E '%{_specdir}/%{name}.spec')
+	name=${pkg%.spec} name=${name##*/}
+	spec=$(rpm -D "name $name" -E '%{_specdir}/%{name}.spec')
 	spec=${spec#$topdir/}
 	if [ "$update" = "1" ]; then
 		./builder -g -ns "$spec"
