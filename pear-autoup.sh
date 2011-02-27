@@ -16,7 +16,7 @@ pear info PEAR >/dev/null
 # needed pkgs for upgrade test
 rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 
-[ -s pear.desc ] || { poldek --upa; poldek -q -Q --skip-installed --cmd 'desc php-pear-*' > pear.desc; }
+[ -s pear.desc ] || { poldek --upa; poldek -q -Q --skip-installed --cmd 'search -r php-pear | desc' > pear.desc; }
 [ -s pear.pkgs ] || {
 	awk '/^Source.package:/{print $3}' < pear.desc | sed -re 's,-[^-]+-[^-]+.src.rpm$,,' | sort -u > pear.pkgs
 
@@ -42,9 +42,12 @@ rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 }
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
 
+subst=$(pear list-channels | awk -vORS="|" '/^[a-z]/{print $2}')
+subst="s/^php-(${subst%\|})-//"
+
 for pkg in $(cat pear.pkgs); do
 	# check if there's update in channel
-	pearpkg=${pkg#php-pear-}
+	pearpkg=$(echo "$pkg" | sed -re "$subst")
 	ver=$(awk -vpkg=$pearpkg '$2 == pkg {print $5}' pear.upgrades)
 	[ "$ver" ] || continue
 
