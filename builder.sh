@@ -34,7 +34,7 @@
 
 PROGRAM=${0##*/}
 APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
-RCSID='$Id$' r=${RCSID#* * } rev=${r%% *}
+RCSID='$Id: builder,v 1.645 2011/02/13 17:54:10 glen Exp $' r=${RCSID#* * } rev=${r%% *}
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
