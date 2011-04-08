@@ -1223,7 +1223,11 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?samba")
 			continue;
+		if ($c ~ sysconfdir "/{?xdg")
+			continue;
 		if ($c ~ sysconfdir "/shells")
+			continue;
+		if ($c ~ sysconfdir "/inittab")
 			continue;
 		if ($c ~ sysconfdir "/ppp")
 			continue;
@@ -1823,7 +1827,6 @@ function add_br(br)
 	BR[BR_count++] = br
 }
 
-
 # Load rpm macros
 # you should update the list also in adapter when making changes here
 function import_rpm_macros() {
@@ -1895,7 +1898,6 @@ function import_rpm_macros() {
 	php_data_dir = ENVIRON["php_data_dir"]
 	tmpdir = ENVIRON["tmpdir"]
 }
-
 
 # php virtual deps as discussed in devel-en
 function replace_php_virtual_deps() {
@@ -2116,6 +2118,15 @@ function replace_requires() {
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
 
+	# mandriva
+	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2);
+	sub(/^python-pyrex$/, "python-Pyrex", $2);
+	sub(/^webkitgtk-devel$/, "gtk-webkit-devel", $2);
+	sub(/^python-curl$/, "python-pycurl", $2);
+	sub(/^python-webkitgtk$/, "python-pywebkitgtk", $2);
+	sub(/^pygtk2.0$/, "python-pygtk-gtk", $2);
+	sub(/^gnome-python-gconf$/, "python-gnome-gconf", $2);
+
 	# debian / ubuntu
 	sub(/^blkid-dev$/, "libblkid-devel", $2);
 	sub(/^ext2fs-dev$/, "e2fsprogs-devel", $2);
@@ -2149,6 +2160,10 @@ function replace_requires() {
 	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
 	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
 	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
+	sub(/^libudev$/, "udev-libs", $2);
+	sub(/^tcp_wrappers-devel$/, "libwrap-devel", $2);
+	sub(/^vala-tools$/, "vala", $2);
+	sub(/^vala-devel$/, "vala", $2);
 
 	# altlinux
 	sub(/^libgit-devel$/, "git-core-devel", $2);
