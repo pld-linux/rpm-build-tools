@@ -1229,6 +1229,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/inittab")
 			continue;
+		if ($c ~ sysconfdir "/init")
+			continue;
 		if ($c ~ sysconfdir "/ppp")
 			continue;
 		if ($c ~ sysconfdir "/dbus-1")
