@@ -263,7 +263,9 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 [--show-bconds] [--with/--without <feature>] [--define <macro> <value>]
 <package>[.spec][:cvstag]
 
+-4                  - force ipv4 when transferring files
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
+-6                  - force ipv6 when transferring files
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
 -n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable builder script debugging mode,
@@ -2131,6 +2133,12 @@ fi
 
 while [ $# -gt 0 ]; do
 	case "${1}" in
+		-4|-6)
+			# NOTE: we should be fetcher specific, like fille WGET_OPTS, but
+			# unfortunately $GETURI is already formed
+			GETURI="$GETURI $1"
+			shift
+			;;
 		-5 | --update-md5)
 			COMMAND="update_md5"
 			NODIST="yes"
