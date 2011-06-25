@@ -833,9 +833,9 @@ find_mirror() {
 src_no() {
 	cd $PACKAGE_DIR
 	rpm_dump | \
-	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
-	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
-	head -n 1 | xargs
+	grep -E "(SOURCE|PATCH)URL[0-9]*[ 	]*$1""[ 	]*$" | \
+	sed -e 's/.*\(SOURCE\|PATCH\)URL\([0-9][0-9]*\).*/\1\2/' | \
+	head -n 1 | tr OURCEATH ourceath | xargs
 }
 
 src_md5() {
@@ -865,7 +865,7 @@ src_md5() {
 		fi
 	fi
 
-	source_md5=`grep -i "^#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+	source_md5=`grep -i "^#[ 	]*$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
 	if [ -n "$source_md5" ]; then
 		echo $source_md5
 	else
@@ -875,7 +875,7 @@ src_md5() {
 		else
 			# we have empty SourceX-md5, but it is still possible
 			# that we have NoSourceX-md5 AND NoSource: X
-			nosource_md5=`grep -i "^#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
+			nosource_md5=`grep -i "^#[	 ]*No$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
 			if [ -n "$nosource_md5" -a -n "`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" ] ; then
 				echo $nosource_md5
 			fi
@@ -1010,10 +1010,10 @@ update_md5() {
 		local srcno=$(src_no "$i")
 		if [ -n "$ADD5" ]; then
 			[ "$fp" = "$i" ] && continue # FIXME what is this check doing?
-			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE && continue
+			grep -qiE '^#[ 	]*'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE && continue
 			grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE && continue
 		else
-			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE || grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE || continue
+			grep -qiE '^#[ 	]*'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE || grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE || continue
 		fi
 		if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 			need_files="$need_files $i"
@@ -1029,22 +1029,22 @@ update_md5() {
 	for i in "$@"; do
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
-		local md5=$(grep -iE '^#[ 	]*(No)?Source'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE )
+		local md5=$(grep -iE '^#[ 	]*(No)?'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE )
 		if [ -z "$md5" ]; then
 			md5=$(grep -iE '^[ 	]*BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE )
 		fi
 		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
-			local tag="# Source$srcno-md5:\t"
+			local tag="# $srcno-md5:\t"
 			if [[ "$md5" == *NoSource* ]]; then
 				tag="# NoSource$srcno-md5:\t"
 			elif [ -n "$USEDIGEST" ]; then
 				tag="BuildRequires:\tdigest(%SOURCE$srcno) = "
 			fi
 			md5=$(md5sum "$fp" | cut -f1 -d' ')
-			echo "Updating Source$srcno ($md5: $fp)."
+			echo "Updating $srcno ($md5: $fp)."
 			perl -i -ne '
-				print unless (/^\s*#\s*(No)?Source'$srcno'-md5\s*:/i or /^\s*BuildRequires:\s*digest\(%SOURCE'$srcno'\)/i);
-				print "'"$tag$md5"'\n" if /^Source'$srcno'\s*:\s+/;
+				print unless (/^\s*#\s*(No)?'$srcno'-md5\s*:/i or /^\s*BuildRequires:\s*digest\(%SOURCE'$srcno'\)/i);
+				print "'"$tag$md5"'\n" if /^'$srcno'\s*:\s+/i;
 			' \
 			$PACKAGE_DIR/$SPECFILE
 		fi
@@ -2572,7 +2572,7 @@ case "$COMMAND" in
 				;;
 			*)
 				NODIST="yes" get_files $SOURCES $PATCHES
-				update_md5 $SOURCES
+				update_md5 $SOURCES $PATCHES
 				;;
 		esac
 		build_package
@@ -2642,7 +2642,7 @@ case "$COMMAND" in
 		if [ -n "$NOSOURCE0" ] ; then
 			SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 		fi
-		update_md5 $SOURCES
+		update_md5 $SOURCES $PATCHES
 		;;
 	"tag" )
 		NOURLS=1
