@@ -831,9 +831,12 @@ find_mirror() {
 
 # Warning: unpredictable results if same URL used twice
 src_no() {
+	local file="$1"
+	# escape some regexp characters if part of file name
+	file=$(echo "$file" | sed -e 's#\([\+\*\.]\)#\\\1#g')
 	cd $PACKAGE_DIR
 	rpm_dump | \
-	grep -E "(SOURCE|PATCH)URL[0-9]*[ 	]*$1""[ 	]*$" | \
+	grep -E "(SOURCE|PATCH)URL[0-9]*[ 	]*${file}""[ 	]*$" | \
 	sed -e 's/.*\(SOURCE\|PATCH\)URL\([0-9][0-9]*\).*/\1\2/' | \
 	head -n 1 | tr OURCEATH ourceath | xargs
 }
