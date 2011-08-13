@@ -360,6 +360,11 @@ function b_makekey(a, b,	s) {
 	}
 	sub("^%patch ", "%patch0 ");
 
+	# fedora extras
+	if (/^%apply/) {
+		sub("^%apply -n", "%patch");
+	}
+
 	# invalid in %prep
 	sub("^rm -rf \$RPM_BUILD_ROOT.*", "");
 }
@@ -604,6 +609,19 @@ function b_makekey(a, b,	s) {
 		sub(" >/dev/null 2>&1 \|\|:", "");
 	}
 
+	# fedora extras macros
+	if (/%__fe_useradd/) {
+		sub("%__fe_useradd", "%useradd -u ");
+		sub(" 2> /dev/null \|\| :", "");
+		sub(" >/dev/null 2>&1 \|\|:", "");
+		sub(" &>/dev/null \\|\\| :", "");
+	}
+
+	if (/%__fe_groupadd/) {
+		sub("%__fe_groupadd", "%groupadd -g ");
+		sub(" &>/dev/null \\|\\| :", "");
+	}
+
 	# %useradd and %groupadd may not be wrapped
 	if (/%(useradd|groupadd).*\\$/) {
 		a = $0; getline;
@@ -615,6 +633,10 @@ function b_makekey(a, b,	s) {
 
 /^%post/, (!/^%post/ && $0 ~ SECTIONS) {
 	preamble = 0
+
+	# fedora extras macros
+	sub("%__chkconfig", "/sbin/chkconfig");
+
 	use_macros()
 }
 /^%preun/, (!/^%preun/ && $0 ~ SECTIONS) {
@@ -623,6 +645,14 @@ function b_makekey(a, b,	s) {
 }
 /^%postun/, (!/^%postun/ && $0 ~ SECTIONS) {
 	preamble = 0
+
+	# fedora extras macros
+	if (/%__fe_userdel|%__fe_groupdel/) {
+		sub("%__fe_groupdel", "%groupremove");
+		sub("%__fe_userdel", "%userremove");
+		sub(" &>/dev/null \\|\\| :", "");
+	}
+
 	use_script_macros()
 }
 /^%triggerin/, (!/^%triggerin/ && $0 ~ SECTIONS) {
@@ -1782,6 +1812,16 @@ function kill_preamble_macros()
 		$2 = demacroize($2);
 		$2 = unify_url($2)
 	}
+
+	# fedora extras
+	if (/%{\?FE_USERADD_REQ}/) {
+		$0 = "";
+		print "BuildRequires:	rpmbuild(macros) >= 1.202"
+		print "Provides:	user(xxx)"
+		print "Requires(postun):	/usr/sbin/userdel"
+		print "Requires(pre):  /bin/id"
+		print "Requires(pre):  /usr/sbin/useradd"
+	}
 }
 
 function get_epoch(pkg, ver,	epoch)
@@ -2088,11 +2128,13 @@ function replace_requires() {
 	sub(/^gtk-sharp2-devel$/, "dotnet-gtk-sharp2-devel", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
 	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
+	sub(/^gtk3-devel$/, "gtk+3-devel", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^iproute$/, "iproute2", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
+	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
