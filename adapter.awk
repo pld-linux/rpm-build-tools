@@ -66,7 +66,7 @@ BEGIN {
 	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
 
 	# Temporary file for changelog section
-	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
+	changelog_file = mktemp("adapter.changelogXXXXXX")
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -91,6 +91,12 @@ defattr == 1 {
 		}
 	}
 	defattr = 0
+}
+
+# call mktemp(1) and return the value
+function mktemp(template, tmp) {
+   "mktemp " template | getline tmp
+   return tmp
 }
 
 function b_makekey(a, b,	s) {
