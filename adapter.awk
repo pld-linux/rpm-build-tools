@@ -637,6 +637,16 @@ function b_makekey(a, b,	s) {
 	# fedora extras macros
 	sub("%__chkconfig", "/sbin/chkconfig");
 
+	sub("update-desktop-database &> /dev/null \\|\\| :", "%update_desktop_database");
+	sub("touch --no-create %{_datadir}/icons/hicolor", "%update_icon_cache_post hicolor");
+	sub("if \\[ -x %{_bindir}/gtk-update-icon-cache \\]; then\n\t%{_bindir}/gtk-update-icon-cache -q %{_datadir}/icons/hicolor \|\| :\nfi", "");
+
+	sub("export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`", "")
+	if (/gconftool-2 --makefile-install-rule/) {
+		sub("gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/", "%gconf_schema_install ")
+		sub(".schemas > /dev/null", "");
+	}
+
 	use_macros()
 }
 /^%preun/, (!/^%preun/ && $0 ~ SECTIONS) {
