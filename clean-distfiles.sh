@@ -6,7 +6,7 @@
 dir=$(dirname "$0")
 cd "$dir"
 
-ext=bz2,gz,rar,tgz,tbz2,zip,jar,Z,tar,png,ico,xpm,gif,rpm,bin,run,exe,iso,xpi,ZIP,dll
+ext=bz2,gz,rar,tgz,tbz2,zip,jar,Z,tar,png,ico,xpm,gif,rpm,bin,run,exe,iso,xpi,ZIP,dll,pdf
 ls -ldrSh */*.{$ext}
 echo */*.{$ext} | xargs stat -c %s | awk '{s+=$1} END {printf("Total: %d MiB\n", s/1014/1024)}'
 
