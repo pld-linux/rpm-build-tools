@@ -785,7 +785,7 @@ get_spec() {
 		if [ "$SYMLINK_TOOLS" != "no" ]; then
 			for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
 				[ -f $a ] || continue
-				ln -sf ../$a $ASSUMED_NAME
+				ln -s ../$a $ASSUMED_NAME
 				cvsignore_df $a
 			done
 		fi
