@@ -655,7 +655,7 @@ BEGIN {
 	# DEBUG = 1
 
 	errno=system("wget --help > /dev/null 2>&1")
-	if (errno) {
+	if (errno && errno != 3) {
 		print "No wget installed!"
 		exit 1
 	}
