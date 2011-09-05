@@ -1308,6 +1308,9 @@ is_tag_a_branch() {
 	fi
 
 	TAG=$1
+	# escape some regexp characters if part of TAG
+	TAG=$(echo "$TAG" | sed -e 's#\([\+\*\.]\)#\\\1#g')
+
 
 	cd "$PACKAGE_DIR"
 	$CVS_COMMAND status -v $SPECFILE | grep -Eiq "${TAG}.+(branch: [0-9.]+)"
@@ -2546,6 +2549,8 @@ case "$COMMAND" in
 		# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
 		if [ -n "$TEST_TAG" ]; then
 			local TAGVER=`make_tagver`
+			# escape some regexp characters if part of TAGVER
+			TAGVER=$(echo "$TAGVER" | sed -e 's#\([\+\*\.]\)#\\\1#g')
 			echo "Searching for tag $TAGVER..."
 			TAGREL=$($CVS_COMMAND status -v $SPECFILE | grep -E "^[[:space:]]*${TAGVER}[[[:space:]]" | sed -e 's#.*(revision: ##g' -e 's#).*##g')
 			if [ -n "$TAGREL" ]; then
