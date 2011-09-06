@@ -644,7 +644,7 @@ function b_makekey(a, b,	s) {
 	sub("export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`", "")
 	if (/gconftool-2 --makefile-install-rule/) {
 		sub("gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/", "%gconf_schema_install ")
-		sub(".schemas > /dev/null", "");
+		sub("> /dev/null", "");
 	}
 
 	use_macros()
@@ -2121,6 +2121,7 @@ function replace_requires() {
 
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
+	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
@@ -2134,6 +2135,8 @@ function replace_requires() {
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
+	sub(/^gnome-python2-gconf$/, "python-gnome-gconf", $2);
+	sub(/^gnome-python2-gnomekeyring$/, "python-gnome-desktop-keyring", $2);
 	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2);
 	sub(/^gtk-sharp2-devel$/, "dotnet-gtk-sharp2-devel", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
@@ -2146,6 +2149,7 @@ function replace_requires() {
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
+	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
@@ -2156,6 +2160,7 @@ function replace_requires() {
 	sub(/^pygobject2$/, "python-pygobject", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
+	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2);
 	sub(/^pysvn$/, "python-pysvn", $2);
 	sub(/^python-enchant$/, "python-pyenchant", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
