@@ -784,7 +784,10 @@ get_spec() {
 		# create symlinks for tools
 		if [ "$SYMLINK_TOOLS" != "no" ]; then
 			for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
+				# skip tools that don't exist in top dir
 				[ -f $a ] || continue
+				# skip tools that already exist
+				[ -f $ASSUMED_NAME/$a ] && continue
 				ln -s ../$a $ASSUMED_NAME
 				cvsignore_df $a
 			done
