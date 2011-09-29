@@ -836,7 +836,7 @@ find_mirror() {
 src_no() {
 	local file="$1"
 	# escape some regexp characters if part of file name
-	file=$(echo "$file" | sed -e 's#\([\+\*\.]\)#\\\1#g')
+	file=$(echo "$file" | sed -e 's#\([\+\*\.\&\#\?]\)#\\\1#g')
 	cd $PACKAGE_DIR
 	rpm_dump | \
 	grep -E "(SOURCE|PATCH)URL[0-9]*[ 	]*${file}""[ 	]*$" | \
