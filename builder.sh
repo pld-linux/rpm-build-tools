@@ -2125,11 +2125,13 @@ mr_proper() {
 	get_spec
 	parse_spec
 
+	local builddir=$(eval $RPM $RPMOPTS --eval '%{_builddir}')
+	
 	# remove from CVS/Entries
 	cvs_entry_remove $PACKAGE_DIR $SPECFILE $SOURCES $PATCHES
 
 	# remove spec and sources
-	$RPMBUILD --clean --rmsource --rmspec --nodeps --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" $SPECFILE
+	$RPMBUILD --clean --rmsource --rmspec --nodeps --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" --define "_builddir $builddir" $SPECFILE
 }
 
 #---------------------------------------------
