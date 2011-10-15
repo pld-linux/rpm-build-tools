@@ -2121,7 +2121,6 @@ function replace_requires() {
 
 	# fedora / redhat
 	sub(/^Django$/, "python-django", $2);
-	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
@@ -2151,6 +2150,10 @@ function replace_requires() {
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
+	sub(/^libtdb$/, "tdb", $2);
+	sub(/^libtdb-devel$/, "tdb-devel", $2);
+	sub(/^libtevent$/, "tevent", $2);
+	sub(/^libtevent-devel$/, "tevent-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
@@ -2162,6 +2165,8 @@ function replace_requires() {
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
 	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2);
 	sub(/^pysvn$/, "python-pysvn", $2);
+	sub(/^pytalloc$/, "python-talloc", $2);
+	sub(/^pytalloc-devel$/, "python-talloc-devel", $2);
 	sub(/^python-enchant$/, "python-pyenchant", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
