@@ -16,11 +16,11 @@ Group:		Applications/File
 Group:		Base
 Source0:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/builder?rev=%{builder_ver}#/builder.sh
 # Source0-md5:	bc6163cd6dd40cc394c57e3805629fba
-Source1:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/adapter.awk?rev=%{adapter_awk_ver}#/adapter.awk
+Source1:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/adapter.awk?rev=%{adapter_awk_ver}#/adapter-cvs.awk
 # Source1-md5:	58281c6c20d7ef6beb468abba92e117a
 Source2:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/adapter?rev=%{adapter_ver}#/adapter.sh
 # Source2-md5:	bac5127c0e6af07ed6931faf2260aace
-Source3:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/pldnotify.awk?rev=%{pldnotify_ver}#/pldnotify.awk
+Source3:	http://cvs.pld-linux.org/cgi-bin/cvsweb.cgi/~checkout~/packages/pldnotify.awk?rev=%{pldnotify_ver}#/pldnotify-cvs.awk
 # Source3-md5:	25bdcfac479c170fc30669442f957836
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
@@ -64,7 +64,9 @@ construir pacotes usando o RPM.
 
 %prep
 %setup -qcT
-cp -p %{SOURCE0} %{SOURCE1} %{SOURCE2} %{SOURCE3} .
+cp -p %{SOURCE0} %{SOURCE2} .
+cp -p %{SOURCE1} adapter.awk
+cp -p %{SOURCE3} pldnotify.awk
 
 %{__sed} -i -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' adapter.sh
 
