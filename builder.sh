@@ -281,34 +281,29 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 -bp, --build-prep   - execute the %prep phase of <package>.spec,
 -bc                 - execute the %build phase of <package>.spec,
 -bi                 - execute the %install phase of <package>.spec
--bl					- execute the %files phase of <package>.spec
+-bl                 - execute the %files phase of <package>.spec
 -bs, --build-source - get all files from CVS repo or HTTP/FTP and only pack
                       them into src.rpm,
 --short-circuit     - short-circuit build
 -B, --branch        - add branch
 -c, --clean         - clean all temporarily created files (in BUILD\$RPM_BUILD_ROOT) after rpmbuild commands.
                       may be used with building process.
--m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES,
-					  SPECS and \$RPM_BUILD_ROOT and CVS/Entries). Doesn't run
-					  any rpm building.
--cf, --cvs-force	- use -F when tagging (useful when moving branches)
+-m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES, SPECS and \$RPM_BUILD_ROOT
+                      and CVS/Entries). Doesn't run any rpm building.
+-cf, --cvs-force    - use -F when tagging (useful when moving branches)
 -d <cvsroot>, --cvsroot <cvsroot>
                     - setup \$CVSROOT,
---define <macro> <value>
-                    - define a macro <macro> with value <value>,
---alt_kernel <kernel>
-                    - same as --define 'alt_kernel <kernel>'
+--define <macro> <value> - define a macro <macro> with value <value>,
+--alt_kernel <kernel> - same as --define 'alt_kernel <kernel>'
 --nodeps            - rpm won't check any dependences
--g, --get           - get <package>.spec and all related files from CVS repo
-                      or HTTP/FTP,
--h, --help          - this message,
+-g, --get           - get <package>.spec and all related files from CVS repo or HTTP/FTP
+-h, --help          - this message
 -jN, -j N           - set %_smp_mflags to propagate concurrent jobs
 --ftp, --http       - use ftp or http protocol to access distfiles server
 -l <logfile>, --logtofile <logfile>
                     - log all to file,
 -nc, --no-cvs       - don't download sources from CVS, if source URL is given,
--ncs, --no-cvs-specs
-                    - don't check specs in CVS
+-ncs, --no-cvs-specs - don't check specs in CVS
 -nd, --no-distfiles - don't download from distfiles
 -nm, --no-mirrors   - don't download from mirror, if source URL is given,
 -nu, --no-urls      - don't try to download from FTP/HTTP location,
@@ -353,10 +348,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
                     - add cvs tag <cvstag> for files,
 -Tvs, --tag-version-stable
                     - add cvs tags STABLE and NAME-VERSION-RELEASE for files,
--Ts, --tag-stable
-                    - add cvs tag STABLE for files,
--Tv, --tag-version
-                    - add cvs tag NAME-VERSION-RELEASE for files,
+-Ts, --tag-stable   - add cvs tag STABLE for files,
+-Tv, --tag-version  - add cvs tag NAME-VERSION-RELEASE for files,
 -Tp, --tag-prefix <prefix>
                     - add <prefix> to NAME-VERSION-RELEASE tags,
 -tt, --test-tag <prefix>
@@ -381,9 +374,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
                     - abort instead of applying patch <patchnumber>
 --show-bconds       - show available conditional builds, which can be used
                     - with --with and/or --without switches.
---show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by
-                      ./repackage.sh script. in other words, the output is
-                      parseable by scripts.
+--show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by ./repackage.sh script.
+                      In other words, the output is parseable by scripts.
 --show-avail-bconds - show available bconds
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
