@@ -331,7 +331,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 -sd, --source-distfiles - list sources available from distfiles (intended for offline
                       operations; does not work when Icon field is present
                       but icon file is absent),
--sc, --source-cvs - list sources available from CVS
+-sc, --source-cvs   - list sources available from CVS
 -sdp, --source-distfiles-paths - list sources available from distfiles -
                       paths relative to distfiles directory (intended for offline
                       operations; does not work when Icon field is present
@@ -360,7 +360,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
                     - as above, but allow float version
-					php-pear-Services_Digg/
+                      php-pear-Services_Digg/
 --upgrade-version   - upgrade to specified version in try-upgrade
 --use-greed-sources
                     - try download source from tag head if don't find it in
@@ -383,8 +383,8 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
                       --with feat1 feat2 feat3 --without feat4 feat5 --with feat6
                       constructions. Set GROUP_BCONDS to yes to make use of it.
 --target <platform>, --target=<platform>
-                     - build for platform <platform>.
---init-rpm-dir       - initialize ~/rpm directory structure
+                    - build for platform <platform>.
+--init-rpm-dir      - initialize ~/rpm directory structure
 "
 }
 
