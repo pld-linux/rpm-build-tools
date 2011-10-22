@@ -2120,7 +2120,7 @@ function replace_requires() {
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 
 	# fedora / redhat
-
+	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
