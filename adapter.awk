@@ -2120,6 +2120,7 @@ function replace_requires() {
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 
 	# fedora / redhat
+
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
@@ -2144,11 +2145,13 @@ function replace_requires() {
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^iproute$/, "iproute2", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
+	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
+	sub(/^libloader$/, "java-libloader", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
 	sub(/^libtdb$/, "tdb", $2);
 	sub(/^libtdb-devel$/, "tdb-devel", $2);
@@ -2187,7 +2190,6 @@ function replace_requires() {
 	sub(/^tkinter$/, "python-tkinter", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
-
 	# mandriva
 	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2);
 	sub(/^python-pyrex$/, "python-Pyrex", $2);
