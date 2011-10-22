@@ -190,6 +190,15 @@ elif [ -n "$USE_AXEL" ]; then
 	GETURI="axel -a $AXEL_OPTS"
 	GETURI2="$GETURI"
 	OUTFILEOPT="-o"
+elif [ -n "$USE_LFTP" ]; then
+download_lftp() {
+	url="$1"
+	outfile="$2"
+	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$outfile.tmp\" && local mv \"$outfile.tmp\" \"$outfile\" || local rm -f \"$outfile.tmp\""
+}
+	GETURI=download_lftp
+	GETURI2=$GETURI
+	OUTFILEOPT=""
 else
 	wget --help 2>&1 | grep -q -- ' --no-check-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
 	wget --help 2>&1 | grep -q -- ' --inet ' && WGET_OPTS="$WGET_OPTS --inet"
