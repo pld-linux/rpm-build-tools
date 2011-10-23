@@ -2066,23 +2066,33 @@ function replace_requires() {
 	# bad package.xml, see http://pear.php.net/bugs/bug.php?id=17779
 	sub(/^php-php-gtk/, "php-gtk2", $2);
 
-	# jpackages
+	# jpackages / fedora java packages
 	sub(/^antlr3$/, "java-antlr3", $2);
 	sub(/^avalon-framework$/, "java-avalon-framework", $2);
 	sub(/^avalon-logkit$/, "java-avalon-logkit", $2);
 	sub(/^axis$/, "java-axis", $2);
+	sub(/^bouncycastle$/, "java-bcprov", $2);
+	sub(/^bouncycastle-mail$/, "java-bcmail", $2);
+	sub(/^bouncycastle-tsp$/, "java-bctsp", $2);
 	sub(/^bsf$/, "java-bsf", $2);
+	sub(/^dom4j$/, "java-dom4j", $2);
+	sub(/^flute$/, "java-flute", $2);
 	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
 	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
 	sub(/^hamcrest$/, "java-hamcrest", $2);
+	sub(/^itext$/, "java-itext", $2);
 	sub(/^jaas$/, "java(jaas)", $2);
 	sub(/^jaf$/, "java(jaf)", $2);
 	sub(/^jakarta-ant$/, "ant", $2);
+	sub(/^jakarta-commons-codec$/, "java-commons-codec", $2);
 	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
+	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
+	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
 	sub(/^jakarta-log4j$/, "java-log4j", $2);
 	sub(/^jakarta-oro$/, "java-oro", $2);
 	sub(/^jakarta-servletapi$/, "java(servlet)", $2);
 	sub(/^java-devel$/, "jdk", $2);
+	sub(/^java-xerces$/, "java(jaxp_parser_impl)", $2);
 	sub(/^java\(JSP\)$/, "java(jsp)", $2);
 	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
 	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
@@ -2102,25 +2112,37 @@ function replace_requires() {
 	sub(/^jsse$/, "java(jsse)", $2);
 	sub(/^jta$/, "java(jta)", $2);
 	sub(/^junit$/, "java-junit", $2);
+	sub(/^junit4$/, "java-junit", $2);
 	sub(/^ldapjdk$/, "ldapsdk", $2);
+	sub(/^libbase$/, "java-libbase", $2);
+	sub(/^libfonts$/, "java-libfonts", $2);
+	sub(/^libformula$/, "java-libformula", $2);
+	sub(/^liblayout$/, "java-liblayout", $2);
+	sub(/^libloader$/, "java-libloader", $2);
+	sub(/^librepository$/, "java-librepository", $2);
+	sub(/^libserializer$/, "java-libserializer", $2);
 	sub(/^log4j$/, "java-log4j", $2);
 	sub(/^logging-log4j$/, "java-log4j", $2);
 	sub(/^oro$/, "java-oro", $2);
+	sub(/^pdf-renderer$/, "java-pdf-renderer", $2);
+	sub(/^pentaho-libxml$/, "java-libxml", $2);
 	sub(/^rhino$/, "java-rhino", $2);
+	sub(/^sac$/, "java-sac", $2);
 	sub(/^saxon-scripts$/, "saxon", $2);
 	sub(/^servlet$/, "java(servlet)", $2);
 	sub(/^uddi4j$/, "java-uddi4j", $2);
+	sub(/^ws-jaxme$/, "java-jaxme", $2);
 	sub(/^wsdl4j$/, "java-wsdl4j", $2);
 	sub(/^xalan-j$/, "java-xalan", $2);
 	sub(/^xalan-j2$/, "java-xalan", $2);
 	sub(/^xerces-j$/, "java(jaxp_parser_impl)", $2);
 	sub(/^xerces-j2$/, "java(jaxp_parser_impl)", $2);
-	sub(/^java-xerces$/, "java(jaxp_parser_impl)", $2);
-	sub(/^xml-commons-apis$/, "java-xml-commons-apis", $2);
+	sub(/^xml-commons-apis$/, "java-xml-commons", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
+	sub(/^xmldb-api$/, "java-xmldb", $2);
+	sub(/^xmldb-api-sdk$/, "java-xmldb-sdk", $2);
 
 	# fedora / redhat
-	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
@@ -2145,13 +2167,12 @@ function replace_requires() {
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^iproute$/, "iproute2", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
-	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
+	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
-	sub(/^libloader$/, "java-libloader", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
 	sub(/^libtdb$/, "tdb", $2);
 	sub(/^libtdb-devel$/, "tdb-devel", $2);
@@ -2188,8 +2209,10 @@ function replace_requires() {
 	sub(/^sip-devel$/, "python-sip-devel", $2);
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 	sub(/^tkinter$/, "python-tkinter", $2);
+	sub(/^urw-fonts$/, "fonts-Type1-urw", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
+
 	# mandriva
 	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2);
 	sub(/^python-pyrex$/, "python-Pyrex", $2);
