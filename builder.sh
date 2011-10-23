@@ -196,11 +196,13 @@ download_lftp() {
 	url="$1"
 	outfile="$2"
 	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$outfile.tmp\""
-	if [ $? -eq 0 ]; then
+	retval=$?
+	if [ $retval -eq 0 ]; then
 		mv -f "$outfile.tmp" "$outfile"
 	else
 		rm -f "$outfile.tmp"
 	fi
+	return $retval
 }
 	GETURI=download_lftp
 	GETURI2=$GETURI
