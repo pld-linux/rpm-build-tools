@@ -106,6 +106,10 @@ PACKAGE_VERSION=""
 PACKAGE_NAME=""
 ASSUMED_NAME=""
 PROTOCOL="http"
+
+# use lftp by default when available
+lftp --version > /dev/null 2>&1 && USE_LFTP=yes
+
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 
 CVS_COMMAND=${CVS_COMMAND:-cvs}
