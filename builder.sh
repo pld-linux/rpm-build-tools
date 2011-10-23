@@ -192,9 +192,15 @@ elif [ -n "$USE_AXEL" ]; then
 	OUTFILEOPT="-o"
 elif [ -n "$USE_LFTP" ]; then
 download_lftp() {
+	local url outfile retval
 	url="$1"
 	outfile="$2"
-	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$outfile.tmp\" && local mv \"$outfile.tmp\" \"$outfile\" || local rm -f \"$outfile.tmp\""
+	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$outfile.tmp\""
+	if [ $? -eq 0 ]; then
+		mv -f "$outfile.tmp" "$outfile"
+	else
+		rm -f "$outfile.tmp"
+	fi
 }
 	GETURI=download_lftp
 	GETURI2=$GETURI
