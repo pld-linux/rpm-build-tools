@@ -108,6 +108,7 @@ ASSUMED_NAME=""
 PROTOCOL="http"
 
 # use lftp by default when available
+USE_LFTP=
 lftp --version > /dev/null 2>&1 && USE_LFTP=yes
 
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
@@ -195,19 +196,6 @@ elif [ -n "$USE_AXEL" ]; then
 	GETURI2="$GETURI"
 	OUTFILEOPT="-o"
 elif [ -n "$USE_LFTP" ]; then
-download_lftp() {
-	local url outfile retval
-	url="$1"
-	outfile="$2"
-	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$outfile.tmp\""
-	retval=$?
-	if [ $retval -eq 0 ]; then
-		mv -f "$outfile.tmp" "$outfile"
-	else
-		rm -f "$outfile.tmp"
-	fi
-	return $retval
-}
 	GETURI=download_lftp
 	GETURI2=$GETURI
 	OUTFILEOPT=""
@@ -269,6 +257,21 @@ run_poldek() {
 
 #---------------------------------------------
 # functions
+
+download_lftp() {
+	local url=$1 outfile=$2 retval tmpfile
+	# TODO: use mktemp
+	tmpfile=$outfile.tmp
+	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$tmpfile\""
+
+	retval=$?
+	if [ $retval -eq 0 ]; then
+		mv -f "$tmpfile" "$outfile"
+	else
+		rm -f "$tmpfile"
+	fi
+	return $retval
+}
 
 usage() {
 	if [ -n "$DEBUG" ]; then set -xv; fi
