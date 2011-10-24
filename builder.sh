@@ -259,7 +259,7 @@ run_poldek() {
 # functions
 
 download_lftp() {
-	local url=$1 outfile=$2 retval tmpfile
+	local outfile=$1 url=$2 retval tmpfile
 	# TODO: use mktemp
 	tmpfile=$outfile.tmp
 	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$tmpfile\""
