@@ -1223,10 +1223,10 @@ get_files() {
 						im="$i"
 					fi
 					update_shell_title "${GETURI%% *}: $im"
-					${GETURI} "$im" ${OUTFILEOPT} "$target" || \
+					${GETURI} ${OUTFILEOPT} "$target" "$im" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
 						update_shell_title "${GETURI2%% *}: $im"
-						${GETURI2} "$im" ${OUTFILEOPT} "$target"
+						${GETURI2} ${OUTFILEOPT} "$target" "$im"
 					fi
 					test -s "$target" || rm -f "$target"
 				fi
