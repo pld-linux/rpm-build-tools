@@ -212,7 +212,7 @@ fi
 
 GETLOCAL="cp -a"
 
-if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
+if rpm --version 2>&1 | grep -q '4.0.[0-2]'; then
 	RPM="rpm"
 	RPMBUILD="rpm"
 else
@@ -618,7 +618,7 @@ parse_spec() {
 	cd $PACKAGE_DIR
 	cache_rpm_dump
 
-	if (rpm_dump | grep -qEi ":.*nosource.*1"); then
+	if rpm_dump | grep -qEi ":.*nosource.*1"; then
 		FAIL_IF_NO_SOURCES="no"
 	fi
 
@@ -758,7 +758,7 @@ get_spec() {
 
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		if [ ! -s CVS/Root -a "$NOCVSSPEC" != "yes" ]; then
-			echo "Warning: No CVS access defined - using local .spec file"
+			echo "Warning: No CVS access defined in $(pwd)- using local .spec file"
 			NOCVSSPEC="yes"
 		fi
 
@@ -1647,7 +1647,7 @@ process_bcondrc() {
 	# w32codec-installer license_agreement
 	# php +mysqli
 	# ---
-	if ([ -f $HOME/.bcondrc ] || ([ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ])); then
+	if [ -f $HOME/.bcondrc ] || ([ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ]); then
 		:
 	else
 		return
