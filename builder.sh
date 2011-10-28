@@ -1058,7 +1058,7 @@ update_md5() {
 		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
 			local tag="# $srcno-md5:\t"
 			if [[ "$md5" == *NoSource* ]]; then
-				tag="# NoSource$srcno-md5:\t"
+				tag="# No$srcno-md5:\t"
 			elif [ -n "$USEDIGEST" ]; then
 				tag="BuildRequires:\tdigest(%SOURCE$srcno) = "
 			fi
