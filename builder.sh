@@ -262,7 +262,12 @@ download_lftp() {
 	local outfile=$1 url=$2 retval tmpfile
 	# TODO: use mktemp
 	tmpfile=$outfile.tmp
-	lftp -c "set net:max-retries $WGET_RETRIES; set http:user-agent \"$USER_AGENT\"; pget -n 10 -c \"$url\" -o \"$tmpfile\""
+	lftp -c "
+		$([ "$DEBUG" = "yes" ] && echo "debug 5;")
+		set net:max-retries $WGET_RETRIES;
+		set http:user-agent \"$USER_AGENT\";
+		pget -n 10 -c \"$url\" -o \"$tmpfile\"
+	"
 
 	retval=$?
 	if [ $retval -eq 0 ]; then
