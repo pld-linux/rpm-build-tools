@@ -2087,7 +2087,6 @@ function replace_requires() {
 	sub(/^jakarta-commons-codec$/, "java-commons-codec", $2);
 	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
 	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
-	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
 	sub(/^jakarta-log4j$/, "java-log4j", $2);
 	sub(/^jakarta-oro$/, "java-oro", $2);
 	sub(/^jakarta-servletapi$/, "java(servlet)", $2);
@@ -2261,10 +2260,14 @@ function replace_requires() {
 	sub(/^vala-devel$/, "vala", $2);
 
 	# altlinux
+	sub(/^libatk-devel$/, "atk-devel", $2);
 	sub(/^libgit-devel$/, "git-core-devel", $2);
+	sub(/^libgtk\+2-devel$/, "gtk+2-devel", $2);
 	sub(/^libncurses-devel$/, "ncurses-devel", $2);
 	sub(/^libncursesxx-devel$/, "ncurses-c++-devel", $2);
+	sub(/^libpango-devel$/, "pango-devel", $2);
 	sub(/^libpcre-devel$/, "pcre-devel", $2);
+	sub(/^libpopt-devel$/, "popt-devel", $2);
 	sub(/^libssl-devel$/, "openssl-devel", $2);
 
 	# suse
