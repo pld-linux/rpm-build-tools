@@ -231,8 +231,9 @@ fi
 
 # parse state
 state=$(awk '/^State:/{print $2}' $template)
-sed -i -e "/^%define.*_status/{
-	/%define.*_status.*$state/!s/.*/%define\t\t_status\t\t$state/
+sed -i -e "/^%define.*_\?status/{
+	s/%define[[:space:]]*_status.*/%define\t\t_status\t\t$state/
+	s/%define[[:space:]]*status.*/%define\t\tstatus\t\t$state/
 }" $spec
 
 # parse license
