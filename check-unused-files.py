@@ -53,6 +53,9 @@ def blacklisted(file):
     if file in [ '.', '..', 'CVS', 'TODO']:
         return True
 
+    if os.path.isdir(file):
+        return True
+
     for pat in exclude:
         if fnmatch.fnmatch(file, pat):
             return True
