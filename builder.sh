@@ -1331,13 +1331,13 @@ is_tag_a_branch() {
 		return 0;
 	fi
 
-	TAG=$1
+	local _TAG=$1
 	# escape some regexp characters if part of TAG
-	TAG=$(echo "$TAG" | sed -e 's#\([\+\*\.]\)#\\\1#g')
+	_TAG=$(echo "$_TAG" | sed -e 's#\([\+\*\.]\)#\\\1#g')
 
 
 	cd "$PACKAGE_DIR"
-	$CVS_COMMAND status -v $SPECFILE | grep -Eiq "${TAG}.+(branch: [0-9.]+)"
+	$CVS_COMMAND status -v $SPECFILE | grep -Eiq "${_TAG}.+(branch: [0-9.]+)"
 	return $?
 }
 
