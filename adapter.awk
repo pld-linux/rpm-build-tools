@@ -2177,6 +2177,7 @@ function replace_requires() {
 	sub(/^libtdb-devel$/, "tdb-devel", $2);
 	sub(/^libtevent$/, "tevent", $2);
 	sub(/^libtevent-devel$/, "tevent-devel", $2);
+	sub(/^libusb1-devel$/, "libusb-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
