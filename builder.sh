@@ -109,7 +109,8 @@ WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 CVS_FORCE=""
 CVSIGNORE_DF="yes"
 CVSTAG=""
-GIT_SERVER="draenog@carme.pld-linux.org"
+GIT_SERVER="git://carme.pld-linux.org"
+GIT_PUSH="draenog@carme.pld-linux.org"
 PACKAGES_DIR="packages"
 HEAD_DETACHED=""
 DEPTH=""
@@ -764,9 +765,11 @@ create_git_repo() {
 		exit 101
 	fi
 	[ -d "$ASSUMED_NAME/.git" ] || NEW_REPO=yes
-	ssh $GIT_SERVER create ${ASSUMED_NAME} || Exit_error err_cvs_add_failed
+	# ssh $GIT_SERVER create ${ASSUMED_NAME} || Exit_error err_cvs_add_failed
 	git init
-	git remote add $REMOTE_PLD ${GIT_SERVER}:${PACKAGES_DIR}/${ASSUMED_NAME}.git || Exit_error err_remote_problem $REMOTE_PLD
+	git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git && \
+		git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME} \
+		|| Exit_error err_remote_problem $REMOTE_PLD
 }
 
 get_spec() {
@@ -797,12 +800,13 @@ get_spec() {
 			else
 				(
 					unset GIT_WORK_TREE
-					git clone  -o $REMOTE_PLD ${GIT_SERVER}:${PACKAGES_DIR}/${ASSUMED_NAME}.git || {
+					git clone  -o $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git || {
 						# softfail if new package, i.e not yet added to PLD rep
 						[ ! -f "$ASSUMED_NAME/$SPECFILE" ] && Exit_error err_no_spec_in_repo
 						echo "Warning: package not in CVS - assuming new package"
 						NOCVSSPEC="yes"
 					}
+					git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME}
 				)
 			fi
 		else
