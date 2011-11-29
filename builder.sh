@@ -263,7 +263,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
 -6                  - force ipv6 when transferring files
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
---all-branches		- make shallow fetch of all branches; --depth required
+--all-branches      - make shallow fetch of all branches; --depth required
 -n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable builder script debugging mode,
 -debug              - produce rpm debug package (same as --opts -debug)
@@ -277,7 +277,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -bp, --build-prep   - execute the %prep phase of <package>.spec,
 -bc                 - execute the %build phase of <package>.spec,
 -bi                 - execute the %install phase of <package>.spec
--bl					- execute the %files phase of <package>.spec
+-bl                 - execute the %files phase of <package>.spec
 -bs, --build-source - get all files from PLD repo or HTTP/FTP and only pack
                       them into src.rpm,
 --short-circuit     - short-circuit build
@@ -285,13 +285,11 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -c, --clean         - clean all temporarily created files (in BUILD\$RPM_BUILD_ROOT) after rpmbuild commands.
                       may be used with building process.
 -m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES,
-					  SPECS and \$RPM_BUILD_ROOT). Doesn't run
-					  any rpm building.
--cf, --cvs-force	- use -f when tagging
+                      SPECS and \$RPM_BUILD_ROOT). Doesn't run any rpm building.
+-cf, --cvs-force    - use -f when tagging
 --define <macro> <value>
                     - define a macro <macro> with value <value>,
---depth <number>
-					- make shallow fetch
+--depth <number>    - make shallow fetch
 --alt_kernel <kernel>
                     - same as --define 'alt_kernel <kernel>'
 --nodeps            - rpm won't check any dependences
@@ -310,10 +308,12 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -ns, --no-srcs      - don't download Sources/Patches
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
--pm, --prefer-mirrors - prefer mirrors (if any) over distfiles for SOURCES
+-pm, --prefer-mirrors
+                    - prefer mirrors (if any) over distfiles for SOURCES
 --no-init           - don't initialize builder paths (SPECS and SOURCES)
 -ske,
---skip-existing-files - skip existing files in get_files
+--skip-existing-files
+                    - skip existing files in get_files
 --opts <rpm opts>   - additional options for rpm
 -q, --quiet         - be quiet,
 --date yyyy-mm-dd   - build package using resources from specified date,
@@ -328,18 +328,21 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -FRB, --force-remove-build-requires
                     - remove all you fetched with -R or --fetch-build-requires
                       remember, this option works without confirmation,
--sd, --source-distfiles - list sources available from distfiles (intended for offline
+-sd, --source-distfiles
+                    - list sources available from distfiles (intended for offline
                       operations; does not work when Icon field is present
                       but icon file is absent),
--sc, --source-cvs - list sources available from PLD repo
--sdp, --source-distfiles-paths - list sources available from distfiles -
+-sc, --source-cvs   - list sources available from PLD repo
+-sdp, --source-distfiles-paths
+                    - list sources available from distfiles -
                       paths relative to distfiles directory (intended for offline
                       operations; does not work when Icon field is present
                       but icon file is absent),
 -sf, --source-files - list sources - bare filenames (intended for offline
                       operations; does not work when Icon field is present
                       but icon file is absent),
--lsp, --source-paths - list sources - filenames with full local paths (intended for
+-lsp, --source-paths
+                    - list sources - filenames with full local paths (intended for
                       offline operations; does not work when Icon field is present
                       but icon file is absent),
 -su, --source-urls  - list urls - urls to sources and patches
@@ -362,7 +365,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -u, --try-upgrade   - check version, and try to upgrade package
 -un, --try-upgrade-with-float-version
                     - as above, but allow float version
-					php-pear-Services_Digg/
+                      php-pear-Services_Digg/
 --upgrade-version   - upgrade to specified version in try-upgrade
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
