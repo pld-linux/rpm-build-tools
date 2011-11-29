@@ -846,6 +846,7 @@ get_spec() {
 				exit 3
 			}
 		fi
+		git fetch $REMOTE_PLD 'refs/notes/*:refs/notes/*'
 
 		cvsignore_df .gitignore
 
