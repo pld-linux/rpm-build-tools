@@ -259,7 +259,9 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 [--show-bconds] [--with/--without <feature>] [--define <macro> <value>]
 <package>[.spec][:tag]
 
+-4                  - force ipv4 when transferring files
 -5, --update-md5    - update md5 comments in spec, implies -nd -ncs
+-6                  - force ipv6 when transferring files
 -a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
 --all-branches		- make shallow fetch of all branches; --depth required
 -n5, --no-md5       - ignore md5 comments in spec
@@ -862,8 +864,11 @@ get_spec() {
 		# create symlinks for tools
 		if [ "$SYMLINK_TOOLS" != "no" ]; then
 			for a in dropin md5 adapter builder {relup,compile,repackage,pearize}.sh pldnotify.awk; do
+				# skip tools that don't exist in top dir
 				[ -f $a ] || continue
-				ln -sf ../$a $ASSUMED_NAME
+				# skip tools that already exist
+				[ -f $ASSUMED_NAME/$a ] && continue
+				ln -s ../$a $ASSUMED_NAME
 				cvsignore_df $a
 			done
 		fi
@@ -918,11 +923,14 @@ find_mirror() {
 
 # Warning: unpredictable results if same URL used twice
 src_no() {
+	local file="$1"
+	# escape some regexp characters if part of file name
+	file=$(echo "$file" | sed -e 's#\([\+\*\.\&\#\?]\)#\\\1#g')
 	cd $PACKAGE_DIR
 	rpm_dump | \
-	grep "SOURCEURL[0-9]*[ 	]*$1""[ 	]*$" | \
-	sed -e 's/.*SOURCEURL\([0-9][0-9]*\).*/\1/' | \
-	head -n 1 | xargs
+	grep -E "(SOURCE|PATCH)URL[0-9]*[ 	]*${file}""[ 	]*$" | \
+	sed -e 's/.*\(SOURCE\|PATCH\)URL\([0-9][0-9]*\).*/\1\2/' | \
+	head -n 1 | tr OURCEATH ourceath | xargs
 }
 
 src_md5() {
@@ -947,7 +955,7 @@ src_md5() {
 		fi
 	fi
 
-	source_md5=`grep -i "^#[ 	]*Source$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+	source_md5=`grep -i "^#[ 	]*$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
 	if [ -n "$source_md5" ]; then
 		echo $source_md5
 	else
@@ -957,7 +965,7 @@ src_md5() {
 		else
 			# we have empty SourceX-md5, but it is still possible
 			# that we have NoSourceX-md5 AND NoSource: X
-			nosource_md5=`grep -i "^#[	 ]*NoSource$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
+			nosource_md5=`grep -i "^#[	 ]*No$no-md5[	 ]*:" $SPECFILE | sed -e 's/.*://'`
 			if [ -n "$nosource_md5" -a -n "`grep -i "^NoSource:[	 ]*$no$" $SPECFILE`" ] ; then
 				echo $nosource_md5
 			fi
@@ -1031,10 +1039,10 @@ update_md5() {
 		local srcno=$(src_no "$i")
 		if [ -n "$ADD5" ]; then
 			[ "$fp" = "$i" ] && continue # FIXME what is this check doing?
-			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE && continue
+			grep -qiE '^#[ 	]*'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE && continue
 			grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE && continue
 		else
-			grep -qiE '^#[ 	]*Source'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE || grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE || continue
+			grep -qiE '^#[ 	]*'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE || grep -qiE '^BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE || continue
 		fi
 		if [ ! -f "$fp" ] || [ $ALWAYS_CVSUP = "yes" ]; then
 			need_files="$need_files $i"
@@ -1050,22 +1058,22 @@ update_md5() {
 	for i in "$@"; do
 		local fp=$(nourl "$i")
 		local srcno=$(src_no "$i")
-		local md5=$(grep -iE '^#[ 	]*(No)?Source'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE )
+		local md5=$(grep -iE '^#[ 	]*(No)?'$srcno'-md5[ 	]*:' $PACKAGE_DIR/$SPECFILE )
 		if [ -z "$md5" ]; then
 			md5=$(grep -iE '^[ 	]*BuildRequires:[ 	]*digest[(]%SOURCE'$srcno'[)][ 	]*=' $PACKAGE_DIR/$SPECFILE )
 		fi
 		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
-			local tag="# Source$srcno-md5:\t"
+			local tag="# $srcno-md5:\t"
 			if [[ "$md5" == *NoSource* ]]; then
 				tag="# NoSource$srcno-md5:\t"
 			elif [ -n "$USEDIGEST" ]; then
 				tag="BuildRequires:\tdigest(%SOURCE$srcno) = "
 			fi
 			md5=$(md5sum "$fp" | cut -f1 -d' ')
-			echo "Updating Source$srcno ($md5: $fp)."
+			echo "Updating $srcno ($md5: $fp)."
 			perl -i -ne '
-				print unless (/^\s*#\s*(No)?Source'$srcno'-md5\s*:/i or /^\s*BuildRequires:\s*digest\(%SOURCE'$srcno'\)/i);
-				print "'"$tag$md5"'\n" if /^Source'$srcno'\s*:\s+/;
+				print unless (/^\s*#\s*(No)?'$srcno'-md5\s*:/i or /^\s*BuildRequires:\s*digest\(%SOURCE'$srcno'\)/i);
+				print "'"$tag$md5"'\n" if /^'$srcno'\s*:\s+/i;
 			' \
 			$PACKAGE_DIR/$SPECFILE
 		fi
@@ -1988,7 +1996,7 @@ mr_proper() {
 	DONT_PRINT_REVISION="yes"
 
 	# remove spec and sources
-	$RPMBUILD --clean --rmsource --rmspec --nodeps --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" $PACKAGE_DIR/$SPECFILE
+	$RPMBUILD --clean --rmsource --rmspec --nodeps --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" --define "_builddir $builddir" $PACKAGE_DIR/$SPECFILE
 	rm -rf $PACKAGE_DIR/{.git,.gitignore}
 	rmdir --ignore-fail-on-non-empty $PACKAGE_DIR
 }
@@ -2003,6 +2011,12 @@ fi
 
 while [ $# -gt 0 ]; do
 	case "${1}" in
+		-4|-6)
+			# NOTE: we should be fetcher specific, like fille WGET_OPTS, but
+			# unfortunately $GETURI is already formed
+			GETURI="$GETURI $1"
+			shift
+			;;
 		-5 | --update-md5)
 			COMMAND="update_md5"
 			NODIST="yes"
@@ -2399,6 +2413,8 @@ case "$COMMAND" in
 		# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
 		if [ -n "$TEST_TAG" ]; then
 			local TAGVER=`make_tagver`
+			# escape some regexp characters if part of TAGVER
+			TAGVER=$(echo "$TAGVER" | sed -e 's#\([\+\*\.]\)#\\\1#g')
 			echo "Searching for tag $TAGVER..."
 			if [ -n "$DEPTH" ]; then
 				local ref=`git ls-remote $REMOTE_PLD "refs/tags/$TAGVER"`
@@ -2436,7 +2452,7 @@ case "$COMMAND" in
 				;;
 			*)
 				NODIST="yes" get_files $SOURCES $PATCHES
-				update_md5 $SOURCES
+				update_md5 $SOURCES $PATCHES
 				;;
 		esac
 		build_package
@@ -2506,7 +2522,7 @@ case "$COMMAND" in
 		if [ -n "$NOSOURCE0" ] ; then
 			SOURCES=`echo $SOURCES | xargs | sed -e 's/[^ ]*//'`
 		fi
-		update_md5 $SOURCES
+		update_md5 $SOURCES $PATCHES
 		;;
 	"tag" )
 		NOURLS=1

@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2010 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2011 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -66,7 +66,7 @@ BEGIN {
 	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
 
 	# Temporary file for changelog section
-	changelog_file = ENVIRON["HOME"] "/tmp/adapter.changelog"
+	changelog_file = mktemp("adapter.changelogXXXXXX")
 }
 
 # There should be a comment with CVS keywords on the first line of file.
@@ -91,6 +91,12 @@ defattr == 1 {
 		}
 	}
 	defattr = 0
+}
+
+# call mktemp(1) and return the value
+function mktemp(template, tmp) {
+   "mktemp " template | getline tmp
+   return tmp
 }
 
 function b_makekey(a, b,	s) {
@@ -354,6 +360,11 @@ function b_makekey(a, b,	s) {
 	}
 	sub("^%patch ", "%patch0 ");
 
+	# fedora extras
+	if (/^%apply/) {
+		sub("^%apply -n", "%patch");
+	}
+
 	# invalid in %prep
 	sub("^rm -rf \$RPM_BUILD_ROOT.*", "");
 }
@@ -598,6 +609,19 @@ function b_makekey(a, b,	s) {
 		sub(" >/dev/null 2>&1 \|\|:", "");
 	}
 
+	# fedora extras macros
+	if (/%__fe_useradd/) {
+		sub("%__fe_useradd", "%useradd -u ");
+		sub(" 2> /dev/null \|\| :", "");
+		sub(" >/dev/null 2>&1 \|\|:", "");
+		sub(" &>/dev/null \\|\\| :", "");
+	}
+
+	if (/%__fe_groupadd/) {
+		sub("%__fe_groupadd", "%groupadd -g ");
+		sub(" &>/dev/null \\|\\| :", "");
+	}
+
 	# %useradd and %groupadd may not be wrapped
 	if (/%(useradd|groupadd).*\\$/) {
 		a = $0; getline;
@@ -609,6 +633,20 @@ function b_makekey(a, b,	s) {
 
 /^%post/, (!/^%post/ && $0 ~ SECTIONS) {
 	preamble = 0
+
+	# fedora extras macros
+	sub("%__chkconfig", "/sbin/chkconfig");
+
+	sub("update-desktop-database &> /dev/null \\|\\| :", "%update_desktop_database");
+	sub("touch --no-create %{_datadir}/icons/hicolor", "%update_icon_cache_post hicolor");
+	sub("if \\[ -x %{_bindir}/gtk-update-icon-cache \\]; then\n\t%{_bindir}/gtk-update-icon-cache -q %{_datadir}/icons/hicolor \|\| :\nfi", "");
+
+	sub("export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`", "")
+	if (/gconftool-2 --makefile-install-rule/) {
+		sub("gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/", "%gconf_schema_install ")
+		sub("> /dev/null", "");
+	}
+
 	use_macros()
 }
 /^%preun/, (!/^%preun/ && $0 ~ SECTIONS) {
@@ -617,6 +655,14 @@ function b_makekey(a, b,	s) {
 }
 /^%postun/, (!/^%postun/ && $0 ~ SECTIONS) {
 	preamble = 0
+
+	# fedora extras macros
+	if (/%__fe_userdel|%__fe_groupdel/) {
+		sub("%__fe_groupdel", "%groupremove");
+		sub("%__fe_userdel", "%userremove");
+		sub(" &>/dev/null \\|\\| :", "");
+	}
+
 	use_script_macros()
 }
 /^%triggerin/, (!/^%triggerin/ && $0 ~ SECTIONS) {
@@ -1223,7 +1269,13 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?samba")
 			continue;
+		if ($c ~ sysconfdir "/{?xdg")
+			continue;
 		if ($c ~ sysconfdir "/shells")
+			continue;
+		if ($c ~ sysconfdir "/inittab")
+			continue;
+		if ($c ~ sysconfdir "/init")
 			continue;
 		if ($c ~ sysconfdir "/ppp")
 			continue;
@@ -1770,6 +1822,16 @@ function kill_preamble_macros()
 		$2 = demacroize($2);
 		$2 = unify_url($2)
 	}
+
+	# fedora extras
+	if (/%{\?FE_USERADD_REQ}/) {
+		$0 = "";
+		print "BuildRequires:	rpmbuild(macros) >= 1.202"
+		print "Provides:	user(xxx)"
+		print "Requires(postun):	/usr/sbin/userdel"
+		print "Requires(pre):  /bin/id"
+		print "Requires(pre):  /usr/sbin/useradd"
+	}
 }
 
 function get_epoch(pkg, ver,	epoch)
@@ -1822,7 +1884,6 @@ function add_br(br)
 {
 	BR[BR_count++] = br
 }
-
 
 # Load rpm macros
 # you should update the list also in adapter when making changes here
@@ -1896,7 +1957,6 @@ function import_rpm_macros() {
 	tmpdir = ENVIRON["tmpdir"]
 }
 
-
 # php virtual deps as discussed in devel-en
 function replace_php_virtual_deps() {
 	pkg = $2
@@ -1924,6 +1984,75 @@ function replace_php_virtual_deps() {
 			$4 = substr($4, 3);
 		}
 	}
+}
+
+function replace_groupnames(group) {
+	group = replace(group, "Amusements/Games", "Applications/Games");
+	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
+	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
+	group = replace(group, "Application/System", "Applications/System");
+	group = replace(group, "Applications/Compilers", "Development/Languages");
+	group = replace(group, "Applications/Daemons", "Daemons");
+	group = replace(group, "Applications/Internet", "Applications/Networking");
+	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking");
+	group = replace(group, "Applications/Productivity", "X11/Applications");
+	group = replace(group, "Applications/Security", "Applications/System");
+	group = replace(group, "Applications/Web", "Applications/WWW");
+	group = replace(group, "Database", "Applications/Databases");
+	group = replace(group, "Development/C", "Development/Libraries");
+	group = replace(group, "Development/Code Generators", "Development");
+	group = replace(group, "Development/Docs", "Documentation");
+	group = replace(group, "Development/Documentation", "Documentation");
+	group = replace(group, "Development/Java", "Development/Languages/Java");
+	group = replace(group, "Development/Languages/C and C++", "Libraries");
+	group = replace(group, "Development/Languages/Other", "Development/Languages");;
+	group = replace(group, "Development/Languages/Ruby", "Development/Languages");
+	group = replace(group, "Development/Libraries/C and C++", "Development/Libraries");
+	group = replace(group, "Development/Libraries/Java", "Development/Languages/Java");
+	group = replace(group, "Development/Libraries/Python", "Development/Languages/Python");
+	group = replace(group, "Development/Libraries/TCL", "Development/Languages/Tcl");;
+	group = replace(group, "Development/Other", "Development");
+	group = replace(group, "Development/Python", "Development/Languages/Python");
+	group = replace(group, "Development/Testing", "Development");
+	group = replace(group, "Editors", "Applications/Text");
+	group = replace(group, "Emulators", "Applications/Emulators");
+	group = replace(group, "File tools", "Applications/File");
+	group = replace(group, "Games", "Applications/Games");
+	group = replace(group, "Library/Development", "Development/Libraries");
+	group = replace(group, "Networking/Deamons", "Networking/Daemons");
+	group = replace(group, "Networking/Mail", "Applications/Mail");
+	group = replace(group, "Networking/Other", "Networking");
+	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
+	group = replace(group, "Productivity/Multimedia/Other", "X11/Applications/Multimedia");
+	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP");;
+	group = replace(group, "Shells", "Applications/Shells");
+	group = replace(group, "System Environment/Base", "Base");
+	group = replace(group, "System Environment/Daemons", "Daemons");
+	group = replace(group, "System Environment/Kernel", "Base/Kernel");
+	group = replace(group, "System Environment/Libraries", "Libraries");
+	group = replace(group, "System Tools", "Applications/System");
+	group = replace(group, "System", "Base");
+	group = replace(group, "System/Base", "Base");
+	group = replace(group, "System/Kernel and hardware", "Base/Kernel");
+	group = replace(group, "System/Libraries", "Libraries");
+	group = replace(group, "System/Servers", "Daemons");
+	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
+	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
+	group = replace(group, "Text tools", "Applications/Text");
+	group = replace(group, "User Interface/Desktops", "X11/Applications");
+	group = replace(group, "Utilities/System", "Applications/System");
+	group = replace(group, "Web/Database", "Applications/WWW");
+	group = replace(group, "X11/GNOME", "X11/Applications");
+	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
+	group = replace(group, "X11/GNOME/Development/Libraries", "X11/Development/Libraries");
+	group = replace(group, "X11/Games", "X11/Applications/Games");
+	group = replace(group, "X11/Games/Strategy", "X11/Applications/Games/Strategy");
+	group = replace(group, "X11/Library", "X11/Libraries");
+	group = replace(group, "X11/Utilities", "X11/Applications");
+	group = replace(group, "X11/XFree86", "X11");
+	group = replace(group, "X11/Xserver", "X11/Servers");
+
+	return group;
 }
 
 function replace_requires() {
@@ -2005,32 +2134,49 @@ function replace_requires() {
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
+	sub(/^gnome-python2-gconf$/, "python-gnome-gconf", $2);
+	sub(/^gnome-python2-gnomekeyring$/, "python-gnome-desktop-keyring", $2);
 	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2);
 	sub(/^gtk-sharp2-devel$/, "dotnet-gtk-sharp2-devel", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
 	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
+	sub(/^gtk3-devel$/, "gtk+3-devel", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^iproute$/, "iproute2", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
+	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
+	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
+	sub(/^libtdb$/, "tdb", $2);
+	sub(/^libtdb-devel$/, "tdb-devel", $2);
+	sub(/^libtevent$/, "tevent", $2);
+	sub(/^libtevent-devel$/, "tevent-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
 	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2);
 	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2);
+	sub(/^pyflakes$/, "python-pyflakes", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
+	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2);
+	sub(/^pysvn$/, "python-pysvn", $2);
+	sub(/^pytalloc$/, "python-talloc", $2);
+	sub(/^pytalloc-devel$/, "python-talloc-devel", $2);
 	sub(/^python-enchant$/, "python-pyenchant", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
+	sub(/^python-recaptcha-client$/, "python-recaptcha", $2);
+	sub(/^python-twisted-core$/, "python-TwistedCore", $2);
 	sub(/^python-twisted-core$/, "python-TwistedCore", $2);
 	sub(/^python-twisted-names$/, "python-TwistedNames", $2);
 	sub(/^python2-devel$/, "python-devel", $2);
+	sub(/^pytz$/, "python-pytz", $2);
 	sub(/^qt4-devel$/, "qt4-build", $2);
 	sub(/^qt4-webkit-devel$/, "QtWebKit-devel", $2);
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
@@ -2041,6 +2187,15 @@ function replace_requires() {
 	sub(/^tkinter$/, "python-tkinter", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
+
+	# mandriva
+	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2);
+	sub(/^python-pyrex$/, "python-Pyrex", $2);
+	sub(/^webkitgtk-devel$/, "gtk-webkit-devel", $2);
+	sub(/^python-curl$/, "python-pycurl", $2);
+	sub(/^python-webkitgtk$/, "python-pywebkitgtk", $2);
+	sub(/^pygtk2.0$/, "python-pygtk-gtk", $2);
+	sub(/^gnome-python-gconf$/, "python-gnome-gconf", $2);
 
 	# debian / ubuntu
 	sub(/^blkid-dev$/, "libblkid-devel", $2);
@@ -2075,6 +2230,10 @@ function replace_requires() {
 	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
 	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
 	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
+	sub(/^libudev$/, "udev-libs", $2);
+	sub(/^tcp_wrappers-devel$/, "libwrap-devel", $2);
+	sub(/^vala-tools$/, "vala", $2);
+	sub(/^vala-devel$/, "vala", $2);
 
 	# altlinux
 	sub(/^libgit-devel$/, "git-core-devel", $2);
@@ -2095,75 +2254,6 @@ function replace_requires() {
 	sub(/^python-gtk$/, "python-pygtk-gtk", $2);
 
 	replace_php_virtual_deps()
-}
-
-function replace_groupnames(group) {
-	group = replace(group, "Amusements/Games", "Applications/Games");
-	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
-	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
-	group = replace(group, "Application/System", "Applications/System");
-	group = replace(group, "Applications/Compilers", "Development/Languages");
-	group = replace(group, "Applications/Daemons", "Daemons");
-	group = replace(group, "Applications/Internet", "Applications/Networking");
-	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking");
-	group = replace(group, "Applications/Productivity", "X11/Applications");
-	group = replace(group, "Applications/Security", "Applications/System");
-	group = replace(group, "Applications/Web", "Applications/WWW");
-	group = replace(group, "Database", "Applications/Databases");
-	group = replace(group, "Development/C", "Development/Libraries");
-	group = replace(group, "Development/Code Generators", "Development");
-	group = replace(group, "Development/Docs", "Documentation");
-	group = replace(group, "Development/Documentation", "Documentation");
-	group = replace(group, "Development/Java", "Development/Languages/Java");
-	group = replace(group, "Development/Languages/C and C++", "Libraries");
-	group = replace(group, "Development/Languages/Other", "Development/Languages");;
-	group = replace(group, "Development/Languages/Ruby", "Development/Languages");
-	group = replace(group, "Development/Libraries/C and C++", "Development/Libraries");
-	group = replace(group, "Development/Libraries/Java", "Development/Languages/Java");
-	group = replace(group, "Development/Libraries/Python", "Development/Languages/Python");
-	group = replace(group, "Development/Libraries/TCL", "Development/Languages/Tcl");;
-	group = replace(group, "Development/Other", "Development");
-	group = replace(group, "Development/Python", "Development/Languages/Python");
-	group = replace(group, "Development/Testing", "Development");
-	group = replace(group, "Editors", "Applications/Text");
-	group = replace(group, "Emulators", "Applications/Emulators");
-	group = replace(group, "File tools", "Applications/File");
-	group = replace(group, "Games", "Applications/Games");
-	group = replace(group, "Library/Development", "Development/Libraries");
-	group = replace(group, "Networking/Deamons", "Networking/Daemons");
-	group = replace(group, "Networking/Mail", "Applications/Mail");
-	group = replace(group, "Networking/Other", "Networking");
-	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
-	group = replace(group, "Productivity/Multimedia/Other", "X11/Applications/Multimedia");
-	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP");;
-	group = replace(group, "Shells", "Applications/Shells");
-	group = replace(group, "System Environment/Base", "Base");
-	group = replace(group, "System Environment/Daemons", "Daemons");
-	group = replace(group, "System Environment/Kernel", "Base/Kernel");
-	group = replace(group, "System Environment/Libraries", "Libraries");
-	group = replace(group, "System Tools", "Applications/System");
-	group = replace(group, "System", "Base");
-	group = replace(group, "System/Base", "Base");
-	group = replace(group, "System/Kernel and hardware", "Base/Kernel");
-	group = replace(group, "System/Libraries", "Libraries");
-	group = replace(group, "System/Servers", "Daemons");
-	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
-	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
-	group = replace(group, "Text tools", "Applications/Text");
-	group = replace(group, "User Interface/Desktops", "X11/Applications");
-	group = replace(group, "Utilities/System", "Applications/System");
-	group = replace(group, "Web/Database", "Applications/WWW");
-	group = replace(group, "X11/GNOME", "X11/Applications");
-	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
-	group = replace(group, "X11/GNOME/Development/Libraries", "X11/Development/Libraries");
-	group = replace(group, "X11/Games", "X11/Applications/Games");
-	group = replace(group, "X11/Games/Strategy", "X11/Applications/Games/Strategy");
-	group = replace(group, "X11/Library", "X11/Libraries");
-	group = replace(group, "X11/Utilities", "X11/Applications");
-	group = replace(group, "X11/XFree86", "X11");
-	group = replace(group, "X11/Xserver", "X11/Servers");
-
-	return group;
 }
 
 # vim:ts=4:sw=4
