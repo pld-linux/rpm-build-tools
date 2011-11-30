@@ -104,6 +104,11 @@ PACKAGE_VERSION=""
 PACKAGE_NAME=""
 ASSUMED_NAME=""
 PROTOCOL="http"
+
+# use lftp by default when available
+USE_LFTP=
+lftp --version > /dev/null 2>&1 && USE_LFTP=yes
+
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 
 CVS_FORCE=""
@@ -193,6 +198,10 @@ elif [ -n "$USE_AXEL" ]; then
 	GETURI="axel -a $AXEL_OPTS"
 	GETURI2="$GETURI"
 	OUTFILEOPT="-o"
+elif [ -n "$USE_LFTP" ]; then
+	GETURI=download_lftp
+	GETURI2=$GETURI
+	OUTFILEOPT=""
 else
 	wget --help 2>&1 | grep -q -- ' --no-check-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
 	wget --help 2>&1 | grep -q -- ' --inet ' && WGET_OPTS="$WGET_OPTS --inet"
@@ -206,7 +215,7 @@ fi
 
 GETLOCAL="cp -a"
 
-if (rpm --version 2>&1 | grep -q '4.0.[0-2]'); then
+if rpm --version 2>&1 | grep -q '4.0.[0-2]'; then
 	RPM="rpm"
 	RPMBUILD="rpm"
 else
@@ -244,6 +253,26 @@ run_poldek() {
 
 #---------------------------------------------
 # functions
+
+download_lftp() {
+	local outfile=$1 url=$2 retval tmpfile
+	# TODO: use mktemp
+	tmpfile=$outfile.tmp
+	lftp -c "
+		$([ "$DEBUG" = "yes" ] && echo "debug 5;")
+		set net:max-retries $WGET_RETRIES;
+		set http:user-agent \"$USER_AGENT\";
+		pget -n 10 -c \"$url\" -o \"$tmpfile\"
+	"
+
+	retval=$?
+	if [ $retval -eq 0 ]; then
+		mv -f "$tmpfile" "$outfile"
+	else
+		rm -f "$tmpfile"
+	fi
+	return $retval
+}
 
 usage() {
 	if [ -n "$DEBUG" ]; then set -xv; fi
@@ -376,9 +405,8 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
                     - abort instead of applying patch <patchnumber>
 --show-bconds       - show available conditional builds, which can be used
                     - with --with and/or --without switches.
---show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by
-                      ./repackage.sh script. in other words, the output is
-                      parseable by scripts.
+--show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by ./repackage.sh script.
+                      In other words, the output is parseable by scripts.
 --show-avail-bconds - show available bconds
 --with/--without <feature>
                     - conditional build package depending on %_with_<feature>/
@@ -386,8 +414,8 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
                       --with feat1 feat2 feat3 --without feat4 feat5 --with feat6
                       constructions. Set GROUP_BCONDS to yes to make use of it.
 --target <platform>, --target=<platform>
-                     - build for platform <platform>.
---init-rpm-dir       - initialize ~/rpm directory structure
+                    - build for platform <platform>.
+--init-rpm-dir      - initialize ~/rpm directory structure
 "
 }
 
@@ -626,7 +654,7 @@ parse_spec() {
 	cd $PACKAGE_DIR
 	cache_rpm_dump
 
-	if (rpm_dump | grep -qEi ":.*nosource.*1"); then
+	if rpm_dump | grep -qEi ":.*nosource.*1"; then
 		FAIL_IF_NO_SOURCES="no"
 	fi
 
@@ -1068,7 +1096,7 @@ update_md5() {
 		if [ -n "$ADD5" ] && is_url $i || [ -n "$md5" ]; then
 			local tag="# $srcno-md5:\t"
 			if [[ "$md5" == *NoSource* ]]; then
-				tag="# NoSource$srcno-md5:\t"
+				tag="# No$srcno-md5:\t"
 			elif [ -n "$USEDIGEST" ]; then
 				tag="BuildRequires:\tdigest(%SOURCE$srcno) = "
 			fi
@@ -1220,10 +1248,10 @@ get_files() {
 						im="$i"
 					fi
 					update_shell_title "${GETURI%% *}: $im"
-					${GETURI} "$im" ${OUTFILEOPT} "$target" || \
+					${GETURI} ${OUTFILEOPT} "$target" "$im" || \
 					if [ "`echo $im | grep -E 'ftp://'`" ]; then
 						update_shell_title "${GETURI2%% *}: $im"
-						${GETURI2} "$im" ${OUTFILEOPT} "$target"
+						${GETURI2} ${OUTFILEOPT} "$target" "$im"
 					fi
 					test -s "$target" || rm -f "$target"
 				fi
@@ -1548,7 +1576,7 @@ process_bcondrc() {
 	# w32codec-installer license_agreement
 	# php +mysqli
 	# ---
-	if ([ -f $HOME/.bcondrc ] || ([ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ])); then
+	if [ -f $HOME/.bcondrc ] || ([ -n $HOME_ETC ] && [ -f $HOME_ETC/.bcondrc ]); then
 		:
 	else
 		return
