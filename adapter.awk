@@ -1459,6 +1459,8 @@ function use_macros()
 		gsub("%{_subclass}", pear_subclass);
 	}
 
+	gsub("/lib/systemd/system", "%{systemdunitdir}")
+
 }
 
 function format_configure(line,		n, a, s) {
