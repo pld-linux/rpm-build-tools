@@ -2015,8 +2015,8 @@ init_rpm_dir() {
 	if [ ! -e ../rpm-build-tools ]; then
 		git clone  ${GIT_SERVER}:${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
 	fi
-	for a in dropin md5 adapter builder mirrors {relup,compile,repackage,pearize}.sh pldnotify.awk; do
-		ln -s ../rpm-build-tools/$a .
+	for a in adapter builder; do
+		ln -s ../rpm-build-tools/${a}.sh $a
 	done
 	init_builder
 }
