@@ -264,6 +264,7 @@ download_lftp() {
 	tmpfile=$outfile.tmp
 	lftp -c "
 		$([ "$DEBUG" = "yes" ] && echo "debug 5;")
+		set ssl:verify-certificate no;
 		set net:max-retries $WGET_RETRIES;
 		set http:user-agent \"$USER_AGENT\";
 		pget -n 10 -c \"$url\" -o \"$tmpfile\"
