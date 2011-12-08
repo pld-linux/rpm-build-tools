@@ -1529,8 +1529,10 @@ build_package() {
 			fi
 		fi
 	else
-		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $SPECFILE
+		local specfile=$(insert_gitlog $SPECFILE)
+		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specfile
 		RETVAL=$?
+		rm $specfile
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
 		if [ -n "$TRY_UPGRADE" ]; then
