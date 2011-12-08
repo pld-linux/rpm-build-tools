@@ -424,10 +424,14 @@ tempfile() {
 	mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM.$$
 }
 
+tempdir() {
+	mktemp -d builder.XXXXXX
+}
+
 # inserts git log instead of %changelog
 # outputs name of modified file created by tempfile
 insert_gitlog() {
-	local SPECFILE=$1 specfile=$(tempfile) gitlog=$(tempfile) speclog=$(tempfile) 
+	local SPECFILE=$1 specdir=$(tempdir) gitlog=$(tempfile) speclog=$(tempfile)
 
 	# allow this being customized
 	local log_entries=$(rpm -E '%{?_buildchangelogtruncate}')
@@ -448,9 +452,9 @@ insert_gitlog() {
 			a%changelog
 			r $speclog
 		}
-	" > $specfile
+	" > $specdir/$SPECFILE
 	rm -f $gitlog $speclog
-	echo $specfile
+	echo $specdir
 }
 
 # change dependency to specname
@@ -1516,11 +1520,11 @@ build_package() {
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
 		RES_FILE=$(tempfile)
-		local specfile=$(insert_gitlog $SPECFILE)
+		local specdir=$(insert_gitlog $SPECFILE)
 
-		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specfile; echo $? > $RES_FILE) 2>&1 |tee $LOG
+		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
-		rm $RES_FILE $specfile
+		rm -r $RES_FILE $specdir
 		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
 			if [ "$RETVAL" -eq "0" ]; then
 				mv $LOG $LOGDIROK
@@ -1529,10 +1533,10 @@ build_package() {
 			fi
 		fi
 	else
-		local specfile=$(insert_gitlog $SPECFILE)
-		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specfile
+		local specdir=$(insert_gitlog $SPECFILE)
+		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
 		RETVAL=$?
-		rm $specfile
+		rm -r $specdir
 	fi
 	if [ "$RETVAL" -ne "0" ]; then
 		if [ -n "$TRY_UPGRADE" ]; then
