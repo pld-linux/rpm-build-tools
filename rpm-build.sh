@@ -145,7 +145,7 @@ get-buildlog() {
 		return
 	esac
 
-	local url arch ftp=ftp://buildlogs.pld-linux.org
+	local url arch path ftp=ftp://buildlogs.pld-linux.org
 	for arch in $archlist; do
 		[ "$arch" ] || continue
 		path=${url#$ftp}
