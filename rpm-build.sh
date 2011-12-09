@@ -203,7 +203,7 @@ urldiff() {
 # makes diff from kde svn path
 # requires: wget, tee
 kdediff() {
-	local url="$1"
+	local url="$1" r1 r2
 	# --- branches/KDE/3.5/kdepim/kpilot/conduits/vcalconduit/vcalRecord.cc #624744:624745
 	url=${url#*--- }
 	echo >&2 "Process $url"
@@ -279,7 +279,7 @@ cvslog() {
 # the diff can be applied with patch -p1
 d() {
 	local file="$1"
-	local dir
+	local dir diff
 	if [[ "$file" = /* ]]; then
 		# full path -- no idea where to strip
 		dir=.
@@ -292,8 +292,9 @@ d() {
 
 	(builtin cd "$dir"; dif $diff{~,})
 }
+
 rpmb() {
-	local SPEC SPECDIR
+	local SPEC SPECDIR arg
 	for arg in "$@"; do
 		case "$arg" in
 			*.spec)	SPEC="$arg"
