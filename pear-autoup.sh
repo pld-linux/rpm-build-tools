@@ -45,6 +45,10 @@ rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 subst=$(pear list-channels | awk -vORS="|" '/^[a-z]/{print $2}')
 subst="s/^php-(${subst%\|})-//"
 
+# clear it if you do not want to upgrade pkgs. i.e bring ac to sync
+do_upgrade=1
+#do_upgrade=
+
 for pkg in $(cat pear.pkgs); do
 	# check if there's update in channel
 	pearpkg=$(echo "$pkg" | sed -re "$subst")
@@ -56,7 +60,7 @@ for pkg in $(cat pear.pkgs); do
 
 	# try upgrading with specified version
 	# pldnotify.awk uses "pear remote-info" which does not respect preferred package states
-	./builder -bb -u $pkg --upgrade-version $ver --define "_unpackaged_files_terminate_build 1" || {
+	./builder -bb $pkg ${do_upgrade:+-u --upgrade-version $ver} --define "_unpackaged_files_terminate_build 1" || {
 		cat >&2 <<-EOF
 
 		$pkg failed
