@@ -2169,8 +2169,13 @@ function replace_requires() {
 	sub(/^iproute$/, "iproute2", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
+	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2);
+	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2);
+	sub(/^libXext-devel$/, "xorg-lib-libXext-devel", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
+	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
+	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
