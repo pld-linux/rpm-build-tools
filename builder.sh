@@ -76,6 +76,9 @@ USER_AGENT="PLD/Builder($VERSION)"
 # See LOGFILE example.
 DATE=`date +%Y-%m-%d_%H-%M-%S`
 
+# target arch, can also be used for log file naming
+TARGET=$(rpm -E %{_target})
+
 # Example: LOGFILE='../log.$PACKAGE_NAME'
 # Example: LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 # Example: LOGFILE='$PACKAGE_NAME/$PACKAGE_NAME.$DATE.log'
