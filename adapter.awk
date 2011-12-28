@@ -2135,6 +2135,8 @@ function replace_requires() {
 	sub(/^wsdl4j$/, "java-wsdl4j", $2);
 	sub(/^xalan-j$/, "java-xalan", $2);
 	sub(/^xalan-j2$/, "java-xalan", $2);
+	sub(/^xerces-j$/, "java-xerces", $2);
+	sub(/^xerces-j2$/, "java-xerces", $2);
 	sub(/^xml-commons-apis$/, "java-xml-commons", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 	sub(/^xmldb-api$/, "java-xmldb", $2);
