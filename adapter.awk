@@ -2093,7 +2093,6 @@ function replace_requires() {
 	sub(/^jakarta-oro$/, "java-oro", $2);
 	sub(/^jakarta-servletapi$/, "java(servlet)", $2);
 	sub(/^java-devel$/, "jdk", $2);
-	sub(/^java-xerces$/, "java(jaxp_parser_impl)", $2);
 	sub(/^java\(JSP\)$/, "java(jsp)", $2);
 	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
 	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
@@ -2136,8 +2135,6 @@ function replace_requires() {
 	sub(/^wsdl4j$/, "java-wsdl4j", $2);
 	sub(/^xalan-j$/, "java-xalan", $2);
 	sub(/^xalan-j2$/, "java-xalan", $2);
-	sub(/^xerces-j$/, "java(jaxp_parser_impl)", $2);
-	sub(/^xerces-j2$/, "java(jaxp_parser_impl)", $2);
 	sub(/^xml-commons-apis$/, "java-xml-commons", $2);
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 	sub(/^xmldb-api$/, "java-xmldb", $2);
