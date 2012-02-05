@@ -1200,6 +1200,9 @@ function use_macros()
 	gsub(libdir, "%{_libdir}")
 	gsub(javadir, "%{_javadir}")
 
+	gsub(systemdunitdir, "%{systemdunitdir}")
+	gsub(systemdtmpfilesdir, "%{systemdtmpfilesdir}")
+
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
 	if (prefix"/bin" == bindir)
@@ -1458,9 +1461,6 @@ function use_macros()
 	if (pear_subclass) {
 		gsub("%{_subclass}", pear_subclass);
 	}
-
-	gsub("/lib/systemd/system", "%{systemdunitdir}")
-
 }
 
 function format_configure(line,		n, a, s) {
@@ -1957,6 +1957,9 @@ function import_rpm_macros() {
 	php_pear_dir = ENVIRON["php_pear_dir"]
 	php_data_dir = ENVIRON["php_data_dir"]
 	tmpdir = ENVIRON["tmpdir"]
+
+	systemdunitdir = ENVIRON["systemdunitdir"]
+	systemdtmpfilesdir = ENVIRON["systemdtmpfilesdir"]
 }
 
 # php virtual deps as discussed in devel-en
