@@ -195,6 +195,7 @@ import_rpm_macros() {
 	_javadir
 	_pkgconfigdir
 	_npkgconfigdir
+	_localedir
 
 	perl_sitearch
 	perl_archlib

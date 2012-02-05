@@ -1197,6 +1197,9 @@ function use_macros()
 	gsub("%{_datadir}/pkgconfig", "%{_npkgconfigdir}")
 	gsub(npkgconfigdir, "%{_npkgconfigdir}")
 
+	gsub("%{_datadir}/locale", "%{_localedir}")
+	gsub(localedir, "%{_localedir}")
+
 	gsub(libdir, "%{_libdir}")
 	gsub(javadir, "%{_javadir}")
 
@@ -1900,7 +1903,7 @@ function import_rpm_macros() {
 	}
 
 	# update this version dep each time some new macro export is added
-	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.47) {
+	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.49) {
 		print "adapter shell script is outdated, please cvs up it" > "/dev/stderr"
 		do_not_touch_anything = 1
 		exit(rc = 1);
@@ -1929,6 +1932,7 @@ function import_rpm_macros() {
 	javadir = ENVIRON["_javadir"]
 	pkgconfigdir = ENVIRON["_pkgconfigdir"]
 	npkgconfigdir = ENVIRON["_npkgconfigdir"]
+	localedir = ENVIRON["_localedir"]
 
 	perl_sitearch = ENVIRON["perl_sitearch"]
 	perl_archlib = ENVIRON["perl_archlib"]
