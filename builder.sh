@@ -152,6 +152,7 @@ else
 	fi
 fi
 
+UPDATE_POLDEK_INDEXES_OPTS=""
 
 # Here we load saved user environment used to
 # predefine options set above, or passed to builder
@@ -165,6 +166,7 @@ fi
 # Example of ~/.builderrc:
 #
 #UPDATE_POLDEK_INDEXES="yes"
+#UPDATE_POLDEK_INDEXES_OPTS="--mo=nodiff"
 #FETCH_BUILD_REQUIRES="yes"
 #REMOVE_BUILD_REQUIRES="force"
 #GROUP_BCONDS="yes"
@@ -2615,7 +2617,7 @@ case "$COMMAND" in
 		esac
 		build_package
 		if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
-			run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
+			run_poldek --sdir="${POLDEK_INDEX_DIR}" ${UPDATE_POLDEK_INDEXES_OPTS} --mkidxz
 		fi
 		remove_build_requires
 		;;
