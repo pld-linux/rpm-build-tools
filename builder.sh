@@ -2616,7 +2616,7 @@ case "$COMMAND" in
 				;;
 		esac
 		build_package
-		if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
+		if [ "$UPDATE_POLDEK_INDEXES" = "yes" ] && [ "$COMMAND" = "build" -o "$COMMAND" = "build-binary" ]; then
 			run_poldek --sdir="${POLDEK_INDEX_DIR}" ${UPDATE_POLDEK_INDEXES_OPTS} --mkidxz
 		fi
 		remove_build_requires
