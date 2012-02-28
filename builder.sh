@@ -769,7 +769,7 @@ get_spec() {
 
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		if [ ! -s CVS/Root -a "$NOCVSSPEC" != "yes" ]; then
-			echo "Warning: No CVS access defined in $(pwd)- using local .spec file"
+			echo "Warning: No CVS access defined in $(pwd) (check CVS/Root) - using local .spec file"
 			NOCVSSPEC="yes"
 		fi
 
