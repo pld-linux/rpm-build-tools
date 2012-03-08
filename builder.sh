@@ -2463,7 +2463,7 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-[ -d "$ASSUMED_NAME" ] && CVS_ENTRIES="$ASSUMED_NAME/CVS/Entries" || CVS_ENTRIES="CVS/Entries"
+[ -d "$ASSUMED_NAME/CVS" ] && CVS_ENTRIES="$ASSUMED_NAME/CVS/Entries" || CVS_ENTRIES="CVS/Entries"
 if [ -f "$CVS_ENTRIES" ] && [ -z "$CVSTAG" ]; then
 	CVSTAG=$(awk -vSPECFILE=$(basename $SPECFILE) -F/ '$2 == SPECFILE && $6 ~ /^T/{print substr($6, 2)}' ${CVS_ENTRIES})
 	if [ "$CVSTAG" ]; then
