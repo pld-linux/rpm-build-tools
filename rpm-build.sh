@@ -96,6 +96,8 @@ dist-verify() {
 		ignore="$ignore innobackup"
 		# use ac-updates
 		ignore="$ignore ntp-client ntp"
+		# php4 only(php-pecl-tidy), for php<5.2(php-pecl-filter)
+		ignore="$ignore php-pecl-tidy php-pecl-filter"
 
 		# renamed to vim-syntax-txt2tags
 		ignore="$ignore txt2tags-vim"
