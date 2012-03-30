@@ -2179,7 +2179,7 @@ function replace_requires() {
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2);
 	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2);
-	sub(/^libXau-devel$/, "xorg-lib-libXau", $2);
+	sub(/^libXau-devel$/, "xorg-lib-libXau-devel", $2);
 	sub(/^libXext-devel$/, "xorg-lib-libXext-devel", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2);
