@@ -1187,6 +1187,9 @@ function use_macros()
 	gsub(ruby_sitelibdir, "%{ruby_sitelibdir}")
 	gsub(ruby_rdocdir, "%{ruby_rdocdir}")
 
+	gsub(systemdunitdir, "%{systemdunitdir}")
+	gsub(systemdtmpfilesdir, "%{systemdtmpfilesdir}")
+
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
 	gsub("%{_datadir}/java", "%{_javadir}")
@@ -1202,9 +1205,6 @@ function use_macros()
 
 	gsub(libdir, "%{_libdir}")
 	gsub(javadir, "%{_javadir}")
-
-	gsub(systemdunitdir, "%{systemdunitdir}")
-	gsub(systemdtmpfilesdir, "%{systemdtmpfilesdir}")
 
 	gsub(bindir, "%{_bindir}")
 	gsub("%{prefix}/bin", "%{_bindir}")
