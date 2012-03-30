@@ -2049,6 +2049,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
 	group = replace(group, "Text tools", "Applications/Text");
 	group = replace(group, "User Interface/Desktops", "X11/Applications");
+	group = replace(group, "User Interface/X", "X11/Applications");
 	group = replace(group, "Utilities/System", "Applications/System");
 	group = replace(group, "Web/Database", "Applications/WWW");
 	group = replace(group, "X11/GNOME", "X11/Applications");
@@ -2158,6 +2159,7 @@ function replace_requires() {
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
+	sub(/^desktop-notification-daemon$/, "dbus(org.freedesktop.Notifications)", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
 	sub(/^freetype2-devel$/, "freetype-devel", $2);
 	sub(/^fuse-devel$/, "libfuse-devel", $2);
@@ -2177,6 +2179,7 @@ function replace_requires() {
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2);
 	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2);
+	sub(/^libXau-devel$/, "xorg-lib-libXau", $2);
 	sub(/^libXext-devel$/, "xorg-lib-libXext-devel", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2);
@@ -2185,6 +2188,7 @@ function replace_requires() {
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
+	sub(/^libselinux-python$/, "python-selinux", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
 	sub(/^libtdb$/, "tdb", $2);
 	sub(/^libtdb-devel$/, "tdb-devel", $2);
@@ -2196,6 +2200,7 @@ function replace_requires() {
 	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
 	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2);
 	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2);
+	sub(/^pycairo$/, "python-pycairo", $2);
 	sub(/^pyflakes$/, "python-pyflakes", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
@@ -2204,9 +2209,11 @@ function replace_requires() {
 	sub(/^pysvn$/, "python-pysvn", $2);
 	sub(/^pytalloc$/, "python-talloc", $2);
 	sub(/^pytalloc-devel$/, "python-talloc-devel", $2);
+	sub(/^python-cups$/, "python-pycups", $2);
 	sub(/^python-enchant$/, "python-pyenchant", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
+	sub(/^python-newt$/, "python-snack", $2);
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
 	sub(/^python-recaptcha-client$/, "python-recaptcha", $2);
 	sub(/^python-twisted-core$/, "python-TwistedCore", $2);
