@@ -195,6 +195,7 @@ import_rpm_macros() {
 	_javadir
 	_pkgconfigdir
 	_npkgconfigdir
+	_localedir
 
 	perl_sitearch
 	perl_archlib
@@ -223,6 +224,9 @@ import_rpm_macros() {
 	php_pear_dir
 	php_data_dir
 	tmpdir
+
+	systemdunitdir
+	systemdtmpfilesdir
 "
 	eval_expr=""
 	for macro in $macros; do

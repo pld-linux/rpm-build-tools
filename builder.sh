@@ -74,6 +74,9 @@ USER_AGENT="PLD/Builder($VERSION)"
 # See LOGFILE example.
 DATE=`date +%Y-%m-%d_%H-%M-%S`
 
+# target arch, can also be used for log file naming
+TARGET=$(rpm -E %{_target})
+
 # Example: LOGFILE='../log.$PACKAGE_NAME'
 # Example: LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 # Example: LOGFILE='$PACKAGE_NAME/$PACKAGE_NAME.$DATE.log'
@@ -152,6 +155,7 @@ else
 	fi
 fi
 
+UPDATE_POLDEK_INDEXES_OPTS=""
 
 # Here we load saved user environment used to
 # predefine options set above, or passed to builder
@@ -165,6 +169,7 @@ fi
 # Example of ~/.builderrc:
 #
 #UPDATE_POLDEK_INDEXES="yes"
+#UPDATE_POLDEK_INDEXES_OPTS="--mo=nodiff"
 #FETCH_BUILD_REQUIRES="yes"
 #REMOVE_BUILD_REQUIRES="force"
 #GROUP_BCONDS="yes"
@@ -260,6 +265,7 @@ download_lftp() {
 	tmpfile=$outfile.tmp
 	lftp -c "
 		$([ "$DEBUG" = "yes" ] && echo "debug 5;")
+		set ssl:verify-certificate no;
 		set net:max-retries $WGET_RETRIES;
 		set http:user-agent \"$USER_AGENT\";
 		pget -n 10 -c \"$url\" -o \"$tmpfile\"
@@ -2493,8 +2499,8 @@ case "$COMMAND" in
 				;;
 		esac
 		build_package
-		if [ "$UPDATE_POLDEK_INDEXES" = "yes" -a "$COMMAND" != "build-prep" ]; then
-			run_poldek --sdir="${POLDEK_INDEX_DIR}" --mkidxz
+		if [ "$UPDATE_POLDEK_INDEXES" = "yes" ] && [ "$COMMAND" = "build" -o "$COMMAND" = "build-binary" ]; then
+			run_poldek --sdir="${POLDEK_INDEX_DIR}" ${UPDATE_POLDEK_INDEXES_OPTS} --mkidxz
 		fi
 		remove_build_requires
 		;;
