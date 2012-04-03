@@ -449,9 +449,9 @@ insert_gitlog() {
 	# NOTE: changelog date is always in UTC for rpmbuild
 	# * 1265749244 +0000 Random Hacker <nikt@pld-linux.org> 9370900
 	git rev-list -${log_entries:-20} HEAD | while read sha1; do
-		local logfmt='%s%n'
+		local logfmt='%B%n'
 		git notes list $sha1 &> /dev/null && logfmt=%N
-		git log -n 1 $sha1 --format=format:"* %ad %an <%ae> %h%n${logfmt}%n" --date=raw
+		git log -n 1 $sha1 --format=format:"* %ad %an <%ae> %h%n${logfmt}%n" --date=raw | sed '/^$/q'
 	done > $gitlog
 	gawk '/^\* /{printf("* %s %s\n", strftime("%a %b %d %Y", $2), substr($0, length($1)+length($2)+length($3)+4)); next}{print}' $gitlog > $speclog
 	sed '/^%changelog/,$d' $SPECFILE | sed -e "\${
