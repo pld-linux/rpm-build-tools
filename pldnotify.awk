@@ -450,7 +450,7 @@ function find_mirror(url) {
 			mname=fields[3]
 			prefix=substr(url,1,length(origin))
 			if (prefix==origin){
-				d("Mirror fount at " mname)
+				d("Mirror found at " mname)
 				close("mirrors")
 				return mirror substr(url,length(origin)+1)
 			}
