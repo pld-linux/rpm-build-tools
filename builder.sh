@@ -38,7 +38,7 @@ RCSID='$Id$' r=${RCSID#* * } rev=${r%% *}
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
-$VERSION (C) 1999-2011 Free Penguins".
+$VERSION (C) 1999-2012 Free Penguins".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -898,7 +898,7 @@ src_md5() {
 		fi
 	fi
 
-	source_md5=`grep -i "^#[ 	]*$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+	source_md5=$(grep -iE "^#[ 	]*(No)?$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://')
 	if [ -n "$source_md5" ]; then
 		echo $source_md5
 	else
