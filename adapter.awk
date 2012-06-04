@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2011 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2012 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -2078,11 +2078,13 @@ function replace_requires() {
 
 	# jpackages / fedora java packages
 	sub(/^antlr3$/, "java-antlr3", $2);
+	sub(/^aqute-bnd$/, "java-bnd", $2);
 	sub(/^avalon-framework$/, "java-avalon-framework", $2);
 	sub(/^avalon-logkit$/, "java-avalon-logkit", $2);
 	sub(/^axis$/, "java-axis", $2);
 	sub(/^bouncycastle$/, "java-bcprov", $2);
 	sub(/^bouncycastle-mail$/, "java-bcmail", $2);
+	sub(/^bouncycastle-pg$/, "java-bcpg", $2);
 	sub(/^bouncycastle-tsp$/, "java-bctsp", $2);
 	sub(/^bsf$/, "java-bsf", $2);
 	sub(/^dom4j$/, "java-dom4j", $2);
@@ -2165,6 +2167,7 @@ function replace_requires() {
 	sub(/^fuse-devel$/, "libfuse-devel", $2);
 	sub(/^gamin-python$/, "python-gamin", $2);
 	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
+	sub(/^gnome-desktop3-devel$/, "gnome-desktop-devel", $2);
 	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
 	sub(/^gnome-python2-gconf$/, "python-gnome-gconf", $2);
 	sub(/^gnome-python2-gnomekeyring$/, "python-gnome-desktop-keyring", $2);
@@ -2177,17 +2180,23 @@ function replace_requires() {
 	sub(/^iproute$/, "iproute2", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
+	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2);
 	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2);
 	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2);
 	sub(/^libXau-devel$/, "xorg-lib-libXau-devel", $2);
+	sub(/^libXcomposite-devel$/, "xorg-lib-libXcomposite-devel", $2);
+	sub(/^libXcursor-devel$/, "xorg-lib-libXcursor-devel", $2);
+	sub(/^libXdamage-devel$/, "xorg-lib-libXdamage-devel", $2);
 	sub(/^libXext-devel$/, "xorg-lib-libXext-devel", $2);
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
 	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
+	sub(/^libXrender-devel$/, "xorg-lib-libXrender-devel", $2);
 	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
+	sub(/^libmx-devel$/, "mx-devel", $2);
 	sub(/^libselinux-python$/, "python-selinux", $2);
 	sub(/^libsrtp-devel$/, "srtp-devel", $2);
 	sub(/^libtdb$/, "tdb", $2);
@@ -2196,6 +2205,7 @@ function replace_requires() {
 	sub(/^libtevent-devel$/, "tevent-devel", $2);
 	sub(/^libusb1-devel$/, "libusb-devel", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
+	sub(/^newt-python$/, "python-snack", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
 	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
 	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2);
@@ -2203,6 +2213,7 @@ function replace_requires() {
 	sub(/^pycairo$/, "python-pycairo", $2);
 	sub(/^pyflakes$/, "python-pyflakes", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
+	sub(/^pygobject3-devel$/, "python-pygobject3-common-devel", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
 	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2);
@@ -2230,6 +2241,7 @@ function replace_requires() {
 	sub(/^tftp-server$/, "tftpdaemon", $2);
 	sub(/^tkinter$/, "python-tkinter", $2);
 	sub(/^urw-fonts$/, "fonts-Type1-urw", $2);
+	sub(/^webkitgtk3-devel$/, "gtk-webkit3-devel", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
 
