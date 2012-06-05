@@ -126,7 +126,7 @@ for file in $(ls "$tmpd" 2>/dev/null); do
 	rel=$(basename "$file")
 	msg=""
 	[ -n "$message" ] && msg="$msg- $message$n"
-	msg="$msg- release ${rel%%%*}$n (by relup.sh)"
+	msg="$msg- release ${rel%%%*} (by relup.sh)$n"
 	echo cvs ci -m "'$msg'"
 	if [ "$test" != 1 ]; then
 		cvs ci -m "$msg" $files
