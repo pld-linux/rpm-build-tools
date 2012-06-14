@@ -113,6 +113,7 @@ PROTOCOL="http"
 # use lftp by default when available
 USE_LFTP=
 lftp --version > /dev/null 2>&1 && USE_LFTP=yes
+PARALLEL_DOWNLOADS=10
 
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 
@@ -272,7 +273,7 @@ download_lftp() {
 		set ssl:verify-certificate no;
 		set net:max-retries $WGET_RETRIES;
 		set http:user-agent \"$USER_AGENT\";
-		pget -n 10 -c \"$url\" -o \"$tmpfile\"
+		pget -n $PARALLEL_DOWNLOADS -c \"$url\" -o \"$tmpfile\"
 	"
 
 	retval=$?
@@ -345,6 +346,7 @@ Usage: builder [-D|--debug] [-V|--version] [--short-version] [--as_anon] [-a|--a
 -ns, --no-srcs      - don't download Sources/Patches
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
+-pN, -p N           - set PARALLEL_DOWNLOADS to N (default $PARALLEL_DOWNLOADS)
 -pm, --prefer-mirrors - prefer mirrors (if any) over distfiles for SOURCES
 --no-init           - don't initialize builder paths (SPECS and SOURCES)
 -ske,
@@ -2239,6 +2241,14 @@ while [ $# -gt 0 ]; do
 			;;
 		-j[0-9]*)
 			RPMOPTS="${RPMOPTS} --define \"_smp_mflags $1\""
+			shift
+			;;
+		-p)
+			PARALLEL_DOWNLOADS=$2
+			shift 2
+			;;
+		-p[0-9])
+			PARALLEL_DOWNLOADS=${1#-p}
 			shift
 			;;
 		-l | --logtofile )
