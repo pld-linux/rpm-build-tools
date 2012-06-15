@@ -2346,7 +2346,7 @@ while [ $# -gt 0 ]; do
 		-FRB | --force-remove-build-requires)
 			REMOVE_BUILD_REQUIRES="force"
 			shift ;;
-		-sc | --sources-cvs)
+		-sc | --source-cvs)
 			COMMAND="list-sources-cvs"
 			shift ;;
 		-sd | --source-distfiles)
