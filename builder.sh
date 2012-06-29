@@ -2456,8 +2456,6 @@ case "$COMMAND" in
 		# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
 		if [ -n "$TEST_TAG" ]; then
 			local TAGVER=`make_tagver`
-			# escape some regexp characters if part of TAGVER
-			TAGVER=$(echo "$TAGVER" | sed -e 's#\([\+\*\.]\)#\\\1#g')
 			echo "Searching for tag $TAGVER..."
 			if [ -n "$DEPTH" ]; then
 				local ref=`git ls-remote $REMOTE_PLD "refs/tags/$TAGVER"`
