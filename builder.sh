@@ -1316,6 +1316,17 @@ get_files() {
 	fi
 }
 
+tag_exist() {
+	_tag="$1"
+	echo "Searching for tag $_tag..."
+	if [ -n "$DEPTH" ]; then
+		local ref=`git ls-remote $REMOTE_PLD "refs/tags/$_tag"`
+		[ -n  "$ref" ] && echo "$ref" && Exit_error err_tag_exists "$_tag"
+	else
+		git show-ref "refs/tags/$_tag" && Exit_error err_tag_exists "$_tag"
+	fi
+}
+
 make_tagver() {
 	if [ -n "$DEBUG" ]; then
 		set -x
@@ -2456,13 +2467,7 @@ case "$COMMAND" in
 		# ./builder -bs test.spec -r AC-branch -Tp auto-ac- -tt
 		if [ -n "$TEST_TAG" ]; then
 			local TAGVER=`make_tagver`
-			echo "Searching for tag $TAGVER..."
-			if [ -n "$DEPTH" ]; then
-				local ref=`git ls-remote $REMOTE_PLD "refs/tags/$TAGVER"`
-				[ -n  "$ref" ] && echo "$ref" && Exit_error err_tag_exists "$TAGVER"
-			else
-				git show-ref "refs/tags/$TAGVER" && Exit_error err_tag_exists "$TAGVER"
-			fi
+			tag_exist $TAGVER
 			# - do not allow to build from HEAD when XX-branch exists
 			TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto/\([a-zA-Z]\+\)/.*#\1#g')
 			if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
