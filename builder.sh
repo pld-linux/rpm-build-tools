@@ -2464,7 +2464,7 @@ case "$COMMAND" in
 				git show-ref "refs/tags/$TAGVER" && Exit_error err_tag_exists "$TAGVER"
 			fi
 			# - do not allow to build from HEAD when XX-branch exists
-			TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto-\([a-zA-Z]\+\)-.*#\1#g')
+			TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto/\([a-zA-Z]\+\)/.*#\1#g')
 			if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
 				TAG_BRANCH="${TREE_PREFIX}-branch"
 				if [ -n "$DEPTH" ]; then
