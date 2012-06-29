@@ -1339,16 +1339,16 @@ make_tagver() {
 	fi
 
 	# NOTE: CVS tags may must not contain the characters `$,.:;@'
-	TAGVER=$(echo $TAG_PREFIX$PACKAGE_NAME-$PACKAGE_VERSION-$PACKAGE_RELEASE | tr '[.@]' '[_#]')
+	TAGVER=$(echo $TAG_PREFIX$PACKAGE_NAME-$PACKAGE_VERSION-$PACKAGE_RELEASE)
 
-	# Remove #kernel.version_release from TAGVER because tagging sources
+	# Remove @kernel.version_release from TAGVER because tagging sources
 	# could occur with different kernel-headers than kernel-headers used at build time.
 	# besides, %{_kernel_ver_str} is not expanded.
 
-	# TAGVER=auto-ac-madwifi-ng-0-0_20070225_1#%{_kernel_ver_str}
+	# TAGVER=auto-ac-madwifi-ng-0-0_20070225_1@%{_kernel_ver_str}
 	# TAGVER=auto-ac-madwifi-ng-0-0_20070225_1
 
-	TAGVER=${TAGVER%#*}
+	TAGVER=${TAGVER%@*}
 	echo -n "$TAGVER"
 }
 
@@ -2468,6 +2468,8 @@ case "$COMMAND" in
 		if [ -n "$TEST_TAG" ]; then
 			local TAGVER=`make_tagver`
 			tag_exist $TAGVER
+			# check also tags created in CVS
+			tag_exist $(echo $TAGVER | tr '[.@]' '[_#]')
 			# - do not allow to build from HEAD when XX-branch exists
 			TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto/\([a-zA-Z]\+\)/.*#\1#g')
 			if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
