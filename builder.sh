@@ -39,7 +39,7 @@ RCSID='$Id: builder,v 1.645 2011/02/13 17:54:10 glen Exp $' r=${RCSID#* * } rev=
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
-$VERSION (C) 1999-2011 Free Penguins".
+$VERSION (C) 1999-2012 Free Penguins".
 
 PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -111,6 +111,7 @@ PROTOCOL="http"
 # use lftp by default when available
 USE_LFTP=
 lftp --version > /dev/null 2>&1 && USE_LFTP=yes
+PARALLEL_DOWNLOADS=10
 
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
 
@@ -268,7 +269,7 @@ download_lftp() {
 		set ssl:verify-certificate no;
 		set net:max-retries $WGET_RETRIES;
 		set http:user-agent \"$USER_AGENT\";
-		pget -n 10 -c \"$url\" -o \"$tmpfile\"
+		pget -n $PARALLEL_DOWNLOADS -c \"$url\" -o \"$tmpfile\"
 	"
 
 	retval=$?
@@ -343,6 +344,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -ns, --no-srcs      - don't download Sources/Patches
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
+-pN, -p N           - set PARALLEL_DOWNLOADS to N (default $PARALLEL_DOWNLOADS)
 -pm, --prefer-mirrors
                     - prefer mirrors (if any) over distfiles for SOURCES
 --no-init           - don't initialize builder paths (SPECS and SOURCES)
@@ -996,7 +998,7 @@ src_md5() {
 		fi
 	fi
 
-	source_md5=`grep -i "^#[ 	]*$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://'`
+	source_md5=$(grep -iE "^#[ 	]*(No)?$no-md5[ 	]*:" $SPECFILE | sed -e 's/.*://')
 	if [ -n "$source_md5" ]; then
 		echo $source_md5
 	else
@@ -2137,6 +2139,14 @@ while [ $# -gt 0 ]; do
 			RPMOPTS="${RPMOPTS} --define \"_smp_mflags $1\""
 			shift
 			;;
+		-p)
+			PARALLEL_DOWNLOADS=$2
+			shift 2
+			;;
+		-p[0-9])
+			PARALLEL_DOWNLOADS=${1#-p}
+			shift
+			;;
 		-l | --logtofile )
 			shift; LOGFILE="${1}"; shift ;;
 		-ni| --nice )
@@ -2231,7 +2241,7 @@ while [ $# -gt 0 ]; do
 		-FRB | --force-remove-build-requires)
 			REMOVE_BUILD_REQUIRES="force"
 			shift ;;
-		-sc | --sources-cvs)
+		-sc | --source-cvs)
 			COMMAND="list-sources-cvs"
 			shift ;;
 		-sd | --source-distfiles)
