@@ -455,7 +455,7 @@ insert_gitlog() {
 		git notes list $sha1 &> /dev/null && logfmt=%N
 		git log -n 1 $sha1 --format=format:"* %ad %an <%ae> %h%n${logfmt}%n" --date=raw | sed '/^$/q'
 	done > $gitlog
-	gawk '/^\* /{printf("* %s %s\n", strftime("%a %b %d %Y", $2), substr($0, length($1)+length($2)+length($3)+4)); next}{print}' $gitlog > $speclog
+	LC_ALL=C gawk '/^\* /{printf("* %s %s\n", strftime("%a %b %d %Y", $2), substr($0, length($1)+length($2)+length($3)+4)); next}{print}' $gitlog > $speclog
 	sed '/^%changelog/,$d' $SPECFILE | sed -e "\${
 			a%changelog
 			r $speclog
