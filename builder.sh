@@ -2038,7 +2038,7 @@ init_rpm_dir() {
 
 	cd "$TOP_DIR"
 	if [ ! -e ../rpm-build-tools ]; then
-		git clone  ${GIT_SERVER}:${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
+		git clone  ${GIT_SERVER}/${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
 	fi
 	for a in adapter builder; do
 		ln -s ../rpm-build-tools/${a}.sh $a
