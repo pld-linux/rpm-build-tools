@@ -1319,7 +1319,7 @@ get_files() {
 }
 
 tag_exist() {
-	_tag="$1"
+	local _tag="$1"
 	echo "Searching for tag $_tag..."
 	if [ -n "$DEPTH" ]; then
 		local ref=`git ls-remote $REMOTE_PLD "refs/tags/$_tag"`
