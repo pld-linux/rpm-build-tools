@@ -7,7 +7,7 @@ for pkg in ${*:-$pkgs}; do
 	cd $pkg
 	rm -vf *.gz *.zip
 	specfile=*.spec
-	../md5 $specfile
+	../md5 -p1 $specfile
 	version=$(awk '/^Version:[ 	]+/{print $NF}' $specfile)
 	if [ $pkg = xtables-geoip ]; then
 		dt=$(stat -c %y *.zip | awk '{print $1}' | tr -d -)
@@ -18,6 +18,7 @@ for pkg in ${*:-$pkgs}; do
 		version=$dt
 		sed -i -e "
 			s/^\(Version:[ \t]\+\)[.0-9]\+\$/\1$version/
+			s/^\(Release:[ \t]\+\)[.0-9]\+\$/\11/
 		" $specfile
 	fi
 
