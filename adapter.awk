@@ -1892,7 +1892,7 @@ function add_br(br)
 
 # Load rpm macros
 # you should update the list also in adapter when making changes here
-function import_rpm_macros() {
+function import_rpm_macros(  v) {
 	# File with rpm groups
 	topdir = ENVIRON["_topdir"]
 
@@ -1903,8 +1903,9 @@ function import_rpm_macros() {
 	}
 
 	# update this version dep each time some new macro export is added
-	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < 1.49) {
-		print "adapter shell script is outdated, please cvs up it" > "/dev/stderr"
+	v = 1.49
+	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < v) {
+		printf("adapter shell script is outdated: Need %s, got %s. Please update it.\n", v, ENVIRON["ADAPTER_REVISION"]) > "/dev/stderr"
 		do_not_touch_anything = 1
 		exit(rc = 1);
 	}
