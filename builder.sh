@@ -2491,8 +2491,8 @@ case "$COMMAND" in
 					cmd_branches="git show-ref"
 					ref_prefix=refs/remotes/${REMOTE_PLD}
 				fi
-				TAG_STATUS=$($cmd_branches | grep -i "${ref_prefix}/$TAG_BRANCH$")
-				if [ -n "$TAG_STATUS" -a "$TAG_STATUS" != "$CVSTAG" ]; then
+				TAG_STATUS=$($cmd_branches | grep -i "${ref_prefix}/$TAG_BRANCH$" | cut -c'-40')
+				if [ -n "$TAG_STATUS" -a "$TAG_STATUS" != $(git rev-parse "$CVSTAG") ]; then
 					Exit_error err_branch_exists "$TAG_STATUS"
 				fi
 			fi
