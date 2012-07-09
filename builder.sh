@@ -429,11 +429,11 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 
 # create tempfile. as secure as possible
 tempfile() {
-	mktemp -t builder.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM.$$
+	mktemp --tmpdir -t builder.$PACKAGE_NAME.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM.$$
 }
 
 tempdir() {
-	mktemp -d builder.XXXXXX
+	mktemp --tmpdir -d builder.$PACKAGE_NAME.XXXXXX
 }
 
 # inserts git log instead of %changelog
