@@ -879,7 +879,7 @@ get_spec() {
 					mkdir $ASSUMED_NAME
 				fi
 				git init
-				git remote add $REMOTE_PLD ${GIT_SERVER}:${PACKAGES_DIR}/${ASSUMED_NAME}.git
+				git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git
 				CVSTAG=${CVSTAG:-"master"}
 			fi
 			local refs=''
