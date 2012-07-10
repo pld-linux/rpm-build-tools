@@ -882,6 +882,7 @@ get_spec() {
 				git init
 				git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git
 				git config --local --add "remote.$REMOTE_PLD.fetch"  'refs/notes/*:refs/notes/*'
+				git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME}
 				CVSTAG=${CVSTAG:-"master"}
 			fi
 			local refs=''
