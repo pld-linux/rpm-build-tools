@@ -46,6 +46,17 @@ if os.path.isfile('%s/.cvsignore' % dir):
     for l in f.readlines():
         exclude.append(l.rstrip())
 
+def cvs_entries(file):
+    f = open('%s/CVS/Entries' % dir , 'r')
+    files = []
+    for l in f.readlines():
+        if l[0] != '/':
+            continue
+        parts = l.split('/')
+        files.append(parts[1])
+    return files
+cvsfiles = cvs_entries(dir)
+
 def blacklisted(file):
     if file == os.path.basename(spec):
         return True
@@ -62,10 +73,13 @@ def blacklisted(file):
 
     return False
 
-
 for file in os.listdir(dir):
     file = os.path.basename(file)
     if blacklisted(file):
+        continue
+
+    if not file in cvsfiles:
+        print "Not in cvs: %s" % file
         continue
 
     if file not in files:
