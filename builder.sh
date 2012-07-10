@@ -1366,29 +1366,22 @@ tag_files() {
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
 
-	local TAGVER
+	local _tag
 	if [ "$TAG_VERSION" = "yes" ]; then
-		TAGVER=`make_tagver`
-		echo "tag: $TAGVER"
+		_tag=`make_tagver`
 	fi
 	if [ -n "$TAG" ]; then
-		echo "tag: $TAG"
+		_tag="$TAG"
 	fi
+	echo "tag: $_tag"
 
 	local OPTIONS="tag $CVS_FORCE"
 
 	cd "$PACKAGE_DIR"
 
-	if [ "$TAG_VERSION" = "yes" ]; then
-		update_shell_title "tag sources: $TAGVER"
-		git $OPTIONS $TAGVER || exit
-		git push $CVS_FORCE $REMOTE_PLD tag $TAGVER || Exit_error err_remote_problem $REMOTE_PLD
-	fi
-	if [ -n "$TAG" ]; then
-		update_shell_title "tag sources: $TAG"
-		git $OPTIONS $TAG || exit
-		git push $CVS_FORCE $REMOTE_PLD tag $TAG || Exit_error err_remote_problem $REMOTE_PLD
-	fi
+	update_shell_title "tag sources: $_tag"
+	git $OPTIONS $_tag || exit
+	git push $CVS_FORCE $REMOTE_PLD tag $_tag || Exit_error err_remote_problem $REMOTE_PLD
 }
 
 branch_files() {
