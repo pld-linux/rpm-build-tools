@@ -1358,8 +1358,6 @@ make_tagver() {
 }
 
 tag_files() {
-	TAG_FILES="$@"
-
 	if [ -n "$DEBUG" ]; then
 		set -x
 		set -v
@@ -1379,11 +1377,6 @@ tag_files() {
 
 	local OPTIONS="tag $CVS_FORCE"
 
-	local _tag=$TAG
-	if [ "$TAG_VERSION" = "yes" ]; then
-		_tag=$TAGVER
-	fi;
-
 	cd "$PACKAGE_DIR"
 
 	if [ "$TAG_VERSION" = "yes" ]; then
@@ -1393,7 +1386,7 @@ tag_files() {
 	fi
 	if [ -n "$TAG" ]; then
 		update_shell_title "tag sources: $TAG"
-		git $OPTIONS $TAG $chunk || exit
+		git $OPTIONS $TAG || exit
 		git push $CVS_FORCE $REMOTE_PLD tag $TAG || Exit_error err_remote_problem $REMOTE_PLD
 	fi
 }
