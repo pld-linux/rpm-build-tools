@@ -1322,14 +1322,20 @@ get_files() {
 }
 
 tag_exist() {
+# If tag exists and points to other commit exit with error
+# If it existsts and points to HEAD return 1
+# If it doesn't exist return 0
 	local _tag="$1"
+	local sha1=$(git rev-parse HEAD)
 	echo "Searching for tag $_tag..."
 	if [ -n "$DEPTH" ]; then
-		local ref=`git ls-remote $REMOTE_PLD "refs/tags/$_tag"`
-		[ -n  "$ref" ] && echo "$ref" && Exit_error err_tag_exists "$_tag"
+		local ref=$(git ls-remote $REMOTE_PLD "refs/tags/$_tag"  | cut -c -40)
 	else
-		git show-ref "refs/tags/$_tag" && Exit_error err_tag_exists "$_tag"
+		local ref=$(git show-ref "refs/tags/$_tag" | cut -c -40)
 	fi
+	[ -z "$ref" ] && return 0
+	[ "$ref" = "$sha1" ] || Exit_error err_tag_exists "$_tag"
+	return 1
 }
 
 make_tagver() {
