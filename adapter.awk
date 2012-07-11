@@ -33,9 +33,8 @@ BEGIN {
 	RPM_SECTIONS = "package|build|changelog|clean|description|install|post|posttrans|postun|pre|prep|pretrans|preun|triggerin|triggerpostun|triggerun|verifyscript|check"
 	SECTIONS = "^%(" RPM_SECTIONS ")"
 
-	RCSID = "$Id$"
-	rev = RCSID # TODO: parse from RCSID
-	VERSION = "0.35/" rev
+	rev = "1.514"
+	VERSION = "0.36/" rev
 
 	PREAMBLE_TAGS = "(R|BR|Summary|Name|Version|Release|Epoch|License|Group|URL|BuildArch|BuildRoot|Obsoletes|Conflicts|Provides|ExclusiveArch|ExcludeArch|Pre[Rr]eq|(Build)?Requires|Suggests|Auto(Req|Prov))"
 
@@ -67,18 +66,6 @@ BEGIN {
 
 	# Temporary file for changelog section
 	changelog_file = mktemp("adapter.changelogXXXXXX")
-}
-
-# There should be a comment with CVS keywords on the first line of file.
-FNR == 1 {
-	if (!/^# \$[R]evision: .* \$, \$[D]ate: .* \$$/) {	# If this line is already OK?
-		print "# $" "Revision:$, " "$" "Date:$"	# No
-		if ( /^#.*([rR]evision|[dD]ate)/ ) # There was something similar, but incorrect
-			 next
-	} else {
-		print $0				# Yes
-		next		# It is enough for first line
-	}
 }
 
 # If the latest line matched /%files/
