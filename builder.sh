@@ -1385,9 +1385,13 @@ tag_files() {
 
 	cd "$PACKAGE_DIR"
 
-	update_shell_title "tag sources: $_tag"
-	git $OPTIONS $_tag || exit
-	git push $CVS_FORCE $REMOTE_PLD tag $_tag || Exit_error err_remote_problem $REMOTE_PLD
+	if tag_exist $_tag || [ -n "$CVS_FORCE" ]; then
+		update_shell_title "tag sources: $_tag"
+		git $OPTIONS $_tag || exit
+		git push $CVS_FORCE $REMOTE_PLD tag $_tag || Exit_error err_remote_problem $REMOTE_PLD
+	else
+		echo "Tag $_tag already exists and points to the same commit"
+	fi
 }
 
 branch_files() {
