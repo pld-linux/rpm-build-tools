@@ -870,6 +870,7 @@ get_spec() {
 						echo "Warning: package not in CVS - assuming new package"
 						NOCVSSPEC="yes"
 					}
+					git config --local --add "remote.$REMOTE_PLD.fetch"  'refs/notes/*:refs/notes/*'
 					git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME}
 				)
 			fi
@@ -879,7 +880,9 @@ get_spec() {
 					mkdir $ASSUMED_NAME
 				fi
 				git init
-				git remote add $REMOTE_PLD ${GIT_SERVER}:${PACKAGES_DIR}/${ASSUMED_NAME}.git
+				git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git
+				git config --local --add "remote.$REMOTE_PLD.fetch"  'refs/notes/*:refs/notes/*'
+				git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME}
 				CVSTAG=${CVSTAG:-"master"}
 			fi
 			local refs=''
@@ -1319,14 +1322,20 @@ get_files() {
 }
 
 tag_exist() {
+# If tag exists and points to other commit exit with error
+# If it existsts and points to HEAD return 1
+# If it doesn't exist return 0
 	local _tag="$1"
+	local sha1=$(git rev-parse HEAD)
 	echo "Searching for tag $_tag..."
 	if [ -n "$DEPTH" ]; then
-		local ref=`git ls-remote $REMOTE_PLD "refs/tags/$_tag"`
-		[ -n  "$ref" ] && echo "$ref" && Exit_error err_tag_exists "$_tag"
+		local ref=$(git ls-remote $REMOTE_PLD "refs/tags/$_tag"  | cut -c -40)
 	else
-		git show-ref "refs/tags/$_tag" && Exit_error err_tag_exists "$_tag"
+		local ref=$(git show-ref "refs/tags/$_tag" | cut -c -40)
 	fi
+	[ -z "$ref" ] && return 0
+	[ "$ref" = "$sha1" ] || Exit_error err_tag_exists "$_tag"
+	return 1
 }
 
 make_tagver() {
@@ -1355,8 +1364,6 @@ make_tagver() {
 }
 
 tag_files() {
-	TAG_FILES="$@"
-
 	if [ -n "$DEBUG" ]; then
 		set -x
 		set -v
@@ -1365,33 +1372,25 @@ tag_files() {
 	echo "Version: $PACKAGE_VERSION"
 	echo "Release: $PACKAGE_RELEASE"
 
-	local TAGVER
+	local _tag
 	if [ "$TAG_VERSION" = "yes" ]; then
-		TAGVER=`make_tagver`
-		echo "tag: $TAGVER"
+		_tag=`make_tagver`
 	fi
 	if [ -n "$TAG" ]; then
-		echo "tag: $TAG"
+		_tag="$TAG"
 	fi
+	echo "tag: $_tag"
 
 	local OPTIONS="tag $CVS_FORCE"
 
-	local _tag=$TAG
-	if [ "$TAG_VERSION" = "yes" ]; then
-		_tag=$TAGVER
-	fi;
-
 	cd "$PACKAGE_DIR"
 
-	if [ "$TAG_VERSION" = "yes" ]; then
-		update_shell_title "tag sources: $TAGVER"
-		git $OPTIONS $TAGVER || exit
-		git push $CVS_FORCE $REMOTE_PLD tag $TAGVER || Exit_error err_remote_problem $REMOTE_PLD
-	fi
-	if [ -n "$TAG" ]; then
-		update_shell_title "tag sources: $TAG"
-		git $OPTIONS $TAG $chunk || exit
-		git push $CVS_FORCE $REMOTE_PLD tag $TAG || Exit_error err_remote_problem $REMOTE_PLD
+	if tag_exist $_tag || [ -n "$CVS_FORCE" ]; then
+		update_shell_title "tag sources: $_tag"
+		git $OPTIONS $_tag || exit
+		git push $CVS_FORCE $REMOTE_PLD tag $_tag || Exit_error err_remote_problem $REMOTE_PLD
+	else
+		echo "Tag $_tag already exists and points to the same commit"
 	fi
 }
 
