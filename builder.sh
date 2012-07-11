@@ -829,7 +829,7 @@ create_git_repo() {
 		exit 101
 	fi
 	[ -d "$ASSUMED_NAME/.git" ] || NEW_REPO=yes
-	# ssh $GIT_SERVER create ${ASSUMED_NAME} || Exit_error err_cvs_add_failed
+	ssh $GIT_PUSH create ${ASSUMED_NAME} || Exit_error err_cvs_add_failed
 	git init
 	git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git && \
 		git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME} \
