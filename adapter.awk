@@ -41,7 +41,6 @@ BEGIN {
 	usedigest = 0	# Enable to switch to rpm 4.4.6+ md5 digests
 
 	preamble = 1	# Is it part of preamble? Default - yes
-	boc = 4			# Beginning of %changelog
 	bod = 0			# Beginning of %description
 	tw = 70			# Descriptions width
 
@@ -63,9 +62,6 @@ BEGIN {
 
 	system("cd "packages_dir"; [ -f rpm.groups ] || cvs up rpm.groups > /dev/null")
 	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
-
-	# Temporary file for changelog section
-	changelog_file = mktemp("adapter.changelogXXXXXX")
 }
 
 # If the latest line matched /%files/
@@ -153,8 +149,9 @@ function b_makekey(a, b,	s) {
 	if ($2 == "_applnkdir") {
 		next
 	}
+
+	# FIXME: this section will likely never match after cvs->git migration
 	if ($2 == "date") {
-		date = 1
 		if (did_files == 0) {
 			print "%files"
 			print ""
@@ -524,65 +521,6 @@ function b_makekey(a, b,	s) {
 	if (!use_files_macros()) {
 		next
 	}
-}
-
-##############
-# %changelog #
-##############
-/^%changelog/, (!/^%changelog/ && $0 ~ SECTIONS) {
-	preamble = 0
-	has_changelog = 1
-	skip = 0
-	# There should be some CVS keywords on the first line of %changelog.
-	if (boc == 3) {
-		if ($0 !~ _cvsmailfeedback) {
-			print "* %{date} " _cvsmailfeedback > changelog_file
-		} else {
-			skip = 1
-		}
-		boc = 2
-	}
-	if (boc == 2 && !skip) {
-		if (!/All persons listed below/) {
-			printf "All persons listed below can be reached at " > changelog_file
-			print "<cvs_login>" _cvsmaildomain "\n" > changelog_file
-		} else {
-			skip = 1
-		}
-		boc = 1
-	}
-	if (boc == 1 && !skip) {
-		if (!/^$/) {
-			if (!/\$.*Log:.*\$/) {
-				print "$" "Log:$" > changelog_file
-			}
-			boc = 0
-		}
-	}
-	# Define date macro.
-	if (boc == 4) {
-		if (date == 0) {
-			printf "%%define date\t%%(echo `LC_ALL=\"C\"" > changelog_file
-			print " date +\"%a %b %d %Y\"`)" > changelog_file
-			date = 1
-		}
-		boc = 3
-	}
-
-	sub(/[ \t]+$/, "");
-	if (!/^%[a-z]+$/ || /changelog/) {
-		# stop changelog if "real" changelog starts
-		if (boc == 0 && /^\* /) {
-			boc = -1
-		}
-		if (boc == -1) {
-			next;
-		}
-		print > changelog_file
-	} else {
-		print
-	}
-	next
 }
 
 ###########
@@ -1069,35 +1007,10 @@ END {
 		}
 	}
 
-	close(changelog_file)
-	while ((getline < changelog_file) > 0)
-		print
-	system("rm -f " changelog_file)
-
 	if (did_clean == 0) {
 		print ""
 		print "%clean"
 		print "rm -rf $RPM_BUILD_ROOT"
-	}
-
-	if (date == 0) {
-		print ""
-		print "%define date\t%(echo `LC_ALL=\"C\" date +\"%a %b %d %Y\"`)"
-	}
-
-	if (has_changelog == 0) {
-		print "%changelog"
-	}
-
-	if (boc > 2) {
-		print "* %{date} PLD Team <feedback@pld-linux.org>"
-	}
-	if (boc > 1) {
-		printf "All persons listed below can be reached at "
-		print "<cvs_login>@pld-linux.org\n"
-	}
-	if (boc > 0) {
-		print "$" "Log:$"
 	}
 }
 
@@ -1896,11 +1809,6 @@ function import_rpm_macros(  v) {
 		do_not_touch_anything = 1
 		exit(rc = 1);
 	}
-
-	# get cvsaddress for changelog section
-	# using rpm macros as too lazy to add ~/.adapterrc parsing support.
-	_cvsmaildomain = ENVIRON["_cvsmaildomain"]
-	_cvsmailfeedback = ENVIRON["_cvsmailfeedback"]
 
 	prefix = ENVIRON["_prefix"]
 	bindir = ENVIRON["_bindir"]
