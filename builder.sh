@@ -2546,6 +2546,7 @@ case "$COMMAND" in
 				fi
 			done
 			git add $SPECFILE
+			echo "When you are ready commit your changes and run git push origin master"
 		else
 			echo "You had already git repository. Push chosen branches to remote: ${REMOTE_PLD}"
 		fi
