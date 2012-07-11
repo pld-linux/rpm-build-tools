@@ -2546,8 +2546,6 @@ case "$COMMAND" in
 				fi
 			done
 			git add $SPECFILE
-			git commit -m 'Initial commit'
-			git push --dry-run $REMOTE_PLD master || Exit_error err_cvs_add_failed
 		else
 			echo "You had already git repository. Push chosen branches to remote: ${REMOTE_PLD}"
 		fi
