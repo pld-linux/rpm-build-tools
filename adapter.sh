@@ -12,8 +12,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-RCSID='$Id$'
-REVISION=${RCSID#* * } REVISION=${REVISION%% *}
+REVISION=1.49
 VERSION="v0.35/$REVISION"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
