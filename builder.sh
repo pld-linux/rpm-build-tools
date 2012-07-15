@@ -1331,7 +1331,7 @@ tag_exist() {
 	if [ -n "$DEPTH" ]; then
 		local ref=$(git ls-remote $REMOTE_PLD "refs/tags/$_tag"  | cut -c -40)
 	else
-		local ref=$(git show-ref "refs/tags/$_tag" | cut -c -40)
+		local ref=$(git show-ref -s "refs/tags/$_tag")
 	fi
 	[ -z "$ref" ] && return 0
 	[ "$ref" = "$sha1" ] || Exit_error err_tag_exists "$_tag"
