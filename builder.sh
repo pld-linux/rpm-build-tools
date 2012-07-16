@@ -2042,6 +2042,7 @@ init_rpm_dir() {
 	for a in adapter builder; do
 		ln -s ../rpm-build-tools/${a}.sh $a
 	done
+	ln -s ../rpm-build-tools/mirrors mirrors
 	init_builder
 }
 
