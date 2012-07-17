@@ -1,0 +1,10 @@
+#!/bin/sh
+
+DIFF="$(cvs -z9 diff -u $COMMIT_PACKAGES | sed 's/^/CVS: /')"
+[ -n "$COMMIT_MESSAGE" ] || COMMIT_MESSAGE="
+."
+
+vim -c ":\$a
+$DIFF
+." -c ":1i
+$COMMIT_MESSAGE" "$@"

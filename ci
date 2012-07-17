@@ -1,0 +1,116 @@
+#!/bin/sh
+
+SPECFILE="$1"
+SPECFILE="${SPECFILE%%/*}"
+SPECFILE="$(basename $SPECFILE .spec)"
+SPEC="$SPECFILE/$SPECFILE.spec"
+CLEANBUILDDIR="$HOME/PLD"
+
+if [ $# -ne 1 -o ! -d "$SPECFILE" -o ! -f "$SPEC" ]; then
+	echo "spec file missing"
+	exit 1
+fi
+
+if [ ! -x "$PWD/civim" ]; then
+	echo "civim missing"
+	exit 1
+fi
+
+diffcol()
+{
+	# vim like diff colourization
+LC_ALL=en_US.UTF-8 gawk ' {
+	split( $0, S, /\t/ );
+	$0 = S[ 1 ];
+	for ( i = 2; i in S; i++ ) {
+		spaces = 7 - ( (length( $0 ) - 1) % 8 );
+		$0 = $0 "\xE2\x9E\x94";
+		for ( y = 0; y < spaces; y++ )
+			$0 = $0 "\xE2\x87\xBE";
+		$0 = $0 S[ i ];
+	}
+	gsub( /\033/, "\033[44m^[\033[49m" );
+	cmd = "";
+	if ( sub( /^ /, "" ) )
+		cmd = " ";
+	sub( /(\xE2\x9E\x94(\xE2\x87\xBE)*| )+$/, "\033[31;41m&\033[39;49m" );
+	gsub( /\xE2\x9E\x94(\xE2\x87\xBE)*/, "\033[7m&\033[27m" );
+	gsub( /\xE2\x87\xBE/, " " );
+	$0 = cmd $0;
+	gsub( /\007/, "\033[44m^G\033[49m" );
+	gsub( /\r/, "\033[44m^M\033[49m" );
+}
+/^(Index:|diff|---|\+\+\+) / { $0 = "\033[32m" $0 }
+/^@@ / { $0 = "\033[33m" $0 }
+/^-/ { $0 = "\033[35m" $0 }
+/^+/ { $0 = "\033[36m" $0 }
+{ $0 = $0 "\033[0m"; print }
+' "$@"
+}
+
+pause()
+{
+	echo "$*"
+	echo -n "[Press ENTER to continue, ^C to abort] "
+	read ans
+}
+
+cvs -z9 diff -u $SPECFILE | diffcol
+
+pause "Proceed ?"
+
+sed '/^# AUTO: /d' -i "$SPEC"
+SIMPLE_DIFF="$(cvs -z9 diff "$SPEC")"
+
+./adapter "$SPEC"
+
+diff="$(cvs -z9 diff -u $SPEC)"
+
+echo "$diff" | diffcol
+
+ver=$(echo "$diff" | awk '
+	/^\+Version/ { ver = $2 }
+	/^\+%define[ \t]+[_a-zA-Z0-9]*ver/ { ver = $3 }
+	END { print ver }
+')
+rel=$(echo "$diff" | awk '
+	/^\+Release/ { rel = $2 }
+	/^\+%define[ \t]+_?rel/ { rel = $3 }
+	END { print rel }
+')
+
+add=$(echo "$diff" | awk '
+	function s( n ) { sub(/}/,"",n); return n; }
+	/^\+(%{[a-zA-Z0-9_]+:)?BuildRequires/ { add[ s( $2 ) ] = 1; };
+	/^-(%{[a-zA-Z0-9_]+:)?BuildRequires/ { del[ s( $2 ) ] = 1; };
+	END { for ( n in add ) { if ( !del[ n ] ) print n; } }' | 
+	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }
+')
+
+del=$(echo "$diff" | awk '
+	function s( n ) { sub(/}/,"",n); return n; }
+	/^\+(%{[a-zA-Z0-9_]+:)?BuildRequires/ { add[ s( $2 ) ] = 1; };
+	/^-(%{[a-zA-Z0-9_]+:)?BuildRequires/ { del[ s( $2 ) ] = 1; };
+	END { for ( n in del ) { if ( !add[ n ] ) print n; } }' |
+	perl -p -e 'chomp; push @a, $_; undef $_; END { print join ", ", sort @a }
+')
+
+n="$(echo -e '\nn')"
+n="${n%%n}"
+msg=""
+[ -n "$ver" ] && msg="$msg- updated to: $ver$n"
+[ -n "$rel" ] && msg="$msg- release: $rel$n"
+[ -n "$add" ] && msg="$msg- BR: $add$n"
+[ -n "$del" ] && msg="$msg- dropped BR: $del$n"
+
+echo
+echo "Message:"
+echo "$msg"
+pause "Commit ?"
+
+export COMMIT_MESSAGE="$msg"
+export COMMIT_PACKAGES="$SPECFILE"
+export VISUAL="$PWD/civim"
+cvs -z9 ci "$SPECFILE"
+
+[ -n "$CLEANBUILDDIR" ] && rm -f $CLEANBUILDDIR/installed/$SPECFILE
