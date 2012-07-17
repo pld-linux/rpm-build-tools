@@ -646,9 +646,6 @@ preamble == 1 {
 		group = replace_groupnames(group);
 		$0 = "Group:\t\t" group
 
-		if (group ~ /^X11/ && x11 == 0)	# Is it X11 application?
-			x11 = 1
-
 		byl_plik_z_groupmi = 0
 		byl_opis_grupy = 0
 		while ((getline linia_grup < groups_file) > 0) {
