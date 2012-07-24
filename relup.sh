@@ -23,7 +23,7 @@ Options:
 -i
   Try to increment package release
 -u
-  cvs update first
+  git pull first
 -t | -n
   Test mode (dry-run). do not commit
 -m
@@ -123,13 +123,17 @@ n="$(echo -e '\nn')"
 n="${n%%n}"
 for file in $(ls "$tmpd" 2>/dev/null); do
 	files=$(cat "$tmpd/$file")
+	pkg=$(cat "$tmpd/$file" |sed -e 's|/.*||')
+	spec=$(cat "$tmpd/$file" |sed -e 's|.*/||')
 	rel=$(basename "$file")
 	msg=""
 	[ -n "$message" ] && msg="$msg- $message$n"
 	msg="$msg- release ${rel%%%*} (by relup.sh)$n"
-	echo cvs ci -m "'$msg'"
 	if [ "$test" != 1 ]; then
-		cvs ci -m "$msg" $files
+		cd $pkg
+		git commit -m "$msg" $spec
+		git push
+		cd ..
 	fi
 done
 rm -rf $tmpd
