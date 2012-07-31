@@ -9,6 +9,11 @@ set -e
 
 builder=builder
 
+if [ "$1" = "clean" ]; then
+	rm -rf php-pear-* php-phpunit-* php-symfony-* php-firephp-* php-horde-* php-phpdocs-* pear.* BUILD/* RPMS/*
+	exit 0
+fi
+
 # test that php is working
 php -r 'echo "PHP is working OK\n";'
 
