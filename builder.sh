@@ -1540,7 +1540,7 @@ build_package() {
 		RES_FILE=$(tempfile)
 		local specdir=$(insert_gitlog $SPECFILE)
 
-		(time eval ${NICE_COMMAND} PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+		(time eval PATH=$CLEAN_PATH ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm -r $RES_FILE $specdir
 		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
@@ -1552,7 +1552,7 @@ build_package() {
 		fi
 	else
 		local specdir=$(insert_gitlog $SPECFILE)
-		eval ${NICE_COMMAND} PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
+		eval PATH=$CLEAN_PATH ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
 		RETVAL=$?
 		rm -r $specdir
 	fi
