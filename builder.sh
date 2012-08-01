@@ -41,7 +41,7 @@ VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
 $VERSION (C) 1999-2012 Free Penguins".
 
-PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
+CLEAN_PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
 # required rpm-build-macros
 RPM_MACROS_VER=1.534
@@ -590,7 +590,7 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-	eval $RPMBUILD $TARGET_SWITCH --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
+	eval PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
 }
 
 cache_rpm_dump() {
@@ -1540,7 +1540,7 @@ build_package() {
 		RES_FILE=$(tempfile)
 		local specdir=$(insert_gitlog $SPECFILE)
 
-		(time eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
+		(time eval ${NICE_COMMAND} PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
 		RETVAL=`cat $RES_FILE`
 		rm -r $RES_FILE $specdir
 		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
@@ -1552,7 +1552,7 @@ build_package() {
 		fi
 	else
 		local specdir=$(insert_gitlog $SPECFILE)
-		eval ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
+		eval ${NICE_COMMAND} PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
 		RETVAL=$?
 		rm -r $specdir
 	fi
@@ -2052,7 +2052,7 @@ mr_proper() {
 	DONT_PRINT_REVISION="yes"
 
 	# remove spec and sources
-	$RPMBUILD --clean --rmsource --rmspec --nodeps --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" --define "_builddir $builddir" $PACKAGE_DIR/$SPECFILE
+	PATH=$CLEAN_PATH $RPMBUILD --clean --rmsource --rmspec --nodeps --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" --define "_builddir $builddir" $PACKAGE_DIR/$SPECFILE
 	rm -rf $PACKAGE_DIR/{.git,.gitignore}
 	rmdir --ignore-fail-on-non-empty $PACKAGE_DIR
 }
