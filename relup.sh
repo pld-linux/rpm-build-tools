@@ -121,19 +121,21 @@ done
 
 n="$(echo -e '\nn')"
 n="${n%%n}"
-for file in $(ls "$tmpd" 2>/dev/null); do
-	files=$(cat "$tmpd/$file")
-	pkg=$(cat "$tmpd/$file" |sed -e 's|/.*||')
-	spec=$(cat "$tmpd/$file" |sed -e 's|.*/||')
-	rel=$(basename "$file")
-	msg=""
-	[ -n "$message" ] && msg="$msg- $message$n"
-	msg="$msg- release ${rel%%%*} (by relup.sh)$n"
-	if [ "$test" != 1 ]; then
-		cd $pkg
-		git commit -m "$msg" $spec
-		git push
-		cd ..
-	fi
+for rel in $(ls "$tmpd" 2>/dev/null); do
+	packages=$(cat "$tmpd/$rel")
+	for pkg in $packages; do
+		pkgdir=${pkg%/*}
+		spec=${pkg##*/}
+		msg=""
+		[ -n "$message" ] && msg="$msg- $message$n"
+		msg="$msg- release ${rel%%%*} (by relup.sh)"
+		echo git commit -m "$msg" $spec
+		if [ "$test" != 1 ]; then
+			cd $pkgdir
+			git commit -m "$msg" $spec
+			git push
+			cd ..
+		fi
+	done
 done
 rm -rf $tmpd
