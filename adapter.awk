@@ -2054,6 +2054,7 @@ function replace_requires() {
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
 	sub(/^desktop-notification-daemon$/, "dbus(org.freedesktop.Notifications)", $2);
+	sub(/^elfutils-libelf-devel$/, "elfutils-devel", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
 	sub(/^freetype2-devel$/, "freetype-devel", $2);
 	sub(/^fuse-devel$/, "libfuse-devel", $2);
