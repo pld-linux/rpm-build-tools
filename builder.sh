@@ -2040,8 +2040,9 @@ init_rpm_dir() {
 		git clone  ${GIT_SERVER}/${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
 	fi
 	for a in adapter builder; do
-		ln -s ../rpm-build-tools/${a}.sh $a
+		ln -sf ../rpm-build-tools/${a}.sh $a
 	done
+	ln -sf ../rpm-build-tools/mirrors mirrors
 	init_builder
 }
 

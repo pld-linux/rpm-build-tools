@@ -58,9 +58,8 @@ BEGIN {
 	import_rpm_macros()
 
 	packages_dir = topdir
-	groups_file = packages_dir "/rpm.groups"
+	groups_file = packages_dir "/../rpm-build-tools/rpm.groups"
 
-	system("cd "packages_dir"; [ -f rpm.groups ] || cvs up rpm.groups > /dev/null")
 	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
 }
 

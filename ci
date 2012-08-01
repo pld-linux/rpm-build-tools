@@ -1,17 +1,19 @@
 #!/bin/sh
 
-SPECFILE="$1"
-SPECFILE="${SPECFILE%%/*}"
-SPECFILE="$(basename $SPECFILE .spec)"
-SPEC="$SPECFILE/$SPECFILE.spec"
+SPEC=$(basename "$1" .spec).spec
+PACKAGE=$(basename "$SPEC" .spec)
+TOPDIR=$(rpm -E %_topdir)
+PACKAGEDIR=$TOPDIR/$PACKAGE
+SPECFILE="$TOPDIR/$PACKAGE/$SPEC"
 CLEANBUILDDIR="$HOME/PLD"
+CIVIM=$PWD/civim
 
-if [ $# -ne 1 -o ! -d "$SPECFILE" -o ! -f "$SPEC" ]; then
+if [ $# -ne 1 -o ! -d "$PACKAGEDIR" -o ! -f "$SPECFILE" ]; then
 	echo "spec file missing"
 	exit 1
 fi
 
-if [ ! -x "$PWD/civim" ]; then
+if [ ! -x "$CIVIM" ]; then
 	echo "civim missing"
 	exit 1
 fi
@@ -55,18 +57,19 @@ pause()
 	read ans
 }
 
-cvs -z9 diff -u $SPECFILE | diffcol
+cd $PACKAGEDIR
+
+git diff --color=auto $SPEC
 
 pause "Proceed ?"
 
-sed '/^# AUTO: /d' -i "$SPEC"
-SIMPLE_DIFF="$(cvs -z9 diff "$SPEC")"
+sed '/^# AUTO: /d' -i "$SPECFILE"
+SIMPLE_DIFF="$(cd $PACKAGEDIR && git diff "$SPEC")"
 
-./adapter "$SPEC"
+./adapter "$SPECFILE"
 
-diff="$(cvs -z9 diff -u $SPEC)"
-
-echo "$diff" | diffcol
+diff=$(git diff $SPEC)
+git diff --color=auto $SPEC
 
 ver=$(echo "$diff" | awk '
 	/^\+Version/ { ver = $2 }
@@ -110,7 +113,7 @@ pause "Commit ?"
 
 export COMMIT_MESSAGE="$msg"
 export COMMIT_PACKAGES="$SPECFILE"
-export VISUAL="$PWD/civim"
-cvs -z9 ci "$SPECFILE"
+export VISUAL="$CIVIM"
+git ci "$SPECFILE"
 
-[ -n "$CLEANBUILDDIR" ] && rm -f $CLEANBUILDDIR/installed/$SPECFILE
+[ -n "$CLEANBUILDDIR" ] && rm -f $CLEANBUILDDIR/installed/$SPEC

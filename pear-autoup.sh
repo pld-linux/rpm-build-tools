@@ -2,10 +2,17 @@
 # Try to update pear packages from current distro repos to latest in
 # pear.php.net.
 #
-# $Id$
+# Created Date: 2010-08-19
 # Author: Elan Ruusamäe <glen@pld-linux.org>
 
 set -e
+
+builder=builder
+
+if [ "$1" = "clean" ]; then
+	rm -rf php-pear-* php-phpunit-* php-symfony-* php-firephp-* php-horde-* php-phpdocs-* pear.* BUILD/* RPMS/*
+	exit 0
+fi
 
 # test that php is working
 php -r 'echo "PHP is working OK\n";'
@@ -49,6 +56,7 @@ subst="s/^php-(${subst%\|})-//"
 do_upgrade=1
 #do_upgrade=
 
+topdir=$(rpm -E %_topdir)
 for pkg in $(cat pear.pkgs); do
 	# check if there's update in channel
 	pearpkg=$(echo "$pkg" | sed -re "$subst")
@@ -60,7 +68,7 @@ for pkg in $(cat pear.pkgs); do
 
 	# try upgrading with specified version
 	# pldnotify.awk uses "pear remote-info" which does not respect preferred package states
-	./builder -bb $pkg ${do_upgrade:+-u --upgrade-version $ver} --define "_unpackaged_files_terminate_build 1" || {
+	$builder -bb $pkg ${do_upgrade:+-u --upgrade-version $ver} --define "_unpackaged_files_terminate_build 1" || {
 		cat >&2 <<-EOF
 
 		$pkg failed
@@ -70,7 +78,7 @@ for pkg in $(cat pear.pkgs); do
 	}
 
 	# check for bad versions (which needs macros
-	ver=$(awk '/^Version:/{print $2; exit}' $pkg/$pkg.spec)
+	ver=$(awk '/^Version:/{print $2; exit}' $topdir/$pkg/$pkg.spec)
 	case "$ver" in
 	*RC* | *a* | *b* | *alpha* | *beta* | *dev*)
 		cat >&2 <<-EOF
