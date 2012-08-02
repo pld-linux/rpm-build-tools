@@ -120,7 +120,7 @@ autotag() {
 		s=${s%:*}
 		# ensure package ends with .spec
 		s=${s%.spec}.spec
-		out=$(cvs status -v $s | awk "!/Sticky/&&/auto-$dist-/{if (!a++) print \$1}")
+		out=$(git tag | awk "/auto\/$dist\//{if (!a++) print \$1}")
 		echo "$s:$out"
 	done
 }
