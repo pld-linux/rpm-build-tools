@@ -2039,7 +2039,7 @@ init_rpm_dir() {
 	if [ ! -e ../rpm-build-tools ]; then
 		git clone  ${GIT_SERVER}/${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
 	fi
-	for a in adapter builder; do
+	for a in adapter builder fetchsrc_request; do
 		ln -sf ../rpm-build-tools/${a}.sh $a
 	done
 	ln -sf ../rpm-build-tools/mirrors mirrors
