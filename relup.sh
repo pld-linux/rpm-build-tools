@@ -93,6 +93,11 @@ done
 
 tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 topdir=$(rpm -E '%{_topdir}')
+
+# round 1: get packages and update .spec files
+# batches changes for each release
+# TODO: drop this, in git need to commit and push each package separately, no
+# way to group changes as in CVS
 cd "$topdir"
 for pkg in "$@"; do
 	name=${pkg%.spec} name=${name##*/}
@@ -119,6 +124,7 @@ for pkg in "$@"; do
 	echo "$spec" >> "$tmpd/$rel"
 done
 
+# round 2: commit the changes
 n="$(echo -e '\nn')"
 n="${n%%n}"
 for rel in $(ls "$tmpd" 2>/dev/null); do
