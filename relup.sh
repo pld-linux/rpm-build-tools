@@ -51,6 +51,31 @@ set_release() {
 	" $specfile
 }
 
+# normalize spec
+# takes as input:
+# - PACKAGE/
+# - ./PACKAGE/
+# - PACKAGE
+# - PACKAGE.spec
+# - ./PACKAGE.spec
+# - PACKAGE/PACKAGE
+# - PACKAGE/PACKAGE.spec
+# - ./PACKAGE/PACKAGE.spec
+# - rpm/PACKAGE/PACKAGE
+# - rpm/PACKAGE/PACKAGE.spec
+# - ./rpm/PACKAGE/PACKAGE.spec
+# returns PACKAGE
+package_name() {
+	local specfile="${1%/}" package
+
+	# basename
+	specfile=${specfile##*/}
+	# strip .spec
+	package=${specfile%.spec}
+
+	echo $package
+}
+
 if [ ! -x /usr/bin/getopt ]; then
 	echo >&1 "You need to install util-linux to use relup.sh"
 	exit 1
@@ -100,9 +125,10 @@ topdir=$(rpm -E '%{_topdir}')
 # way to group changes as in CVS
 cd "$topdir"
 for pkg in "$@"; do
-	name=${pkg%.spec} name=${name##*/}
-	spec=$(rpm -D "name $name" -E '%{_specdir}/%{name}.spec')
+	pkg=$(package_name "$pkg")
+	spec=$(rpm -D "name $pkg" -E '%{_specdir}/%{name}.spec')
 	spec=${spec#$topdir/}
+
 	if [ "$update" = "1" ]; then
 		./builder -g -ns "$spec"
 	fi
