@@ -796,7 +796,7 @@ init_builder() {
 	export GIT_WORK_TREE=$PACKAGE_DIR
 	export GIT_DIR=$PACKAGE_DIR/.git
 
-	if [ -d "$GIT_DIR" ] && [ -z "$CVSTAG" ]; then
+	if [ -d "$GIT_DIR" ] &&  [ -z "$CVSTAG" ] && git rev-parse --verify -q HEAD > /dev/null; then
 		if CVSTAG=$(GIT_DIR=$GIT_DIR git symbolic-ref HEAD) 2>/dev/null; then
 			CVSTAG=${CVSTAG#refs/heads/}
 			if [ "$CVSTAG" != "master" ]; then
