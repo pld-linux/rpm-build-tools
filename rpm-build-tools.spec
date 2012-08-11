@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.5
-Release:	6
+Release:	7
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -14,6 +14,7 @@ Source0:	builder.sh
 Source1:	adapter.awk
 Source2:	adapter.sh
 Source3:	pldnotify.awk
+Source4:	rpm-build.sh
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
 Requires:	grep
@@ -68,11 +69,12 @@ cp -p %{SOURCE3} pldnotify.awk
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir}}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir},/etc/shrc.d}
 cp -p adapter.awk $RPM_BUILD_ROOT%{_libdir}/adapter.awk
 install -p pldnotify.awk $RPM_BUILD_ROOT%{_bindir}
 install -p builder.sh $RPM_BUILD_ROOT%{_bindir}/builder
 install -p adapter.sh $RPM_BUILD_ROOT%{_bindir}/adapter
+install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/shrc.d/rpm-build.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -82,4 +84,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/builder
 %attr(755,root,root) %{_bindir}/adapter
 %attr(755,root,root) %{_bindir}/pldnotify.awk
+/etc/shrc.d/rpm-build.sh
 %{_libdir}/adapter.awk
