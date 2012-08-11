@@ -51,6 +51,13 @@ set_release() {
 	" $specfile
 }
 
+bump_release() {
+	local release=$1 rel
+
+	rel=$(expr ${release} + 1)
+	echo $rel
+}
+
 # normalize spec
 # takes as input:
 # - PACKAGE/
@@ -129,6 +136,8 @@ for pkg in "$@"; do
 	spec=$(rpm -D "name $pkg" -E '%{_specdir}/%{name}.spec')
 	spec=${spec#$topdir/}
 
+	echo "$pkg ..."
+
 	if [ "$update" = "1" ]; then
 		./builder -g -ns "$spec"
 	fi
@@ -136,11 +145,10 @@ for pkg in "$@"; do
 	if [ "$inc" = 1 ]; then
 		if [[ $rel = *%* ]]; then
 			relmacro=${rel#*%}
-			relnum=${rel%%%*}
-			newrel=$(expr ${relnum} + 1)
+			newrel=$(bump_release ${rel%%%*})
 			set_release "$spec" $rel "${newrel}%${relmacro}"
 		else
-			newrel=$(expr ${rel} + 1)
+			newrel=$(bump_release ${rel})
 			set_release "$spec" $rel $newrel
 		fi
 
