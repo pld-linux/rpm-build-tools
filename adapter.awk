@@ -697,11 +697,11 @@ preamble == 1 {
 			next
 		}
 
-		replace_requires();
+		replace_requires(field);
 	}
 
 	if (field ~ /^requires:/ || field ~ /^requires\(/) {
-		replace_requires();
+		replace_requires(field);
 	}
 
 
@@ -1859,18 +1859,20 @@ function import_rpm_macros(  v) {
 }
 
 # php virtual deps as discussed in devel-en
-function replace_php_virtual_deps() {
+function replace_php_virtual_deps(field) {
 	pkg = $2
 #	if (pkg == "php-program") {
 #		$0 = $1 "\t/usr/bin/php"
 #		return
 #	}
 
-#	if (pkg ~ /^php-[a-z]/ && pkg !~ /^php-(pear|common|cli|devel|fcgi|cgi|dirs|program|pecl-)/) {
-#		sub(/^php-/, "php(", pkg);
-#		sub(/$/, ") # verify this correctness -- it may be wanted to use specific not virtual dep", pkg);
-#		$2 = pkg
-#	}
+	if (field == "requires") {
+		if (pkg ~ /^php-(bcmath|bz2|calendar|ctype|curl|dba|dom|enchant|exif|fileinfo|filter|fpm|ftp|gd|gettext|gmp|hash|iconv|imap|interbase|intl|json|ldap|mbstring|mcrypt|mssql|mysql|mysqli|odbc|openssl|pcntl|pcre|pdo|pdo-dblib|pdo-firebird|pdo-mysql|pdo-odbc|pdo-pgsql|pdo-sqlite|pgsql|phar|posix|pspell|readline|recode|session|shmop|simplexml|snmp|soap|sockets|spl|sqlite|sqlite3|sybase-ct|sysvmsg|sysvsem|sysvshm|tidy|tokenizer|wddx|xml|xmlreader|xmlrpc|xmlwriter|xsl|zip|zlib)/) {
+			sub(/^php-/, "php(", pkg);
+			sub(/$/, ")", pkg);
+			$2 = pkg
+		}
+	}
 
 	if (pkg ~/^php$/) {
 		$2 = "webserver(php)";
@@ -1957,7 +1959,7 @@ function replace_groupnames(group) {
 	return group;
 }
 
-function replace_requires() {
+function replace_requires(field) {
 
 	sub(/^python-setuptools-devel$/, "python-distribute", $2);
 	sub(/^gcc-g77/, "gcc-fortran", $2);
@@ -2207,7 +2209,7 @@ function replace_requires() {
 	sub(/^monodoc-core$/, "mono-monodoc", $2);
 	sub(/^python-gtk$/, "python-pygtk-gtk", $2);
 
-	replace_php_virtual_deps()
+	replace_php_virtual_deps(field)
 }
 
 # vim:ts=4:sw=4
