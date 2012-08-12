@@ -29,7 +29,7 @@ Suggests:	git-core >= 1.7
 Suggests:	rpm-specdump >= 0.3
 Suggests:	schedtool
 Suggests:	vim-syntax-spec
-Conflicts:	git-core < 1.6
+Conflicts:	git-core < 1.7
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
