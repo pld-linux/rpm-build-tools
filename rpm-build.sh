@@ -20,15 +20,19 @@ alias $dist-requires=dist-requires
 
 # move AC-branch tag to current checkout
 # if AC-branch as branch exists, it is first removed
-# TODO: refuse to delete AC-branch if that branch point is unassociated (has no tag on the same hash)
 ac-tag() {
 	# see if remote has branch present
-	if [ -n "$(git branch -r | grep AC-branch)" ]; then
-		git push --delete origin AC-branch
+	local branch=AC-branch
+	if [ -n "$(git branch -r | grep $branch)" ]; then
+		if [ -z "$(git tag --points-at $branch)" ]; then
+			echo >&2 "There's no tag pointing to current $branch; refusing to delete branch"
+			return 1
+		fi
+		git push --delete origin $branch
 	fi
 
-	git tag -f AC-branch
-	git push origin AC-branch
+	git tag -f $branch
+	git push origin $branch
 }
 
 # undo spec utf8
