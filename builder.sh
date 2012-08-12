@@ -283,6 +283,10 @@ download_lftp() {
 
 usage() {
 	if [ -n "$DEBUG" ]; then set -xv; fi
+# NOTE:
+# to make this output parseable by bash-completion _parse_help()
+# if the line contains short and long option, it will take only the long option
+# but if you want both being completed, put the short option to separate line
 	echo "\
 Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [-a|--add_cvs] [-b|-ba|--build]
 [-bb|--build-binary] [-bs|--build-source] [-bc] [-bi] [-bl] [-u|--try-upgrade]
@@ -295,46 +299,52 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 [--show-bconds] [--with/--without <feature>] [--define <macro> <value>]
 <package>[.spec][:tag]
 
--4                  - force ipv4 when transferring files
--5, --update-md5    - update md5 comments in spec, implies -nd -ncs
--6                  - force ipv6 when transferring files
--a5, --add-md5      - add md5 comments to URL sources, implies -nc -nd -ncs
+-4                  - force IPv4 when transferring files
+-6                  - force IPv6 when transferring files
+-5,
+--update-md5        - update md5 comments in spec, implies -nd -ncs
+-a5,
+--add-md5           - add md5 comments to URL sources, implies -nc -nd -ncs
 --all-branches      - make shallow fetch of all branches; --depth required
 -n5, --no-md5       - ignore md5 comments in spec
 -D, --debug         - enable builder script debugging mode,
 -debug              - produce rpm debug package (same as --opts -debug)
 -V, --version       - output builder version string
 --short-version     - output builder short version
--a, --add_vcs       - try add new package to PLD repo.
--b, -ba, --build    - get all files from PLD repo or HTTP/FTP and build package
+-a                  - try add new package to PLD repo.
+-b,
+-ba
+                    - get all files from PLD repo or HTTP/FTP and build package
                       from <package>.spec,
--bb, --build-binary - get all files from PLD repo or HTTP/FTP and build binary
+-bb                 - get all files from PLD repo or HTTP/FTP and build binary
                       only package from <package>.spec,
--bp, --build-prep   - execute the %prep phase of <package>.spec,
+-bp                 - execute the %prep phase of <package>.spec,
 -bc                 - execute the %build phase of <package>.spec,
 -bi                 - execute the %install phase of <package>.spec
 -bl                 - execute the %files phase of <package>.spec
--bs, --build-source - get all files from PLD repo or HTTP/FTP and only pack
+-bs                 - get all files from PLD repo or HTTP/FTP and only pack
                       them into src.rpm,
 --short-circuit     - short-circuit build
 -B, --branch        - add branch
--c, --clean         - clean all temporarily created files (in BUILD\$RPM_BUILD_ROOT) after rpmbuild commands.
+-c,
+--clean             - clean all temporarily created files (in BUILD\$RPM_BUILD_ROOT) after rpmbuild commands.
                       may be used with building process.
 -m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES,
                       SPECS and \$RPM_BUILD_ROOT). Doesn't run any rpm building.
 -cf, --cvs-force    - use -f when tagging
---define <macro> <value>
+-D '<macro> <value>', --define '<macro> <value>'
                     - define a macro <macro> with value <value>,
 --depth <number>    - make shallow fetch
 --alt_kernel <kernel>
                     - same as --define 'alt_kernel <kernel>'
 --nodeps            - rpm won't check any dependences
--g, --get           - get <package>.spec and all related files from PLD repo
-                      or HTTP/FTP,
+-g
+--get               - get <package>.spec and all related files from PLD repo
 -h, --help          - this message,
--jN, -j N           - set %_smp_mflags to propagate concurrent jobs
---ftp, --http       - use ftp or http protocol to access distfiles server
--l <logfile>, --logtofile <logfile>
+-j N                - set %_smp_mflags to propagate concurrent jobs
+--ftp               - use FTP protocol to access distfiles server
+--http              - use HTTP protocol to access distfiles server
+-l <logfile>, --logtofile=<logfile>
                     - log all to file,
 -ncs, --no-cvs-specs
                     - don't pull from PLD repo
@@ -344,7 +354,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -ns, --no-srcs      - don't download Sources/Patches
 -ns0, --no-source0  - don't download Source0
 -nn, --no-net       - don't download anything from the net
--pN, -p N           - set PARALLEL_DOWNLOADS to N (default $PARALLEL_DOWNLOADS)
+-p N                - set PARALLEL_DOWNLOADS to N (default $PARALLEL_DOWNLOADS)
 -pm, --prefer-mirrors
                     - prefer mirrors (if any) over distfiles for SOURCES
 --no-init           - don't initialize builder paths (SPECS and SOURCES)
@@ -390,8 +400,8 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
                     - add git tags STABLE and NAME-VERSION-RELEASE for files,
 -Ts, --tag-stable
                     - add git tag STABLE for files,
--Tv, --tag-version
-                    - add git tag NAME-VERSION-RELEASE for files,
+-Tv,
+--tag-version       - add git tag NAME-VERSION-RELEASE for files,
 -Tp, --tag-prefix <prefix>
                     - add <prefix> to NAME-VERSION-RELEASE tags,
 -tt, --test-tag <prefix>
@@ -407,16 +417,19 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -U, --update        - refetch sources, don't use distfiles, and update md5 comments
 -Upi, --update-poldek-indexes
                     - refresh or make poldek package index files.
--sp, --skip-patch <patchnumber>
+-sp <patchnumber>,
+--skip-patch <patchnumber>
                     - don't apply <patchnumber>. may be repeated.
--np, --nopatch <patchnumber>
+-np <patchnumber>,
+--nopatch <patchnumber>
                     - abort instead of applying patch <patchnumber>
 --show-bconds       - show available conditional builds, which can be used
                     - with --with and/or --without switches.
 --show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by ./repackage.sh script.
                       In other words, the output is parseable by scripts.
 --show-avail-bconds - show available bconds
---with/--without <feature>
+--with <feature>,
+--without <feature>
                     - conditional build package depending on %_with_<feature>/
                       %_without_<feature> macro switch.  You may now use
                       --with feat1 feat2 feat3 --without feat4 feat5 --with feat6
