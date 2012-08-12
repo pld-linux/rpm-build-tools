@@ -15,9 +15,21 @@ if [ "$dist" ]; then
 
 alias ipoldek-$dist="poldek -q --sn $dist --cmd"
 alias $dist-provides="ipoldek-$dist what-provides"
-alias $dist-tag="./builder -cf -T $(echo $dist | tr '[a-z]' '[A-Z]')-branch -r HEAD"
 alias $dist-verify=dist-verify
 alias $dist-requires=dist-requires
+
+# move AC-branch tag to current checkout
+# if AC-branch as branch exists, it is first removed
+# TODO: refuse to delete AC-branch if that branch point is unassociated (has no tag on the same hash)
+ac-tag() {
+	# see if remote has branch present
+	if [ -n "$(git branch -r | grep AC-branch)" ]; then
+		git push --delete origin AC-branch
+	fi
+
+	git tag -f AC-branch
+	git push origin AC-branch
+}
 
 # undo spec utf8
 # note: it will do it blindly, so any lang other than -pl is most likely broken
