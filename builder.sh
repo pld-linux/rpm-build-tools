@@ -332,7 +332,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -m, --mr-proper     - clean all temporarily created files (in BUILD, SOURCES,
                       SPECS and \$RPM_BUILD_ROOT). Doesn't run any rpm building.
 -cf, --cvs-force    - use -f when tagging
--D '<macro> <value>', --define '<macro> <value>'
+--define '<macro> <value>'
                     - define a macro <macro> with value <value>,
 --depth <number>    - make shallow fetch
 --alt_kernel <kernel>
