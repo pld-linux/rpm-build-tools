@@ -186,7 +186,6 @@ get-buildlog() {
 
 fi # no $dist set
 
-alias cv='cvs status -v'
 alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
 alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
@@ -285,14 +284,6 @@ sed -e '
 	s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
 	s,$,[0m,
 ' ${1:+"$@"}
-}
-
-# chdir to file location and do 'cvs log'
-cvslog() {
-	local f="$1"
-	local d="${f%/*}"
-	[ "$d" = "$f" ] && d=.
-	(builtin cd $d && cvs log ${f##*/})
 }
 
 # does diff between FILE~ and FILE
