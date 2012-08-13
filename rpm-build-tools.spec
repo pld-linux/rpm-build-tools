@@ -14,7 +14,7 @@ Source0:	builder.sh
 Source1:	adapter.awk
 Source2:	adapter.sh
 Source3:	pldnotify.awk
-Source4:	rpm-build.sh
+Source4:	shrc.sh
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
 Requires:	grep
