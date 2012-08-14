@@ -29,6 +29,10 @@ ac-tag() {
 			echo >&2 "There's no tag pointing to current $branch; refusing to delete branch"
 			return 1
 		fi
+		# delete local branch if exists
+		git show-ref -q refs/heads/$branch && git branch -d $branch
+
+		# drop remote branch
 		git push --delete origin $branch
 	fi
 
