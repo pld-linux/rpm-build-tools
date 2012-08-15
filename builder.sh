@@ -468,7 +468,20 @@ insert_gitlog() {
 		git notes list $sha1 > /dev/null 2>&1 && logfmt=%N
 		git log -n 1 $sha1 --format=format:"* %ad %an <%ae> %h%n${logfmt}%n" --date=raw | sed '/^$/q'
 	done > $gitlog
-	LC_ALL=C gawk '/^\* /{printf("* %s %s\n", strftime("%a %b %d %Y", $2), substr($0, length($1)+length($2)+length($3)+4)); next}{print}' $gitlog > $speclog
+
+	# add link to full git logs
+	local giturl="http://git.pld-linux.org/?p=packages/$PACKAGE_NAME.git;a=log"
+	if [ -n "$CVSTAG" ]; then
+		giturl="$giturl;h=$CVSTAG"
+	fi
+	local gitauthor="PLD Linux Team <feedback@pld-linux.org>"
+	LC_ALL=C gawk -vgiturl="$giturl" -vgitauthor="$gitauthor" -vpackage=$PACKAGE_NAME 'BEGIN{
+		printf("* %s %s\n- For complete changelog see: %s\n", strftime("%a %b %d %Y"), gitauthor, giturl);
+		print;
+		exit
+	}' > $speclog
+
+	LC_ALL=C gawk '/^\* /{printf("* %s %s\n", strftime("%a %b %d %Y", $2), substr($0, length($1)+length($2)+length($3)+4)); next}{print}' $gitlog >> $speclog
 	sed '/^%changelog/,$d' $SPECFILE | sed -e "\${
 			a%changelog
 			r $speclog
