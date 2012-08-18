@@ -40,28 +40,27 @@ obsolete = []
 # files to exclude
 exclude = ['log.*', '.#*', '*~', '*.orig', '*.sw?']
 
-# read .cvsignore, distfiles files are filled there
-if os.path.isfile('%s/.cvsignore' % dir):
-    f = open('%s/.cvsignore' % dir , 'r')
+# read .gitignore, distfiles files are filled there
+if os.path.isfile('%s/.gitignore' % dir):
+    f = open('%s/.gitignore' % dir , 'r')
     for l in f.readlines():
         exclude.append(l.rstrip())
 
-def cvs_entries(file):
-    f = open('%s/CVS/Entries' % dir , 'r')
-    files = []
-    for l in f.readlines():
-        if l[0] != '/':
-            continue
-        parts = l.split('/')
-        files.append(parts[1])
-    return files
-cvsfiles = cvs_entries(dir)
+def git_entries(file):
+    p = subprocess.Popen(['git', 'ls-files'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, err) = p.communicate(None)
+    p.wait()
+    if err:
+        print >> sys.stderr, "%s: %s" % (sys.argv[0], err)
+        sys.exit(1)
+    return out.split('\n')
+gitfiles = git_entries(dir)
 
 def blacklisted(file):
     if file == os.path.basename(spec):
         return True
 
-    if file in [ '.', '..', 'CVS', 'TODO']:
+    if file in [ '.', '..', '.git', 'CVS', 'TODO']:
         return True
 
     if os.path.isdir(file):
@@ -78,8 +77,8 @@ for file in os.listdir(dir):
     if blacklisted(file):
         continue
 
-    if not file in cvsfiles:
-        print "Not in cvs: %s" % file
+    if not file in gitfiles:
+        print "Not in repo: %s" % file
         continue
 
     if file not in files:
@@ -88,5 +87,5 @@ for file in os.listdir(dir):
 
 if obsolete:
     print
-    print "cvs rm -f %s" % " ".join(obsolete)
-    print "cvs commit -m '- drop obsolete files' %s" % " ".join(obsolete)
+    print "git rm %s" % " ".join(obsolete)
+    print "git commit -m '- drop obsolete files' %s" % " ".join(obsolete)
