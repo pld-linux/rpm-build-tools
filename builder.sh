@@ -1235,10 +1235,6 @@ get_files() {
 						update_shell_title "${GETLOCAL%% *}: $url"
 						${GETLOCAL} $url $target
 					else
-						if [ -z "$NOMIRRORS" ]; then
-							url=$(find_mirror "$url")
-						fi
-
 						local uri=${url}
 						# make shorter message for distfiles urls
 						if [[ "$uri" = ${PROTOCOL}${DISTFILES_SERVER}* ]] || [[ "$uri" = ${PROTOCOL}${ATTICDISTFILES_SERVER}* ]]; then
@@ -1261,9 +1257,6 @@ get_files() {
 							update_shell_title "${GETLOCAL%% *}: $url_attic"
 							${GETLOCAL} $url_attic $target
 						else
-							if [ -z "$NOMIRRORS" ]; then
-								url_attic=$(find_mirror "$url_attic")
-							fi
 							update_shell_title "${GETURI%% *}: $url_attic"
 							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
 							if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
