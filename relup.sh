@@ -123,24 +123,32 @@ while true; do
 	shift
 done
 
-tmpd=$(mktemp -d "${TMPDIR:-/tmp}/relXXXXXX")
 topdir=$(rpm -E '%{_topdir}')
 
-# round 1: get packages and update .spec files
-# batches changes for each release
-# TODO: drop this, in git need to commit and push each package separately, no
-# way to group changes as in CVS
+n="$(echo -e '\nn')"
+n="${n%%n}"
+
 cd "$topdir"
 for pkg in "$@"; do
+	# pkg: package %{name}
 	pkg=$(package_name "$pkg")
+
+	# spec: package/package.spec
 	spec=$(rpm -D "name $pkg" -E '%{_specdir}/%{name}.spec')
 	spec=${spec#$topdir/}
 
+	# pkgdir: package/
+	pkgdir=${spec%/*}
+
+	# start real work
 	echo "$pkg ..."
 
+	# get package
 	if [ "$update" = "1" ]; then
 		./builder -g -ns "$spec"
 	fi
+
+	# update .spec files
 	rel=$(get_release "$spec")
 	if [ "$inc" = 1 ]; then
 		if [[ $rel = *%* ]]; then
@@ -151,31 +159,17 @@ for pkg in "$@"; do
 			newrel=$(bump_release ${rel})
 			set_release "$spec" $rel $newrel
 		fi
-
-		# refetch release
-		rel=$(get_release "$spec")
 	fi
-	echo "$spec" >> "$tmpd/$rel"
-done
 
-# round 2: commit the changes
-n="$(echo -e '\nn')"
-n="${n%%n}"
-for rel in $(ls "$tmpd" 2>/dev/null); do
-	packages=$(cat "$tmpd/$rel")
-	for pkg in $packages; do
-		pkgdir=${pkg%/*}
-		spec=${pkg##*/}
-		msg=""
-		[ -n "$message" ] && msg="$msg- $message$n"
-		msg="$msg- release ${rel%%%*} (by relup.sh)"
-		echo git commit -m "$msg" $spec
-		if [ "$test" != 1 ]; then
-			cd $pkgdir
-			git commit -m "$msg" $spec
-			git push
-			cd ..
-		fi
-	done
+	# commit the changes
+	msg=""
+	[ -n "$message" ] && msg="$msg- $message$n"
+	msg="$msg- release ${rel%%%*} (by relup.sh)"
+	echo git commit -m "$msg" $spec
+	if [ "$test" != 1 ]; then
+		cd $pkgdir
+		git commit -m "$msg" $spec
+		git push
+		cd ..
+	fi
 done
-rm -rf $tmpd
