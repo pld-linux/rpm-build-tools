@@ -140,6 +140,9 @@ for pkg in "$@"; do
 	# pkgdir: package/
 	pkgdir=${spec%/*}
 
+	# specname: only spec filename
+	specname=${spec##*/}
+
 	# start real work
 	echo "$pkg ..."
 
@@ -168,7 +171,7 @@ for pkg in "$@"; do
 	echo git commit -m "$msg" $spec
 	if [ "$test" != 1 ]; then
 		cd $pkgdir
-		git commit -m "$msg" $spec
+		git commit -m "$msg" $specname
 		git push
 		cd ..
 	fi
