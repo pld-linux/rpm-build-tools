@@ -25,7 +25,7 @@ ac-tag() {
 	local branch=AC-branch
 	if git show-ref -q refs/remotes/origin/$branch; then
 		git fetch --tags
-		if [ -z "$(git tag --points-at $branch 2>/dev/null)" ]; then
+		if [ -z "$(git tag --points-at origin/$branch 2>/dev/null)" ]; then
 			echo >&2 "There's no tag pointing to current $branch; refusing to delete branch"
 			return 1
 		fi
