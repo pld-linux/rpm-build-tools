@@ -785,6 +785,9 @@ Exit_error() {
 			remove_build_requires
 			echo >&2 "Error: problem with remote (${2})"
 			exit 13 ;;
+		"err_no_checkut" )
+			echo >&2 "Error: cannot checkout $2"
+			exit 14 ;;
 		"err_not_implemented" )
 			remove_build_requires
 			echo >&2 "Error: functionality not yet imlemented"
@@ -947,7 +950,14 @@ get_spec() {
 	fi
 
 	if [ -n "$CVSTAG" ]; then
-		git checkout "$CVSTAG" -- 2>/dev/null || git checkout -t "${REMOTE_PLD}/$CVSTAG" > /dev/null || exit
+		if git rev-parse --verify -q "$CVSTAG"; then
+			git checkout "$CVSTAG" --
+		elif git rev-parse --verify -q "refs/remotes/${REMOTE_PLD}/$CVSTAG"; then
+			git checkout -t "refs/remotes/${REMOTE_PLD}/$CVSTAG" > /dev/null
+		fi
+		if [ $(git rev-parse "$CVSTAG") != $(git rev-parse HEAD) ]; then
+			Exit_error "err_no_checkut" "$CVSTAG"
+		fi
 		git symbolic-ref -q HEAD > /dev/null &&
 			git merge '@{u}'
 		if [ -n "$CVSDATE" ]; then
