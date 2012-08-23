@@ -17,13 +17,15 @@ get_dump() {
 }
 
 usage="Usage:
-${0##*/} [-i] [-u] [-t] [-n] [-m <MESSAGE>] <SPECLIST>
+${0##*/} [-i] [-g] [-u] [-t|-n] [-m <MESSAGE>] <SPECLIST>
 
 Options:
 -i
   Try to increment package release
+-g
+ get packages if missing, do nothing else
 -u
-  git pull first
+ update packages (git pull)
 -t | -n
   Test mode (dry-run). do not commit
 -m
@@ -88,7 +90,7 @@ if [ ! -x /usr/bin/getopt ]; then
 	exit 1
 fi
 
-t=$(getopt -o 'm:inuth' -n "${0##*/}" -- "$@") || exit $?
+t=$(getopt -o 'm:inguth' -n "${0##*/}" -- "$@") || exit $?
 # Note the quotes around `$t': they are essential!
 eval set -- "$t"
 
@@ -99,6 +101,9 @@ while true; do
 		;;
 	-u)
 		update=1
+		;;
+	-g)
+		get=1
 		;;
 	-t | -n)
 		test=1
@@ -147,9 +152,13 @@ for pkg in "$@"; do
 	echo "$pkg ..."
 
 	# get package
-	if [ "$update" = "1" ]; then
+	[ "$get" = 1 -a -d "$pkgdir" ] && continue
+
+	if [ "$update" = "1" -o "$get" = "1" ]; then
 		./builder -g -ns "$spec"
 	fi
+
+	[ "$get" = 1 ] && continue
 
 	# update .spec files
 	rel=$(get_release "$spec")
