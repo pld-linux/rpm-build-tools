@@ -1874,14 +1874,14 @@ function replace_php_virtual_deps(field) {
 		}
 	}
 
-	if (pkg ~/^php$/) {
-		$2 = "webserver(php)";
+	if (pkg == "php" || pkg == "php-common") {
+		$2 = "php(core)";
 		if ($4 ~ /^[0-9]:/) {
 			$4 = substr($4, 3);
 		}
 	}
 
-	if (pkg ~/^php4$/) {
+	if (pkg == "php4") {
 		$2 = "webserver(php)";
 		if ($4 ~ /^[0-9]:/) {
 			$4 = substr($4, 3);
