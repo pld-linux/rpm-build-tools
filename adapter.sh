@@ -16,12 +16,12 @@ REVISION=1.49
 VERSION="v0.35/$REVISION"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
-$VERSION (C) 1999-2010 Free Penguins".
+$VERSION (C) 1999-2012 Free Penguins".
 
 PROGRAM=${0##*/}
 dir=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
 adapter=$dir/adapter.awk
-usage="Usage: $PROGRAM [FLAGS] SPECFILE
+usage="Usage: $PROGRAM [FLAGS] SPECFILEs
 
 -s|--no-sort|--skip-sort
 	skip BuildRequires, Requires sorting
@@ -60,7 +60,7 @@ fi
 t=$(getopt -o hsomdaV --long help,version,sort,sort-br,no-macros,skip-macros,skip-desc,skip-defattr -n "$PROGRAM" -- "$@") || exit $?
 eval set -- "$t"
 
-while true; do
+while :; do
 	case "$1" in
 	-h|--help)
 		echo 2>&1 "$usage"
@@ -246,6 +246,9 @@ import_rpm_macros() {
 }
 
 adapterize() {
+	local SPECFILE="$1"
+	[ -f "$SPECFILE" ] || SPECFILE="$(basename $SPECFILE .spec).spec"
+
 	local workdir
 	workdir=$(mktemp -d ${TMPDIR:-/tmp}/adapter-XXXXXX) || exit $?
 	awk=gawk
@@ -299,20 +302,19 @@ adapterize() {
 				cat $tmp.diff
 		fi
 	else
-		echo "The SPEC is perfect ;)"
+		echo "The spec $SPECFILE is perfect ;)"
 	fi
 
 	rm -rf $workdir
 }
 
-SPECFILE="$1"
-[ -f "$SPECFILE" ] || SPECFILE="$(basename $SPECFILE .spec).spec"
-
-if [ $# -ne 1 -o ! -f "$SPECFILE" ]; then
+if [ $# -eq 0 ]; then
 	echo "$usage"
 	exit 1
 fi
 
-adapterize
+for SPECFILE in "$@"; do
+	adapterize $SPECFILE
+done
 
 # vim: ts=4:sw=4
