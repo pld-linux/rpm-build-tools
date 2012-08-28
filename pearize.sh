@@ -104,7 +104,7 @@ preamble=$(mktemp "${TMPDIR:-/tmp}/fragXXXXXX")
 sed -ne '/^Name:/,/^BuildRoot/p' $spec > $preamble
 
 # create backup
-bak=$(cp -fbv $spec $spec | awk '{print $NF}' | tr -d "['\`]" )
+bak=$(LC_ALL=C cp -fbv $spec $spec | awk '{print $NF}' | tr -d "['\`]" )
 
 # ensure rpm-build-macros is present
 if ! grep -q "^BuildRequires:.*rpmbuild(macros)" $preamble; then
