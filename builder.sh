@@ -2482,7 +2482,7 @@ case "$COMMAND" in
 			tag_exist $TAGVER_CVS || [ $TAGVER_CVS = $CVSTAG ] || Exit_error err_tag_exists $TAGVER_CVS
 			# - do not allow to build from HEAD when XX-branch exists
 			TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto/\([a-zA-Z]\+\)/.*#\1#g')
-			if [ "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
+			if [ "$TAGVER" != "$CVSTAG" -a "$TAGVER_CVS" != "$CVSTAG" -a  "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
 				TAG_BRANCH="${TREE_PREFIX}-branch"
 				if [ -n "$DEPTH" ]; then
 					cmd_branches="git ls-remote --heads"
