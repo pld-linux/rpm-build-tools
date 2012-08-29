@@ -171,6 +171,9 @@ for pkg in "$@"; do
 			newrel=$(bump_release ${rel})
 			set_release "$spec" $rel $newrel
 		fi
+
+		# refetch release
+		rel=$(get_release "$spec")
 	fi
 
 	# commit the changes
