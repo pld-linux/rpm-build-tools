@@ -636,9 +636,11 @@ preamble == 1 {
 	if (field ~ /summary:/ && !/etc\.$/ && !/Inc\.$/) {
 		sub(/\.$/, "", $0);
 	}
-	if (field ~ /group(\([^)]+\)):/)
+	if (field ~ /group(\([^)]+\)):/) {
 		next
-	if (field ~ /group:/) {
+	}
+
+	if (field == "group:") {
 		format_preamble()
 		group = $0;
 		sub(/^[^ \t]*[ \t]*/, "", group);
@@ -664,7 +666,7 @@ preamble == 1 {
 		did_groups = 1
 	}
 
-	if (field ~ /prereq:/) {
+	if (field == "prereq:") {
 		sub(/Pre[Rr]eq:/, "Requires:", $1);
 	}
 
@@ -675,7 +677,7 @@ preamble == 1 {
 	}
 
 	# BR: tar (and others) is to common (rpm-build requires it)
-	if (field ~ /^buildrequires:/) {
+	if (field == "buildrequires:") {
 		l = substr($0, index($0, $2));
 		if (l == "awk" ||
 			l == "binutils" ||
@@ -700,7 +702,7 @@ preamble == 1 {
 		replace_requires(field);
 	}
 
-	if (field ~ /^requires:/ || field ~ /^requires\(/) {
+	if (field == "requires:" || field ~ /^requires\(/) {
 		replace_requires(field);
 	}
 
@@ -1866,7 +1868,7 @@ function replace_php_virtual_deps(field) {
 #		return
 #	}
 
-	if (field == "requires") {
+	if (field == "requires:") {
 		if (pkg ~ /^php-(bcmath|bz2|calendar|ctype|curl|dba|date|dom|enchant|exif|fileinfo|filter|fpm|ftp|gd|gettext|gmp|hash|iconv|imap|interbase|intl|json|ldap|mbstring|mcrypt|mssql|mysql|mysqli|odbc|openssl|pcntl|pcre|pdo|pdo-dblib|pdo-firebird|pdo-mysql|pdo-odbc|pdo-pgsql|pdo-sqlite|pgsql|phar|posix|pspell|readline|recode|session|shmop|simplexml|snmp|soap|sockets|spl|sqlite|sqlite3|sybase-ct|sysvmsg|sysvsem|sysvshm|tidy|tokenizer|wddx|xml|xmlreader|xmlrpc|xmlwriter|xsl|zip|zlib)/) {
 			sub(/^php-/, "php(", pkg);
 			sub(/$/, ")", pkg);
