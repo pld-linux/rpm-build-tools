@@ -1867,7 +1867,7 @@ function replace_php_virtual_deps(field) {
 #	}
 
 	if (field == "requires") {
-		if (pkg ~ /^php-(bcmath|bz2|calendar|ctype|curl|dba|dom|enchant|exif|fileinfo|filter|fpm|ftp|gd|gettext|gmp|hash|iconv|imap|interbase|intl|json|ldap|mbstring|mcrypt|mssql|mysql|mysqli|odbc|openssl|pcntl|pcre|pdo|pdo-dblib|pdo-firebird|pdo-mysql|pdo-odbc|pdo-pgsql|pdo-sqlite|pgsql|phar|posix|pspell|readline|recode|session|shmop|simplexml|snmp|soap|sockets|spl|sqlite|sqlite3|sybase-ct|sysvmsg|sysvsem|sysvshm|tidy|tokenizer|wddx|xml|xmlreader|xmlrpc|xmlwriter|xsl|zip|zlib)/) {
+		if (pkg ~ /^php-(bcmath|bz2|calendar|ctype|curl|dba|date|dom|enchant|exif|fileinfo|filter|fpm|ftp|gd|gettext|gmp|hash|iconv|imap|interbase|intl|json|ldap|mbstring|mcrypt|mssql|mysql|mysqli|odbc|openssl|pcntl|pcre|pdo|pdo-dblib|pdo-firebird|pdo-mysql|pdo-odbc|pdo-pgsql|pdo-sqlite|pgsql|phar|posix|pspell|readline|recode|session|shmop|simplexml|snmp|soap|sockets|spl|sqlite|sqlite3|sybase-ct|sysvmsg|sysvsem|sysvshm|tidy|tokenizer|wddx|xml|xmlreader|xmlrpc|xmlwriter|xsl|zip|zlib)/) {
 			sub(/^php-/, "php(", pkg);
 			sub(/$/, ")", pkg);
 			$2 = pkg
