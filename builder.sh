@@ -2509,7 +2509,9 @@ case "$COMMAND" in
 			tag_exist $TAGVER || [ $TAGVER = $CVSTAG ] || Exit_error err_tag_exists $TAGVER
 			# check also tags created in CVS
 			local TAGVER_CVS=$(echo $TAGVER | tr '[.@]' '[_#]')
-			tag_exist $TAGVER_CVS || [ $TAGVER_CVS = $CVSTAG ] || Exit_error err_tag_exists $TAGVER_CVS
+			local CVSTAG_CVS=$(echo $CVSTAG | tr '[.@]' '[_#]')
+			tag_exist $TAGVER_CVS || [ $TAGVER_CVS = $CVSTAG_CVS ] \
+				|| Exit_error err_tag_exists $TAGVER_CVS
 			# - do not allow to build from HEAD when XX-branch exists
 			TREE_PREFIX=$(echo "$TAG_PREFIX" | sed -e 's#^auto/\([a-zA-Z]\+\)/.*#\1#g')
 			if [ "$TAGVER" != "$CVSTAG" -a "$TAGVER_CVS" != "$CVSTAG" -a  "$TREE_PREFIX" != "$TAG_PREFIX" ]; then
