@@ -958,7 +958,7 @@ get_spec() {
 		if [ $(git rev-parse "$CVSTAG") != $(git rev-parse HEAD) ]; then
 			Exit_error "err_no_checkut" "$CVSTAG"
 		fi
-			git merge '@{u}'
+			git merge --ff-only '@{u}'
 		git symbolic-ref -q HEAD > /dev/null && [ "$NOCVSSPEC" != "yes" ] &&
 		if [ -n "$CVSDATE" ]; then
 			git checkout $(git rev-list -n1 --before="'$CVSDATE'" $CVSTAG) || exit 1
