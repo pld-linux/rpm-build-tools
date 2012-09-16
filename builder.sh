@@ -627,7 +627,7 @@ cache_rpm_dump() {
 
 	if [ -x /usr/bin/rpm-specdump ]; then
 		update_shell_title "cache_rpm_dump using rpm-specdump command"
-		rpm_dump_cache=$(rpm-specdump $TARGET_SWITCH $BCOND $SPECFILE)
+		rpm_dump_cache=$(rpm-specdump $TARGET_SWITCH $BCOND --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" $PACKAGE_DIR/$SPECFILE)
 	else
 		update_shell_title "cache_rpm_dump using rpmbuild command"
 		local rpm_dump
