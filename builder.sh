@@ -423,6 +423,8 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -np <patchnumber>,
 --nopatch <patchnumber>
                     - abort instead of applying patch <patchnumber>
+--noinit
+                    - do not initialize SPECS_DIR and SOURCES_DIR (set them to .)
 --show-bconds       - show available conditional builds, which can be used
                     - with --with and/or --without switches.
 --show-bcond-args   - show active bconds, from ~/.bcondrc. this is used by ./repackage.sh script.
