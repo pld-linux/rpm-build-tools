@@ -465,7 +465,7 @@ insert_gitlog() {
 	# http://rpm.org/gitweb?p=rpm.git;a=blob;f=build/parseChangelog.c#l31
 	# NOTE: changelog date is always in UTC for rpmbuild
 	# * 1265749244 +0000 Random Hacker <nikt@pld-linux.org> 9370900
-	git rev-list --date-order -${log_entries:-20} HEAD | while read sha1; do
+	git rev-list --date-order -${log_entries:-20} HEAD 2>/dev/null | while read sha1; do
 		local logfmt='%B%n'
 		git notes list $sha1 > /dev/null 2>&1 && logfmt=%N
 		git log -n 1 $sha1 --format=format:"* %ad %an <%ae> %h%n${logfmt}%n" --date=raw | sed '/^$/q'
@@ -1818,7 +1818,7 @@ display_bconds() {
 
 display_branches() {
 	echo -n "Available branches: "
-	git branch -r | grep "^  ${REMOTE_PLD}" | grep -v ${REMOTE_PLD}/HEAD | sed "s#^ *${REMOTE_PLD}/##" | xargs
+	git branch -r 2>/dev/null | grep "^  ${REMOTE_PLD}" | grep -v ${REMOTE_PLD}/HEAD | sed "s#^ *${REMOTE_PLD}/##" | xargs
 }
 
 # checks a given list of packages/files/provides agains current rpmdb.
