@@ -2089,6 +2089,7 @@ function replace_requires(field) {
 	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^libXrender-devel$/, "xorg-lib-libXrender-devel", $2);
+	sub(/^libXtst-devel$/, "xorg-lib-libXtst-devel", $2);
 	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
