@@ -60,6 +60,7 @@ rpmbuild() {
 		--define '_binary_payload w5.gzdio' \
 		--define '__spec_install_pre %___build_pre' \
 		--define '__spec_clean_body %{nil}' \
+		--define '_enable_debug_packages 0' \
 		$a || exit
 }
 
