@@ -877,18 +877,14 @@ get_spec() {
 	fi
 
 	cd "$REPO_DIR"
-	if [ ! -f "$ASSUMED_NAME/$SPECFILE" ]; then
-		# XXX: still needed?
-		SPECFILE=$(basename $SPECFILE)
-	fi
 
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		if [ -z "$DEPTH" ]; then
-			if [ -d "$ASSUMED_NAME/.git" ]; then
+			if [ -d "$PACKAGE_DIR/.git" ]; then
 				git fetch $REMOTE_PLD || Exit_error err_no_spec_in_repo
 			elif [ "$ADD_PACKAGE_CVS" = "yes" ]; then
-				if [ ! -r "$ASSUMED_NAME/$SPECFILE" ]; then
-					echo "ERROR: No package to add ($ASSUMED_NAME/$SPECFILE)" >&2
+				if [ ! -r "$PACKAGE_DIR/$SPECFILE" ]; then
+					echo "ERROR: No package to add ($PACKAGE_DIR/$SPECFILE)" >&2
 					exit 101
 				fi
 				Exit_error err_not_implemented
@@ -897,7 +893,7 @@ get_spec() {
 					unset GIT_WORK_TREE
 					git clone  -o $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git || {
 						# softfail if new package, i.e not yet added to PLD rep
-						[ ! -f "$ASSUMED_NAME/$SPECFILE" ] && Exit_error err_no_spec_in_repo
+						[ ! -f "$PACKAGE_DIR/$SPECFILE" ] && Exit_error err_no_spec_in_repo
 						echo "Warning: package not in CVS - assuming new package"
 						NOCVSSPEC="yes"
 					}
@@ -906,9 +902,9 @@ get_spec() {
 				)
 			fi
 		else
-			if [ ! -d "$ASSUMED_NAME/.git" ]; then
-				if [ ! -d "$ASSUMED_NAME" ]; then
-					mkdir $ASSUMED_NAME
+			if [ ! -d "$PACKAGE_DIR/.git" ]; then
+				if [ ! -d "$PACKAGE_DIR" ]; then
+					install -d $PACKAGE_DIR
 				fi
 				git init
 				git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git
@@ -939,13 +935,13 @@ get_spec() {
 		fi
 
 		# create symlinks for tools
-		if [ "$SYMLINK_TOOLS" != "no" -a -d "$ASSUMED_NAME" ]; then
+		if [ "$SYMLINK_TOOLS" != "no" -a -d "$PACKAGE_DIR" ]; then
 			for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
 				# skip tools that don't exist in top dir
 				[ -f $a ] || continue
 				# skip tools that already exist
-				[ -f $ASSUMED_NAME/$a ] && continue
-				ln -s ../$a $ASSUMED_NAME
+				[ -f $PACKAGE_DIR/$a ] && continue
+				ln -s ../$a $PACKAGE_DIR
 				cvsignore_df $a
 			done
 		fi
@@ -967,15 +963,15 @@ get_spec() {
 		fi
 	fi
 
-	if [ ! -f "$ASSUMED_NAME/$SPECFILE" ]; then
+	if [ ! -f "$PACKAGE_DIR/$SPECFILE" ]; then
 		Exit_error err_no_spec_in_repo
 	fi
 
 	if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
-		chmod $CHMOD_MODE $ASSUMED_NAME/$SPECFILE
+		chmod $CHMOD_MODE $PACKAGE_DIR/$SPECFILE
 	fi
 	unset OPTIONS
-	[ -n "$DONT_PRINT_REVISION" ] || grep -E -m 1 "^#.*Revision:.*Date" $ASSUMED_NAME/$SPECFILE
+	[ -n "$DONT_PRINT_REVISION" ] || grep -E -m 1 "^#.*Revision:.*Date" $PACKAGE_DIR/$SPECFILE
 
 	set_spec_target
 }
