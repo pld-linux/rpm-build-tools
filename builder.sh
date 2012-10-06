@@ -2205,7 +2205,7 @@ while [ $# -gt 0 ]; do
 		-pm | --prefer-mirrors )
 			PREFMIRRORS="yes"
 			shift;;
-		--no-init )
+		--noinit | --no-init )
 			NOINIT="yes"
 			shift;;
 		--opts )
