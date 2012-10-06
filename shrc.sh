@@ -309,6 +309,11 @@ d() {
 	(builtin cd "$dir"; dif $diff{~,})
 }
 
+# spec name from NVR
+rpm2spec() {
+	sed -re 's,^(.+)-[^-]+-[^-]+$,\1.spec,'
+}
+
 rpmb() {
 	local SPEC SPECDIR arg
 	for arg in "$@"; do
