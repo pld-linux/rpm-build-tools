@@ -1191,6 +1191,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/apm")
 			continue;
+		if ($c ~ sysconfdir "/modules-load\.d")
+			continue;
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
@@ -2078,6 +2080,8 @@ function replace_requires(field) {
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2);
+	sub(/^libXv-devel$/, "xorg-lib-libXv-devel", $2);
+	sub(/^libxkbfile-devel$/, "xorg-lib-libxkbfile", $2);
 	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2);
 	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2);
 	sub(/^libXau-devel$/, "xorg-lib-libXau-devel", $2);
