@@ -10,7 +10,7 @@ set -e
 builder=builder
 
 if [ "$1" = "clean" ]; then
-	rm -rf php-pear-* php-phpunit-* php-symfony-* php-firephp-* php-horde-* php-phpdocs-* pear.* BUILD/* RPMS/*
+	rm -rf php-pear-* php-phpunit-* php-symfony-* php-symfony2-* php-firephp-* php-horde-* php-phpdocs-* pear.* BUILD/* RPMS/*
 	exit 0
 fi
 
