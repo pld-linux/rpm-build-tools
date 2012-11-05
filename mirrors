@@ -9,8 +9,8 @@ ftp://ftp.troll.no/qt/source/|ftp://ftp.planetmirror.com.au/pub/trolltech/qt/sou
 ftp://ftp.troll.no/qt/source/|ftp://ftp.bero.org/pub/qt/source/|Bero
 ftp://ftp.mutt.org/|ftp://sunsite.icm.edu.pl/mirrors/ftp.mutt.org/|ICM
 ftp://ftp.apache.org/|ftp://sunsite.icm.edu.pl/mirrors/ftp.apache.org/|ICM
-http://www.apache.org/dist/|http://sunsite.icm.edu.pl/pub/www/apache/dist/|ICM
-http://www.apache.org/dist/|ftp://sunsite.icm.edu.pl/pub/www/apache/dist/|ICM
+http://www.apache.org/dist/|http://sunsite.icm.edu.pl/pub/www/apache/|ICM
+http://www.apache.org/dist/|ftp://sunsite.icm.edu.pl/pub/www/apache/|ICM
 http://www.apache.org/dist/|ftp://ftp.task.gda.pl/pub/www/apache/dist/|TASK
 ftp://ftp.dante.de/tex-archive/|ftp://sunsite.icm.edu.pl/pub/tex/|ICM
 http://www.exploits.org/nut/|http://penguin.harrison.k12.co.us/mirrors/nut/|US
