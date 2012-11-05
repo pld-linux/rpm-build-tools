@@ -2640,13 +2640,13 @@ case "$COMMAND" in
 		done
 		;;
 	"list-sources-urls" )
-		init_builder
+		init_builder >&2
 		NOCVSSPEC="yes"
 		DONT_PRINT_REVISION="yes"
-		get_spec
-		parse_spec
+		get_spec >&2
+		parse_spec >&2
 		SAPS="$SOURCES $PATCHES"
-		for SAP in $SAPS ; do
+		for SAP in $SAPS; do
 			echo $SAP
 		done
 		;;
