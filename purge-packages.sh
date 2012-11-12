@@ -17,7 +17,7 @@ install -d $purgedir
 for pkg in */.git; do
 	pkg=${pkg%/.git}
 	cd "$pkg"
-	status=$(git status -s)
+	status=$(git status --porcelain)
 
 	# FIXME: does not currently handle if some pushes are not made!
 	if [ -n "$status" ]; then
