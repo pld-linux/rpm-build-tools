@@ -1020,15 +1020,16 @@ src_md5() {
 	cd $PACKAGE_DIR
 	local md5
 
-	if [ -f additional-md5sums ]; then
-		md5=$(grep -s -v '^#' additional-md5sums | \
+	# use "sources" file from package dir, like vim
+	if [ -f sources ]; then
+		md5=$(grep -s -v '^#' sources | \
 		grep -E "[ 	]$(basename "$1")([ 	,]|\$)" | \
 		sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
 		grep -E '^[0-9a-f]{32}$')
 
 		if [ "$md5" ]; then
 			if [ $(echo "$md5" | wc -l) != 1 ] ; then
-				echo "$SPECFILE: more then one entry in additional-md5sums for $1" 1>&2
+				echo "$SPECFILE: more then one entry in sources for $1" 1>&2
 			fi
 			echo "$md5" | tail -n 1
 			return
