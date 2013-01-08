@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.5
-Release:	7
+Release:	8
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -30,6 +30,7 @@ Suggests:	rpm-specdump >= 0.3
 Suggests:	schedtool
 Suggests:	vim-syntax-spec
 Conflicts:	git-core < 1.7
+Conflicts:	mktemp < 1.6
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
