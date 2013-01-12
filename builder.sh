@@ -84,6 +84,10 @@ TARGET=$(rpm -E %{_target})
 # Yes, you can use variable name! Note _single_ quotes!
 LOGFILE=''
 
+# use teeboth Perl wrapper
+# temporary option to disable if broken
+USE_TEEBOTH=yes
+
 LOGDIR=""
 LOGDIROK=""
 LOGDIRFAIL=""
@@ -241,6 +245,7 @@ fi
 POLDEK_INDEX_DIR="$($RPM --eval %_rpmdir)/"
 POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
 
+# TODO: add teeboth
 run_poldek() {
 	RES_FILE=$(tempfile)
 	if [ -n "$LOGFILE" ]; then
@@ -249,6 +254,7 @@ run_poldek() {
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
 		(${NICE_COMMAND} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee -a $LOG
+		# FIXME $exit_pldk undefined
 		return $exit_pldk
 	else
 		(${NICE_COMMAND} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE}) 1>&2 >/dev/null
@@ -491,6 +497,29 @@ insert_gitlog() {
 	" > $specdir/$SPECFILE
 	rm -f $gitlog $speclog
 	echo $specdir
+}
+
+# @param string logfile
+# @param varargs... commands to execute
+teeboth() {
+	local rc
+	# use teeboth from toys/cleanbuild, if available and enabled
+	if [ "$USE_TEEBOTH" = "yes" ] && [ -x $APPDIR/teeboth ]; then
+		$APPDIR/teeboth "$@"
+		rc=$?
+	else
+		local efile rc logfile=$1; shift
+		if [ "$logfile" ]; then
+			efile=$(tempfile)
+			{ "$@" < /dev/null 2>&1; echo $? > $efile; } | tee -a $logfile
+			rc=$(< $efile)
+			rm -f $efile
+		else
+			"$@" < /dev/null
+			rc=$?
+		fi
+	fi
+	return $rc
 }
 
 # change dependency to specname
@@ -1555,36 +1584,34 @@ build_package() {
 	esac
 
 	update_shell_title "build_package: $COMMAND"
+	local logfile retval
 	if [ -n "$LOGFILE" ]; then
-		LOG=`eval echo $LOGFILE`
-		if [ -d "$LOG" ]; then
-			echo "Log file $LOG is a directory."
+		logfile=`eval echo $LOGFILE`
+		if [ -d "$logfile" ]; then
+			echo "Log file $logfile is a directory."
 			echo "Parse error in the spec?"
 			Exit_error err_build_fail
 		fi
 		if [ -n "$LASTLOG_FILE" ]; then
-			echo "LASTLOG=$LOG" > $LASTLOG_FILE
+			echo "LASTLOG=$logfile" > $LASTLOG_FILE
 		fi
-		RES_FILE=$(tempfile)
-		local specdir=$(insert_gitlog $SPECFILE)
-
-		(time eval PATH=$CLEAN_PATH ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE; echo $? > $RES_FILE) 2>&1 |tee $LOG
-		RETVAL=`cat $RES_FILE`
-		rm -r $RES_FILE $specdir
-		if [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
-			if [ "$RETVAL" -eq "0" ]; then
-				mv $LOG $LOGDIROK
-			else
-				mv $LOG $LOGDIRFAIL
-			fi
-		fi
-	else
-		local specdir=$(insert_gitlog $SPECFILE)
-		eval PATH=$CLEAN_PATH ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
-		RETVAL=$?
-		rm -r $specdir
 	fi
-	if [ "$RETVAL" -ne "0" ]; then
+
+	local specdir=$(insert_gitlog $SPECFILE)
+	# FIXME: eval here is exactly why?
+	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
+	retval=$?
+	rm -r $specdir
+
+	if [ -n "$logfile" ] && [ -n "$LOGDIROK" ] && [ -n "$LOGDIRFAIL" ]; then
+		if [ "$retval" -eq "0" ]; then
+			mv $logfile $LOGDIROK
+		else
+			mv $logfile $LOGDIRFAIL
+		fi
+	fi
+
+	if [ "$retval" -ne "0" ]; then
 		if [ -n "$TRY_UPGRADE" ]; then
 			echo "\nUpgrade package to new version failed."
 			if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
