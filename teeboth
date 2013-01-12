@@ -11,7 +11,7 @@ use IO::Select;
 my $out = shift @ARGV;
 die unless @ARGV;
 
-open my $fout, ">>", $out or die if $out;
+open my $fout, ">>", $out or die "Can't write to $out: $!" if $out;
 
 my $select = IO::Select->new();
 my $alive = 1;
