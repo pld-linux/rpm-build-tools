@@ -11,7 +11,7 @@ use IO::Select;
 my $out = shift @ARGV;
 die unless @ARGV;
 
-open my $fout, ">", $out or die;
+open my $fout, ">>", $out or die if $out;
 
 my $select = IO::Select->new();
 my $alive = 1;
@@ -44,7 +44,7 @@ sub sethandle
 	$flags |= O_NONBLOCK;
 	fcntl ( $h, F_SETFL, $flags )
 		or die "Couldn't set flags for HANDLE: $!\n";
-	
+
 	$select->add( $h );
 }
 
@@ -54,7 +54,7 @@ sethandle( \*child_err );
 while ( $alive ) {
 	foreach my $h ( $select->can_read() ) {
 		sysread $h, $_, 1024;
-		print $fout $_;
+		print $fout $_ if $fout;
 		if ( $h == \*child_err ) {
 			print "\033[31m$_\033[0m";
 		} else {
