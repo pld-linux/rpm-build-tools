@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Fcntl;
+use POSIX ":sys_wait_h";
+use IPC::Open3;
+use IO::Handle;
+use IO::Select;
+
+my $out = shift @ARGV;
+die unless @ARGV;
+
+open my $fout, ">>", $out or die "Can't write to $out: $!" if $out;
+
+my $select = IO::Select->new();
+my $alive = 1;
+my $pid;
+
+my $code;
+sub sigchld
+{
+	my $kid;
+	do {
+		$kid = waitpid( -1, WNOHANG );
+		if ( $kid == $pid ) {
+			$code = $? >> 8;
+			$alive = 0
+		}
+	} while ( $kid > 0 );
+}
+$SIG{CHLD} = \&sigchld;
+
+$pid = open3( \*child_in, \*child_out, \*child_err, @ARGV );
+close child_in;
+
+sub sethandle
+{
+	my $h = shift;
+	my $flags = 0;
+
+	fcntl ( $h, F_GETFL, $flags )
+		or die "Couldn't get flags for HANDLE : $!\n";
+	$flags |= O_NONBLOCK;
+	fcntl ( $h, F_SETFL, $flags )
+		or die "Couldn't set flags for HANDLE: $!\n";
+
+	$select->add( $h );
+}
+
+sethandle( \*child_out );
+sethandle( \*child_err );
+
+while ( $alive ) {
+	foreach my $h ( $select->can_read() ) {
+		sysread $h, $_, 1024;
+		print $fout $_ if $fout;
+		if ( $h == \*child_err ) {
+			print "\033[31m$_\033[0m";
+		} else {
+			print $_;
+		}
+		STDOUT->flush();
+	}
+}
+
+exit $code;
