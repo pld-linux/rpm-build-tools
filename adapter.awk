@@ -410,7 +410,7 @@ function b_makekey(a, b,	s) {
 	if (/CC=%{__cc} /) {
 		sub("CC=%{__cc}", "CC=\"%{__cc}\"")
 	}
-	
+
 	# use PLD Linux macros
 	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
 	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0);
@@ -1069,7 +1069,7 @@ function use_macros()
 	gsub(perl_vendorlib, "%{perl_vendorlib}")
 	gsub(perl_vendorarch, "%{perl_vendorarch}")
 	gsub(perl_sitelib, "%{perl_sitelib}")
-	
+
 	gsub(py_sitescriptdir, "%{py_sitescriptdir}")
 	gsub(py_sitedir, "%{py_sitedir}")
 	gsub(py_scriptdir, "%{py_scriptdir}")
@@ -1963,7 +1963,29 @@ function replace_groupnames(group) {
 	return group;
 }
 
-function replace_requires(field) {
+function replace_pkgconfig(pkg,    cmd, path, n, i, line, r) {
+	n = split("/usr/lib64/pkgconfig /usr/lib/pkgconfig /usr/share/pkgconfig", path, / /);
+	for (i = 1; i <= n; i++) {
+		cmd = "rpm -qf --qf '%{N}' " path[i] "/" pkg ".pc";
+		# Getline returns 0 on end-of-file, -1 on error, otherwise 1.
+		if ((cmd | getline line) <= 0) {
+			continue;
+		}
+
+		if (line !~ /No such file or directory/) {
+			# @modifies global $2
+			$2 = line;
+			return
+		}
+	}
+}
+
+function replace_requires(field,   pkg) {
+	# pkg-config -> package names
+	if (match($2, /pkgconfig\(([^)]+)\)/)) {
+		pkg = substr($2, RSTART + 10, RLENGTH - 11);
+		replace_pkgconfig(pkg);
+	}
 
 	sub(/^python-setuptools-devel$/, "python-distribute", $2);
 	sub(/^gcc-g77/, "gcc-fortran", $2);
