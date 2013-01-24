@@ -49,8 +49,10 @@ rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 }
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
 
-subst=$(pear list-channels | awk -vORS="|" '/^[a-z]/{print $2}')
-subst="s/^php-(${subst%\|})-//"
+# process urls to aliases
+[ -s pear.rpms ] || pear list-channels | sed -ne '4,$p' | while read url alias desc; do
+	awk -vurl="$url" -valias="$alias" '$1 == url {printf("php-%s-%s %s\n", alias, $2, $5)}' pear.upgrades
+done > pear.rpms
 
 # clear it if you do not want to upgrade pkgs. i.e bring ac to sync
 do_upgrade=1
@@ -59,8 +61,7 @@ do_upgrade=1
 topdir=$(rpm -E %_topdir)
 for pkg in $(cat pear.pkgs); do
 	# check if there's update in channel
-	pearpkg=$(echo "$pkg" | sed -re "$subst")
-	ver=$(awk -vpkg=$pearpkg '$2 == pkg {print $5}' pear.upgrades)
+	ver=$(awk -vpkg=$pkg '$1 == pkg {print $2}' pear.rpms)
 	[ "$ver" ] || continue
 
 	# skip already processed packages
