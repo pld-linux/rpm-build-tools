@@ -1996,7 +1996,7 @@ function replace_requires(field,   pkg) {
 	# bad package.xml, see http://pear.php.net/bugs/bug.php?id=17779
 	sub(/^php-php-gtk/, "php-gtk2", $2);
 
-	# jpackages / fedora java packages
+	# {{{ jpackages / fedora java packages
 	sub(/^antlr3$/, "java-antlr3", $2);
 	sub(/^aqute-bnd$/, "java-bnd", $2);
 	sub(/^avalon-framework$/, "java-avalon-framework", $2);
@@ -2071,10 +2071,12 @@ function replace_requires(field,   pkg) {
 	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
 	sub(/^xmldb-api$/, "java-xmldb", $2);
 	sub(/^xmldb-api-sdk$/, "java-xmldb-sdk", $2);
+	# }}}
 
-	# fedora / redhat
+	# {{{ fedora / redhat
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
+	sub(/^MySQL-python$/, "python-MySQLdb", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
 	sub(/^ccid$/, "pcsc-driver-ccid", $2);
@@ -2102,8 +2104,6 @@ function replace_requires(field,   pkg) {
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2);
-	sub(/^libXv-devel$/, "xorg-lib-libXv-devel", $2);
-	sub(/^libxkbfile-devel$/, "xorg-lib-libxkbfile", $2);
 	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2);
 	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2);
 	sub(/^libXau-devel$/, "xorg-lib-libXau-devel", $2);
@@ -2116,6 +2116,7 @@ function replace_requires(field,   pkg) {
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^libXrender-devel$/, "xorg-lib-libXrender-devel", $2);
 	sub(/^libXtst-devel$/, "xorg-lib-libXtst-devel", $2);
+	sub(/^libXv-devel$/, "xorg-lib-libXv-devel", $2);
 	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
@@ -2128,6 +2129,7 @@ function replace_requires(field,   pkg) {
 	sub(/^libtevent$/, "tevent", $2);
 	sub(/^libtevent-devel$/, "tevent-devel", $2);
 	sub(/^libusb1-devel$/, "libusb-devel", $2);
+	sub(/^libxkbfile-devel$/, "xorg-lib-libxkbfile", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^newt-python$/, "python-snack", $2);
 	sub(/^notify-python$/, "python-pynotify", $2);
@@ -2168,8 +2170,9 @@ function replace_requires(field,   pkg) {
 	sub(/^webkitgtk3-devel$/, "gtk-webkit3-devel", $2);
 	sub(/^xapian-bindings-python$/, "python-xapian", $2);
 	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
+	# }}}
 
-	# mandriva
+	# {{{ mandriva
 	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2);
 	sub(/^python-pyrex$/, "python-Pyrex", $2);
 	sub(/^webkitgtk-devel$/, "gtk-webkit-devel", $2);
@@ -2177,8 +2180,9 @@ function replace_requires(field,   pkg) {
 	sub(/^python-webkitgtk$/, "python-pywebkitgtk", $2);
 	sub(/^pygtk2.0$/, "python-pygtk-gtk", $2);
 	sub(/^gnome-python-gconf$/, "python-gnome-gconf", $2);
+	# }}}
 
-	# debian / ubuntu
+	# {{{ debian / ubuntu
 	sub(/^blkid-dev$/, "libblkid-devel", $2);
 	sub(/^ext2fs-dev$/, "e2fsprogs-devel", $2);
 	sub(/^libao-dev$/, "libao-devel", $2);
@@ -2215,8 +2219,9 @@ function replace_requires(field,   pkg) {
 	sub(/^tcp_wrappers-devel$/, "libwrap-devel", $2);
 	sub(/^vala-tools$/, "vala", $2);
 	sub(/^vala-devel$/, "vala", $2);
+	# }}}
 
-	# altlinux
+	# {{{ altlinux
 	sub(/^libatk-devel$/, "atk-devel", $2);
 	sub(/^libgit-devel$/, "git-core-devel", $2);
 	sub(/^libgtk\+2-devel$/, "gtk+2-devel", $2);
@@ -2226,8 +2231,9 @@ function replace_requires(field,   pkg) {
 	sub(/^libpcre-devel$/, "pcre-devel", $2);
 	sub(/^libpopt-devel$/, "popt-devel", $2);
 	sub(/^libssl-devel$/, "openssl-devel", $2);
+	# }}}
 
-	# suse
+	# {{{ suse
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2);
 	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2);
 	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2);
@@ -2237,8 +2243,9 @@ function replace_requires(field,   pkg) {
 	sub(/^libpulse-devel$/, "pulseaudio-devel", $2);
 	sub(/^monodoc-core$/, "mono-monodoc", $2);
 	sub(/^python-gtk$/, "python-pygtk-gtk", $2);
+	# }}}
 
 	replace_php_virtual_deps(field)
 }
 
-# vim:ts=4:sw=4
+# vim:ts=4:sw=4 fdm=marker
