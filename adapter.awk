@@ -1964,7 +1964,7 @@ function replace_groupnames(group) {
 	return group;
 }
 
-function replace_pkgconfig(pkg,    cmd, path, n, i, line, r) {
+function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
 	n = split("/usr/lib64/pkgconfig /usr/lib/pkgconfig /usr/share/pkgconfig", path, / /);
 	for (i = 1; i <= n; i++) {
 		cmd = "rpm -qf --qf '%{N}' " path[i] "/" pkg ".pc";
@@ -1981,11 +1981,31 @@ function replace_pkgconfig(pkg,    cmd, path, n, i, line, r) {
 	}
 }
 
+function replace_pythonegg(pkg,    cmd, line) {
+	cmd = "rpm -q --qf '%{N}' --whatprovides 'pythonegg(" pkg ")'";
+	# Getline returns 0 on end-of-file, -1 on error, otherwise 1.
+	if ((cmd | getline line) <= 0) {
+		return;
+	}
+
+	if (line !~ /no package provides/) {
+		# @modifies global $2
+		$2 = line;
+		return;
+	}
+}
+
 function replace_requires(field,   pkg) {
 	# pkg-config -> package names
 	if (match($2, /pkgconfig\(([^)]+)\)/)) {
 		pkg = substr($2, RSTART + 10, RLENGTH - 11);
 		replace_pkgconfig(pkg);
+	}
+
+	# pythonegg -> package names
+	if (match($2, /pythonegg\(([^)]+)\)/)) {
+		pkg = substr($2, RSTART + 10, RLENGTH - 11);
+		replace_pythonegg(pkg);
 	}
 
 	sub(/^python-setuptools-devel$/, "python-distribute", $2);
