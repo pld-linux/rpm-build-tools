@@ -1085,6 +1085,7 @@ function use_macros()
 	gsub(ruby_sitelibdir, "%{ruby_sitelibdir}")
 	gsub(ruby_rdocdir, "%{ruby_rdocdir}")
 
+	gsub("%{_unitdir}", "%{systemdunitdir}")
 	gsub(systemdunitdir, "%{systemdunitdir}")
 	gsub(systemdtmpfilesdir, "%{systemdtmpfilesdir}")
 
