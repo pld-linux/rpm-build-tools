@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2012 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2013 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
