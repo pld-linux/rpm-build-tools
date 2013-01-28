@@ -1894,6 +1894,7 @@ function replace_php_virtual_deps(field) {
 	}
 }
 
+# {{{ replace_groupnames(group)
 function replace_groupnames(group) {
 	group = replace(group, "Amusements/Games", "Applications/Games");
 	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
@@ -1963,7 +1964,9 @@ function replace_groupnames(group) {
 
 	return group;
 }
+# }}}
 
+# {{{ replace_pkgconfig(pkg)
 function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
 	n = split("/usr/lib64/pkgconfig /usr/lib/pkgconfig /usr/share/pkgconfig", path, / /);
 	for (i = 1; i <= n; i++) {
@@ -1980,7 +1983,9 @@ function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
 		}
 	}
 }
+# }}}
 
+# {{{ replace_pythonegg(pkg)
 function replace_pythonegg(pkg,    cmd, line) {
 	cmd = "rpm -q --qf '%{N}' --whatprovides 'pythonegg(" pkg ")'";
 	# Getline returns 0 on end-of-file, -1 on error, otherwise 1.
@@ -1994,6 +1999,7 @@ function replace_pythonegg(pkg,    cmd, line) {
 		return;
 	}
 }
+# }}}
 
 function replace_requires(field,   pkg) {
 	# pkg-config -> package names
