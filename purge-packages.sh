@@ -35,3 +35,5 @@ for pkg in */.git; do
 	fi
 	cd ..
 done
+
+rmdir --ignore-fail-on-non-empty $purgedir
