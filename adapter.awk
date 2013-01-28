@@ -632,6 +632,11 @@ preamble == 1 {
 		release = "0." fixedsub(".%{disttag}.at", "", $4)
 	}
 
+	# deprecated. currently just resolves to name in $2
+	if (/^%pyrequires_eq.+/) {
+		$1 = "Requires:";
+	}
+
 	field = tolower($1)
 	if (field ~ /summary:/ && !/etc\.$/ && !/Inc\.$/) {
 		sub(/\.$/, "", $0);
