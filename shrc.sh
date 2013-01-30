@@ -192,7 +192,7 @@ get-buildlog() {
 fi # no $dist set
 
 alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
-alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
+alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Tylko\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
 # makes diff from PLD CVS urls
 # requires: cvs, tee
