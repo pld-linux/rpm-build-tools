@@ -2,12 +2,12 @@
 
 KDEPKGS="
 kde4-kdelibs
+kde4-nepomuk-core
 kde4-kactivities
 kde4-kdepimlibs
 kde4-kdebase-workspace
 kde4-kdebase
 kde4-libkdeedu
-kde4-nepomuk-core
 kde4-kdebase-runtime
 python-PyKDE4
 kde4-kate
