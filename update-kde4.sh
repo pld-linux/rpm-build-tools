@@ -6,6 +6,7 @@ kde4-nepomuk-core
 kde4-nepomuk-widgets
 kde4-kactivities
 kde4-kdepimlibs
+kde4-oxygen-icons
 kde4-kdebase-workspace
 kde4-kdebase
 kde4-libkdeedu
@@ -89,7 +90,6 @@ kde4-kturtle
 kde4-kwallet
 kde4-kwordquiz
 kde4-mplayerthumbs
-kde4-oxygen-icons
 kde4-pairs
 kde4-parley
 kde4-printer-applet
