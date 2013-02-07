@@ -3,6 +3,7 @@
 KDEPKGS="
 kde4-kdelibs
 kde4-nepomuk-core
+kde4-nepomuk-widgets
 kde4-kactivities
 kde4-kdepimlibs
 kde4-kdebase-workspace
