@@ -378,7 +378,12 @@ if (USE_PERL) {
 				continue
 			}
 
-			retval = (retval " " link)
+			# link ends with at least 2 digit version
+			mlink = ""
+			if (link ~ /^.*\/[0-9\.]+[0-9]\/$/)
+				mlink = get_links(link)
+
+			retval = (retval " " link " " mlink)
 			d("href(\"\"): " link)
 		} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
 			sub(/[hH][rR][eE][fF]=[ \t]*'/,"href='",odp)
