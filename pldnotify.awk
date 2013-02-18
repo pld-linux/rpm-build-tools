@@ -380,7 +380,7 @@ if (USE_PERL) {
 
 			# link ends with at least 2 digit version
 			mlink = ""
-			if (link ~ /^.*\/[0-9\.]+[0-9]\/$/)
+			if (link ~ /^.*\/[v]*[0-9\.]+[0-9]\/$/)
 				mlink = get_links(link)
 
 			retval = (retval " " link " " mlink)
