@@ -637,6 +637,11 @@ preamble == 1 {
 		$1 = "Requires:";
 	}
 
+	# F<16 had requires(hint)
+	if (/^Requires\(hint\):/) {
+		$1 = "Suggests:";
+	}
+
 	field = tolower($1)
 	if (field ~ /summary:/ && !/etc\.$/ && !/Inc\.$/) {
 		sub(/\.$/, "", $0);
@@ -1063,6 +1068,7 @@ function use_macros()
 	}
 
 	sub("%{_defaultdocdir}", "%{_docdir}");
+	sub("%{_datadir}/doc", "%{_docdir}");
 	sub("%{_bindir}/perl", "%{__perl}");
 	sub("%{_bindir}/python", "%{__python}");
 
