@@ -511,7 +511,7 @@ teeboth() {
 		local efile rc logfile=$1; shift
 		if [ "$logfile" ]; then
 			efile=$(tempfile)
-			{ "$@" < /dev/null 2>&1; echo $? > $efile; } | tee -a $logfile
+			{ "$@" 2>&1; echo $? > $efile; } | tee -a $logfile
 			rc=$(< $efile)
 			rm -f $efile
 		else
