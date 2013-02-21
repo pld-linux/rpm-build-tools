@@ -515,7 +515,7 @@ teeboth() {
 			rc=$(< $efile)
 			rm -f $efile
 		else
-			"$@" < /dev/null
+			"$@"
 			rc=$?
 		fi
 	fi
