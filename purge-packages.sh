@@ -18,11 +18,12 @@ for pkg in */.git; do
 	pkg=${pkg%/.git}
 	cd "$pkg"
 	status=$(git status --porcelain)
+	stash=$(git stash list)
 
 	# FIXME: does not currently handle if some pushes are not made!
-	if [ -n "$status" ]; then
+	if [ -n "$status" ] || [ -n "$stash" ]; then
 		cat <<-EOF
-		* Package $pkg - Untracked files. Invoke gc
+		* Package $pkg - Untracked files or stash not empty. Invoke gc
 
 		$status
 		EOF
