@@ -12,7 +12,7 @@
 #	Jakub Bogusz <qboosh@pld-linux.org>
 # 	Elan Ruusamäe <glen@pld-linux.org>
 #
-# See cvs log adapter{,.awk} for list of contributors
+# See git log adapter{,.awk} for list of contributors
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -2272,7 +2272,7 @@ function replace_requires(field,   pkg) {
 	sub(/^libssl-devel$/, "openssl-devel", $2);
 	# }}}
 
-	# {{{ suse
+	# {{{ suse/opensuse
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2);
 	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2);
 	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2);
@@ -2281,7 +2281,11 @@ function replace_requires(field,   pkg) {
 	sub(/^libopenssl-devel$/, "openssl-devel", $2);
 	sub(/^libpulse-devel$/, "pulseaudio-devel", $2);
 	sub(/^monodoc-core$/, "mono-monodoc", $2);
+	sub(/^python-cairo$/, "python-pycairo", $2);
+	sub(/^python-gobject$/, "python-pygobject", $2);
+	sub(/^python-gstreamer-0_10$/, "python-gstreamer", $2);
 	sub(/^python-gtk$/, "python-pygtk-gtk", $2);
+	sub(/^python-xdg$/, "python-pyxdg", $2);
 	# }}}
 
 	replace_php_virtual_deps(field)
