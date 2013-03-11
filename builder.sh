@@ -906,7 +906,7 @@ get_spec() {
 	fi
 
 	cd "$REPO_DIR"
-
+	SPECFILE=$(basename $SPECFILE)
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		if [ -z "$DEPTH" ]; then
 			if [ -d "$PACKAGE_DIR/.git" ]; then
