@@ -39,7 +39,7 @@ RCSID='$Id: builder,v 1.645 2011/02/13 17:54:10 glen Exp $' r=${RCSID#* * } rev=
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
-$VERSION (C) 1999-2012 Free Penguins".
+$VERSION (C) 1999-2013 Free Penguins".
 
 CLEAN_PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -1052,7 +1052,7 @@ src_md5() {
 	# use "sources" file from package dir, like vim
 	if [ -f sources ]; then
 		md5=$(grep -s -v '^#' sources | \
-		grep -E "[ 	]$(basename "$1")([ 	,]|\$)" | \
+		grep -E "[ 	*]$(basename "$1")([ 	,]|\$)" | \
 		sed -e 's/^\([0-9a-f]\{32\}\).*/\1/' | \
 		grep -E '^[0-9a-f]{32}$')
 
