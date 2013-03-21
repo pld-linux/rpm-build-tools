@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 set -e
 
 update=false
@@ -19,6 +18,9 @@ while [ $# -gt 0 ]; do
 		;;
 	esac
 done
+
+dir=$(dirname "$0");
+cd "$dir"
 
 pkgs='GeoIP-db-City GeoIP-db-Country GeoIP-db-IPASNum xtables-geoip'
 for pkg in ${*:-$pkgs}; do
