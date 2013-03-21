@@ -1088,6 +1088,8 @@ function use_macros()
 	gsub(py3_sitescriptdir, "%{py3_sitescriptdir}")
 	gsub(py3_sitedir, "%{py3_sitedir}")
 	gsub(py3_scriptdir, "%{py3_scriptdir}")
+	gsub("%{python3_sitelib}", "%{py3_sitescriptdir}")
+	gsub("%{python3_version}", "%{py3_ver}")
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
 	gsub(ruby_ridir, "%{ruby_ridir}")
@@ -2115,6 +2117,7 @@ function replace_requires(field,   pkg) {
 	# {{{ fedora / redhat
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
+	sub(/^pytest$/, "python-pytest", $2);
 	sub(/^MySQL-python$/, "python-MySQLdb", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
