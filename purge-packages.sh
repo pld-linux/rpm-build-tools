@@ -38,3 +38,5 @@ for pkg in */.git; do
 done
 
 rmdir --ignore-fail-on-non-empty $purgedir
+
+# vi:syntax=sh:ts=4:sw=4:noet
