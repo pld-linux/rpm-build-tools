@@ -4,6 +4,8 @@
 # - otherwise git gc is called
 set -e
 
+CALL_GC='yes'
+
 topdir=$(rpm -E %_topdir)
 purgedir=$topdir/purged
 cd "$topdir"
@@ -25,11 +27,11 @@ for pkg in */.git; do
 	# FIXME: does not currently handle if some pushes are not made!
 	if [ -n "$status" ] || [ -n "$stash" ]; then
 		cat <<-EOF
-		* Package $pkg - Untracked files or stash not empty. Invoke gc
+		* Package $pkg - Untracked files or stash not empty.
 		$status
 		EOF
 		purge='no'
-		git gc
+		[ "$CALL_GC" = 'yes' ] && git gc
 	fi
 	git show-ref --heads |\
 	{ while read sha1 branch; do
