@@ -26,14 +26,14 @@ pkgs='GeoIP-db-City GeoIP-db-Country GeoIP-db-IPASNum xtables-geoip'
 for pkg in ${*:-$pkgs}; do
 	$status && continue
 
-	./builder -g -ns $pkg
+	out=$(./builder -g -ns $pkg 2>&1) || echo "$out"
 	cd $pkg
 
 	$update && rm -vf *.gz *.zip
 
 	specfile=*.spec
 
-	../md5 -p1 $specfile
+	out=$(../md5 -p1 $specfile 2>&1) || echo "$out"
 
 	version=$(awk '/^Version:[ 	]+/{print $NF}' $specfile)
 	if [ $pkg = "xtables-geoip" ]; then
@@ -55,7 +55,7 @@ for pkg in ${*:-$pkgs}; do
 		" $specfile
 	fi
 
-	../builder -bb *.spec
+	out=$(../builder -bb *.spec 2>&1) || echo "$out"
 	cd ..
 done
 
