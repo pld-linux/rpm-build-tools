@@ -751,7 +751,13 @@ preamble == 1 {
 		if (l == "Python Software Foundation License") {
 			l = "PSF"
 		}
-		if (l == "Apache License 2.0" || l == "Apache 2.0" || l == "Apache License Version 2.0" || l == "Apache License, Version 2.0" || l == "Apache Software License v2") {
+		if (l == "Apache License 2.0" || \
+			   l == "Apache 2.0" || \
+			   l == "Apache License Version 2.0" || \
+			   l == "Apache License, Version 2.0" || \
+			   l == "Apache Software License v2" || \
+			   l == "ASL 2.0" \
+			) {
 			l = "Apache v2.0"
 		}
 		if (l == "Apache Group License" || l == "Apache Software License" || l == "Apache License") {
