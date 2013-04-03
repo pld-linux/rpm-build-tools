@@ -12,11 +12,11 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-REVISION=1.49
+REVISION=1.50
 VERSION="v0.35/$REVISION"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
-$VERSION (C) 1999-2012 Free Penguins".
+$VERSION (C) 1999-2013 Free Penguins".
 
 PROGRAM=${0##*/}
 dir=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
@@ -214,11 +214,16 @@ import_rpm_macros() {
 	py3_ver
 
 	ruby_archdir
-	ruby_ridir
-	ruby_rubylibdir
+	ruby_libdir 
+	ruby_sitedir  
 	ruby_sitearchdir
 	ruby_sitelibdir
+	ruby_vendordir 
+	ruby_vendorarchdir
+	ruby_vendorlibdir
+	ruby_rubylibdir
 	ruby_rdocdir
+	ruby_ridir
 
 	php_pear_dir
 	php_data_dir

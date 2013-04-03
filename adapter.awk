@@ -1098,11 +1098,17 @@ function use_macros()
 	gsub("%{python3_version}", "%{py3_ver}")
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
-	gsub(ruby_ridir, "%{ruby_ridir}")
-	gsub(ruby_rubylibdir, "%{ruby_rubylibdir}")
+	gsub(ruby_libdir, "%{ruby_libdir}")
+
+	gsub(ruby_sitedir, "%{ruby_sitedir}")
 	gsub(ruby_sitearchdir, "%{ruby_sitearchdir}")
 	gsub(ruby_sitelibdir, "%{ruby_sitelibdir}")
+	gsub(ruby_vendordir, "%{ruby_vendordir}")
+	gsub(ruby_vendorarchdir, "%{ruby_vendorarchdir}")
+	gsub(ruby_vendorlibdir, "%{ruby_vendorlibdir}")
+	gsub(ruby_rubylibdir, "%{ruby_rubylibdir}") # deprecated
 	gsub(ruby_rdocdir, "%{ruby_rdocdir}")
+	gsub(ruby_ridir, "%{ruby_ridir}")
 
 	gsub("%{_unitdir}", "%{systemdunitdir}")
 	gsub(systemdunitdir, "%{systemdunitdir}")
@@ -1868,11 +1874,16 @@ function import_rpm_macros(  v) {
 	py3_ver = ENVIRON["py3_ver"]
 
 	ruby_archdir = ENVIRON["ruby_archdir"]
-	ruby_ridir = ENVIRON["ruby_ridir"]
-	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"]
+	ruby_libdir = ENVIRON["ruby_libdir"]
+	ruby_sitedir = ENVIRON["ruby_sitedir"]
 	ruby_sitearchdir = ENVIRON["ruby_sitearchdir"]
 	ruby_sitelibdir = ENVIRON["ruby_sitelibdir"]
+	ruby_vendordir = ENVIRON["ruby_vendordir"]
+	ruby_vendorarchdir = ENVIRON["ruby_vendorarchdir"]
+	ruby_vendorlibdir = ENVIRON["ruby_vendorlibdir"]
+	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"] # deprecated
 	ruby_rdocdir = ENVIRON["ruby_rdocdir"]
+	ruby_ridir = ENVIRON["ruby_ridir"]
 
 	php_pear_dir = ENVIRON["php_pear_dir"]
 	php_data_dir = ENVIRON["php_data_dir"]
