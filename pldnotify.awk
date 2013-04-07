@@ -628,6 +628,16 @@ function nodejs_upgrade(name, ver,   cmd, nver) {
 	return nver
 }
 
+function chrome_upgrade(name, ver,   cmd, sourceurl) {
+	sourceurl = "http://dl.google.com/linux/chrome/rpm/stable/x86_64/repodata/primary.xml.gz"
+	cmd = "curl -s " sourceurl " | zcat | perl -ne 'm{<name>google-chrome-" DEFS["state"] "</name>} and m{<version .*ver=.([\d.]+)} and print $1'"
+	d("CHROME " cmd);
+	cmd | getline nver
+	close(cmd)
+
+	return nver
+}
+
 function process_data(name, ver, rel, src,   nver) {
 	if (name ~ /^php-pear-/) {
 		nver = pear_upgrade(name, ver);
@@ -637,6 +647,8 @@ function process_data(name, ver, rel, src,   nver) {
 		nver = hudson_upgrade(name, ver);
 	} else if (name == "vim") {
 		nver = vim_upgrade(name, ver);
+	} else if (name == "google-chrome") {
+		nver = chrome_upgrade(name, ver);
 	} else if (name ~ "^nodejs-") {
 		nver = nodejs_upgrade(name, ver);
 	}
