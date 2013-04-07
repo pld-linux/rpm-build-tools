@@ -1,7 +1,7 @@
 #!/bin/awk -f
 # $Revision$, $Date$
 #
-# Copyright (C) 2000-2011 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 2000-2013 PLD-Team <feedback@pld-linux.org>
 # Authors:
 #	Sebastian Zagrodzki <zagrodzki@pld-linux.org>
 #	Jacek Konieczny <jajcus@pld-linux.org>
@@ -16,6 +16,9 @@
 # - "SourceXActiveFTP" support
 # - support debian/watch http://wiki.debian.org/debian/watch/
 
+# NOTE:
+# to test run this, run:
+# $ awk -vDEBUG=1 pldnotify.awk < specfile
 
 function d(s) {
 	if (!DEBUG) {
@@ -626,20 +629,35 @@ function vim_upgrade(name, ver,     mver, nver, vimcmd) {
 	}
 }
 
+function nodejs_upgrade(name, ver,   cmd, nver) {
+	d("NODEJS " name " (as " DEFS["pkg"] ") " ver);
+	if (DEFS["pkg"]) {
+		cmd = "npm info " DEFS["pkg"] " dist-tags.latest"
+	} else {
+		cmd = "npm info " name " dist-tags.latest"
+	}
+	cmd | getline nver
+	close(cmd)
+
+	if (compare_ver(ver, nver)) {
+		print name " [OLD] " ver " [NEW] " nver
+	} else {
+		print name " seems ok: " ver
+	}
+}
+
 function process_data(name, ver, rel, src) {
 	if (name ~ /^php-pear-/) {
 		return pear_upgrade(name, ver);
-	}
-	if (name == "ZendFramework") {
+	} else if (name == "ZendFramework") {
 		return zf_upgrade(name, ver);
-	}
-	if (name == "hudson") {
+	} else if (name == "hudson") {
 		return hudson_upgrade(name, ver);
-	}
-	if (name == "vim") {
+	} else if (name == "vim") {
 		return vim_upgrade(name, ver);
-	}
-	if (name == "xulrunner") {
+	} else if (name ~ "^nodejs-") {
+		return nodejs_upgrade(name, ver);
+	} else if (name == "xulrunner") {
 		ver = subst_defines(DEFS["firefox_ver"], DEFS)
 		d("package xulrunner, change version to firefox ["ver"]")
 	}
@@ -660,7 +678,7 @@ function process_data(name, ver, rel, src) {
 }
 
 BEGIN {
-	# if U want to use DEBUG, run script with "-v DEBUG=1"
+	# if you want to use DEBUG, run script with "-v DEBUG=1"
 	# or uncomment the line below
 	# DEBUG = 1
 
