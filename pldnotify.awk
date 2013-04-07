@@ -468,8 +468,8 @@ function find_mirror(url) {
 	return url
 }
 
-function process_source(number, lurl, name, version) {
 # fetches file list, and compares version numbers
+function process_source(number, lurl, name, version) {
 	d("Processing " lurl)
 
 	if (index(lurl, version) == 0) {
@@ -573,23 +573,19 @@ function rss_upgrade(name, ver, url, regex, cmd, nver) {
 	cmd | getline nver
 	close(cmd)
 
-	if (compare_ver(ver, nver)) {
-		print name " [OLD] " ver " [NEW] " nver
-	} else {
-		print name " seems ok: " ver
-	}
+	return nver
 }
 
 # check for ZF upgrade from rss
 function zf_upgrade(name, ver) {
-	rss_upgrade(name, ver, \
+	return rss_upgrade(name, ver, \
 		"http://devzone.zend.com/tag/Zend_Framework_Management/format/rss2.0", \
 		"Zend Framework ([^\\s]+) Released" \
 	);
 }
 
 function hudson_upgrade(name, ver) {
-	rss_upgrade(name, ver, \
+	return rss_upgrade(name, ver, \
 		"https://hudson.dev.java.net/servlets/ProjectRSS?type=news", \
 		"Hudson ([0-9.]+) released" \
 	);
@@ -605,13 +601,7 @@ function pear_upgrade(name, ver,    pname, pearcmd, nver) {
 	pearcmd | getline nver
 	close(pearcmd)
 
-	if (compare_ver(ver, nver)) {
-		print name " [OLD] " ver " [NEW] " nver
-	} else {
-		print name " seems ok: " ver
-	}
-
-	return
+	return nver
 }
 
 function vim_upgrade(name, ver,     mver, nver, vimcmd) {
@@ -622,11 +612,7 @@ function vim_upgrade(name, ver,     mver, nver, vimcmd) {
 	vimcmd | getline nver
 	close(vimcmd)
 
-	if (compare_ver(ver, nver)) {
-		print name " [OLD] " ver " [NEW] " nver
-	} else {
-		print name " seems ok: " ver
-	}
+	return nver
 }
 
 function nodejs_upgrade(name, ver,   cmd, nver) {
@@ -639,25 +625,32 @@ function nodejs_upgrade(name, ver,   cmd, nver) {
 	cmd | getline nver
 	close(cmd)
 
-	if (compare_ver(ver, nver)) {
-		print name " [OLD] " ver " [NEW] " nver
-	} else {
-		print name " seems ok: " ver
-	}
+	return nver
 }
 
-function process_data(name, ver, rel, src) {
+function process_data(name, ver, rel, src,   nver) {
 	if (name ~ /^php-pear-/) {
-		return pear_upgrade(name, ver);
+		nver = pear_upgrade(name, ver);
 	} else if (name == "ZendFramework") {
-		return zf_upgrade(name, ver);
+		nver = zf_upgrade(name, ver);
 	} else if (name == "hudson") {
-		return hudson_upgrade(name, ver);
+		nver = hudson_upgrade(name, ver);
 	} else if (name == "vim") {
-		return vim_upgrade(name, ver);
+		nver vim_upgrade(name, ver);
 	} else if (name ~ "^nodejs-") {
-		return nodejs_upgrade(name, ver);
-	} else if (name == "xulrunner") {
+		nver = nodejs_upgrade(name, ver);
+	}
+
+	if (nver) {
+		if (compare_ver(ver, nver)) {
+			print name " [OLD] " ver " [NEW] " nver
+		} else {
+			print name " seems ok: " ver
+		}
+		return;
+	}
+
+	if (name == "xulrunner") {
 		ver = subst_defines(DEFS["firefox_ver"], DEFS)
 		d("package xulrunner, change version to firefox ["ver"]")
 	}
