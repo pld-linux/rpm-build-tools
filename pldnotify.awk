@@ -565,15 +565,15 @@ function process_source(number, lurl, name, version) {
 	}
 }
 
-function rss_upgrade(name, ver, url, regex, cmd, nver) {
+function rss_upgrade(name, ver, url, regex, cmd) {
 	regex = "s/.*<title>" regex "<\/title>.*/\\1/p"
 	cmd = "wget -t 2 -T 45 -q -O - " url " | sed -nre '" regex "' | head -n1"
 
 	d("rss_upgrade_cmd: " cmd)
-	cmd | getline nver
+	cmd | getline ver
 	close(cmd)
 
-	return nver
+	return ver
 }
 
 # check for ZF upgrade from rss
@@ -592,50 +592,47 @@ function hudson_upgrade(name, ver) {
 }
 
 # upgrade check for pear package using PEAR CLI
-function pear_upgrade(name, ver,    pname, pearcmd, nver) {
-	pname = name;
-	sub(/^php-pear-/, "", pname);
+function pear_upgrade(name, ver,    cmd) {
+	sub(/^php-pear-/, "", name);
 
-	pearcmd = "pear remote-info " pname " | awk '/^Latest/{print $NF}'"
-	d("pearcmd: " pearcmd)
-	pearcmd | getline nver
-	close(pearcmd)
+	cmd = "pear remote-info " name " | awk '/^Latest/{print $NF}'"
+	d("PEAR: " cmd)
+	cmd | getline ver
+	close(cmd)
 
-	return nver
+	return ver
 }
 
-function vim_upgrade(name, ver,     mver, nver, vimcmd) {
+function vim_upgrade(name, ver,     cmd) {
 	# %patchset_source -f ftp://ftp.vim.org/pub/editors/vim/patches/7.2/7.2.%03g 1 %{patchlevel}
-	mver = substr(ver, 0, 3)
-	vimcmd = "wget -q -O - ftp://ftp.vim.org/pub/editors/vim/patches/" mver "/MD5SUMS|grep -vF .gz|tail -n1|awk '{print $2}'"
-	d("vimcmd: " vimcmd)
-	vimcmd | getline nver
-	close(vimcmd)
-
-	return nver
+	cmd = "wget -q -O - ftp://ftp.vim.org/pub/editors/vim/patches/" DEFS["ver"] "/MD5SUMS|grep -vF .gz|tail -n1|awk '{print $2}'"
+	d("VIM: " cmd)
+	cmd | getline ver
+	close(cmd)
+	return ver
 }
 
-function nodejs_upgrade(name, ver,   cmd, nver) {
+function nodejs_upgrade(name, ver,   cmd) {
 	d("NODEJS " name " (as " DEFS["pkg"] ") " ver);
 	if (DEFS["pkg"]) {
 		cmd = "npm info " DEFS["pkg"] " dist-tags.latest"
 	} else {
 		cmd = "npm info " name " dist-tags.latest"
 	}
-	cmd | getline nver
+	cmd | getline ver
 	close(cmd)
 
-	return nver
+	return ver
 }
 
 function chrome_upgrade(name, ver,   cmd, sourceurl) {
 	sourceurl = "http://dl.google.com/linux/chrome/rpm/stable/x86_64/repodata/primary.xml.gz"
 	cmd = "curl -s " sourceurl " | zcat | perl -ne 'm{<name>google-chrome-" DEFS["state"] "</name>} and m{<version .*ver=.([\d.]+)} and print $1'"
 	d("CHROME " cmd);
-	cmd | getline nver
+	cmd | getline ver
 	close(cmd)
 
-	return nver
+	return ver
 }
 
 function process_data(name, ver, rel, src,   nver) {
