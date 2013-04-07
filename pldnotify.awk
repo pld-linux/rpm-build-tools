@@ -1,5 +1,4 @@
 #!/bin/awk -f
-# $Revision$, $Date$
 #
 # Copyright (C) 2000-2013 PLD-Team <feedback@pld-linux.org>
 # Authors:
@@ -19,6 +18,14 @@
 # NOTE:
 # to test run this, run:
 # $ awk -vDEBUG=1 pldnotify.awk < specfile
+#
+# To get full out of it, you need to have following tools installed:
+# - perl, sed, wget, coreutils, util-linux
+# - perl HTML::TreeBuilder module for better links parser (-vUSE_PERL=0 to disable)
+# - pear for php-pear package updates
+# - npm for nodejs packages
+# 
+# Additionally "mirrors" file in current dir, controls local mirrors you prefer
 
 function d(s) {
 	if (!DEBUG) {
