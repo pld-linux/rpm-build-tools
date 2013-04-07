@@ -606,8 +606,8 @@ function pear_upgrade(name, ver,    pname, pearcmd, nver) {
 
 function vim_upgrade(name, ver,     mver, nver, vimcmd) {
 	# %patchset_source -f ftp://ftp.vim.org/pub/editors/vim/patches/7.2/7.2.%03g 1 %{patchlevel}
-	mver = substr(ver, 0, 4)
-	vimcmd = "wget -q -O - ftp://ftp.vim.org/pub/editors/vim/patches/"mver"/MD5SUMS|grep -vF .gz|tail -n1|awk '{print $2}'"
+	mver = substr(ver, 0, 3)
+	vimcmd = "wget -q -O - ftp://ftp.vim.org/pub/editors/vim/patches/" mver "/MD5SUMS|grep -vF .gz|tail -n1|awk '{print $2}'"
 	d("vimcmd: " vimcmd)
 	vimcmd | getline nver
 	close(vimcmd)
@@ -636,7 +636,7 @@ function process_data(name, ver, rel, src,   nver) {
 	} else if (name == "hudson") {
 		nver = hudson_upgrade(name, ver);
 	} else if (name == "vim") {
-		nver vim_upgrade(name, ver);
+		nver = vim_upgrade(name, ver);
 	} else if (name ~ "^nodejs-") {
 		nver = nodejs_upgrade(name, ver);
 	}
