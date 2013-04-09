@@ -605,6 +605,7 @@ minirpm() {
 %releq_kernel_up(n:) ERROR
 %releq_kernel_smp(n:) ERROR
 %releq_kernel(n:) ERROR
+%py_postclean(x:) ERROR
 %kgcc_package ERROR
 %_fontsdir ERROR
 %ruby_version ERROR
