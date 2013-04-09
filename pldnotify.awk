@@ -22,7 +22,7 @@
 # To get full out of it, you need to have following tools installed:
 # - perl, sed, wget, coreutils, util-linux
 # - perl-HTML-Tree (HTML::TreeBuilder module) for better links parser (-vUSE_PERL=0 to disable)
-# - php-pear for php-pear package updates
+# - php-pear-PEAR for php-pear package updates
 # - npm for nodejs packages
 # 
 # Additionally "mirrors" file in current dir, controls local mirrors you prefer
