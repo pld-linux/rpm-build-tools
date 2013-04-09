@@ -473,8 +473,8 @@ insert_gitlog() {
 	# * 1265749244 +0000 Random Hacker <nikt@pld-linux.org> 9370900
 	git rev-list --date-order -${log_entries:-20} HEAD 2>/dev/null | while read sha1; do
 		local logfmt='%B%n'
-		git notes list $sha1 > /dev/null 2>&1 && logfmt=%N
-		git log -n 1 $sha1 --format=format:"* %ad %an <%ae> %h%n${logfmt}%n" --date=raw | sed '/^$/q'
+		git notes list $sha1 > /dev/null 2>&1 && logfmt='%N'
+		git log -n 1 $sha1 --format=format:"* %ad %an <%ae> %h%n- ${logfmt}%n" --date=raw | sed -re 's/^- +- */- /'| sed '/^$/q'
 	done > $gitlog
 
 	# add link to full git logs
