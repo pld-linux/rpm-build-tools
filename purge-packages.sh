@@ -4,7 +4,7 @@
 # - otherwise git gc is called
 set -e
 
-CALL_GC=${CALL_GC:-'yes'}
+CALL_GC=${CALL_GC:-'no'}
 
 topdir=$(rpm -E %_topdir)
 purgedir=$topdir/purged
@@ -31,7 +31,7 @@ for pkg in */.git; do
 		$status
 		EOF
 		purge='no'
-		[ "$CALL_GC" = 'yes' ] && git gc
+		[ "$CALL_GC" != 'no' ] && git gc
 	fi
 	git show-ref --heads |\
 	{ while read sha1 branch; do
