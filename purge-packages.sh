@@ -4,7 +4,7 @@
 # - otherwise git gc is called
 set -e
 
-CALL_GC='yes'
+CALL_GC=${CALL_GC:-'yes'}
 
 topdir=$(rpm -E %_topdir)
 purgedir=$topdir/purged
