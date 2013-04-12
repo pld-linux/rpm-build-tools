@@ -22,7 +22,7 @@ pkgs_head="
 	VirtualBox
 	vpb-driver
 	xorg-driver-video-fglrx
-	xorg-driver-video-fglrx-legacy-12.x
+	xorg-driver-video-fglrx-legacy
 	xorg-driver-video-nvidia
 	xtables-addons
 "
