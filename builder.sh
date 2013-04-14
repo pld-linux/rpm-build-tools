@@ -2565,7 +2565,7 @@ case "$COMMAND" in
 		case $? in
 			0)
 				get_files $SOURCES $PATCHES
-				check_md5 $SOURCES
+				check_md5 $SOURCES $PATCHES
 				;;
 			*)
 				NODIST="yes" get_files $SOURCES $PATCHES
