@@ -468,7 +468,7 @@ insert_gitlog() {
 	# rpm5.org/rpm.org do not parse any other date format than 'Wed Jan 1 1997'
 	# otherwise i'd use --date=iso here
 	# http://rpm5.org/cvs/fileview?f=rpm/build/parseChangelog.c&v=2.44.2.1
-	# http://rpm.org/gitweb?p=rpm.git;a=blob;f=build/parseChangelog.c#l31
+	# http://rpm.org/gitweb?p=rpm.git;a=blob;f=build/parseChangelog.c;h=56ba69daa41d65ec9fd18c9f371b8ff14118cdca;hb=a113baa510a004476edc44b5ebaaf559238a18b6#l33
 	# NOTE: changelog date is always in UTC for rpmbuild
 	# * 1265749244 +0000 Random Hacker <nikt@pld-linux.org> 9370900
 	git rev-list --date-order -${log_entries:-20} HEAD 2>/dev/null | while read sha1; do
