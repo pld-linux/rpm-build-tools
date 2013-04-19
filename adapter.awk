@@ -2134,7 +2134,6 @@ function replace_requires(field,   pkg) {
 	# {{{ fedora / redhat
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
-	sub(/^pytest$/, "python-pytest", $2);
 	sub(/^MySQL-python$/, "python-MySQLdb", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
@@ -2143,6 +2142,7 @@ function replace_requires(field,   pkg) {
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
 	sub(/^desktop-notification-daemon$/, "dbus(org.freedesktop.Notifications)", $2);
+	sub(/^django-tagging$/, "python-django_tagging", $2);
 	sub(/^elfutils-libelf-devel$/, "elfutils-devel", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
 	sub(/^freetype2-devel$/, "freetype-devel", $2);
@@ -2202,9 +2202,11 @@ function replace_requires(field,   pkg) {
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
 	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2);
+	sub(/^pyparsing$/, "python-pyparsing", $2);
 	sub(/^pysvn$/, "python-pysvn", $2);
 	sub(/^pytalloc$/, "python-talloc", $2);
 	sub(/^pytalloc-devel$/, "python-talloc-devel", $2);
+	sub(/^pytest$/, "python-pytest", $2);
 	sub(/^python-cups$/, "python-pycups", $2);
 	sub(/^python-enchant$/, "python-pyenchant", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
