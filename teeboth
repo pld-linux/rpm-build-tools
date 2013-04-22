@@ -31,8 +31,7 @@ sub sigchld
 }
 $SIG{CHLD} = \&sigchld;
 
-$pid = open3( \*child_in, \*child_out, \*child_err, @ARGV );
-close child_in;
+$pid = open3( "<&STDIN",  \*child_out, \*child_err, @ARGV );
 
 sub sethandle
 {
