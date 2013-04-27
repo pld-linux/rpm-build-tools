@@ -22,8 +22,9 @@
 # To get full out of it, you need to have following tools installed:
 # - perl, sed, wget, coreutils, util-linux
 # - perl-HTML-Tree (HTML::TreeBuilder module) for better links parser (-vUSE_PERL=0 to disable)
-# - php-pear-PEAR for php-pear package updates
+# - pear (php-pear-PEAR) for php-pear package updates
 # - npm for nodejs packages
+# - gem (ruby-rubygems) for ruby/rubygem packages
 # 
 # Additionally "mirrors" file in current dir, controls local mirrors you prefer
 
@@ -632,6 +633,30 @@ function nodejs_upgrade(name, ver,   cmd) {
 	return ver
 }
 
+function rubygem_upgrade(name, ver,   cmd, pkg) {
+	if (DEFS["gem_name"]) {
+		pkg = DEFS["gem_name"];
+
+	} else if (DEFS["gemname"]) {
+		pkg = DEFS["gemname"];
+
+	} else if (DEFS["pkgname"]) {
+		pkg = DEFS["pkgname"];
+
+	} else {
+		pkg = name;
+		gsub(/^ruby-/, "", pkg);
+	}
+
+	cmd = "gem list --remote '^" pkg "$' | awk '/" pkg "/ {v=$2; sub(/\(/, \"\", v); print v}'"
+	d("RUBYGEM " name " (as " pkg ") " ver ": " cmd);
+	cmd | getline ver
+
+	close(cmd)
+
+	return ver
+}
+
 function chrome_upgrade(name, ver,   cmd, sourceurl) {
 	sourceurl = "http://dl.google.com/linux/chrome/rpm/stable/x86_64/repodata/primary.xml.gz"
 	cmd = "curl -s " sourceurl " | zcat | perl -ne 'm{<name>google-chrome-" DEFS["state"] "</name>} and m{<version .*ver=.([\d.]+)} and print $1'"
@@ -655,6 +680,8 @@ function process_data(name, ver, rel, src,   nver) {
 		nver = chrome_upgrade(name, ver);
 	} else if (name ~ "^nodejs-") {
 		nver = nodejs_upgrade(name, ver);
+	} else if (name ~ "^ruby-") {
+		nver = rubygem_upgrade(name, ver);
 	}
 
 	if (nver) {
