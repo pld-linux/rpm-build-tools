@@ -2108,7 +2108,7 @@ mr_proper() {
 	DONT_PRINT_REVISION="yes"
 
 	# remove spec and sources
-	PATH=$CLEAN_PATH $RPMBUILD --clean --rmsource --rmspec --nodeps --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" --define "_builddir $builddir" $PACKAGE_DIR/$SPECFILE
+	PATH=$CLEAN_PATH $RPMBUILD --clean --rmsource --rmspec --nodeps --define "__urlgetfile() %nil" --define "_specdir $PACKAGE_DIR" --define "_sourcedir $PACKAGE_DIR" --define "_builddir $builddir" $PACKAGE_DIR/$SPECFILE
 	rm -rf $PACKAGE_DIR/{.git,.gitignore}
 	rmdir --ignore-fail-on-non-empty $PACKAGE_DIR
 }
