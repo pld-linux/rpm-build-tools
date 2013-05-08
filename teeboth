@@ -16,6 +16,7 @@ open my $fout, ">>", $out or die "Can't write to $out: $!" if $out;
 my $select = IO::Select->new();
 my $alive = 1;
 my $pid;
+my $interactive = -t STDOUT;
 
 my $code;
 sub sigchld
@@ -54,7 +55,7 @@ while ( $alive ) {
 	foreach my $h ( $select->can_read() ) {
 		sysread $h, $_, 1024;
 		print $fout $_ if $fout;
-		if ( $h == \*child_err ) {
+		if ( $h == \*child_err && $interactive ) {
 			print "\033[31m$_\033[0m";
 		} else {
 			print $_;
