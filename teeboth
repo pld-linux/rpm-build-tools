@@ -55,7 +55,7 @@ while ( $alive ) {
 	foreach my $h ( $select->can_read() ) {
 		sysread $h, $_, 1024;
 		print $fout $_ if $fout;
-		if ( $h == \*child_err && $interactive ) {
+		if ( $interactive && $h == \*child_err ) {
 			print "\033[31m$_\033[0m";
 		} else {
 			print $_;
