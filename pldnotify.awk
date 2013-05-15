@@ -283,6 +283,12 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		d("github archive url, mungled url to: " url)
 	}
 
+	# https://bitbucket.org/logilab/pylint/get/tip.tar.bz2 -> https://bitbucket.org/logilab/pylint/downloads
+	if (url ~/^(http|https):\/\/bitbucket.org\/.*\/get\/.*/) {
+		gsub("\/get\/.*", "/downloads", url)
+		d("github bitbucket url, mungled url to: " url)
+	}
+
 	if (url ~/^(http|https):\/\/cgit\..*\/(.*)\/snapshot\//) {
 		gsub("\/snapshot\/.*", "/", url)
 		d("cgit snapshot tarball url, mungled url to: " url)
