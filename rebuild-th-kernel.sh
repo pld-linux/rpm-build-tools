@@ -5,7 +5,7 @@ dir=$(cd "$(dirname "$0")"; pwd)
 rpmdir=$(rpm -E %_topdir)
 dist=th
 
-pkgs_head="
+pkgs_all="
 	dahdi-linux
 	e1000e
 	igb
@@ -13,21 +13,28 @@ pkgs_head="
 	ixgbe
 	lin_tape
 	linux-fusion
-	linuxrdac
-	lirc
-	madwifi-ng
 	nvidiabl
 	open-vm-tools
 	r8168
 	VirtualBox
 	vpb-driver
+	kernel-net-wl
 	xorg-driver-video-fglrx
-	xorg-driver-video-fglrx-legacy
 	xorg-driver-video-nvidia
+	xorg-driver-video-nvidia-legacy3
+"
+
+pkgs_head="
 	xtables-addons
 "
 
-pkgs_longterm=
+pkgs_longterm="
+	linuxrdac
+	lirc
+	madwifi-ng
+	xorg-driver-video-fglrx-legacy
+	xtables-addons:XTADDONS_1
+"
 
 # autotag from rpm-build-macros
 # displays latest used tag for a specfile
@@ -86,9 +93,9 @@ case "$1" in
 		kernel=$(get_last_tags kernel)
 		kernel=$(echo ${kernel#*auto/??/} | tr _ .)
 		specs=""
-		for pkg in $pkgs_head; do
+		for pkg in $pkgs_all $pkgs_head; do
 			echo >&2 "Rebuilding $pkg..."
-			$rpmdir/builder -g $pkg -ns
+			$rpmdir/builder -A -g $pkg -ns
 			$rpmdir/relup.sh -m "rebuild for $kernel" -ui $pkg/$pkg.spec
 			specs="$specs $pkg.spec"
 		done
@@ -101,14 +108,21 @@ case "$1" in
 		if [ -n "$pkgs_longterm" ]; then
 			for pkg in $pkgs_longterm; do
 				echo >&2 "Rebuilding $pkg..."
-				$rpmdir/builder -g $pkg -ns
-				$rpmdir/relup.sh -m "rebuild for $kernel" -ui $pkg/$pkg.spec
-				specs="$specs $pkg.spec"
+				# get package name without branch
+				pkgname=${pkg%:*}
+				pkgbranch=${pkg#*:}
+				if [ -z "$pkgbranch" ]; then
+					$rpmdir/builder -A -g $pkg -ns
+				else
+					$rpmdir/builder -g $pkg -ns
+				fi
+				$rpmdir/relup.sh -m "rebuild for $kernel" -ui $pkgname
+				specs="$specs $pkg"
 			done
 			# first build with main pkg (userspace), later build from tag
 			$dir/make-request.sh -nd -r -d $dist --without kernel $specs
 		fi
-		specs=$(get_last_tags $pkgs_head $pkgs_longterm)
+		specs=$(get_last_tags $pkgs_all $pkgs_longterm)
 		$dir/make-request.sh -nd -r -d $dist --kernel longterm --without userspace $specs
 		;;
 	*)
