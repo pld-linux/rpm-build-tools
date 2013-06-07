@@ -2135,13 +2135,16 @@ function replace_requires(field,   pkg) {
 	sub(/^Django$/, "python-django", $2);
 	sub(/^GitPython$/, "python-git", $2);
 	sub(/^MySQL-python$/, "python-MySQLdb", $2);
+	sub(/^NetworkManager-glib-devel$/, "NetworkManager-devel", $2);
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
+	sub(/^PyYAML$/, "python-PyYAML", $2);
 	sub(/^ccid$/, "pcsc-driver-ccid", $2);
 	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
 	sub(/^db4-devel$/, "db-devel", $2);
 	sub(/^dbus-python$/, "python-dbus", $2);
 	sub(/^desktop-notification-daemon$/, "dbus(org.freedesktop.Notifications)", $2);
+	sub(/^device-mapper-multipath$/, "multipath-tools", $2);
 	sub(/^django-tagging$/, "python-django_tagging", $2);
 	sub(/^elfutils-libelf-devel$/, "elfutils-devel", $2);
 	sub(/^file-devel$/, "libmagic-devel", $2);
@@ -2157,6 +2160,7 @@ function replace_requires(field,   pkg) {
 	sub(/^gtk-sharp2-devel$/, "dotnet-gtk-sharp2-devel", $2);
 	sub(/^gtk2$/, "gtk+2", $2);
 	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
+	sub(/^gtk3$/, "gtk+3", $2);
 	sub(/^gtk3-devel$/, "gtk+3-devel", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^iproute$/, "iproute2", $2);
@@ -2174,8 +2178,10 @@ function replace_requires(field,   pkg) {
 	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2);
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
 	sub(/^libXrender-devel$/, "xorg-lib-libXrender-devel", $2);
+	sub(/^libXt-devel$/, "xorg-lib-libXt-devel", $2);
 	sub(/^libXtst-devel$/, "xorg-lib-libXtst-devel", $2);
 	sub(/^libXv-devel$/, "xorg-lib-libXv-devel", $2);
+	sub(/^libXxf86misc-devel$/, "xorg-lib-libXxf86misc-devel", $2);
 	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
@@ -2188,6 +2194,7 @@ function replace_requires(field,   pkg) {
 	sub(/^libtevent$/, "tevent", $2);
 	sub(/^libtevent-devel$/, "tevent-devel", $2);
 	sub(/^libusb1-devel$/, "libusb-devel", $2);
+	sub(/^libuser-python$/, "python-libuser", $2);
 	sub(/^libxkbfile-devel$/, "xorg-lib-libxkbfile", $2);
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
 	sub(/^newt-python$/, "python-snack", $2);
@@ -2198,11 +2205,14 @@ function replace_requires(field,   pkg) {
 	sub(/^pycairo$/, "python-pycairo", $2);
 	sub(/^pyflakes$/, "python-pyflakes", $2);
 	sub(/^pygobject2$/, "python-pygobject", $2);
+	sub(/^pygobject3$/, "python-pygobject3", $2);
 	sub(/^pygobject3-devel$/, "python-pygobject3-common-devel", $2);
 	sub(/^pygtk2$/, "python-pygtk", $2);
 	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
 	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2);
+	sub(/^pykickstart$/, "python-pykickstart", $2);
 	sub(/^pyparsing$/, "python-pyparsing", $2);
+	sub(/^pyparted$/, "python-parted", $2);
 	sub(/^pysvn$/, "python-pysvn", $2);
 	sub(/^pytalloc$/, "python-talloc", $2);
 	sub(/^pytalloc-devel$/, "python-talloc-devel", $2);
@@ -2219,6 +2229,7 @@ function replace_requires(field,   pkg) {
 	sub(/^python-twisted-names$/, "python-TwistedNames", $2);
 	sub(/^python2-devel$/, "python-devel", $2);
 	sub(/^pytz$/, "python-pytz", $2);
+	sub(/^pyxdg$/, "python-pyxdg", $2);
 	sub(/^qt4-devel$/, "qt4-build", $2);
 	sub(/^qt4-webkit-devel$/, "QtWebKit-devel", $2);
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
