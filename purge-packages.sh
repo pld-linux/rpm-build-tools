@@ -10,6 +10,9 @@ topdir=$(rpm -E %_topdir)
 purgedir=$topdir/purged
 cd "$topdir"
 
+echo "Purging in $topdir, press ENTER to continue"
+read a
+
 if [ -d "$purgedir" ]; then
 	echo >&2 "Previous pruge dir exists: $purgedir, remove it to resume"
 	exit 1
