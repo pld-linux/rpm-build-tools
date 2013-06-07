@@ -61,6 +61,6 @@ done
 
 for pkg in ${*:-$pkgs}; do
 	cd $pkg
-	git status -s
+	git status --porcelain
 	cd ..
 done
