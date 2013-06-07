@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.5
-Release:	8
+Release:	9
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -17,6 +17,7 @@ Source3:	pldnotify.awk
 Source4:	shrc.sh
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
+Requires:	git-core >= 1.7
 Requires:	grep
 Requires:	less
 Requires:	perl-base
@@ -25,11 +26,9 @@ Requires:	rpmbuild(macros) >= 1.539
 Requires:	sed >= 4.0
 Requires:	util-linux
 Requires:	wget
-Suggests:	git-core >= 1.7
 Suggests:	rpm-specdump >= 0.3
 Suggests:	schedtool
 Suggests:	vim-syntax-spec
-Conflicts:	git-core < 1.7
 Conflicts:	mktemp < 1.6
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
