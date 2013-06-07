@@ -19,6 +19,27 @@
 
 set -e
 
+skip_dep_generators() {
+	local dep
+	for dep in \
+		font \
+		gstreamer \
+		java \
+		kernel \
+		libtool \
+		mimetype \
+		mono \
+		perl \
+		php \
+		pkgconfig \
+		python \
+		ruby \
+	; do
+		printf "--define __%s_provides%%{nil}\n" $dep
+		printf "--define __%s_requires%%{nil}\n" $dep
+	done
+}
+
 rpmbuild() {
 	# preprocess args, we must have --target as first arg to rpmbuild
 	# we need to grab also dir where spec resides
@@ -61,6 +82,8 @@ rpmbuild() {
 		--define '__spec_install_pre %___build_pre' \
 		--define '__spec_clean_body %{nil}' \
 		--define '_enable_debug_packages 0' \
+		${bb+$(skip_dep_generators)} \
+		${bb+--define '%py_postclean() %{nil}'} \
 		$a || exit
 }
 
@@ -107,8 +130,11 @@ if [ "$tmp" ]; then
 	TARGET="$tmp"
 fi
 
-# just create the rpm's if -bb is somewhere in the args
-if [[ *$@* != *-bb* ]]; then
-	rpmbuild -bi "$@"
+# skip -bi if -bb is somewhere in the args
+if [[ *$@* = *-bb* ]]; then
+	bb=
+else
+	bb= rpmbuild -bi "$@"
+	unset bb
 fi
 rpmbuild -bb "$@"
