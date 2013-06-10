@@ -2095,7 +2095,7 @@ init_rpm_dir() {
 	if [ ! -e ../rpm-build-tools ]; then
 		git clone  ${GIT_SERVER}/${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
 	fi
-	for a in adapter builder fetchsrc_request md5; do
+	for a in adapter builder fetchsrc_request compile repackage; do
 		ln -sf ../rpm-build-tools/${a}.sh $a
 	done
 	for a in md5; do
