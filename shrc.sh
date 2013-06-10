@@ -37,7 +37,7 @@ ac-tag() {
 	fi
 
 	git tag -f $branch
-	git push origin $branch
+	git push -f origin $branch
 }
 
 # undo spec utf8
