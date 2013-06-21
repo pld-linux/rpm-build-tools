@@ -761,6 +761,7 @@ gen_req() {
 			value=${b#*=}
 			b=${b%%=*}
 			echo "		 <define name='$(hsc $b)'>$(hsc "$value")</define>"
+			msg "- define $b=$value"
 		done
 		IFS=$oIFS
 
