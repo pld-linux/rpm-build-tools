@@ -1,7 +1,10 @@
 #!/bin/sh
+program=${0##*/}
+program=${program%.sh}
 dir=$(dirname "$0")
 rpmdir=$(rpm -E %_topdir)
 dist=th
+suffix=${program#php}
 
 # get_last_specs and autotag copied from rebuild-th-kernel.sh
 # autotag from rpm-build-macros
@@ -63,4 +66,4 @@ get_last_tags() {
 
 specs=$(get_last_tags "$@")
 
-exec $dir/make-request.sh -D 'php_suffix 52' $specs -C 'poldek -ev --noask php52-devel'
+exec $dir/make-request.sh -D "php_suffix $suffix" $specs -C "poldek -ev --noask php$suffix-devel"
