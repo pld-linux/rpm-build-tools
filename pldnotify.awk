@@ -536,6 +536,7 @@ function process_source(number, lurl, name, version) {
 	gsub("[+]","\\+",filenameexp)
 	sub(version,"[A-Za-z0-9.]+",filenameexp)
 	gsub("[.]","\\.",filenameexp)
+	sub("\.(bz|bz2|gz|lzma|xz|zip)$",".(bz|bz2|gz|lzma|xz|zip)",filenameexp)
 	d("Expression: " filenameexp)
 	match(filename,version)
 	prever=substr(filename,1,RSTART-1)
