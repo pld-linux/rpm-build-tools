@@ -319,6 +319,11 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		d("hackage haskell tarball url, mungled url to: " url)
 	}
 
+	if (url ~/^http:\/\/www.taskwarrior.org\/download\//) {
+		url = "http://taskwarrior.org/projects/taskwarrior/wiki/Download"
+		d("taskwarrior tarball url, mungled url to: " url)
+	}
+
 	d("Retrieving: " url)
 	user_agent = "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2) Gecko/20100129 PLD/3.0 (Th) Iceweasel/3.6"
 	cmd = "wget -t 2 -T 45 --user-agent \"" user_agent "\" -nv -O - \"" url "\" --passive-ftp --no-check-certificate > " tmpfile " 2> " tmpfileerr
