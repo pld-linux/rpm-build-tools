@@ -689,7 +689,20 @@ function chrome_upgrade(name, ver,   cmd, sourceurl) {
 	return ver
 }
 
-function process_data(name, ver, rel, src,   nver) {
+function jenkins_upgrade(name, ver, urls,  url, i, c, chunks, nver) {
+	for (i in urls) {
+		url = urls[i]
+		# http://mirrors.jenkins-ci.org/war-stable/1.509.1/jenkins.war?/jenkins-1.509.1.war
+		gsub("/" ver "/jenkins.war\?/jenkins-" ver ".war", "/", url);
+		c = split(get_links(url), chunks, "/")
+		# new version is second one from the bottom
+		nver = chunks[c - 2]
+		gsub(/ /, "", nver)
+		return nver;
+	}
+}
+
+function process_data(name, ver, rel,     src, nver, i) {
 	if (name ~ /^php-pear-/) {
 		nver = pear_upgrade(name, ver);
 	} else if (name == "ZendFramework") {
@@ -704,6 +717,8 @@ function process_data(name, ver, rel, src,   nver) {
 		nver = nodejs_upgrade(name, ver);
 	} else if (name ~ "^ruby-") {
 		nver = rubygem_upgrade(name, ver);
+	} else if (name ~ "jenkins") {
+		nver = jenkins_upgrade(name, ver, src);
 	}
 
 	if (nver) {
