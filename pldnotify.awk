@@ -245,6 +245,7 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		gsub("\..*", "", url)
 		url = "http://code.google.com/p/" url "/downloads/list"
 		d("googlecode url, mungled url to: " url)
+
 	} else if (url ~ /^http:\/\/pecl.php.net\/get\//) {
 		gsub("-.*", "", filename)
 		url = "http://pecl.php.net/package/" filename
@@ -254,59 +255,56 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		url = "http://dev.mysql.com/downloads/mysql/5.1.html#source"
 		d("mysql 5.1 url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/launchpad\.net\/(.*)\//) {
+	} else if (url ~ /^(http|https):\/\/launchpad\.net\/(.*)\//) {
 		gsub("^(http|https):\/\/launchpad\.net\/", "", url)
 		gsub("\/.*/", "", url)
 		url = "https://code.launchpad.net/" url "/+download"
 		d("main launchpad url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/edge\.launchpad\.net\/(.*)\//) {
+	} else if (url ~ /^(http|https):\/\/edge\.launchpad\.net\/(.*)\//) {
 		gsub("^(http|https):\/\/edge\.launchpad\.net\/", "", url)
 		gsub("\/.*/", "", url)
 		url = "https://edge.launchpad.net/" url "/+download"
 		d("edge launchpad url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/github.com\/.*\/(.*)\/tarball\//) {
+	} else if (url ~ /^(http|https):\/\/github.com\/.*\/(.*)\/tarball\//) {
 		gsub("\/tarball\/.*", "/downloads", url)
 		d("github tarball url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/github.com\/.*\/(.*)\/archive\//) {
+	} else if (url ~ /^(http|https):\/\/github.com\/.*\/(.*)\/archive\//) {
 		gsub("\/archive\/.*", "/tags", url)
 		d("github archive url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/bitbucket.org\/.*\/get\/.*/) {
+	} else if (url ~ /^(http|https):\/\/bitbucket.org\/.*\/get\/.*/) {
 		# https://bitbucket.org/logilab/pylint/get/tip.tar.bz2 -> https://bitbucket.org/logilab/pylint/downloads
 		gsub("\/get\/.*", "/downloads", url)
 		d("github bitbucket url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/cgit\..*\/(.*)\/snapshot\//) {
+	} else if (url ~ /^(http|https):\/\/cgit\..*\/(.*)\/snapshot\//) {
 		gsub("\/snapshot\/.*", "/", url)
 		d("cgit snapshot tarball url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/www2\.aquamaniac\.de\/sites\/download\//) {
+	} else if (url ~ /^(http|https):\/\/www2\.aquamaniac\.de\/sites\/download\//) {
 		url = "http://www2.aquamaniac.de/sites/download/packages.php"
 		d("aquamaniac.de tarball url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/www.process-one.net\/downloads\/ejabberd\//) {
+	} else if (url ~ /^(http|https):\/\/www.process-one.net\/downloads\/ejabberd\//) {
 		url = "http://www.process-one.net/en/ejabberd/archive/"
 		d("ejabberd tarball url, mungled url to: " url)
 
-	} else if (url ~/^(http|https):\/\/llvm.org\/releases\//) {
+	} else if (url ~ /^(http|https):\/\/llvm.org\/releases\//) {
 		url = "http://llvm.org/releases/download.html"
 		d("llvm tarball url, mungled url to: " url)
-	}
 
-	if (url ~/^(http|https):\/\/download\.owncloud\.org\/community\//) {
+	} else if (url ~ /^(http|https):\/\/download\.owncloud\.org\/community\//) {
 		url = "http://owncloud.org/changelog/"
 		d("owncloud tarball url, mungled url to: " url)
-	}
 
-	if (url ~/^(http|https):\/\/hackage\.haskell\.org\/packages\/archive\//) {
+	} else if (url ~ /^(http|https):\/\/hackage\.haskell\.org\/packages\/archive\//) {
 		gsub("\/packages\/archive","/package",url)
 		d("hackage haskell tarball url, mungled url to: " url)
-	}
 
-	if (url ~/^http:\/\/www.taskwarrior.org\/download\//) {
+	} else if (url ~ /^http:\/\/www.taskwarrior.org\/download\//) {
 		url = "http://taskwarrior.org/projects/taskwarrior/wiki/Download"
 		d("taskwarrior tarball url, mungled url to: " url)
 	}
