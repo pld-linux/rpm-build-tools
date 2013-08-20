@@ -753,6 +753,8 @@ preamble == 1 {
 		}
 		if (l == "Apache License 2.0" || \
 			   l == "Apache 2.0" || \
+			   l == "Apache 2" || \
+			   l == "Apache License (2.0)" ||
 			   l == "Apache License Version 2.0" || \
 			   l == "Apache License, Version 2.0" || \
 			   l == "Apache Software License v2" || \
@@ -1200,6 +1202,12 @@ function use_macros()
 		if ($c ~ sysconfdir "/{?samba")
 			continue;
 		if ($c ~ sysconfdir "/{?xdg")
+			continue;
+		if ($c ~ sysconfdir "/{?NetworkManager")
+			continue;
+		if ($c ~ sysconfdir "/{?default")
+			continue;
+		if ($c ~ sysconfdir "/{?pm")
 			continue;
 		if ($c ~ sysconfdir "/shells")
 			continue;
