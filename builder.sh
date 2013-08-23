@@ -851,8 +851,8 @@ init_builder() {
 			PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
 		fi
 	else
-		REPO_DIR="."
-		PACKAGE_DIR="."
+		PACKAGE_DIR=$(pwd)
+		REPO_DIR=$PACKAGE_DIR
 	fi
 	export GIT_WORK_TREE=$PACKAGE_DIR
 	export GIT_DIR=$PACKAGE_DIR/.git
