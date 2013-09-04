@@ -679,10 +679,10 @@ function rubygem_upgrade(name, ver,   cmd, pkg) {
 	return ver
 }
 
-function chrome_upgrade(name, ver,   cmd, sourceurl) {
-	sourceurl = "http://dl.google.com/linux/chrome/rpm/stable/x86_64/repodata/primary.xml.gz"
-	cmd = "curl -s " sourceurl " | zcat | perl -ne 'm{<name>google-chrome-" DEFS["state"] "</name>} and m{<version .*ver=.([\d.]+)} and print $1'"
-	d("CHROME " cmd);
+function google_linux_repo(name, ver, reponame,   cmd, sourceurl) {
+	sourceurl = "http://dl.google.com/linux/" reponame "/rpm/stable/x86_64/repodata/primary.xml.gz"
+	cmd = "curl -s " sourceurl " | zcat | perl -ne 'm{<name>" name "-" DEFS["state"] "</name>} and m{<version .*ver=.([\d.]+)} and print $1'"
+	d("google repo: " cmd);
 	cmd | getline ver
 	close(cmd)
 
@@ -712,7 +712,9 @@ function process_data(name, ver, rel,     src, nver, i) {
 	} else if (name == "vim") {
 		nver = vim_upgrade(name, ver);
 	} else if (name == "google-chrome") {
-		nver = chrome_upgrade(name, ver);
+		nver = google_linux_repo(name, ver, "chrome");
+	} else if (name == "google-talkplugin") {
+		nver = google_linux_repo(name, ver, "talkplugin");
 	} else if (name ~ "^nodejs-") {
 		nver = nodejs_upgrade(name, ver);
 	} else if (name ~ "^ruby-") {
