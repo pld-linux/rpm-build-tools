@@ -38,7 +38,7 @@ for l in out.split('\n'):
 obsolete = []
 
 # files to exclude
-exclude = ['log.*', '.#*', '*~', '*.orig', '*.sw?']
+exclude = ['log.*', '.#*', '*~', '*.orig', '*.sw?', '.bigfiles', 'sources']
 
 # read .gitignore, distfiles files are filled there
 if os.path.isfile('%s/.gitignore' % dir):
