@@ -2086,6 +2086,7 @@ init_rpm_dir() {
 	local rpmdir=$(eval $RPM $RPMOPTS --eval '%{_rpmdir}')
 	local buildir=$(eval $RPM $RPMOPTS --eval '%{_builddir}')
 	local srpmdir=$(eval $RPM $RPMOPTS --eval '%{_srcrpmdir}')
+	local TEMPLATES=template-specs
 	local tmp
 
 	echo "Initializing rpm directories to $TOP_DIR from $GIT_SERVER"
@@ -2094,6 +2095,9 @@ init_rpm_dir() {
 	cd "$TOP_DIR"
 	if [ ! -e ../rpm-build-tools ]; then
 		git clone  ${GIT_SERVER}/${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
+	fi
+	if [ ! -e ../$TEMPLATES ]; then
+		git clone  ${GIT_SERVER}/projects/$TEMPLATES ../$TEMPLATES
 	fi
 	for a in adapter builder fetchsrc_request compile repackage; do
 		ln -sf ../rpm-build-tools/${a}.sh $a
