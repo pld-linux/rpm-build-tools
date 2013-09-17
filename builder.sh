@@ -2081,6 +2081,16 @@ fetch_build_requires()
 		fi
 }
 
+init_repository() {
+	local remoterepo=$1
+	local localrepo=$2
+
+	if [ ! -e $localrepo ]; then
+		git clone -o $REMOTE_PLD ${GIT_SERVER}/$remoterepo $localrepo
+		git --git-dir=$localrepo/.git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/$remoterepo
+	fi
+}
+
 init_rpm_dir() {
 	local TOP_DIR=$(eval $RPM $RPMOPTS --eval '%{_topdir}')
 	local rpmdir=$(eval $RPM $RPMOPTS --eval '%{_rpmdir}')
@@ -2093,12 +2103,8 @@ init_rpm_dir() {
 	mkdir -p $TOP_DIR $rpmdir $buildir $srpmdir
 
 	cd "$TOP_DIR"
-	if [ ! -e ../rpm-build-tools ]; then
-		git clone  ${GIT_SERVER}/${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
-	fi
-	if [ ! -e ../$TEMPLATES ]; then
-		git clone  ${GIT_SERVER}/projects/$TEMPLATES ../$TEMPLATES
-	fi
+	init_repository ${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
+	init_repository projects/$TEMPLATES ../$TEMPLATES
 	for a in adapter builder fetchsrc_request compile repackage; do
 		ln -sf ../rpm-build-tools/${a}.sh $a
 	done
