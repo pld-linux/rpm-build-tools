@@ -717,7 +717,7 @@ function process_data(name, ver, rel,     src, nver, i) {
 		nver = google_linux_repo(name, ver, "talkplugin");
 	} else if (name ~ "^nodejs-") {
 		nver = nodejs_upgrade(name, ver);
-	} else if (name ~ "^ruby-") {
+	} else if (name ~ "^ruby-" || name == "chef") {
 		nver = rubygem_upgrade(name, ver);
 	} else if (name ~ "jenkins") {
 		nver = jenkins_upgrade(name, ver, src);
