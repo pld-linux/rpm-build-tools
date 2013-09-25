@@ -2225,6 +2225,7 @@ function replace_requires(field,   pkg) {
 	sub(/^pytalloc$/, "python-talloc", $2);
 	sub(/^pytalloc-devel$/, "python-talloc-devel", $2);
 	sub(/^pytest$/, "python-pytest", $2);
+	sub(/^python-crypto$/, "python-Crypto", $2);
 	sub(/^python-cups$/, "python-pycups", $2);
 	sub(/^python-enchant$/, "python-pyenchant", $2);
 	sub(/^python-imaging$/, "python-PIL", $2);
