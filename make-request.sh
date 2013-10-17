@@ -16,6 +16,7 @@ url=
 no_depend=no
 verbose=no
 autotag=no
+requester_override=no
 
 if [ -x /usr/bin/python ]; then
 	send_mode="python"
@@ -274,6 +275,8 @@ Mandatory arguments to long options are mandatory for short options too.
             sets request priority (default 2)
       -h, --help
             Displays this help message
+      --requester username
+            Override the requester
 EOF
 	exit 0
 }
@@ -482,6 +485,11 @@ while [ $# -gt 0 ]; do
 
 		--help | -h)
 			usage
+			;;
+
+		--requester)
+			requester_override="$2"
+			shift
 			;;
 
 		-*)
@@ -703,6 +711,10 @@ gen_req() {
 		msg "Build mode: $(tput setaf 2)$build_mode$c_norm"
 	else
 		msg "Build mode: $(tput setaf 3)$build_mode$c_norm"
+	fi
+
+	if [ -n "$requester_override" ] ; then
+		echo "	<requester>$requester_override</requester>"
 	fi
 
 	msg "Queue-ID: $id"
