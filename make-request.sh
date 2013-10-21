@@ -16,7 +16,7 @@ url=
 no_depend=no
 verbose=no
 autotag=no
-requester_override=no
+requester_override=
 
 if [ -x /usr/bin/python ]; then
 	send_mode="python"
