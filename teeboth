@@ -53,7 +53,7 @@ sethandle( \*child_err );
 
 while ( $alive ) {
 	foreach my $h ( $select->can_read() ) {
-		sysread $h, $_, 1024;
+		sysread $h, $_, 102400;
 		print $fout $_ if $fout;
 		if ( $interactive && $h == \*child_err ) {
 			print "\033[31m$_\033[0m";
