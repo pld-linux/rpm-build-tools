@@ -12,7 +12,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-REVISION=1.50
+REVISION=1.51
 VERSION="v0.35/$REVISION"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
@@ -224,6 +224,7 @@ import_rpm_macros() {
 	ruby_rubylibdir
 	ruby_rdocdir
 	ruby_ridir
+	ruby_specdir
 
 	php_pear_dir
 	php_data_dir

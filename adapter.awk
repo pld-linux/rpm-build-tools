@@ -1114,6 +1114,7 @@ function use_macros()
 	gsub(ruby_rubylibdir, "%{ruby_rubylibdir}") # deprecated
 	gsub(ruby_rdocdir, "%{ruby_rdocdir}")
 	gsub(ruby_ridir, "%{ruby_ridir}")
+	gsub(ruby_specdir, "%{ruby_specdir}")
 
 	gsub("%{_unitdir}", "%{systemdunitdir}")
 	gsub(systemdunitdir, "%{systemdunitdir}")
@@ -1840,7 +1841,7 @@ function import_rpm_macros(  v) {
 	}
 
 	# update this version dep each time some new macro export is added
-	v = 1.49
+	v = 1.51
 	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < v) {
 		printf("adapter shell script is outdated: Need %s, got %s. Please update it.\n", v, ENVIRON["ADAPTER_REVISION"]) > "/dev/stderr"
 		do_not_touch_anything = 1
@@ -1895,6 +1896,7 @@ function import_rpm_macros(  v) {
 	ruby_rubylibdir = ENVIRON["ruby_rubylibdir"] # deprecated
 	ruby_rdocdir = ENVIRON["ruby_rdocdir"]
 	ruby_ridir = ENVIRON["ruby_ridir"]
+	ruby_specdir = ENVIRON["ruby_specdir"]
 
 	php_pear_dir = ENVIRON["php_pear_dir"]
 	php_data_dir = ENVIRON["php_data_dir"]
