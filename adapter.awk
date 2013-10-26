@@ -774,6 +774,9 @@ preamble == 1 {
 		if (l == "GPLv2") {
 			l = "GPL v2"
 		}
+		if (l == "The BSD 3-Clause License") {
+			l = "BSD"
+		}
 		if (l == "GPLv2+") {
 			l = "GPL v2+"
 		}
