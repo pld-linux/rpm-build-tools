@@ -581,10 +581,7 @@ set_spec_target() {
 
 # runs rpm with minimal macroset
 minirpm() {
-	# we reset macros not to contain macros.build as all the %() macros are
-	# executed here, while none of them are actually needed.
-	# at the time of this writing macros.build + macros contained 70 "%(...)" macros.
-	safe_macrofiles=$(rpm $TARGET_SWITCH --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); gsub(/:.*macros.build:/, ":", $0); print $0 } ')
+	safe_macrofiles=$(rpm $TARGET_SWITCH --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); print $0 } ')
 
 	# TODO: move these to /usr/lib/rpm/macros
 	cat > $BUILDER_MACROS <<'EOF'
