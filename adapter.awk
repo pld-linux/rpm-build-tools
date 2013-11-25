@@ -1906,6 +1906,32 @@ function import_rpm_macros(  v) {
 	systemdtmpfilesdir = ENVIRON["systemdtmpfilesdir"]
 }
 
+# replace opam names (caml)
+function replace_opam_deps(field,     name) {
+	name = $2
+	if (name ~ "^(cryptokit|extlib|xmlm)$") {
+		name = "ocaml-" name;
+	} else if (name ~ "^(biniou|easy-format|yojson|gapi-ocaml)$") {
+		name = "ocaml-" name "-devel";
+	} else if (name == "ocamlfind") {
+		name = "ocaml-findlib"
+	} else if (name == "sqlite3-ocaml") {
+		name = "ocaml-sqlite"
+	} else if (name == "ocamlnet") {
+		name = "ocaml-net"
+	} else if (name == "ocurl") {
+		name = "ocaml-curl-devel"
+	} else if (name == "ocamlfuse") {
+		name = "ocaml-fuse-devel"
+	} else if (name == "camlidl") {
+		name = "ocaml-idl-devel"
+	}
+
+	if (name != $2) {
+		$2 = name;
+	}
+}
+
 # php virtual deps as discussed in devel-en
 function replace_php_virtual_deps(field) {
 	pkg = $2
@@ -2336,6 +2362,8 @@ function replace_requires(field,   pkg) {
 	# }}}
 
 	replace_php_virtual_deps(field)
+
+	replace_opam_deps(field)
 }
 
 # vim:ts=4:sw=4 fdm=marker
