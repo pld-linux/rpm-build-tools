@@ -182,8 +182,8 @@ get_autotag() {
 	local pkg spec rpmdir
 
 	rpmdir=$(rpm -E %_topdir)
-	cd $rpmdir
 	for pkg in "$@"; do
+		cd $rpmdir
 		# strip branches
 		pkg=${pkg%:*}
 		# strip .spec extension
