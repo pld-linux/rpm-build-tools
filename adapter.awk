@@ -2203,6 +2203,7 @@ function replace_requires(field,   pkg) {
 	sub(/^gtk3-devel$/, "gtk+3-devel", $2);
 	sub(/^initscripts$/, "rc-scripts", $2);
 	sub(/^iproute$/, "iproute2", $2);
+	sub(/^iptables-ipv6$/, "iptables", $2);
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
 	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2);
