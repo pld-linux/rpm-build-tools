@@ -6,7 +6,8 @@ set -e
 
 CALL_GC=${CALL_GC:-'no'}
 
-topdir=$(rpm -E %_topdir)
+topdir="${1:-$(rpm -E %_topdir)}"
+topdir=$(readlink -f "$topdir")
 purgedir=$topdir/purged
 cd "$topdir"
 
