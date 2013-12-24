@@ -2115,11 +2115,14 @@ function replace_requires(field,   pkg) {
 	sub(/^jakarta-ant$/, "ant", $2);
 	sub(/^jakarta-commons-codec$/, "java-commons-codec", $2);
 	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
+	sub(/^jakarta-commons-lang24$/, "java-commons-lang", $2);
 	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
+	sub(/^jakarta-commons-net$/, "java-commons-net", $2);
 	sub(/^jakarta-log4j$/, "java-log4j", $2);
 	sub(/^jakarta-oro$/, "java-oro", $2);
 	sub(/^jakarta-servletapi$/, "java(servlet)", $2);
 	sub(/^java-devel$/, "jdk", $2);
+	sub(/^java-dom$/, "java-dom4j", $2);
 	sub(/^java\(JSP\)$/, "java(jsp)", $2);
 	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
 	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
