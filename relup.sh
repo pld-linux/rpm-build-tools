@@ -128,6 +128,11 @@ while true; do
 	shift
 done
 
+if [ -z "$message" ]; then
+	echo >&2 "-m is required"
+	exit 1
+fi
+
 topdir=$(rpm -E '%{_topdir}')
 
 n="$(echo -e '\nn')"
