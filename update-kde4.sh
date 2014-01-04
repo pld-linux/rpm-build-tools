@@ -51,7 +51,6 @@ kde4-kdebase-artwork
 kde4-wallpapers
 kde4-kdeadmin
 kde4-kdeartwork
-kde4-kdegames
 kde4-kdegraphics-mobipocket
 kde4-kdegraphics-strigi-analyzer
 kde4-kdegraphics-thumbnailers
@@ -59,8 +58,6 @@ kde4-kdenetwork
 kde4-kdepim
 kde4-kdepim-runtime
 kde4-kdeplasma-addons
-kde4-kdesdk
-kde4-kdetoys
 kde4-kdewebdev
 kde4-kdf
 kde4-kgamma
@@ -98,6 +95,66 @@ kde4-step
 kde4-superkaramba
 kde4-svgpart
 kde4-sweeper
+kde4-libkdegames
+kde4-libkmahjongg
+kde4-bomber
+kde4-bovo
+kde4-granatier
+kde4-kajongg
+kde4-kapman
+kde4-katomic
+kde4-kblackbox
+kde4-kblocks
+kde4-kbounce
+kde4-kbreakout
+kde4-kdiamond
+kde4-kfourinline
+kde4-kgoldrunner
+kde4-kigo
+kde4-killbots
+kde4-kiriki
+kde4-kjumpingcube
+kde4-klickety
+kde4-klines
+kde4-kmahjongg
+kde4-kmines
+kde4-knavalbattle
+kde4-knetwalk
+kde4-kolf
+kde4-kollision
+kde4-konquest
+kde4-korundum
+kde4-kpat
+kde4-kreversi
+kde4-kshisen
+kde4-ksirk
+kde4-ksnakeduel
+kde4-kspaceduel
+kde4-ksquares
+kde4-ksudoku
+kde4-ktuberling
+kde4-kubrick
+kde4-lskat
+kde4-palapeli
+kde4-picmi
+kde4-amor
+kde4-kteatime
+kde4-ktux
+kde4-cervisia
+kde4-dolphin-plugins
+kde4-kapptemplate
+kde4-kcachegrind
+kde4-kde-dev-scripts
+kde4-kde-dev-utils
+kde4-kdesdk-kioslaves
+kde4-kdesdk-strigi-analyzers
+kde4-kdesdk-thumbnailers
+kde4-kompare
+kde4-lokalize
+kde4-poxml
+kde4-umbrello
+kde4-kuser
+kde4-ksystemlog
 "
 
 #kfloppy
@@ -105,7 +162,7 @@ kde4-sweeper
 #kross-interpreters
 #qtruby
 
-newver="4.9.5"
+newver="4.12.0"
 
 topdir=$(rpm -E '%{_topdir}')
 
