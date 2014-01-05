@@ -7,7 +7,6 @@ kde4-nepomuk-widgets
 kde4-kactivities
 kde4-kdepimlibs
 kde4-oxygen-icons
-kde4-kdebase-workspace
 kde4-kdebase
 kde4-libkdeedu
 kde4-kdebase-runtime
@@ -49,12 +48,10 @@ kde4-kcharselect
 kde4-kcolorchooser
 kde4-kdebase-artwork
 kde4-wallpapers
-kde4-kdeadmin
 kde4-kdeartwork
 kde4-kdegraphics-mobipocket
 kde4-kdegraphics-strigi-analyzer
 kde4-kdegraphics-thumbnailers
-kde4-kdenetwork
 kde4-kdepim
 kde4-kdepim-runtime
 kde4-kdeplasma-addons
@@ -89,7 +86,7 @@ kde4-kwordquiz
 kde4-mplayerthumbs
 kde4-pairs
 kde4-parley
-kde4-printer-applet
+kde4-print-manager
 kde4-rocs
 kde4-step
 kde4-superkaramba
@@ -123,7 +120,6 @@ kde4-knetwalk
 kde4-kolf
 kde4-kollision
 kde4-konquest
-kde4-korundum
 kde4-kpat
 kde4-kreversi
 kde4-kshisen
@@ -155,12 +151,11 @@ kde4-poxml
 kde4-umbrello
 kde4-kuser
 kde4-ksystemlog
+kde4-kdenetwork-filesharing
+kde4-kdenetwork-strigi-analyzers
 "
 
-#kfloppy
-#korundum
-#kross-interpreters
-#qtruby
+#kde4-korundum
 
 newver="4.12.0"
 
