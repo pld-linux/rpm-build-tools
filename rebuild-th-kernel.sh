@@ -6,43 +6,51 @@ rpmdir=$(rpm -E %_topdir)
 dist=th
 
 pkgs_all="
+	crash
 	dahdi-linux
 	e1000e
 	igb
 	ipset
 	ixgbe
+	wl
 	lin_tape
 	linux-fusion
+	lttng-modules
 	nvidiabl
 	open-vm-tools
 	r8168
+	spl
+	tpm_emulator
 	VirtualBox
 	vpb-driver
-	kernel-net-wl
 	xorg-driver-video-fglrx
 	xorg-driver-video-nvidia
 	xorg-driver-video-nvidia-legacy3
+	xorg-driver-video-nvidia-legacy-304xx
 "
 
 pkgs_head="
-	xtables-addons
+	xtables-addons:master
 "
 
 pkgs_longterm="
-	linuxrdac
 	lirc
 	madwifi-ng
-	xorg-driver-video-fglrx-legacy
+	linuxrdac
 	xtables-addons:XTADDONS_1
 "
 
 # autotag from rpm-build-macros
 # displays latest used tag for a specfile
 autotag() {
-	local out spec pkg ref
+	local out spec pkg ref headobj githead
 	for spec in "$@"; do
 		# strip branches
 		pkg=${spec%:*}
+		githead=${spec#*:}
+		if [ "$githead" = "$spec" ]; then
+			githead=
+		fi
 		# ensure package ends with .spec
 		spec=${pkg%.spec}.spec
 		# and pkg without subdir
@@ -56,26 +64,37 @@ autotag() {
 		else
 			ref="refs/tags/auto/${dist}/${pkg}-[0-9]*"
 		fi
-		out=$(git for-each-ref $ref --sort=-authordate --format='%(refname:short)' --count=1)
+		if [ -n "$githead" ]; then
+			headobj=$(git for-each-ref refs/heads/$githead --format='%(objectname)')
+		fi
+		if [ -n "$headobj" ]; then
+			out=$(git for-each-ref $ref --sort=authordate --format='%(objectname) %(refname:short)' | grep "$headobj" | cut -f 2 -d ' ' | tail -n 1)
+		else
+			out=$(git for-each-ref $ref --sort=-authordate --format='%(refname:short)' --count=1)
+		fi
 		echo "$spec:$out"
 		cd - >/dev/null
 	done
 }
 
 get_last_tags() {
-	local pkg spec
+	local pkg spec pkgname pkgbranch
 
 	echo >&2 "Fetching package tags: $*..."
 	for pkg in "$@"; do
 		echo >&2 "$pkg... "
-		if [ ! -e $pkg/$pkg.spec ]; then
-			$rpmdir/builder -g $pkg -ns -r HEAD 1>&2
+		# strip branches
+		pkgname=${pkg%:*}
+		pkgbranch=${pkg#*:}
+		if [ "$pkgbranch" = "$pkg" ]; then
+			pkgbranch="master"
 		fi
-		if [ ! -e $pkg/$pkg.spec ]; then
+		$rpmdir/builder -g $pkgname -ns -r $pkgbranch 1>&2
+		if [ ! -e $pkgname/$pkgname.spec ]; then
 			# just print it out, to fallback to base pkg name
 			echo "$pkg"
 		else
-			spec=$(autotag $pkg/$pkg.spec)
+			spec=$(autotag $pkgname/$pkg)
 			spec=${spec#*/}
 			echo >&2 "... $spec"
 			echo $spec
@@ -85,41 +104,51 @@ get_last_tags() {
 
 cd $rpmdir
 case "$1" in
+	all)
+		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-headers kernel-module-build'
+		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-longterm-headers kernel-longterm-module-build'
+		echo press enter after src builder updates kernel packages
+		read
+		specs=$(get_last_tags $pkgs_all)
+		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels longterm' --without userspace $specs
+		if [ -n "$pkgs_head" ]; then
+			specs=$(get_last_tags $pkgs_head)
+			$dir/make-request.sh -nd -r -d $dist --without userspace $specs
+		fi
+		if [ -n "$pkgs_longterm" ]; then
+			specs=$(get_last_tags $pkgs_longterm)
+			$dir/make-request.sh -nd -r -d $dist --kernel longterm --without userspace $specs
+		fi
+		;;
 	head)
+		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-headers kernel-module-build'
+
 		kernel=$(get_last_tags kernel)
 		kernel=$(echo ${kernel#*auto/??/} | tr _ .)
-		specs=""
-		for pkg in $pkgs_all $pkgs_head; do
-			echo >&2 "Rebuilding $pkg..."
-			$rpmdir/builder -A -g $pkg -ns
-			$rpmdir/relup.sh -m "rebuild for $kernel" -ui $pkg/$pkg.spec
-			specs="$specs $pkg.spec"
-		done
-		$dir/make-request.sh -nd -r -d $dist $specs
+		echo $kernel
+		echo press enter after src builder updates kernel packages
+		read
+		specs=$(get_last_tags $pkgs_all)
+		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels longterm' --without userspace $specs
+		if [ -n "$pkgs_head" ]; then
+			specs=$(get_last_tags $pkgs_head)
+			$dir/make-request.sh -nd -r -d $dist --without userspace $specs
+		fi
 		;;
 	longterm)
+		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-longterm-headers kernel-longterm-module-build'
+
 		kernel=$(alt_kernel=longterm get_last_tags kernel)
 		kernel=$(echo ${kernel#*auto/??/} | tr _ .)
-		specs=""
+		echo $kernel
+		echo press enter after src builder updates kernel packages
+		read
+		specs=$(get_last_tags $pkgs_all)
+		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels longterm' --without userspace $specs
 		if [ -n "$pkgs_longterm" ]; then
-			for pkg in $pkgs_longterm; do
-				echo >&2 "Rebuilding $pkg..."
-				# get package name without branch
-				pkgname=${pkg%:*}
-				pkgbranch=${pkg#*:}
-				if [ -z "$pkgbranch" ]; then
-					$rpmdir/builder -A -g $pkg -ns
-				else
-					$rpmdir/builder -g $pkg -ns
-				fi
-				$rpmdir/relup.sh -m "rebuild for $kernel" -ui $pkgname
-				specs="$specs $pkg"
-			done
-			# first build with main pkg (userspace), later build from tag
-			$dir/make-request.sh -nd -r -d $dist --without kernel $specs
+			specs=$(get_last_tags $pkgs_longterm)
+			$dir/make-request.sh -nd -r -d $dist --kernel longterm --without userspace $specs
 		fi
-		specs=$(get_last_tags $pkgs_all $pkgs_longterm)
-		$dir/make-request.sh -nd -r -d $dist --kernel longterm --without userspace $specs
 		;;
 	*)
 		# try to parse all args, filling them with last autotag
