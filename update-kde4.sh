@@ -7,6 +7,7 @@ kde4-nepomuk-widgets
 kde4-kactivities
 kde4-kdepimlibs
 kde4-oxygen-icons
+kde4-kdebase-workspace
 kde4-kdebase
 kde4-libkdeedu
 kde4-kdebase-runtime
