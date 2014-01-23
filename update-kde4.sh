@@ -146,6 +146,7 @@ kde4-kde-dev-utils
 kde4-kdesdk-kioslaves
 kde4-kdesdk-strigi-analyzers
 kde4-kdesdk-thumbnailers
+kde4-libkomparediff2
 kde4-kompare
 kde4-lokalize
 kde4-poxml
