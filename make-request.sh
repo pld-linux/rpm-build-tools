@@ -98,7 +98,7 @@ import sys, socket, urllib2
 try:
         data = sys.stdin.read()
         url = sys.argv[1]
-        socket.setdefaulttimeout(10)
+        socket.setdefaulttimeout(30)
         req = urllib2.Request(url, data)
         f = urllib2.urlopen(req)
         f.close()
