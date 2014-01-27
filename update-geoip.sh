@@ -29,14 +29,15 @@ for pkg in ${*:-$pkgs}; do
 	out=$(./builder -g -ns $pkg 2>&1) || echo "$out"
 	cd $pkg
 
-	$update && rm -vf *.gz *.zip
+	$update && rm -vf *.gz *.zip *.xz
 
 	specfile=*.spec
 
 	out=$(../md5 -p1 $specfile 2>&1) || echo "$out"
 
 	version=$(awk '/^Version:[ 	]+/{print $NF}' $specfile)
-	if [ $pkg = "xtables-geoip" ]; then
+	case "$pkg" in
+	xtables-geoip)
 		dt4=$(TZ=GMT stat -c '%y' *.zip | awk '{print $1}' | tr -d -)
 		dt6=$(TZ=GMT stat -c '%y' *.gz | awk '{print $1}' | tr -d -)
 		if [ "$dt4" -gt "$dt6" ]; then
@@ -44,9 +45,15 @@ for pkg in ${*:-$pkgs}; do
 		else
 			dt=$dt6
 		fi
-	else
+		;;
+	GeoIP-db-City)
+		dt=$(TZ=GMT stat -c %y *.xz | awk '{print $1}' | tr - .)
+		;;
+	*)
 		dt=$(TZ=GMT stat -c %y *.gz | awk '{print $1}' | tr - .)
-	fi
+		;;
+	esac
+
 	if [ "$version" != "$dt" ]; then
 		version=$dt
 		sed -i -e "
