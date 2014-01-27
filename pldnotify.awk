@@ -232,12 +232,11 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	tmpfile = mktemp()
 	tmpfileerr = mktemp()
 
-	if (url ~ /^http:\/\/(download|dl)\.(sf|sourceforge)\.net\//) {
+	if (url ~ /^http:\/\/(download|downloads|dl)\.(sf|sourceforge)\.net\//) {
 		# http://downloads.sourceforge.net/project/mediainfo/source/mediainfo/
-		gsub("^http://(download|dl)\.(sf|sourceforge)\.net/", "", url)
-
+		gsub("^http://(download|downloads|dl)\.(sf|sourceforge)\.net/", "", url)
 		gsub("/.*", "", url)
-		url = "http://sourceforge.net/projects/" url "/files/"
+		url = sf_url(url)
 		d("sf url, mungled url to: " url)
 
 	} else if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
@@ -375,7 +374,11 @@ if (USE_PERL) {
 	d("Reponse read done...")
 	system("rm -f " tmpfile)
 
-	while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
+	# MATCH one of these:
+	#while (match(wholeodp, /<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>/) > 0) {
+	#while (match(wholeodp, /<link>[^<]*<\/link>/) > 0) {
+
+	while (match(wholeodp, /(<link>[^<]*<\/link>|<([aA]|[fF][rR][aA][mM][eE])[ \t][^>]*>)/) > 0) {
 		d("Processing links...")
 		odp = substr(wholeodp,RSTART,RLENGTH);
 		wholeodp = substr(wholeodp,RSTART+RLENGTH);
@@ -446,6 +449,17 @@ if (USE_PERL) {
 
 			retval = (retval " " link)
 			d("href(): " link)
+		} else if (lowerodp ~ /<link>/) {
+			link=lowerodp
+			sub("/<link>/", link)
+			sub("/\/download<\/link>/", link)
+
+			if (link_seen(link)) {
+				link=""
+				continue
+			}
+
+			retval = (retval " " link)
 		} else {
 			# <a ...> but not href - skip
 			d("skipping <a > without href: " odp)
@@ -593,6 +607,15 @@ function process_source(number, lurl, name, version) {
 		else
 			print name "(" number ") [OLD] " oldversion " [NEW] " version
 	}
+}
+
+function sf_url(sf_project) {
+	sf_idurl="http://sourceforge.net/api/project/name/" sf_project "/json"
+	cmd = "wget -t 2 -T 45 -q -O - " sf_idurl " |  awk -F: '/\"id\":/ { gsub(\",\", \"\", $2); print $2 } '"
+	d("sf_url_cmd: " cmd)
+	cmd | getline sf_id
+	d("sf_url_id: " sf_id)
+	return "http://sourceforge.net/api/file/index/project-id/" sf_id "/mtime/desc/limit/20/rss"
 }
 
 function rss_upgrade(name, ver, url, regex, cmd) {
