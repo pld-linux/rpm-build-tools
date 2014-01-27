@@ -233,11 +233,17 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	tmpfileerr = mktemp()
 
 	if (url ~ /^http:\/\/(download|downloads|dl)\.(sf|sourceforge)\.net\//) {
+		newurl = url
+		# http://dl.sourceforge.net/threestore/
 		# http://downloads.sourceforge.net/project/mediainfo/source/mediainfo/
-		gsub("^http://(download|downloads|dl)\.(sf|sourceforge)\.net/", "", url)
-		gsub("/.*", "", url)
-		url = sf_url(url)
-		d("sf url, mungled url to: " url)
+		gsub("^http://(download|downloads|dl)\.(sf|sourceforge)\.net/", "", newurl)
+		gsub("^project/", "", newurl)
+		gsub("/.*", "", newurl)
+		newurl = sf_url(newurl)
+		if (newurl ~ /^http/) {
+			url = newurl
+			d("sf url, mungled url to: " url)
+		}
 
 	} else if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
 		gsub("^http://", "", url)
@@ -400,6 +406,7 @@ if (USE_PERL) {
 			}
 
 			retval = (retval " " get_links(newurl))
+			d("href('condition1': " newurl)
 		} else if (lowerodp ~ /href=[ \t]*"[^"]*"/) {
 			sub(/[hH][rR][eE][fF]=[ \t]*"/,"href=\"",odp)
 			match(odp,/href="[^"]*"/)
@@ -419,7 +426,7 @@ if (USE_PERL) {
 				mlink = get_links(link)
 
 			retval = (retval " " link " " mlink)
-			d("href(\"\"): " link)
+			d("href('condition2'): " link)
 		} else if (lowerodp ~ /href=[ \t]*'[^']*'/) {
 			sub(/[hH][rR][eE][fF]=[ \t]*'/,"href='",odp)
 			match(odp,/href='[^']*'/)
@@ -434,7 +441,7 @@ if (USE_PERL) {
 			}
 
 			retval = (retval " " link)
-			d("href(''): " link)
+			d("href('condition3'): " link)
 		} else if (lowerodp ~ /href=[ \t]*[^ \t>]*/) {
 			sub(/[hH][rR][eE][fF]=[ \t]*/,"href=",odp)
 			match(odp,/href=[^ \t>]*/)
@@ -448,7 +455,7 @@ if (USE_PERL) {
 			}
 
 			retval = (retval " " link)
-			d("href(): " link)
+			d("href('condition4'): " link)
 		} else if (lowerodp ~ /<link>/) {
 			link=lowerodp
 			sub("/<link>/", link)
@@ -460,6 +467,7 @@ if (USE_PERL) {
 			}
 
 			retval = (retval " " link)
+			d("href('condition5'): " link)
 		} else {
 			# <a ...> but not href - skip
 			d("skipping <a > without href: " odp)
@@ -610,12 +618,17 @@ function process_source(number, lurl, name, version) {
 }
 
 function sf_url(sf_project) {
+	sf_url_new = ""
 	sf_idurl="http://sourceforge.net/api/project/name/" sf_project "/json"
 	cmd = "wget -t 2 -T 45 -q -O - " sf_idurl " |  awk -F: '/\"id\":/ { gsub(\",\", \"\", $2); print $2 } '"
 	d("sf_url_cmd: " cmd)
 	cmd | getline sf_id
 	d("sf_url_id: " sf_id)
-	return "http://sourceforge.net/api/file/index/project-id/" sf_id "/mtime/desc/limit/20/rss"
+	if (sf_id ~ /^[0-9]+$/) {
+		sf_url_new = "http://sourceforge.net/api/file/index/project-id/" sf_id "/mtime/desc/limit/20/rss"
+		d("sf_url_new: " sf_url_new)
+	}
+	return sf_url_new
 }
 
 function rss_upgrade(name, ver, url, regex, cmd) {
