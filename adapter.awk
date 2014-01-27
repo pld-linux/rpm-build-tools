@@ -2227,6 +2227,7 @@ function replace_requires(field,   pkg) {
 	sub(/^libXxf86misc-devel$/, "xorg-lib-libXxf86misc-devel", $2);
 	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2);
 	sub(/^libacl-devel$/, "acl-devel", $2);
+	sub(/^libattr-devel$/, "attr-devel", $2);
 	sub(/^libcurl-devel$/, "curl-devel", $2);
 	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
 	sub(/^libmx-devel$/, "mx-devel", $2);
@@ -2268,7 +2269,8 @@ function replace_requires(field,   pkg) {
 	sub(/^python-newt$/, "python-snack", $2);
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
 	sub(/^python-recaptcha-client$/, "python-recaptcha", $2);
-	sub(/^python-twisted-core$/, "python-TwistedCore", $2);
+	sub(/^python-sphinx$/, "python-Sphinx", $2);
+	sub(/^python-twisted$/, "python-TwistedCore", $2);
 	sub(/^python-twisted-core$/, "python-TwistedCore", $2);
 	sub(/^python-twisted-names$/, "python-TwistedNames", $2);
 	sub(/^python2-devel$/, "python-devel", $2);
