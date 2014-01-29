@@ -312,6 +312,12 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 	} else if (url ~ /^http:\/\/www.taskwarrior.org\/download\//) {
 		url = "http://taskwarrior.org/projects/taskwarrior/wiki/Download"
 		d("taskwarrior tarball url, mungled url to: " url)
+	} else if (url ~/^http:\/\/www.rarlab.com\/rar\// && filename ~ /^unrarsrc/) {
+		url = "http://www.rarlab.com/rar_add.htm"
+		d("unrar tarball url, mungled url to: " url)
+	} else if (url ~/^http:\/\/www.rarlab.com\/rar\//) {
+		url = "http://www.rarlab.com/download.htm"
+		d("rar tarball url, mungled url to: " url)
 	}
 
 	d("Retrieving: " url)
