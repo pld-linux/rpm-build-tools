@@ -1,3 +1,4 @@
 #!/bin/sh
 echo Uploading $*
-scp -B "$@" dropin@dropin.pld-linux.org:
+chmod 644 "$@"
+scp -Bp "$@" dropin@dropin.pld-linux.org:
