@@ -491,6 +491,8 @@ function subst_defines(var,defs) {
 		for (j in defs) {
 			gsub("%{" j "}", defs[j], var)
 			gsub("%" j , defs[j], var)
+			# conditional macros like %{?patchlevel:.5} - drop these for now
+			gsub("%{\?" j ":.*?}", "", var)
 		}
 		if (var==oldvar) {
 			if (DEBUG) {
