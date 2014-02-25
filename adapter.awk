@@ -255,6 +255,11 @@ function b_makekey(a, b,	s) {
 	next
 }
 
+# %package part
+/^%package/, (!/^%package/ && $0 ~ SECTIONS) {
+	gsub(/\t/, " ");
+}
+
 ################
 # %description #
 ################
