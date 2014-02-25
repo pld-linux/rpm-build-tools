@@ -5,11 +5,11 @@ update=false
 status=false
 while [ $# -gt 0 ]; do
 	case "$1" in
-	update|-update|--update)
+	update|-u|-update|--update)
 		update=true
 		shift
 		;;
-	status|-status|--status)
+	status|-s|-status|--status)
 		status=true
 		shift
 		;;
