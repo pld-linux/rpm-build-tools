@@ -256,9 +256,10 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		url = "http://pecl.php.net/package/" filename
 		d("pecl.php.net url, mungled url to: " url)
 
-	} else if (url ~ /^(http|ftp):\/\/mysql.*\/Downloads\/MySQL-5.1\//) {
-		url = "http://dev.mysql.com/downloads/mysql/5.1.html#source"
-		d("mysql 5.1 url, mungled url to: " url)
+	} else if (url ~/http:\/\/cdn.mysql.com\//) {
+		gsub("http:\/\/cdn.mysql.com\/", "", url)
+		url = "http://vesta.informatik.rwth-aachen.de/mysql/" url
+		d("mysql CDN, mungled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/launchpad\.net\/(.*)\//) {
 		gsub("^(http|https):\/\/launchpad\.net\/", "", url)
