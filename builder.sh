@@ -1597,7 +1597,7 @@ build_package() {
 
 	local specdir=$(insert_gitlog $SPECFILE)
 	# FIXME: eval here is exactly why?
-	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
+	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
 	retval=$?
 	rm -r $specdir
 
@@ -2460,6 +2460,9 @@ if [ "$SCHEDTOOL" != "no" ]; then
 else
 	NICE_COMMAND="nice -n ${DEF_NICE_LEVEL}"
 fi
+
+# see time(1) for output format that could be used
+TIME_COMMAND="time -p"
 
 update_shell_title "$COMMAND"
 case "$COMMAND" in
