@@ -5,8 +5,8 @@ Summary(pt_BR.UTF-8):	Scripts e programas executáveis usados para construir pac
 Summary(ru.UTF-8):	Скрипты и утилиты, необходимые для сборки пакетов
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
-Version:	4.5
-Release:	13
+Version:	4.6
+Release:	1
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -15,11 +15,13 @@ Source1:	adapter.awk
 Source2:	adapter.sh
 Source3:	pldnotify.awk
 Source4:	shrc.sh
+Source5:	dropin
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
 Requires:	git-core >= 1.7
 Requires:	grep
 Requires:	less
+Requires:	openssh-clients
 Requires:	perl-base
 Requires:	rpm-build
 Requires:	rpmbuild(macros) >= 1.539
@@ -71,9 +73,11 @@ cp -p %{SOURCE3} pldnotify.awk
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir},/etc/shrc.d}
 cp -p adapter.awk $RPM_BUILD_ROOT%{_libdir}/adapter.awk
-install -p pldnotify.awk $RPM_BUILD_ROOT%{_bindir}
+install -p pldnotify.awk $RPM_BUILD_ROOT%{_bindir}/pldnotify
+ln -s pldnotify $RPM_BUILD_ROOT%{_bindir}/pldnotify.awk
 install -p builder.sh $RPM_BUILD_ROOT%{_bindir}/builder
 install -p adapter.sh $RPM_BUILD_ROOT%{_bindir}/adapter
+install -p %{SOURCE5} $RPM_BUILD_ROOT%{_bindir}
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/shrc.d/rpm-build.sh
 
 %clean
@@ -81,8 +85,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/builder
 %attr(755,root,root) %{_bindir}/adapter
-%attr(755,root,root) %{_bindir}/pldnotify.awk
+%attr(755,root,root) %{_bindir}/builder
+%attr(755,root,root) %{_bindir}/dropin
+%attr(755,root,root) %{_bindir}/pldnotify*
 /etc/shrc.d/rpm-build.sh
 %{_libdir}/adapter.awk
