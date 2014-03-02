@@ -1186,6 +1186,8 @@ function use_macros()
 			continue;
 		if ($c ~ sysconfdir "/{?pam.d")
 			continue;
+		if ($c ~ sysconfdir "/{?apparmor.d")
+			continue;
 		if ($c ~ sysconfdir "/{?profile.d")
 			continue;
 		if ($c ~ sysconfdir "/{?rc.d")
