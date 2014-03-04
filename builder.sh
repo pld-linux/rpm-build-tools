@@ -848,8 +848,10 @@ init_builder() {
 			PACKAGE_DIR=$REPO_DIR/$ASSUMED_NAME
 		fi
 	else
-		PACKAGE_DIR=$(pwd)
+		TOP_DIR=$(pwd)
+		PACKAGE_DIR=$TOP_DIR
 		REPO_DIR=$PACKAGE_DIR
+		RPMBUILDOPTS="$RPMBUILDOPTS --define '_topdir $TOP_DIR' --define '_builddir %_topdir' --define '_rpmdir %_topdir' --define '_srcrpmdir %_topdir'"
 	fi
 	export GIT_WORK_TREE=$PACKAGE_DIR
 	export GIT_DIR=$PACKAGE_DIR/.git
