@@ -1510,50 +1510,61 @@ set_version() {
 	" $specfile
 }
 
+# try to upgrade .spec to new version
+# if --upgrade-version is specified, use that as new version, otherwise invoke pldnotify to find new version
+#
+# return 1: if .spec was updated
+# return 0: no changes to .spec
+# exit 1 in case of error
 try_upgrade() {
-	if [ -n "$TRY_UPGRADE" ]; then
-		local TNOTIFY TNEWVER TOLDVER
-		update_shell_title "build_package: try_upgrade"
-
-		cd "$PACKAGE_DIR"
-		
-		if [ "$UPGRADE_VERSION" ]; then
-			TNEWVER=$UPGRADE_VERSION
-		else
-			if [ -n "$FLOAT_VERSION" ]; then
-				TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
-			else
-				TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
-			fi
-
-			# pldnotify.awk does not set exit codes, but it has match for ERROR
-			# in output which means so.
-			if [[ "$TNOTIFY" = *ERROR* ]]; then
-				echo >&2 "$TNOTIFY"
-				exit 1
-			fi
-
-			TNEWVER=$(echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }')
-		fi
-
-		if [ -n "$TNEWVER" ]; then
-			TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
-			echo "New version found, updating spec file from $TOLDVER to version $TNEWVER"
-			if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
-				cp -f $SPECFILE $SPECFILE.bak
-			fi
-			chmod +w $SPECFILE
-			set_release $SPECFILE $PACKAGE_RELEASE 1
-			set_version $SPECFILE $PACKAGE_VERSION $TNEWVER
-			parse_spec
-			if [ "$PACKAGE_VERSION" != "$TNEWVER" ]; then
-				echo >&2 "Upgrading version failed, you need to update spec yourself"
-				exit 1
-			fi
-			return 1
-		fi
+	if [ -z "$TRY_UPGRADE" ]; then
+		return 0
 	fi
-	return 0
+
+	local TNOTIFY TNEWVER TOLDVER
+	update_shell_title "build_package: try_upgrade"
+
+	cd "$PACKAGE_DIR"
+
+	if [ "$UPGRADE_VERSION" ]; then
+		TNEWVER=$UPGRADE_VERSION
+		echo "Updating spec file to version $TNEWVER"
+	else
+		if [ -n "$FLOAT_VERSION" ]; then
+			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
+		else
+			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
+		fi
+
+		# pldnotify.awk does not set exit codes, but it has match for ERROR
+		# in output which means so.
+		if [[ "$TNOTIFY" = *ERROR* ]]; then
+			echo >&2 "$TNOTIFY"
+			exit 1
+		fi
+
+		TOLDVER=`echo $TNOTIFY | awk '{ print $3; }'`
+		echo "New version found, updating spec file from $TOLDVER to version $TNEWVER"
+
+		TNEWVER=$(echo $TNOTIFY | awk '{ match($4,/\[NEW\]/); print $5 }')
+	fi
+
+	if [ -z "$TNEWVER" ]; then
+		return 0
+	fi
+
+	if [ "$REVERT_BROKEN_UPGRADE" = "yes" ]; then
+		cp -f $SPECFILE $SPECFILE.bak
+	fi
+	chmod +w $SPECFILE
+	set_version $SPECFILE $PACKAGE_VERSION $TNEWVER
+	set_release $SPECFILE $PACKAGE_RELEASE 1
+	parse_spec
+	if [ "$PACKAGE_VERSION" != "$TNEWVER" ]; then
+		echo >&2 "Upgrading version failed, you need to update spec yourself"
+		exit 1
+	fi
+	return 1
 }
 
 build_package() {
