@@ -7,7 +7,6 @@ kde4-nepomuk-widgets
 kde4-kactivities
 kde4-kdepimlibs
 kde4-oxygen-icons
-kde4-kdebase-workspace
 kde4-kdebase
 kde4-libkdeedu
 kde4-kdebase-runtime
@@ -155,16 +154,19 @@ kde4-kuser
 kde4-ksystemlog
 kde4-kdenetwork-filesharing
 kde4-kdenetwork-strigi-analyzers
+kde4-kopete
 "
 
+#kde4-kdebase-workspace
 #kde4-korundum
 
-newver="4.12.0"
+newver="4.12.3"
 
 topdir=$(rpm -E '%{_topdir}')
 
 n="$(echo -e '\nn')"
 n="${n%%n}"
+#test=1
 
 get_dump() {
 	local specfile="$1"
