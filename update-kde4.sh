@@ -155,10 +155,19 @@ kde4-ksystemlog
 kde4-kdenetwork-filesharing
 kde4-kdenetwork-strigi-analyzers
 kde4-kopete
+kde4-kcron
+kde4-kdnssd
+kde4-kget
+kde4-krdc
+kde4-krfb
+kde4-okteta
 "
 
 #kde4-kdebase-workspace
+#kde4-kfloppy
 #kde4-korundum
+#kde4-kppp
+#kde4-kross-interpreters
 
 newver="4.12.3"
 
