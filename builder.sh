@@ -1763,13 +1763,13 @@ run_sub_builder() {
 	package_name="${1}"
 	update_shell_title "run_sub_builder $package_name"
 	#
-	# No i tutaj bym chcia³ zrobiæ sztuczn± inteligencjê, która spróbuje tego
-	# pakieta zbudowaæ. Aktualnie niewiele dziala, bo generalnie nie widze do
+	# No i tutaj bym chciaÅ‚ zrobiÄ‡ sztucznÄ… inteligencjÄ™, ktÃ³ra sprÃ³buje tego
+	# pakieta zbudowaÄ‡. Aktualnie niewiele dziala, bo generalnie nie widze do
 	# konca algorytmu... Ale damy rade. :) Na razie po prostu sie wyjebie tak samo
 	# jakby nie bylo tego kawalka kodu.
 	#
-	# Update: Poprawi³em parê rzeczy i zaczê³o generowaæ pakiety spoza zadanej listy.
-	#         Jednym s³owem budowanie niespoldkowanych zale¿no¶ci dzia³a w paru przypadkach.
+	# Update: PoprawiÅ‚em parÄ™ rzeczy i zaczÄ™Å‚o generowaÄ‡ pakiety spoza zadanej listy.
+	#         Jednym sÅ‚owem budowanie niespoldkowanych zaleÅ¼noÅ›ci dziaÅ‚a w paru przypadkach.
 	#
 	#
 	# y0shi.
