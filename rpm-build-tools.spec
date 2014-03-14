@@ -26,6 +26,7 @@ Requires:	perl-base
 Requires:	rpm-build
 Requires:	rpmbuild(macros) >= 1.539
 Requires:	sed >= 4.0
+Requires:	time
 Requires:	util-linux
 Requires:	wget
 Suggests:	rpm-specdump >= 0.3
