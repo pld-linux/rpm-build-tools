@@ -497,6 +497,10 @@ function b_makekey(a, b,	s) {
 	if (/^install/ && /-m[ \t]*[0-9]+/)
 		gsub(/-m[ \t]*[0-9]+ /, "")
 
+	# install without options -> cp -p
+	if (/^install [^-]/)
+		gsub(/^install/, "cp -p")
+
 	# No lines contain 'chown' or 'chgrp' if owner/group is 'root'
 	if (($1 ~ /chown/ && $2 ~ /root\.root/) || ($1 ~ /chgrp/ && $2 ~ /root/))
 		next
