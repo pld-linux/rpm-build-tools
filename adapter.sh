@@ -12,7 +12,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-REVISION=1.51
+REVISION=1.52
 VERSION="v0.35/$REVISION"
 VERSIONSTRING="\
 Adapter adapts .spec files for PLD Linux.
@@ -231,6 +231,7 @@ import_rpm_macros() {
 	tmpdir
 
 	systemdunitdir
+	systemduserunitdir
 	systemdtmpfilesdir
 "
 	eval_expr=""

@@ -1127,6 +1127,8 @@ function use_macros()
 
 	gsub("%{_unitdir}", "%{systemdunitdir}")
 	gsub(systemdunitdir, "%{systemdunitdir}")
+	gsub("%{_userunitdir}", "%{systemduserunitdir}")
+	gsub(systemduserunitdir, "%{systemduserunitdir}")
 	gsub(systemdtmpfilesdir, "%{systemdtmpfilesdir}")
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
@@ -1852,7 +1854,7 @@ function import_rpm_macros(  v) {
 	}
 
 	# update this version dep each time some new macro export is added
-	v = 1.51
+	v = 1.52
 	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < v) {
 		printf("adapter shell script is outdated: Need %s, got %s. Please update it.\n", v, ENVIRON["ADAPTER_REVISION"]) > "/dev/stderr"
 		do_not_touch_anything = 1
@@ -1914,6 +1916,7 @@ function import_rpm_macros(  v) {
 	tmpdir = ENVIRON["tmpdir"]
 
 	systemdunitdir = ENVIRON["systemdunitdir"]
+	systemduserunitdir = ENVIRON["systemduserunitdir"]
 	systemdtmpfilesdir = ENVIRON["systemdtmpfilesdir"]
 }
 
