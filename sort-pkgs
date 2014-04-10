@@ -1,0 +1,58 @@
+#!/usr/bin/python
+
+"""
+This script tries to set ordering in which packages ought to be sent to builders.
+Input: file with names of packages (without the .spec suffix). One package name per line.
+Output: sorted packages on stdout.
+
+If the script goes in a infinite loop, that means there is a cycle or other bug.
+"""
+
+import os
+import re
+import sys
+
+PATTERN = re.compile('BuildRequires:\t(.*)-devel')
+DIR = '/home/users/builder/rpm/packages'
+
+packages = {}
+packages_res = {}
+
+def build_requires(name):
+	res = []
+	with open(os.path.join(DIR, name, name + '.spec'), 'r') as f:
+		for line in f:
+			br = PATTERN.match(line)
+			if br:
+				p = br.group(1)
+				if p in packages:
+					res.append(p)
+	return res
+
+def print_packages(p):
+	if packages_res[p] == 1:
+		return
+	for pp in packages[p]:
+		print_packages(pp)
+	packages_res[p] = 1
+	print p#, packages[p]
+
+if __name__ == "__main__":
+	if len(sys.argv) < 2:
+		print "Usage: %s filename" % sys.argv[0]
+		sys.exit(1)
+	with open(sys.argv[1], 'r') as f:
+		for line in f:
+			p = line.rstrip()
+			packages[p] = []
+			packages_res[p] = 0
+	for p in packages.keys():
+		res = build_requires(p)
+		if res:
+			packages[p] = res[:]
+
+#	for p in packages.keys():
+#		print p, packages[p]
+
+	for p in packages.keys():
+		print_packages(p)
