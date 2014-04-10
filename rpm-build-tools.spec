@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.6
-Release:	2
+Release:	3
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -26,6 +26,7 @@ Requires:	perl-base
 Requires:	rpm-build
 Requires:	rpmbuild(macros) >= 1.539
 Requires:	sed >= 4.0
+Requires:	time
 Requires:	util-linux
 Requires:	wget
 Suggests:	rpm-specdump >= 0.3
