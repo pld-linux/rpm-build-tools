@@ -17,6 +17,7 @@ kde4-libkdeedu
 kde4-kdebase-runtime
 python-PyKDE4
 kde4-kate
+kde4-libkscreen
 kde4-okular
 kde4-smokegen
 kde4-smokeqt
