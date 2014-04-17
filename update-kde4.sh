@@ -7,9 +7,11 @@ kde4-kfilemetadata
 kde4-kactivities
 kde4-kdepimlibs
 kde4-baloo
+kde4-baloo-widgets
 kde4-nepomuk-core
 kde4-nepomuk-widgets
 kde4-oxygen-icons
+kde4-kdebase-workspace
 kde4-kdebase
 kde4-libkdeedu
 kde4-kdebase-runtime
@@ -165,7 +167,6 @@ kde4-krfb
 kde4-okteta
 "
 
-#kde4-kdebase-workspace
 #kde4-kfloppy
 #kde4-korundum
 #kde4-kppp
