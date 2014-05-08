@@ -39,7 +39,7 @@ RCSID='$Id: builder,v 1.645 2011/02/13 17:54:10 glen Exp $' r=${RCSID#* * } rev=
 VERSION="v0.35/$rev"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
-$VERSION (C) 1999-2013 Free Penguins".
+$VERSION (C) 1999-2014 Free Penguins".
 
 CLEAN_PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -77,11 +77,12 @@ DATE=`date +%Y-%m-%d_%H-%M-%S`
 # target arch, can also be used for log file naming
 TARGET=$(rpm -E %{_target})
 
+# Note the *single* quotes, this allows using shell variables expanded at build time
 # Example: LOGFILE='../log.$PACKAGE_NAME'
 # Example: LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 # Example: LOGFILE='$PACKAGE_NAME/$PACKAGE_NAME.$DATE.log'
 # Example: LOGFILE='$PACKAGE_NAME.$DATE.log'
-# Yes, you can use variable name! Note _single_ quotes!
+# Example: LOGFILE='.log.$PACKAGE_NAME-$PACKAGE_VERSION-$PACKAGE_RELEASE.$TARGET.$DATE'
 LOGFILE=''
 
 # use teeboth Perl wrapper
