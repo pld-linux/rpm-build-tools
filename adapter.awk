@@ -1130,6 +1130,7 @@ function use_macros()
 	gsub("%{_userunitdir}", "%{systemduserunitdir}")
 	gsub(systemduserunitdir, "%{systemduserunitdir}")
 	gsub(systemdtmpfilesdir, "%{systemdtmpfilesdir}")
+	gsub("%{_tmpfilesdir}", "%{systemdtmpfilesdir}")
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
