@@ -43,7 +43,10 @@ update_urls() {
 	t=$(mktemp)
 	builder -su $specfile > $t 2>/dev/null
 	while read url; do
+		# take output filename (anything after last slash)
 		fn=${url##*/}
+		# remove querystring for mtime match to work
+		url=${url%\?*}
 		test -e "$fn" && z= || unset z
 		curl ${z+-z "$fn"} -o "$fn" "$url" -R -s
 	done < $t
