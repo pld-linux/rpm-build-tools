@@ -1087,6 +1087,11 @@ function use_macros()
 		return;
 	}
 
+	# leave alone with -DSOMETHING=/path/to/bin
+	if (/-D.+=.+/) {
+		return
+	}
+
 	sub("%{_defaultdocdir}", "%{_docdir}");
 	sub("%{_datadir}/doc", "%{_docdir}");
 	sub("%{_bindir}/perl", "%{__perl}");
