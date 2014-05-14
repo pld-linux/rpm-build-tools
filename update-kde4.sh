@@ -11,7 +11,6 @@ kde4-baloo-widgets
 kde4-nepomuk-core
 kde4-nepomuk-widgets
 kde4-oxygen-icons
-kde4-kdebase-workspace
 kde4-kdebase
 kde4-libkdeedu
 kde4-kdebase-runtime
@@ -172,8 +171,9 @@ kde4-okteta
 #kde4-korundum
 #kde4-kppp
 #kde4-kross-interpreters
+##kde4-kdebase-workspace
 
-newver="4.12.3"
+newver="4.13.1"
 
 topdir=$(rpm -E '%{_topdir}')
 
