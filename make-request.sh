@@ -1,4 +1,5 @@
 #!/bin/sh
+VERSION=1.87
 
 # prevent "*" from being expanded in builders var
 set -f
@@ -831,7 +832,7 @@ gen_email () {
 	Subject: build request
 	Message-Id: <$id@$(hostname)>
 	X-New-PLD-Builder: request
-	X-Requester-Version: \$Id$
+	X-Requester-Version: $VERSION
 
 	EOF
 
