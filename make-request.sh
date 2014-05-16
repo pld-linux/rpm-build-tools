@@ -40,7 +40,7 @@ requester=deviloper@pld-linux.org
 default_key=deviloper@pld-linux.org
 send_mode="$send_mode"
 url="$url"
-mailer="/usr/sbin/sendmail -t"
+mailer="/usr/lib/sendmail -t"
 gpg_opts=""
 dist=th
 url="http://src.th.pld-linux.org:1234/"
@@ -125,7 +125,7 @@ df_fetch() {
 	local specs="$@"
 
 	# Sending by
-	local MAILER='/usr/sbin/sendmail'
+	local MAILER='/usr/lib/sendmail'
 	# MAILER='/usr/bin/msmtp'
 	# Sending via
 	local VIA="SENDMAIL"
