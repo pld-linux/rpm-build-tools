@@ -1,1 +1,1 @@
-php52.sh
+php.sh
