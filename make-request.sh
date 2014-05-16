@@ -135,7 +135,7 @@ df_fetch() {
 	# VIA_ARGS='-a gmail'
 	#
 	# DISTFILES EMAIL
-	local DMAIL="distfiles@pld-linux.org"
+	local DMAIL="distfiles@cvs.pld-linux.org"
 
 	local HOST=$(hostname -f)
 	local LOGIN=${requester%@*}
@@ -507,9 +507,9 @@ done
 
 case "$dist" in
 ac)
+	default_branch="AC-branch"
 	builder_email="builder-ac@pld-linux.org"
 	default_builders="ac-*"
-	default_branch="AC-branch"
 	url="http://ep09.pld-linux.org:1289/"
 	control_url="http://ep09.pld-linux.org/~buildsrc"
 	;;
