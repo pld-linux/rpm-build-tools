@@ -267,6 +267,8 @@ Mandatory arguments to long options are mandatory for short options too.
             Updates rpm-build-macros on src builder
       --update-scripts
             Updates ~/rpm/rpm-build-tools on builder
+      --requester username
+            Override the requester
       -q
             shortcut for --command rpm -q ARGS
       -g, --gpg-opts "opts"
@@ -275,8 +277,8 @@ Mandatory arguments to long options are mandatory for short options too.
             sets request priority (default 2)
       -h, --help
             Displays this help message
-      --requester username
-            Override the requester
+      -v
+            Verbose. Print some more debug on screen
 EOF
 	exit 0
 }
