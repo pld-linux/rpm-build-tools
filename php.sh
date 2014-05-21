@@ -5,7 +5,6 @@ dir=$(dirname "$0")
 rpmdir=$(rpm -E %_topdir)
 dist=th
 suffix=${program#php}
+#post_command="poldek -ev --noask php$suffix-devel"
 
-specs=$*
-
-exec $dir/make-request.sh -D "php_suffix $suffix" $specs -C "poldek -ev --noask php$suffix-devel" -n
+exec $dir/make-request.sh -D "php_suffix $suffix" ${post_command:+-C "$post_command"} -n "$@"
