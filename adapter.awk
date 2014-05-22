@@ -721,7 +721,7 @@ preamble == 1 {
 		replace_requires(field);
 	}
 
-	if (field == "requires:" || field ~ /^requires\(/) {
+	if (field == "requires:" || field ~ /^requires\(/ || field == "suggests:") {
 		replace_requires(field);
 	}
 
@@ -1960,7 +1960,7 @@ function replace_php_virtual_deps(field) {
 #		return
 #	}
 
-	if (field == "requires:") {
+	if (field == "requires:" || field == "suggests:") {
 		if (pkg ~ /^php-(bcmath|bz2|calendar|ctype|curl|dba|date|dom|enchant|exif|fileinfo|filter|fpm|ftp|gd|gettext|gmp|hash|iconv|imap|interbase|intl|json|ldap|mbstring|mcrypt|mssql|mysql|mysqli|odbc|openssl|pcntl|pcre|pdo|pdo-dblib|pdo-firebird|pdo-mysql|pdo-odbc|pdo-pgsql|pdo-sqlite|pgsql|phar|posix|pspell|readline|recode|session|shmop|simplexml|snmp|soap|sockets|spl|sqlite|sqlite3|sybase-ct|sysvmsg|sysvsem|sysvshm|tidy|tokenizer|wddx|xml|xmlreader|xmlrpc|xmlwriter|xsl|zip|zlib)/) {
 			sub(/^php-/, "php(", pkg);
 			sub(/$/, ")", pkg);
