@@ -1965,6 +1965,10 @@ function replace_php_virtual_deps(field) {
 			sub(/^php-/, "php(", pkg)
 			sub(/$/, ")", pkg)
 			$2 = pkg
+		} else if (pkg ~ /^php-pecl-/) {
+			sub(/^php-pecl-/, "php(", pkg)
+			sub(/$/, ")", pkg)
+			$2 = pkg
 		}
 	}
 
