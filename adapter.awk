@@ -60,7 +60,7 @@ BEGIN {
 	packages_dir = topdir
 	groups_file = packages_dir "/../rpm-build-tools/rpm.groups"
 
-	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)");
+	system("[ -d ../PLD-doc ] && cd ../PLD-doc && ([ -f BuildRequires.txt ] || cvs up BuildRequires.txt >/dev/null)")
 }
 
 # If the latest line matched /%files/
@@ -82,42 +82,42 @@ function mktemp(template, tmp) {
 }
 
 function b_makekey(a, b,	s) {
-	s = a "" b;
+	s = a "" b
 	# kill bcond
-	gsub(/[#%]+{[!?]+[_a-zA-Z0-9]+:/, "", s);
+	gsub(/[#%]+{[!?]+[_a-zA-Z0-9]+:/, "", s)
 
 	# kill commented out items
-	gsub(/^#[ \t]*/, "", s);
+	gsub(/^#[ \t]*/, "", s)
 
 	# force order
-	gsub(/^Summary\(/, "11Summary(", s);
-	gsub(/^Summary/, "10Summary", s);
+	gsub(/^Summary\(/, "11Summary(", s)
+	gsub(/^Summary/, "10Summary", s)
 
-	gsub(/^Name/, "2Name", s);
-	gsub(/^Version/, "3Version", s);
-	gsub(/^Release/, "4Release", s);
-	gsub(/^Epoch/, "5Epoch", s);
-	gsub(/^License/, "5License", s);
-	gsub(/^Group/, "6Group", s);
-	gsub(/^URL/, "7URL", s);
+	gsub(/^Name/, "2Name", s)
+	gsub(/^Version/, "3Version", s)
+	gsub(/^Release/, "4Release", s)
+	gsub(/^Epoch/, "5Epoch", s)
+	gsub(/^License/, "5License", s)
+	gsub(/^Group/, "6Group", s)
+	gsub(/^URL/, "7URL", s)
 
-	gsub(/^BuildRequires/, "B1BuildRequires", s);
-	gsub(/^BuildConflicts/, "B2BuildConflicts", s);
+	gsub(/^BuildRequires/, "B1BuildRequires", s)
+	gsub(/^BuildConflicts/, "B2BuildConflicts", s)
 
-	gsub(/^Suggests/, "X1Suggests", s);
-	gsub(/^Provides/, "X2Provides", s);
-	gsub(/^Obsoletes/, "X3Obsoletes", s);
-	gsub(/^Conflicts/, "X4Conflicts", s);
-	gsub(/^BuildArch/, "X5BuildArch", s);
-	gsub(/^ExclusiveArch/, "X6ExclusiveArch", s);
-	gsub(/^ExcludeArch/, "X7ExcludeArch", s);
-	gsub(/^BuildRoot/, "X9BuildRoot", s);
+	gsub(/^Suggests/, "X1Suggests", s)
+	gsub(/^Provides/, "X2Provides", s)
+	gsub(/^Obsoletes/, "X3Obsoletes", s)
+	gsub(/^Conflicts/, "X4Conflicts", s)
+	gsub(/^BuildArch/, "X5BuildArch", s)
+	gsub(/^ExclusiveArch/, "X6ExclusiveArch", s)
+	gsub(/^ExcludeArch/, "X7ExcludeArch", s)
+	gsub(/^BuildRoot/, "X9BuildRoot", s)
 
-	gsub(/^AutoProv/, "Xx1AutoProv", s);
-	gsub(/^AutoReq/, "Xx2AutoReq", s);
+	gsub(/^AutoProv/, "Xx1AutoProv", s)
+	gsub(/^AutoReq/, "Xx2AutoReq", s)
 
-#	printf("%s -> %s\n", a""b, s);
-	return s;
+#	printf("%s -> %s\n", a""b, s)
+	return s
 }
 
 # Comments
@@ -237,14 +237,14 @@ function b_makekey(a, b,	s) {
 	# kill the _class and _subclass pear macros
 	if ($2 == "_pearname" || $2 == "pearname") {
 		if (pear_class) {
-			gsub("%{_class}", pear_class, $3);
+			gsub("%{_class}", pear_class, $3)
 		}
 		if (pear_subclass) {
-			gsub("%{_subclass}", pear_subclass, $3);
+			gsub("%{_subclass}", pear_subclass, $3)
 		}
 	}
 
-	sub(/[ \t]+$/, "");
+	sub(/[ \t]+$/, "")
 	# do nothing further, otherwise adapter thinks we're at preamble
 	print
 	next
@@ -257,7 +257,7 @@ function b_makekey(a, b,	s) {
 
 # %package part
 /^%package/, (!/^%package/ && $0 ~ SECTIONS) {
-	gsub(/\t/, " ");
+	gsub(/\t/, " ")
 }
 
 ################
@@ -324,37 +324,37 @@ function b_makekey(a, b,	s) {
 	}
 
 	if (/^%setup/ && name != "setup") {
-		$0 = fixedsub(name, "%{name}", $0);
-		$0 = fixedsub(version, "%{version}", $0);
+		$0 = fixedsub(name, "%{name}", $0)
+		$0 = fixedsub(version, "%{version}", $0)
 		if (_beta) {
-			$0 = fixedsub(_beta, "%{_beta}", $0);
+			$0 = fixedsub(_beta, "%{_beta}", $0)
 		}
 		if (_rc) {
-			$0 = fixedsub(_rc, "%{_rc}", $0);
+			$0 = fixedsub(_rc, "%{_rc}", $0)
 		}
 		if (_pre) {
-			$0 = fixedsub(_pre, "%{_pre}", $0);
+			$0 = fixedsub(_pre, "%{_pre}", $0)
 		}
 		if (_snap) {
-			$0 = fixedsub(_snap, "%{_snap}", $0);
+			$0 = fixedsub(_snap, "%{_snap}", $0)
 		}
 		if (subver) {
-			$0 = fixedsub(subver, "%{subver}", $0);
+			$0 = fixedsub(subver, "%{subver}", $0)
 		}
 	}
 
 	if (/^%setup/ && /-n %{name}-%{version}( |$)/) {
 		$0 = fixedsub(" -n %{name}-%{version}", "", $0)
 	}
-	sub("^%patch ", "%patch0 ");
+	sub("^%patch ", "%patch0 ")
 
 	# fedora extras
 	if (/^%apply/) {
-		sub("^%apply -n", "%patch");
+		sub("^%apply -n", "%patch")
 	}
 
 	# invalid in %prep
-	sub("^rm -rf \$RPM_BUILD_ROOT.*", "");
+	sub("^rm -rf \$RPM_BUILD_ROOT.*", "")
 }
 
 ##########
@@ -417,27 +417,27 @@ function b_makekey(a, b,	s) {
 	}
 
 	# use PLD Linux macros
-	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0);
-	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0);
-	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0);
-	$0 = fixedsub("automake -a --foreign --copy", "%{__automake}", $0);
-	$0 = fixedsub("automake -a -c --foreign", "%{__automake}", $0);
-	$0 = fixedsub("automake -a -c", "%{__automake}", $0);
-	$0 = fixedsub("libtoolize --force --automake --copy", "%{__libtoolize}", $0);
-	$0 = fixedsub("libtoolize -c -f --automake", "%{__libtoolize}", $0);
+	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0)
+	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0)
+	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0)
+	$0 = fixedsub("automake -a --foreign --copy", "%{__automake}", $0)
+	$0 = fixedsub("automake -a -c --foreign", "%{__automake}", $0)
+	$0 = fixedsub("automake -a -c", "%{__automake}", $0)
+	$0 = fixedsub("libtoolize --force --automake --copy", "%{__libtoolize}", $0)
+	$0 = fixedsub("libtoolize -c -f --automake", "%{__libtoolize}", $0)
 
-	sub(/^aclocal$/, "%{__aclocal}");
-	sub(/^autoheader$/, "%{__autoheader}");
-	sub(/^autoconf$/, "%{__autoconf}");
-	sub(/^automake$/, "%{__automake}");
-	sub(/^libtoolize$/, "%{__libtoolize}");
+	sub(/^aclocal$/, "%{__aclocal}")
+	sub(/^autoheader$/, "%{__autoheader}")
+	sub(/^autoconf$/, "%{__autoconf}")
+	sub(/^automake$/, "%{__automake}")
+	sub(/^libtoolize$/, "%{__libtoolize}")
 
 	# atrpms
-	$0 = fixedsub("%perl_configure", "%{__perl} Makefile.PL \\\n\tINSTALLDIRS=vendor", $0);
-	$0 = fixedsub("%perl_makecheck", "%{?with_tests:%{__make} test}", $0);
+	$0 = fixedsub("%perl_configure", "%{__perl} Makefile.PL \\\n\tINSTALLDIRS=vendor", $0)
+	$0 = fixedsub("%perl_makecheck", "%{?with_tests:%{__make} test}", $0)
 
 	# alt linux
-	$0 = fixedsub("%make_build", "%{__make}", $0);
+	$0 = fixedsub("%make_build", "%{__make}", $0)
 }
 
 ##########
@@ -458,8 +458,8 @@ function b_makekey(a, b,	s) {
 
 	# foreign rpms
 	sub("^%{__rm} -rf %{buildroot}", "rm -rf $RPM_BUILD_ROOT")
-	sub("%buildroot", "$RPM_BUILD_ROOT");
-	sub("%{buildroot}", "$RPM_BUILD_ROOT");
+	sub("%buildroot", "$RPM_BUILD_ROOT")
+	sub("%{buildroot}", "$RPM_BUILD_ROOT")
 
 	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+(\${?RPM_BUILD_ROOT}?|%{?buildroot}?)/ && did_rmroot==0) {
 		did_rmroot=1
@@ -510,10 +510,10 @@ function b_makekey(a, b,	s) {
 		next
 
 	# atrpms
-	$0 = fixedsub("%perl_makeinstall", "%{__make} pure_install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0);
+	$0 = fixedsub("%perl_makeinstall", "%{__make} pure_install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0)
 
 	# alt linux
-	$0 = fixedsub("%make_install DESTDIR=$RPM_BUILD_ROOT install", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0);
+	$0 = fixedsub("%make_install DESTDIR=$RPM_BUILD_ROOT install", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0)
 }
 
 ##########
@@ -538,28 +538,28 @@ function b_makekey(a, b,	s) {
 	preamble = 0
 
 	if (gsub("/usr/sbin/useradd", "%useradd")) {
-		sub(" 2> /dev/null \|\| :", "");
-		sub(" >/dev/null 2>&1 \|\|:", "");
+		sub(" 2> /dev/null \|\| :", "")
+		sub(" >/dev/null 2>&1 \|\|:", "")
 	}
 
 	# fedora extras macros
 	if (/%__fe_useradd/) {
-		sub("%__fe_useradd", "%useradd -u ");
-		sub(" 2> /dev/null \|\| :", "");
-		sub(" >/dev/null 2>&1 \|\|:", "");
-		sub(" &>/dev/null \\|\\| :", "");
+		sub("%__fe_useradd", "%useradd -u ")
+		sub(" 2> /dev/null \|\| :", "")
+		sub(" >/dev/null 2>&1 \|\|:", "")
+		sub(" &>/dev/null \\|\\| :", "")
 	}
 
 	if (/%__fe_groupadd/) {
-		sub("%__fe_groupadd", "%groupadd -g ");
-		sub(" &>/dev/null \\|\\| :", "");
+		sub("%__fe_groupadd", "%groupadd -g ")
+		sub(" &>/dev/null \\|\\| :", "")
 	}
 
 	# %useradd and %groupadd may not be wrapped
 	if (/%(useradd|groupadd).*\\$/) {
-		a = $0; getline;
-		sub(/^[\s\t]*/, "");
-		$0 = substr(a, 1, length(a) - 1) $0;
+		a = $0; getline
+		sub(/^[\s\t]*/, "")
+		$0 = substr(a, 1, length(a) - 1) $0
 	}
 	use_script_macros()
 }
@@ -568,16 +568,16 @@ function b_makekey(a, b,	s) {
 	preamble = 0
 
 	# fedora extras macros
-	sub("%__chkconfig", "/sbin/chkconfig");
+	sub("%__chkconfig", "/sbin/chkconfig")
 
-	sub("update-desktop-database &> /dev/null \\|\\| :", "%update_desktop_database");
-	sub("touch --no-create %{_datadir}/icons/hicolor", "%update_icon_cache_post hicolor");
-	sub("if \\[ -x %{_bindir}/gtk-update-icon-cache \\]; then\n\t%{_bindir}/gtk-update-icon-cache -q %{_datadir}/icons/hicolor \|\| :\nfi", "");
+	sub("update-desktop-database &> /dev/null \\|\\| :", "%update_desktop_database")
+	sub("touch --no-create %{_datadir}/icons/hicolor", "%update_icon_cache_post hicolor")
+	sub("if \\[ -x %{_bindir}/gtk-update-icon-cache \\]; then\n\t%{_bindir}/gtk-update-icon-cache -q %{_datadir}/icons/hicolor \|\| :\nfi", "")
 
 	sub("export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`", "")
 	if (/gconftool-2 --makefile-install-rule/) {
 		sub("gconftool-2 --makefile-install-rule %{_sysconfdir}/gconf/schemas/", "%gconf_schema_install ")
-		sub("> /dev/null", "");
+		sub("> /dev/null", "")
 	}
 
 	use_macros()
@@ -591,9 +591,9 @@ function b_makekey(a, b,	s) {
 
 	# fedora extras macros
 	if (/%__fe_userdel|%__fe_groupdel/) {
-		sub("%__fe_groupdel", "%groupremove");
-		sub("%__fe_userdel", "%userremove");
-		sub(" &>/dev/null \\|\\| :", "");
+		sub("%__fe_groupdel", "%groupremove")
+		sub("%__fe_userdel", "%userremove")
+		sub(" &>/dev/null \\|\\| :", "")
 	}
 
 	use_script_macros()
@@ -643,17 +643,17 @@ preamble == 1 {
 
 	# deprecated. currently just resolves to name in $2
 	if (/^%pyrequires_eq.+/) {
-		$1 = "Requires:";
+		$1 = "Requires:"
 	}
 
 	# F<16 had requires(hint)
 	if (/^Requires\(hint\):/) {
-		$1 = "Suggests:";
+		$1 = "Suggests:"
 	}
 
 	field = tolower($1)
 	if (field ~ /summary:/ && !/etc\.$/ && !/Inc\.$/) {
-		sub(/\.$/, "", $0);
+		sub(/\.$/, "", $0)
 	}
 	if (field ~ /group(\([^)]+\)):/) {
 		next
@@ -661,9 +661,9 @@ preamble == 1 {
 
 	if (field == "group:") {
 		format_preamble()
-		group = $0;
-		sub(/^[^ \t]*[ \t]*/, "", group);
-		group = replace_groupnames(group);
+		group = $0
+		sub(/^[^ \t]*[ \t]*/, "", group)
+		group = replace_groupnames(group)
 		$0 = "Group:\t\t" group
 
 		byl_plik_z_groupmi = 0
@@ -686,18 +686,18 @@ preamble == 1 {
 	}
 
 	if (field == "prereq:") {
-		sub(/Pre[Rr]eq:/, "Requires:", $1);
+		sub(/Pre[Rr]eq:/, "Requires:", $1)
 	}
 
 	# split (build)requires, obsoletes on commas
 	if (field ~ /(obsoletes|requires|provides|conflicts|suggests):/ && NF > 2) {
-		value = substr($0, index($0, $2));
-		$0 = format_requires($1, value);
+		value = substr($0, index($0, $2))
+		$0 = format_requires($1, value)
 	}
 
 	# BR: tar (and others) is to common (rpm-build requires it)
 	if (field == "buildrequires:") {
-		l = substr($0, index($0, $2));
+		l = substr($0, index($0, $2))
 		if (l == "awk" ||
 			l == "binutils" ||
 			l == "bzip2" ||
@@ -718,11 +718,11 @@ preamble == 1 {
 			next
 		}
 
-		replace_requires(field);
+		replace_requires(field)
 	}
 
 	if (field == "requires:" || field ~ /^requires\(/ || field == "suggests:") {
-		replace_requires(field);
+		replace_requires(field)
 	}
 
 
@@ -756,7 +756,7 @@ preamble == 1 {
 	}
 
 	if (field ~ /license:/) {
-		l = substr($0, index($0, $2));
+		l = substr($0, index($0, $2))
 		if (l == "Python Software Foundation License") {
 			l = "PSF"
 		}
@@ -807,7 +807,7 @@ preamble == 1 {
 		if (l == "MPLv1.1") {
 			l = "MPL v1.1"
 		}
-		$0 = "License:\t" l;
+		$0 = "License:\t" l
 	}
 
 
@@ -816,7 +816,7 @@ preamble == 1 {
 			$2 = name
 		}
 		name = $2
-		name_seen = 1;
+		name_seen = 1
 	}
 
 	if (field ~ /version:/) {
@@ -824,7 +824,7 @@ preamble == 1 {
 			$2 = version
 		}
 		version = $2
-		version_seen = 1;
+		version_seen = 1
 	}
 
 	if (field ~ /release:/) {
@@ -833,7 +833,7 @@ preamble == 1 {
 		}
 		sub(/%atrelease /, "0.", $0)
 		release = $2
-		release_seen = 1;
+		release_seen = 1
 	}
 
 
@@ -848,7 +848,7 @@ preamble == 1 {
 		$1 = "URL:"
 
 	if (field ~ /^patch/)
-		$1 = "Patch" substr(field, 6);
+		$1 = "Patch" substr(field, 6)
 
 	if (field ~ /^description:$/)
 		$1 = "\n%description\n"
@@ -934,12 +934,12 @@ preamble == 1 {
 	if (field ~ /^patch:/)
 		$1 = "Patch0:"
 
-	kill_preamble_macros();
+	kill_preamble_macros()
 	format_preamble()
 
 	if (field ~ /requires/) {
 		# atrpms
-		$0 = fixedsub("%{eversion}", "%{epoch}:%{version}-%{release}", $0);
+		$0 = fixedsub("%{eversion}", "%{epoch}:%{version}-%{release}", $0)
 	}
 }
 
@@ -958,7 +958,7 @@ preamble == 1 {
 #	so don't adapterize when the BR/R are mixed with comments
 ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS ":", $0 ~ PREAMBLE_TAGS ":"{
 	if ($1 ~ /Pre[Rr]eq:/) {
-		sub(/Pre[Rr]eq:/, "Requires:", $1);
+		sub(/Pre[Rr]eq:/, "Requires:", $1)
 	}
 	if ($1 == "BR:" ) {
 		$1 = "BuildRequires:"
@@ -969,22 +969,22 @@ ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS ":", $0 ~ PRE
 	format_preamble()
 #	kill_preamble_macros(); # breaks tabbing
 
-	b_idx++;
-	l = substr($0, index($0, $2));
-	b_ktmp = b_makekey($1, l);
-	b_key[b_idx] = b_ktmp;
-	b_val[b_ktmp] = $0;
+	b_idx++
+	l = substr($0, index($0, $2))
+	b_ktmp = b_makekey($1, l)
+	b_key[b_idx] = b_ktmp
+	b_val[b_ktmp] = $0
 
-	next;
+	next
 }
 
 preamble == 1 {
 	if (b_idx > 0) {
-		isort(b_key, b_idx);
+		isort(b_key, b_idx)
 		for (i = 1; i <= b_idx; i++) {
-			v = b_val[b_key[i]];
-			sub(/[ \t]+$/, "", v);
-			print "" v;
+			v = b_val[b_key[i]]
+			sub(/[ \t]+$/, "", v)
+			print "" v
 		}
 		b_idx = 0
 	}
@@ -1031,7 +1031,7 @@ END {
 	# TODO: need to output these in proper place
 	if (BR_count > 0) {
 		for (i = 0; i <= BR_count; i++) {
-			print BR[i];
+			print BR[i]
 		}
 	}
 
@@ -1052,9 +1052,9 @@ function fixedsub(s1,s2,t, ind) {
 # replace s with s2 if it equals to s1
 function replace(s, s1, s2) {
 	if (s == s1) {
-		return s2;
+		return s2
 	} else {
-		return s;
+		return s
 	}
 }
 
@@ -1062,7 +1062,7 @@ function replace(s, s1, s2) {
 function format_preamble()
 {
 	if (/^#/ || /^%bcond_with/) {
-		return;
+		return
 	}
 	sub(/:[ \t]*/, ":")
 	if (match($0, /[A-Za-z0-9(),#_ \t.-]+[ \t]*:[ \t]*/) == 1) {
@@ -1084,7 +1084,7 @@ function use_macros()
 
 	# leave inline sed lines alone
 	if (/(%{__sed}|sed) -i -e/) {
-		return;
+		return
 	}
 
 	# leave alone with -DSOMETHING=/path/to/bin
@@ -1092,10 +1092,10 @@ function use_macros()
 		return
 	}
 
-	sub("%{_defaultdocdir}", "%{_docdir}");
-	sub("%{_datadir}/doc", "%{_docdir}");
-	sub("%{_bindir}/perl", "%{__perl}");
-	sub("%{_bindir}/python", "%{__python}");
+	sub("%{_defaultdocdir}", "%{_docdir}")
+	sub("%{_datadir}/doc", "%{_docdir}")
+	sub("%{_bindir}/perl", "%{__perl}")
+	sub("%{_bindir}/python", "%{__python}")
 
 	gsub(infodir, "%{_infodir}")
 
@@ -1160,19 +1160,19 @@ function use_macros()
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sbindir "/fix-info-dir")
-			continue;
+			continue
 		if ($c ~ sbindir "/webapp")
-			continue;
+			continue
 		if ($c ~ sbindir "/ldconfig")
-			continue;
+			continue
 		if ($c ~ sbindir "/chsh")
-			continue;
+			continue
 		if ($c ~ sbindir "/usermod")
-			continue;
+			continue
 		if ($c ~ sbindir "/chkconfig")
-			continue;
+			continue
 		if ($c ~ sbindir "/installzope(product|3package)")
-			continue;
+			continue
 		gsub(sbindir, "%{_sbindir}", $c)
 	}
 
@@ -1183,73 +1183,73 @@ function use_macros()
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ sysconfdir "/{?cron.")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?crontab.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?env.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?modprobe.(d|conf)")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?udev")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?hotplug")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?logrotate.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?pam.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?apparmor.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?profile.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?rc.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?security")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?skel")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?sysconfig")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?shrc.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?certs")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?X11")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?ld.so.conf.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?rpm")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?bash_completion.d")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?samba")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?xdg")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?NetworkManager")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?default")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/{?pm")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/shells")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/inittab")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/init")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/ppp")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/dbus-1")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/tmpwatch")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/acpi")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/apm")
-			continue;
+			continue
 		if ($c ~ sysconfdir "/modules-load\.d")
-			continue;
+			continue
 		gsub(sysconfdir, "%{_sysconfdir}", $c)
 	}
 
@@ -1265,11 +1265,11 @@ function use_macros()
 
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ datadir "/automake")
-			continue;
+			continue
 		if ($c ~ datadir "/unsermake")
-			continue;
+			continue
 		if ($c ~ datadir "/file/magic.mime")
-			continue;
+			continue
 		gsub(datadir, "%{_datadir}", $c)
 	}
 
@@ -1311,30 +1311,30 @@ function use_macros()
 		if ($0 !~ "--with.*=.*" prefix) {
 			for (c = 1; c <= NF; c++) {
 				if ($c ~ prefix "/sbin/fix-info-dir")
-					continue;
+					continue
 				if ($c ~ prefix "/sbin/webapp")
-					continue;
+					continue
 				if ($c ~ prefix "/sbin/chsh")
-					continue;
+					continue
 				if ($c ~ prefix "/sbin/usermod")
-					continue;
+					continue
 				if ($c ~ prefix "/sbin/installzope(product|3package)")
-					continue;
+					continue
 				if ($c ~ prefix "/share/automake")
-					continue;
+					continue
 				if ($c ~ prefix "/share/unsermake")
-					continue;
+					continue
 				if ($c ~ prefix "/lib/sendmail")
-					continue;
+					continue
 				if ($c ~ prefix "/lib/pkgconfig")
-					continue;
+					continue
 
 				# CFLAGS="-I/usr..." is usually correct.
 				if (/-I\/usr/)
-					continue;
+					continue
 				# same for LDFLAGS="-L/usr..."
 				if (/-L\/usr/)
-					continue;
+					continue
 
 				gsub(prefix, "%{_prefix}", $c)
 			}
@@ -1377,14 +1377,14 @@ function use_macros()
 	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\\&1")
 	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
-	$0 = fixedsub("CXXFLAGS=%{rpmcflags} %configure", "CXXFLAGS=%{rpmcflags}\n%configure", $0);
-	$0 = fixedsub("%__install", "install", $0);
+	$0 = fixedsub("CXXFLAGS=%{rpmcflags} %configure", "CXXFLAGS=%{rpmcflags}\n%configure", $0)
+	$0 = fixedsub("%__install", "install", $0)
 
 	# split configure line to multiple lines
 	if (/%configure +$/) {
-		sub( / +$/, "" );
+		sub( / +$/, "" )
 	} else if (/%configure / && !/\\$/) {
-		$0 = format_configure($0);
+		$0 = format_configure($0)
 	}
 
 	gsub("%_bindir", "%{_bindir}")
@@ -1393,13 +1393,13 @@ function use_macros()
 	gsub("%_sbindir", "%{_sbindir}")
 	gsub("%_mandir", "%{_mandir}")
 	gsub("%name", "%{name}")
-	gsub(/%__rm/, "rm");
-	gsub(/%__mkdir_p/, "install -d");
-	gsub(/%__cp/, "cp");
-	gsub(/%__ln_s/, "ln -s");
-	gsub(/%__sed/, "%{__sed}");
-	gsub(/%__cat/, "cat");
-	gsub(/%__chmod/, "chmod");
+	gsub(/%__rm/, "rm")
+	gsub(/%__mkdir_p/, "install -d")
+	gsub(/%__cp/, "cp")
+	gsub(/%__ln_s/, "ln -s")
+	gsub(/%__sed/, "%{__sed}")
+	gsub(/%__cat/, "cat")
+	gsub(/%__chmod/, "chmod")
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
@@ -1407,25 +1407,25 @@ function use_macros()
 	if (/^ant / || /^%{ant}/) {
 		sub(/^ant/, "%ant")
 		sub(/^%{ant}/, "%ant")
-		add_br("BuildRequires:  jpackage-utils");
-		add_br("BuildRequires:  rpmbuild(macros) >= 1.300");
+		add_br("BuildRequires:  jpackage-utils")
+		add_br("BuildRequires:  rpmbuild(macros) >= 1.300")
 	}
 
-	$0 = fixedsub("%(%{__cc} -dumpversion)", "%{cc_version}", $0);
-	$0 = fixedsub("%(%{__cxx} -dumpversion)", "%{cxx_version}", $0);
+	$0 = fixedsub("%(%{__cc} -dumpversion)", "%{cc_version}", $0)
+	$0 = fixedsub("%(%{__cxx} -dumpversion)", "%{cxx_version}", $0)
 
 	# kill the _class and _subclass pear macros
 	if (pear_class) {
-		gsub("%{_class}", pear_class);
+		gsub("%{_class}", pear_class)
 	}
 	if (pear_subclass) {
-		gsub("%{_subclass}", pear_subclass);
+		gsub("%{_subclass}", pear_subclass)
 	}
 }
 
 function format_configure(line,		n, a, s) {
-	n = split(line, a, / /);
-	s = a[1] " \\\n";
+	n = split(line, a, / /)
+	s = a[1] " \\\n"
 	for (i = 2; i <= n; i++) {
 		s = s "\t" a[i] " \\\n"
 	}
@@ -1453,7 +1453,7 @@ function use_files_macros(	i, n, t, a, l)
 
 	# skip comments
 	if (/^#/) {
-		return 1;
+		return 1
 	}
 
 	sub("^%doc %{_mandir}", "%{_mandir}")
@@ -1497,7 +1497,7 @@ function use_files_macros(	i, n, t, a, l)
 			$0 = "%attr(754,root,root) " $0
 		}
 		if (/^%attr.*\/etc\/rc\.d\/init\.d/ && !/^%attr\(754 *,/) {
-			gsub("^%attr\\(... *,", "%attr(754,");
+			gsub("^%attr\\(... *,", "%attr(754,")
 		}
 	}
 
@@ -1511,7 +1511,7 @@ function use_files_macros(	i, n, t, a, l)
 
 	# remove attrs from man pages
 	if (/%{_mandir}/ && /^%attr/) {
-		sub("^%attr\\(.*\\) *", "");
+		sub("^%attr\\(.*\\) *", "")
 	}
 
 	# /etc/sysconfig files
@@ -1527,11 +1527,11 @@ function use_files_macros(	i, n, t, a, l)
 		}
 
 		if (/\/etc\/sysconfig\// && /%attr\(755/) {
-			gsub("^%attr\\(... *,", "%attr(640,");
+			gsub("^%attr\\(... *,", "%attr(640,")
 		}
 
 		if (/\/etc\/sysconfig\// && !/%verify/) {
-			gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig");
+			gsub("/etc/sysconfig", "%verify(not size mtime md5) /etc/sysconfig")
 		}
 	}
 
@@ -1541,20 +1541,20 @@ function use_files_macros(	i, n, t, a, l)
 	}
 
 	# kill leading whitespace
-	gsub(/^ +/, "");
+	gsub(/^ +/, "")
 
 	# kill default attrs
-	gsub(/%dir %attr\(755,root,root\)/, "%dir");
-	gsub(/%attr\(755,root,root\) %dir/, "%dir");
+	gsub(/%dir %attr\(755,root,root\)/, "%dir")
+	gsub(/%attr\(755,root,root\) %dir/, "%dir")
 	if (!/%dir/) {
-		gsub(/%attr\(644,root,root\) /, "");
+		gsub(/%attr\(644,root,root\) /, "")
 	}
 
 	# sort %verify attrs
 	if (match($0, /%verify\(not([^)]+)\)/)) {
 		t = substr($0, RSTART, RLENGTH)
 		# kill commas: %verify(not,md5,size,mtime)
-		gsub(/,/, " ", t);
+		gsub(/,/, " ", t)
 
 		gsub(/^%verify\(not |\)$/, "", t)
 		n = split(t, a, / /)
@@ -1587,35 +1587,35 @@ function use_files_macros(	i, n, t, a, l)
 		#%{py_sitescriptdir}/python_mpd-%{version}-py2.4.egg-info
 		#%{py_sitescriptdir}/mechanize-0.1.6b-py2.4.egg-info
 
-		l = index($0, "/");
-		t = substr($0, 0, l);
-		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"));
+		l = index($0, "/")
+		t = substr($0, 0, l)
+		s = substr($0, l + 1, RLENGTH - l - length("-py"py_ver".egg-info"))
 		if (match(s, "[^-]+$")) {
 			if (RSTART > 1) {
-				s = substr(s, 0, RSTART - 1);
+				s = substr(s, 0, RSTART - 1)
 			}
 			print "%if \"%{py_ver}\" > \"2.4\""
-			gsub(t "/.+.egg-info", t "/" s "-*.egg-info");
+			gsub(t "/.+.egg-info", t "/" s "-*.egg-info")
 			print
 			print "%endif"
-			return 0;
+			return 0
 		}
 	}
 
 	# atrpms
-	$0 = fixedsub("%{perl_man1dir}", "%{_mandir}/man1", $0);
-	$0 = fixedsub("%{perl_man3dir}", "%{_mandir}/man3", $0);
-	$0 = fixedsub("%{perl_bin}", "%{_bindir}", $0);
+	$0 = fixedsub("%{perl_man1dir}", "%{_mandir}/man1", $0)
+	$0 = fixedsub("%{perl_man3dir}", "%{_mandir}/man3", $0)
+	$0 = fixedsub("%{perl_bin}", "%{_bindir}", $0)
 
-	gsub(libdir "/pkgconfig", "%{_pkgconfigdir}");
-	gsub("%{_libdir}/pkgconfig", "%{_pkgconfigdir}");
-	gsub("%{_prefix}/lib/pkgconfig", "%{_pkgconfigdir}");
+	gsub(libdir "/pkgconfig", "%{_pkgconfigdir}")
+	gsub("%{_libdir}/pkgconfig", "%{_pkgconfigdir}")
+	gsub("%{_prefix}/lib/pkgconfig", "%{_pkgconfigdir}")
 
-	gsub("%{_datadir}/applications", "%{_desktopdir}");
-	gsub("%{_datadir}/icons", "%{_iconsdir}");
-	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}");
-	gsub("%{_datadir}/pear", "%{php_pear_dir}");
-	gsub("%{_datadir}/php", "%{php_data_dir}");
+	gsub("%{_datadir}/applications", "%{_desktopdir}")
+	gsub("%{_datadir}/icons", "%{_iconsdir}")
+	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
+	gsub("%{_datadir}/pear", "%{php_pear_dir}")
+	gsub("%{_datadir}/php", "%{php_data_dir}")
 
 	return 1
 }
@@ -1623,8 +1623,8 @@ function use_files_macros(	i, n, t, a, l)
 function use_script_macros()
 {
 	if (gsub("/sbin/service", "%service")) {
-		sub(" >/dev/null 2>&1 \|\|:", "");
-		sub(" 2> /dev/null \|\| :", "");
+		sub(" >/dev/null 2>&1 \|\|:", "")
+		sub(" 2> /dev/null \|\| :", "")
 	}
 }
 
@@ -1680,8 +1680,8 @@ function cflags(var)
 # return whole matched pattern
 function matchstr(str, pat)
 {
-	match(str, "[^/]+$");
-	return substr(str, RSTART, RLENGTH);
+	match(str, "[^/]+$")
+	return substr(str, RSTART, RLENGTH)
 }
 
 function unify_url(url)
@@ -1701,23 +1701,23 @@ function unify_url(url)
 
 	# 3. unify urls
 	if (url ~ /sourceforge.net/) {
-		sub("[?&]big_mirror=.*$", "", url);
-		sub("[?&]modtime=.*$", "", url);
-		sub("[?]use_mirror=.*$", "", url);
-		sub("[?]download$", "", url);
-		sub("/download$", "", url);
+		sub("[?&]big_mirror=.*$", "", url)
+		sub("[?&]modtime=.*$", "", url)
+		sub("[?]use_mirror=.*$", "", url)
+		sub("[?]download$", "", url)
+		sub("/download$", "", url)
 	}
 
 	# SF: new style urls, strip "files/" between and prepend dl.
 	if (match(url, "^http://sourceforge.net/projects/[^/]+/files/")) {
-		url = substr(url, 1, RLENGTH - length("files/")) substr(url, RSTART + RLENGTH);
-		sub("^http://sourceforge.net/projects/", "http://downloads.sourceforge.net/project/", url);
+		url = substr(url, 1, RLENGTH - length("files/")) substr(url, RSTART + RLENGTH)
+		sub("^http://sourceforge.net/projects/", "http://downloads.sourceforge.net/project/", url)
 	}
 
 	# SF unify: http://downloads.sourceforge.net/PROJECT/TARBALL
 	# http://downloads.sourceforge.net/project/PROJECT/FILE/VERSION/%{name}-%{version}.zip
 	if (match(url, "^http://downloads.sourceforge.net/project/[^/]+")) {
-		url = sprintf("http://downloads.sourceforge.net/%s/%s", substr(url, 42, RLENGTH - 41), matchstr(url, "[^/]+$"));
+		url = sprintf("http://downloads.sourceforge.net/%s/%s", substr(url, 42, RLENGTH - 41), matchstr(url, "[^/]+$"))
 	}
 
 	sub("^ftp://ftp\.gnome\.org/", "http://ftp.gnome.org/", url)
@@ -1741,53 +1741,53 @@ function unify_url(url)
 function demacroize(str)
 {
 	if (mod_name) {
-		sub("%{mod_name}", mod_name, str);
+		sub("%{mod_name}", mod_name, str)
 	}
 	if (pearname) {
-		sub("%{_pearname}", pearname, str);
+		sub("%{_pearname}", pearname, str)
 	}
 	if (pearname) {
-		sub("%{pearname}", pearname, str);
+		sub("%{pearname}", pearname, str)
 	}
 	if (name) {
-		sub("%{name}", name, str);
+		sub("%{name}", name, str)
 	}
 	if (version) {
-		sub("%{version}", version, str);
+		sub("%{version}", version, str)
 	}
 	if (_beta) {
-		sub("%{_beta}", _beta, str);
+		sub("%{_beta}", _beta, str)
 	}
 	if (_rc) {
-		sub("%{_rc}", _rc, str);
+		sub("%{_rc}", _rc, str)
 	}
 	if (_pre) {
-		sub("%{_pre}", _pre, str);
+		sub("%{_pre}", _pre, str)
 	}
 	if (_snap) {
-		sub("%{_snap}", _snap, str);
+		sub("%{_snap}", _snap, str)
 	}
 	if (subver) {
-		sub("%{subver}", subver, str);
+		sub("%{subver}", subver, str)
 	}
-	return str;
+	return str
 }
 
 function kill_preamble_macros()
 {
 	if ($1 ~ /^Obsoletes:/) {
 		# NB! assigning $2 a value breaks tabbing
-		$2 = demacroize($2);
+		$2 = demacroize($2)
 	}
 	if ($1 ~ /^URL:/) {
 		# NB! assigning $2 a value breaks tabbing
-		$2 = demacroize($2);
+		$2 = demacroize($2)
 		$2 = unify_url($2)
 	}
 
 	# fedora extras
 	if (/%{\?FE_USERADD_REQ}/) {
-		$0 = "";
+		$0 = ""
 		print "BuildRequires:	rpmbuild(macros) >= 1.202"
 		print "Provides:	user(xxx)"
 		print "Requires(postun):	/usr/sbin/userdel"
@@ -1803,9 +1803,9 @@ function get_epoch(pkg, ver,	epoch)
 #	freetype = 2.0.0 -> correct
 #	freetype = 2.1.9 -> with epoch 1, as epoch 1 was added in 2.1.7
 
-	shell = "grep -o '^" pkg ":[^:]\+' ../PLD-doc/BuildRequires.txt | awk '{print $NF}'";
-	shell | getline epoch;
-	return epoch;
+	shell = "grep -o '^" pkg ":[^:]\+' ../PLD-doc/BuildRequires.txt | awk '{print $NF}'"
+	shell | getline epoch
+	return epoch
 }
 
 function format_requires(tag, value,	n, p, i, deps, ndeps) {
@@ -1813,33 +1813,33 @@ function format_requires(tag, value,	n, p, i, deps, ndeps) {
 	if (/^#/ || /%\(/) {
 		return tag "\t" value
 	}
-	n = split(value, p, / *,? */);
+	n = split(value, p, / *,? */)
 	for (i = 1; i <= n; i++) {
 		if (p[i+1] ~ /[<=>]/) {
 			# add epoch if the version doesn't have it but BuildRequires.txt has
 			if (p[i] ~ /^[a-z]/ && p[i+2] !~ /^[0-9]+:/) {
 				epoch = get_epoch(p[i], p[i+2])
 				if (epoch) {
-					p[i+2] = epoch ":" p[i+2];
+					p[i+2] = epoch ":" p[i+2]
 				}
 			}
-			deps[ndeps++] = p[i] " " p[i+1] " " p[i+2];
-			i += 2;
+			deps[ndeps++] = p[i] " " p[i+1] " " p[i+2]
+			i += 2
 		} else {
-			deps[ndeps++] = p[i];
+			deps[ndeps++] = p[i]
 		}
 	}
 	s = ""
 	for (i in deps) {
-		s = s sprintf("%s\t%s\n", tag, deps[i]);
+		s = s sprintf("%s\t%s\n", tag, deps[i])
 	}
-	return substr(s, 1, length(s)-1);
+	return substr(s, 1, length(s)-1)
 }
 
 function use_tabs()
 {
 	# reverse vim: ts=4 sw=4 et
-	gsub(/    /, "\t");
+	gsub(/    /, "\t")
 }
 
 function add_br(br)
@@ -1856,7 +1856,7 @@ function import_rpm_macros(  v) {
 	if (!topdir) {
 		print "adapter.awk should not not be invoked directly, but via adapter script" > "/dev/stderr"
 		do_not_touch_anything = 1
-		exit(rc = 1);
+		exit(rc = 1)
 	}
 
 	# update this version dep each time some new macro export is added
@@ -1864,7 +1864,7 @@ function import_rpm_macros(  v) {
 	if (!ENVIRON["ADAPTER_REVISION"] || ENVIRON["ADAPTER_REVISION"] < v) {
 		printf("adapter shell script is outdated: Need %s, got %s. Please update it.\n", v, ENVIRON["ADAPTER_REVISION"]) > "/dev/stderr"
 		do_not_touch_anything = 1
-		exit(rc = 1);
+		exit(rc = 1)
 	}
 
 	prefix = ENVIRON["_prefix"]
@@ -1930,9 +1930,9 @@ function import_rpm_macros(  v) {
 function replace_opam_deps(field,     name) {
 	name = $2
 	if (name ~ "^(cryptokit|extlib|xmlm)$") {
-		name = "ocaml-" name;
+		name = "ocaml-" name
 	} else if (name ~ "^(biniou|easy-format|yojson|gapi-ocaml)$") {
-		name = "ocaml-" name "-devel";
+		name = "ocaml-" name "-devel"
 	} else if (name == "ocamlfind") {
 		name = "ocaml-findlib"
 	} else if (name == "sqlite3-ocaml") {
@@ -1948,7 +1948,7 @@ function replace_opam_deps(field,     name) {
 	}
 
 	if (name != $2) {
-		$2 = name;
+		$2 = name
 	}
 }
 
@@ -1962,113 +1962,113 @@ function replace_php_virtual_deps(field) {
 
 	if (field == "requires:" || field == "suggests:") {
 		if (pkg ~ /^php-(bcmath|bz2|calendar|ctype|curl|dba|date|dom|enchant|exif|fileinfo|filter|fpm|ftp|gd|gettext|gmp|hash|iconv|imap|interbase|intl|json|ldap|mbstring|mcrypt|mssql|mysql|mysqli|odbc|openssl|pcntl|pcre|pdo|pdo-dblib|pdo-firebird|pdo-mysql|pdo-odbc|pdo-pgsql|pdo-sqlite|pgsql|phar|posix|pspell|readline|recode|reflection|session|shmop|simplexml|snmp|soap|sockets|spl|sqlite|sqlite3|sybase-ct|sysvmsg|sysvsem|sysvshm|tidy|tokenizer|wddx|xml|xmlreader|xmlrpc|xmlwriter|xsl|zip|zlib)/) {
-			sub(/^php-/, "php(", pkg);
-			sub(/$/, ")", pkg);
+			sub(/^php-/, "php(", pkg)
+			sub(/$/, ")", pkg)
 			$2 = pkg
 		}
 	}
 
 	if (pkg == "php" || pkg == "php-common") {
-		$2 = "php(core)";
+		$2 = "php(core)"
 		if ($4 ~ /^[0-9]:/) {
-			$4 = substr($4, 3);
+			$4 = substr($4, 3)
 		}
 	}
 
 	if (pkg == "php4") {
-		$2 = "webserver(php)";
+		$2 = "webserver(php)"
 		if ($4 ~ /^[0-9]:/) {
-			$4 = substr($4, 3);
+			$4 = substr($4, 3)
 		}
 	}
 }
 
 # {{{ replace_groupnames(group)
 function replace_groupnames(group) {
-	group = replace(group, "Amusements/Games", "Applications/Games");
-	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy");
-	group = replace(group, "Application/Multimedia", "Applications/Multimedia");
-	group = replace(group, "Application/System", "Applications/System");
-	group = replace(group, "Applications/Compilers", "Development/Languages");
-	group = replace(group, "Applications/Daemons", "Daemons");
-	group = replace(group, "Applications/Internet", "Applications/Networking");
-	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking");
-	group = replace(group, "Applications/Productivity", "X11/Applications");
-	group = replace(group, "Applications/Security", "Applications/System");
-	group = replace(group, "Applications/Web", "Applications/WWW");
-	group = replace(group, "Database", "Applications/Databases");
-	group = replace(group, "Development/C", "Development/Libraries");
-	group = replace(group, "Development/Code Generators", "Development");
-	group = replace(group, "Development/Docs", "Documentation");
-	group = replace(group, "Development/Documentation", "Documentation");
-	group = replace(group, "Development/Java", "Development/Languages/Java");
-	group = replace(group, "Development/Languages/C and C++", "Libraries");
-	group = replace(group, "Development/Languages/Other", "Development/Languages");;
-	group = replace(group, "Development/Languages/Ruby", "Development/Languages");
-	group = replace(group, "Development/Libraries/C and C++", "Development/Libraries");
-	group = replace(group, "Development/Libraries/Java", "Development/Languages/Java");
-	group = replace(group, "Development/Libraries/Python", "Development/Languages/Python");
-	group = replace(group, "Development/Libraries/TCL", "Development/Languages/Tcl");;
-	group = replace(group, "Development/Other", "Development");
-	group = replace(group, "Development/Python", "Development/Languages/Python");
-	group = replace(group, "Development/Testing", "Development");
-	group = replace(group, "Editors", "Applications/Text");
-	group = replace(group, "Emulators", "Applications/Emulators");
-	group = replace(group, "File tools", "Applications/File");
-	group = replace(group, "Games", "Applications/Games");
-	group = replace(group, "Library/Development", "Development/Libraries");
-	group = replace(group, "Networking/Deamons", "Networking/Daemons");
-	group = replace(group, "Networking/Mail", "Applications/Mail");
-	group = replace(group, "Networking/Other", "Networking");
-	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases");
-	group = replace(group, "Productivity/Multimedia/Other", "X11/Applications/Multimedia");
-	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP");;
-	group = replace(group, "Python/Libraries", "Libraries/Python");
-	group = replace(group, "Shells", "Applications/Shells");
-	group = replace(group, "System Environment/Base", "Base");
-	group = replace(group, "System Environment/Daemons", "Daemons");
-	group = replace(group, "System Environment/Kernel", "Base/Kernel");
-	group = replace(group, "System Environment/Libraries", "Libraries");
-	group = replace(group, "System Tools", "Applications/System");
-	group = replace(group, "System", "Base");
-	group = replace(group, "System/Base", "Base");
-	group = replace(group, "System/Kernel and hardware", "Base/Kernel");
-	group = replace(group, "System/Libraries", "Libraries");
-	group = replace(group, "System/Servers", "Daemons");
-	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text");
-	group = replace(group, "Text Processing/Markup/XML", "Applications/Text");
-	group = replace(group, "Text tools", "Applications/Text");
-	group = replace(group, "User Interface/Desktops", "X11/Applications");
-	group = replace(group, "User Interface/X", "X11/Applications");
-	group = replace(group, "Utilities/System", "Applications/System");
-	group = replace(group, "Web/Database", "Applications/WWW");
-	group = replace(group, "X11/GNOME", "X11/Applications");
-	group = replace(group, "X11/GNOME/Applications", "X11/Applications");
-	group = replace(group, "X11/GNOME/Development/Libraries", "X11/Development/Libraries");
-	group = replace(group, "X11/Games", "X11/Applications/Games");
-	group = replace(group, "X11/Games/Strategy", "X11/Applications/Games/Strategy");
-	group = replace(group, "X11/Library", "X11/Libraries");
-	group = replace(group, "X11/Utilities", "X11/Applications");
-	group = replace(group, "X11/XFree86", "X11");
-	group = replace(group, "X11/Xserver", "X11/Servers");
+	group = replace(group, "Amusements/Games", "Applications/Games")
+	group = replace(group, "Amusements/Games/Strategy/Real Time", "X11/Applications/Games/Strategy")
+	group = replace(group, "Application/Multimedia", "Applications/Multimedia")
+	group = replace(group, "Application/System", "Applications/System")
+	group = replace(group, "Applications/Compilers", "Development/Languages")
+	group = replace(group, "Applications/Daemons", "Daemons")
+	group = replace(group, "Applications/Internet", "Applications/Networking")
+	group = replace(group, "Applications/Internet/Peer to Peer", "Applications/Networking")
+	group = replace(group, "Applications/Productivity", "X11/Applications")
+	group = replace(group, "Applications/Security", "Applications/System")
+	group = replace(group, "Applications/Web", "Applications/WWW")
+	group = replace(group, "Database", "Applications/Databases")
+	group = replace(group, "Development/C", "Development/Libraries")
+	group = replace(group, "Development/Code Generators", "Development")
+	group = replace(group, "Development/Docs", "Documentation")
+	group = replace(group, "Development/Documentation", "Documentation")
+	group = replace(group, "Development/Java", "Development/Languages/Java")
+	group = replace(group, "Development/Languages/C and C++", "Libraries")
+	group = replace(group, "Development/Languages/Other", "Development/Languages")
+	group = replace(group, "Development/Languages/Ruby", "Development/Languages")
+	group = replace(group, "Development/Libraries/C and C++", "Development/Libraries")
+	group = replace(group, "Development/Libraries/Java", "Development/Languages/Java")
+	group = replace(group, "Development/Libraries/Python", "Development/Languages/Python")
+	group = replace(group, "Development/Libraries/TCL", "Development/Languages/Tcl")
+	group = replace(group, "Development/Other", "Development")
+	group = replace(group, "Development/Python", "Development/Languages/Python")
+	group = replace(group, "Development/Testing", "Development")
+	group = replace(group, "Editors", "Applications/Text")
+	group = replace(group, "Emulators", "Applications/Emulators")
+	group = replace(group, "File tools", "Applications/File")
+	group = replace(group, "Games", "Applications/Games")
+	group = replace(group, "Library/Development", "Development/Libraries")
+	group = replace(group, "Networking/Deamons", "Networking/Daemons")
+	group = replace(group, "Networking/Mail", "Applications/Mail")
+	group = replace(group, "Networking/Other", "Networking")
+	group = replace(group, "Productivity/Databases/Servers", "Applications/Databases")
+	group = replace(group, "Productivity/Multimedia/Other", "X11/Applications/Multimedia")
+	group = replace(group, "Productivity/Networking/Web/Servers", "Networking/Daemons/HTTP")
+	group = replace(group, "Python/Libraries", "Libraries/Python")
+	group = replace(group, "Shells", "Applications/Shells")
+	group = replace(group, "System Environment/Base", "Base")
+	group = replace(group, "System Environment/Daemons", "Daemons")
+	group = replace(group, "System Environment/Kernel", "Base/Kernel")
+	group = replace(group, "System Environment/Libraries", "Libraries")
+	group = replace(group, "System Tools", "Applications/System")
+	group = replace(group, "System", "Base")
+	group = replace(group, "System/Base", "Base")
+	group = replace(group, "System/Kernel and hardware", "Base/Kernel")
+	group = replace(group, "System/Libraries", "Libraries")
+	group = replace(group, "System/Servers", "Daemons")
+	group = replace(group, "Text Processing/Markup/HTML", "Applications/Text")
+	group = replace(group, "Text Processing/Markup/XML", "Applications/Text")
+	group = replace(group, "Text tools", "Applications/Text")
+	group = replace(group, "User Interface/Desktops", "X11/Applications")
+	group = replace(group, "User Interface/X", "X11/Applications")
+	group = replace(group, "Utilities/System", "Applications/System")
+	group = replace(group, "Web/Database", "Applications/WWW")
+	group = replace(group, "X11/GNOME", "X11/Applications")
+	group = replace(group, "X11/GNOME/Applications", "X11/Applications")
+	group = replace(group, "X11/GNOME/Development/Libraries", "X11/Development/Libraries")
+	group = replace(group, "X11/Games", "X11/Applications/Games")
+	group = replace(group, "X11/Games/Strategy", "X11/Applications/Games/Strategy")
+	group = replace(group, "X11/Library", "X11/Libraries")
+	group = replace(group, "X11/Utilities", "X11/Applications")
+	group = replace(group, "X11/XFree86", "X11")
+	group = replace(group, "X11/Xserver", "X11/Servers")
 
-	return group;
+	return group
 }
 # }}}
 
 # {{{ replace_pkgconfig(pkg)
 function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
-	n = split("/usr/lib64/pkgconfig /usr/lib/pkgconfig /usr/share/pkgconfig", path, / /);
+	n = split("/usr/lib64/pkgconfig /usr/lib/pkgconfig /usr/share/pkgconfig", path, / /)
 	for (i = 1; i <= n; i++) {
-		cmd = "rpm -qf --qf '%{N}' " path[i] "/" pkg ".pc";
+		cmd = "rpm -qf --qf '%{N}' " path[i] "/" pkg ".pc"
 		# Getline returns 0 on end-of-file, -1 on error, otherwise 1.
 		if ((cmd | getline line) <= 0) {
-			continue;
+			continue
 		}
 
 		if (line !~ /No such file or directory/) {
 			# @modifies global $2
-			$2 = line;
+			$2 = line
 			return
 		}
 	}
@@ -2077,16 +2077,16 @@ function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
 
 # {{{ replace_pythonegg(pkg)
 function replace_pythonegg(pkg,    cmd, line) {
-	cmd = "rpm -q --qf '%{N}' --whatprovides 'pythonegg(" pkg ")'";
+	cmd = "rpm -q --qf '%{N}' --whatprovides 'pythonegg(" pkg ")'"
 	# Getline returns 0 on end-of-file, -1 on error, otherwise 1.
 	if ((cmd | getline line) <= 0) {
-		return;
+		return
 	}
 
 	if (line !~ /no package provides/) {
 		# @modifies global $2
-		$2 = line;
-		return;
+		$2 = line
+		return
 	}
 }
 # }}}
@@ -2094,297 +2094,297 @@ function replace_pythonegg(pkg,    cmd, line) {
 function replace_requires(field,   pkg) {
 	# pkg-config -> package names
 	if (match($2, /pkgconfig\(([^)]+)\)/)) {
-		pkg = substr($2, RSTART + 10, RLENGTH - 11);
-		replace_pkgconfig(pkg);
+		pkg = substr($2, RSTART + 10, RLENGTH - 11)
+		replace_pkgconfig(pkg)
 	}
 
 	# pythonegg -> package names
 	if (match($2, /pythonegg\(([^)]+)\)/)) {
-		pkg = substr($2, RSTART + 10, RLENGTH - 11);
-		replace_pythonegg(pkg);
+		pkg = substr($2, RSTART + 10, RLENGTH - 11)
+		replace_pythonegg(pkg)
 	}
 
-	sub(/^python-setuptools-devel$/, "python-distribute", $2);
-	sub(/^gcc-g77/, "gcc-fortran", $2);
+	sub(/^python-setuptools-devel$/, "python-distribute", $2)
+	sub(/^gcc-g77/, "gcc-fortran", $2)
 
 	# use virtual, not package name
-	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2);
+	sub(/^rpm-build-macros$/, "rpmbuild(macros)", $2)
 
 	# bad package.xml, see http://pear.php.net/bugs/bug.php?id=17779
-	sub(/^php-php-gtk/, "php-gtk2", $2);
+	sub(/^php-php-gtk/, "php-gtk2", $2)
 
 	# {{{ jpackages / fedora java packages
-	sub(/^antlr3$/, "java-antlr3", $2);
-	sub(/^aqute-bnd$/, "java-bnd", $2);
-	sub(/^avalon-framework$/, "java-avalon-framework", $2);
-	sub(/^avalon-logkit$/, "java-avalon-logkit", $2);
-	sub(/^axis$/, "java-axis", $2);
-	sub(/^bouncycastle$/, "java-bcprov", $2);
-	sub(/^bouncycastle-mail$/, "java-bcmail", $2);
-	sub(/^bouncycastle-pg$/, "java-bcpg", $2);
-	sub(/^bouncycastle-tsp$/, "java-bctsp", $2);
-	sub(/^bsf$/, "java-bsf", $2);
-	sub(/^dom4j$/, "java-dom4j", $2);
-	sub(/^flute$/, "java-flute", $2);
-	sub(/^gnu-regexp$/, "java-gnu-regexp", $2);
-	sub(/^gnu.regexp$/, "java-gnu-regexp", $2);
-	sub(/^hamcrest$/, "java-hamcrest", $2);
-	sub(/^itext$/, "java-itext", $2);
-	sub(/^jaas$/, "java(jaas)", $2);
-	sub(/^jaf$/, "java(jaf)", $2);
-	sub(/^jakarta-ant$/, "ant", $2);
-	sub(/^jakarta-commons-codec$/, "java-commons-codec", $2);
-	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2);
-	sub(/^jakarta-commons-lang24$/, "java-commons-lang", $2);
-	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2);
-	sub(/^jakarta-commons-net$/, "java-commons-net", $2);
-	sub(/^jakarta-log4j$/, "java-log4j", $2);
-	sub(/^jakarta-oro$/, "java-oro", $2);
-	sub(/^jakarta-servletapi$/, "java(servlet)", $2);
-	sub(/^java-devel$/, "jdk", $2);
-	sub(/^java-dom$/, "java-dom4j", $2);
-	sub(/^java\(JSP\)$/, "java(jsp)", $2);
-	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2);
-	sub(/^java\(Portlet\)$/, "java(portlet)", $2);
-	sub(/^java\(Servlet\)$/, "java(servlet)", $2);
-	sub(/^javamail$/, "java(javamail)", $2);
-	sub(/^jaxp$/, "java(jaxp)", $2);
-	sub(/^jaxp_parser_impl$/, "java(jaxp_parser_impl)", $2);
-	sub(/^jaxp_transform_impl$/, "java(jaxp_transform_impl)", $2);
-	sub(/^jce$/, "java(jce)", $2);
-	sub(/^jcommon$/, "java-jcommon", $2);
-	sub(/^jdbc-stdext$/, "java(jdbc-stdext)", $2);
-	sub(/^jdepend$/, "java-jdepend", $2);
-	sub(/^jfreechart$/, "java-jfreechart", $2);
-	sub(/^jmx$/, "java(jmx)", $2);
-	sub(/^jndi$/, "java(jndi)", $2);
-	sub(/^jsch$/, "java-jsch", $2);
-	sub(/^jsse$/, "java(jsse)", $2);
-	sub(/^jta$/, "java(jta)", $2);
-	sub(/^junit$/, "java-junit", $2);
-	sub(/^junit4$/, "java-junit", $2);
-	sub(/^ldapjdk$/, "ldapsdk", $2);
-	sub(/^libbase$/, "java-libbase", $2);
-	sub(/^libfonts$/, "java-libfonts", $2);
-	sub(/^libformula$/, "java-libformula", $2);
-	sub(/^liblayout$/, "java-liblayout", $2);
-	sub(/^libloader$/, "java-libloader", $2);
-	sub(/^librepository$/, "java-librepository", $2);
-	sub(/^libserializer$/, "java-libserializer", $2);
-	sub(/^log4j$/, "java-log4j", $2);
-	sub(/^logging-log4j$/, "java-log4j", $2);
-	sub(/^oro$/, "java-oro", $2);
-	sub(/^pdf-renderer$/, "java-pdf-renderer", $2);
-	sub(/^pentaho-libxml$/, "java-libxml", $2);
-	sub(/^rhino$/, "java-rhino", $2);
-	sub(/^sac$/, "java-sac", $2);
-	sub(/^saxon-scripts$/, "saxon", $2);
-	sub(/^servlet$/, "java(servlet)", $2);
-	sub(/^uddi4j$/, "java-uddi4j", $2);
-	sub(/^ws-jaxme$/, "java-jaxme", $2);
-	sub(/^wsdl4j$/, "java-wsdl4j", $2);
-	sub(/^xalan-j$/, "java-xalan", $2);
-	sub(/^xalan-j2$/, "java-xalan", $2);
-	sub(/^xerces-j$/, "java-xerces", $2);
-	sub(/^xerces-j2$/, "java-xerces", $2);
-	sub(/^xml-commons-apis$/, "java-xml-commons", $2);
-	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2);
-	sub(/^xmldb-api$/, "java-xmldb", $2);
-	sub(/^xmldb-api-sdk$/, "java-xmldb-sdk", $2);
+	sub(/^antlr3$/, "java-antlr3", $2)
+	sub(/^aqute-bnd$/, "java-bnd", $2)
+	sub(/^avalon-framework$/, "java-avalon-framework", $2)
+	sub(/^avalon-logkit$/, "java-avalon-logkit", $2)
+	sub(/^axis$/, "java-axis", $2)
+	sub(/^bouncycastle$/, "java-bcprov", $2)
+	sub(/^bouncycastle-mail$/, "java-bcmail", $2)
+	sub(/^bouncycastle-pg$/, "java-bcpg", $2)
+	sub(/^bouncycastle-tsp$/, "java-bctsp", $2)
+	sub(/^bsf$/, "java-bsf", $2)
+	sub(/^dom4j$/, "java-dom4j", $2)
+	sub(/^flute$/, "java-flute", $2)
+	sub(/^gnu-regexp$/, "java-gnu-regexp", $2)
+	sub(/^gnu.regexp$/, "java-gnu-regexp", $2)
+	sub(/^hamcrest$/, "java-hamcrest", $2)
+	sub(/^itext$/, "java-itext", $2)
+	sub(/^jaas$/, "java(jaas)", $2)
+	sub(/^jaf$/, "java(jaf)", $2)
+	sub(/^jakarta-ant$/, "ant", $2)
+	sub(/^jakarta-commons-codec$/, "java-commons-codec", $2)
+	sub(/^jakarta-commons-httpclient$/, "java-commons-httpclient", $2)
+	sub(/^jakarta-commons-lang24$/, "java-commons-lang", $2)
+	sub(/^jakarta-commons-logging$/, "java-commons-logging", $2)
+	sub(/^jakarta-commons-net$/, "java-commons-net", $2)
+	sub(/^jakarta-log4j$/, "java-log4j", $2)
+	sub(/^jakarta-oro$/, "java-oro", $2)
+	sub(/^jakarta-servletapi$/, "java(servlet)", $2)
+	sub(/^java-devel$/, "jdk", $2)
+	sub(/^java-dom$/, "java-dom4j", $2)
+	sub(/^java\(JSP\)$/, "java(jsp)", $2)
+	sub(/^java\(JavaServerFaces\)$/, "java(javaserverfaces)", $2)
+	sub(/^java\(Portlet\)$/, "java(portlet)", $2)
+	sub(/^java\(Servlet\)$/, "java(servlet)", $2)
+	sub(/^javamail$/, "java(javamail)", $2)
+	sub(/^jaxp$/, "java(jaxp)", $2)
+	sub(/^jaxp_parser_impl$/, "java(jaxp_parser_impl)", $2)
+	sub(/^jaxp_transform_impl$/, "java(jaxp_transform_impl)", $2)
+	sub(/^jce$/, "java(jce)", $2)
+	sub(/^jcommon$/, "java-jcommon", $2)
+	sub(/^jdbc-stdext$/, "java(jdbc-stdext)", $2)
+	sub(/^jdepend$/, "java-jdepend", $2)
+	sub(/^jfreechart$/, "java-jfreechart", $2)
+	sub(/^jmx$/, "java(jmx)", $2)
+	sub(/^jndi$/, "java(jndi)", $2)
+	sub(/^jsch$/, "java-jsch", $2)
+	sub(/^jsse$/, "java(jsse)", $2)
+	sub(/^jta$/, "java(jta)", $2)
+	sub(/^junit$/, "java-junit", $2)
+	sub(/^junit4$/, "java-junit", $2)
+	sub(/^ldapjdk$/, "ldapsdk", $2)
+	sub(/^libbase$/, "java-libbase", $2)
+	sub(/^libfonts$/, "java-libfonts", $2)
+	sub(/^libformula$/, "java-libformula", $2)
+	sub(/^liblayout$/, "java-liblayout", $2)
+	sub(/^libloader$/, "java-libloader", $2)
+	sub(/^librepository$/, "java-librepository", $2)
+	sub(/^libserializer$/, "java-libserializer", $2)
+	sub(/^log4j$/, "java-log4j", $2)
+	sub(/^logging-log4j$/, "java-log4j", $2)
+	sub(/^oro$/, "java-oro", $2)
+	sub(/^pdf-renderer$/, "java-pdf-renderer", $2)
+	sub(/^pentaho-libxml$/, "java-libxml", $2)
+	sub(/^rhino$/, "java-rhino", $2)
+	sub(/^sac$/, "java-sac", $2)
+	sub(/^saxon-scripts$/, "saxon", $2)
+	sub(/^servlet$/, "java(servlet)", $2)
+	sub(/^uddi4j$/, "java-uddi4j", $2)
+	sub(/^ws-jaxme$/, "java-jaxme", $2)
+	sub(/^wsdl4j$/, "java-wsdl4j", $2)
+	sub(/^xalan-j$/, "java-xalan", $2)
+	sub(/^xalan-j2$/, "java-xalan", $2)
+	sub(/^xerces-j$/, "java-xerces", $2)
+	sub(/^xerces-j2$/, "java-xerces", $2)
+	sub(/^xml-commons-apis$/, "java-xml-commons", $2)
+	sub(/^xml-commons-resolver$/, "java-xml-commons-resolver", $2)
+	sub(/^xmldb-api$/, "java-xmldb", $2)
+	sub(/^xmldb-api-sdk$/, "java-xmldb-sdk", $2)
 	# }}}
 
 	# {{{ fedora / redhat
-	sub(/^Django$/, "python-django", $2);
-	sub(/^GitPython$/, "python-git", $2);
-	sub(/^MySQL-python$/, "python-MySQLdb", $2);
-	sub(/^NetworkManager-glib-devel$/, "NetworkManager-devel", $2);
-	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2);
-	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2);
-	sub(/^PyYAML$/, "python-PyYAML", $2);
-	sub(/^ccid$/, "pcsc-driver-ccid", $2);
-	sub(/^chkconfig$/, "/sbin/chkconfig", $2);
-	sub(/^db4-devel$/, "db-devel", $2);
-	sub(/^dbus-python$/, "python-dbus", $2);
-	sub(/^desktop-notification-daemon$/, "dbus(org.freedesktop.Notifications)", $2);
-	sub(/^device-mapper-multipath$/, "multipath-tools", $2);
-	sub(/^django-tagging$/, "python-django_tagging", $2);
-	sub(/^elfutils-libelf-devel$/, "elfutils-devel", $2);
-	sub(/^file-devel$/, "libmagic-devel", $2);
-	sub(/^freetype2-devel$/, "freetype-devel", $2);
-	sub(/^fuse-devel$/, "libfuse-devel", $2);
-	sub(/^gamin-python$/, "python-gamin", $2);
-	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2);
-	sub(/^gnome-desktop3-devel$/, "gnome-desktop-devel", $2);
-	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2);
-	sub(/^gnome-python2-gconf$/, "python-gnome-gconf", $2);
-	sub(/^gnome-python2-gnomekeyring$/, "python-gnome-desktop-keyring", $2);
-	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2);
-	sub(/^gtk-sharp2-devel$/, "dotnet-gtk-sharp2-devel", $2);
-	sub(/^gtk2$/, "gtk+2", $2);
-	sub(/^gtk2-devel$/, "gtk+2-devel", $2);
-	sub(/^gtk3$/, "gtk+3", $2);
-	sub(/^gtk3-devel$/, "gtk+3-devel", $2);
-	sub(/^initscripts$/, "rc-scripts", $2);
-	sub(/^iproute$/, "iproute2", $2);
-	sub(/^iptables-ipv6$/, "iptables", $2);
-	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2);
-	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2);
-	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2);
-	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2);
-	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2);
-	sub(/^libXau-devel$/, "xorg-lib-libXau-devel", $2);
-	sub(/^libXcomposite-devel$/, "xorg-lib-libXcomposite-devel", $2);
-	sub(/^libXcursor-devel$/, "xorg-lib-libXcursor-devel", $2);
-	sub(/^libXdamage-devel$/, "xorg-lib-libXdamage-devel", $2);
-	sub(/^libXext-devel$/, "xorg-lib-libXext-devel", $2);
-	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2);
-	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2);
-	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2);
-	sub(/^libXrender-devel$/, "xorg-lib-libXrender-devel", $2);
-	sub(/^libXt-devel$/, "xorg-lib-libXt-devel", $2);
-	sub(/^libXtst-devel$/, "xorg-lib-libXtst-devel", $2);
-	sub(/^libXv-devel$/, "xorg-lib-libXv-devel", $2);
-	sub(/^libXxf86misc-devel$/, "xorg-lib-libXxf86misc-devel", $2);
-	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2);
-	sub(/^libacl-devel$/, "acl-devel", $2);
-	sub(/^libattr-devel$/, "attr-devel", $2);
-	sub(/^libcurl-devel$/, "curl-devel", $2);
-	sub(/^libgudev1-devel$/, "udev-glib-devel", $2);
-	sub(/^libmx-devel$/, "mx-devel", $2);
-	sub(/^libselinux-python$/, "python-selinux", $2);
-	sub(/^libsrtp-devel$/, "srtp-devel", $2);
-	sub(/^libtdb$/, "tdb", $2);
-	sub(/^libtdb-devel$/, "tdb-devel", $2);
-	sub(/^libtevent$/, "tevent", $2);
-	sub(/^libtevent-devel$/, "tevent-devel", $2);
-	sub(/^libusb1-devel$/, "libusb-devel", $2);
-	sub(/^libuser-python$/, "python-libuser", $2);
-	sub(/^libxkbfile-devel$/, "xorg-lib-libxkbfile", $2);
-	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2);
-	sub(/^newt-python$/, "python-snack", $2);
-	sub(/^notify-python$/, "python-pynotify", $2);
-	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2);
-	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2);
-	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2);
-	sub(/^pycairo$/, "python-pycairo", $2);
-	sub(/^pyflakes$/, "python-pyflakes", $2);
-	sub(/^pygobject2$/, "python-pygobject", $2);
-	sub(/^pygobject3$/, "python-pygobject3", $2);
-	sub(/^pygobject3-devel$/, "python-pygobject3-common-devel", $2);
-	sub(/^pygtk2$/, "python-pygtk", $2);
-	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2);
-	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2);
-	sub(/^pykickstart$/, "python-pykickstart", $2);
-	sub(/^pyparsing$/, "python-pyparsing", $2);
-	sub(/^pyparted$/, "python-parted", $2);
-	sub(/^pysvn$/, "python-pysvn", $2);
-	sub(/^pytalloc$/, "python-talloc", $2);
-	sub(/^pytalloc-devel$/, "python-talloc-devel", $2);
-	sub(/^pytest$/, "python-pytest", $2);
-	sub(/^python-crypto$/, "python-Crypto", $2);
-	sub(/^python-cups$/, "python-pycups", $2);
-	sub(/^python-enchant$/, "python-pyenchant", $2);
-	sub(/^python-imaging$/, "python-PIL", $2);
-	sub(/^python-imaging-tk$/, "python-PIL-tk", $2);
-	sub(/^python-newt$/, "python-snack", $2);
-	sub(/^python-pygtk$/, "python-pygtk-gtk", $2);
-	sub(/^python-recaptcha-client$/, "python-recaptcha", $2);
-	sub(/^python-sphinx$/, "python-Sphinx", $2);
-	sub(/^python-twisted$/, "python-TwistedCore", $2);
-	sub(/^python-twisted-core$/, "python-TwistedCore", $2);
-	sub(/^python-twisted-names$/, "python-TwistedNames", $2);
-	sub(/^python2-devel$/, "python-devel", $2);
-	sub(/^pytz$/, "python-pytz", $2);
-	sub(/^pyxdg$/, "python-pyxdg", $2);
-	sub(/^qt4-devel$/, "qt4-build", $2);
-	sub(/^qt4-webkit-devel$/, "QtWebKit-devel", $2);
-	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2);
-	sub(/^qtsingleapplication-devel$/, "QtSingleApplication-devel", $2);
-	sub(/^rpm-python$/, "python-rpm", $2);
-	sub(/^sip-devel$/, "python-sip-devel", $2);
-	sub(/^tftp-server$/, "tftpdaemon", $2);
-	sub(/^tkinter$/, "python-tkinter", $2);
-	sub(/^urw-fonts$/, "fonts-Type1-urw", $2);
-	sub(/^webkitgtk3-devel$/, "gtk-webkit3-devel", $2);
-	sub(/^xapian-bindings-python$/, "python-xapian", $2);
-	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2);
+	sub(/^Django$/, "python-django", $2)
+	sub(/^GitPython$/, "python-git", $2)
+	sub(/^MySQL-python$/, "python-MySQLdb", $2)
+	sub(/^NetworkManager-glib-devel$/, "NetworkManager-devel", $2)
+	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2)
+	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2)
+	sub(/^PyYAML$/, "python-PyYAML", $2)
+	sub(/^ccid$/, "pcsc-driver-ccid", $2)
+	sub(/^chkconfig$/, "/sbin/chkconfig", $2)
+	sub(/^db4-devel$/, "db-devel", $2)
+	sub(/^dbus-python$/, "python-dbus", $2)
+	sub(/^desktop-notification-daemon$/, "dbus(org.freedesktop.Notifications)", $2)
+	sub(/^device-mapper-multipath$/, "multipath-tools", $2)
+	sub(/^django-tagging$/, "python-django_tagging", $2)
+	sub(/^elfutils-libelf-devel$/, "elfutils-devel", $2)
+	sub(/^file-devel$/, "libmagic-devel", $2)
+	sub(/^freetype2-devel$/, "freetype-devel", $2)
+	sub(/^fuse-devel$/, "libfuse-devel", $2)
+	sub(/^gamin-python$/, "python-gamin", $2)
+	sub(/^gcc-c\+\+$/, "libstdc++-devel", $2)
+	sub(/^gnome-desktop3-devel$/, "gnome-desktop-devel", $2)
+	sub(/^gnome-python2-extras$/, "python-gnome-extras", $2)
+	sub(/^gnome-python2-gconf$/, "python-gnome-gconf", $2)
+	sub(/^gnome-python2-gnomekeyring$/, "python-gnome-desktop-keyring", $2)
+	sub(/^gnome-python2-gtkspell$/, "python-gnome-extras-gtkspell", $2)
+	sub(/^gtk-sharp2-devel$/, "dotnet-gtk-sharp2-devel", $2)
+	sub(/^gtk2$/, "gtk+2", $2)
+	sub(/^gtk2-devel$/, "gtk+2-devel", $2)
+	sub(/^gtk3$/, "gtk+3", $2)
+	sub(/^gtk3-devel$/, "gtk+3-devel", $2)
+	sub(/^initscripts$/, "rc-scripts", $2)
+	sub(/^iproute$/, "iproute2", $2)
+	sub(/^iptables-ipv6$/, "iptables", $2)
+	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2)
+	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2)
+	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2)
+	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2)
+	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2)
+	sub(/^libXau-devel$/, "xorg-lib-libXau-devel", $2)
+	sub(/^libXcomposite-devel$/, "xorg-lib-libXcomposite-devel", $2)
+	sub(/^libXcursor-devel$/, "xorg-lib-libXcursor-devel", $2)
+	sub(/^libXdamage-devel$/, "xorg-lib-libXdamage-devel", $2)
+	sub(/^libXext-devel$/, "xorg-lib-libXext-devel", $2)
+	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2)
+	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2)
+	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2)
+	sub(/^libXrender-devel$/, "xorg-lib-libXrender-devel", $2)
+	sub(/^libXt-devel$/, "xorg-lib-libXt-devel", $2)
+	sub(/^libXtst-devel$/, "xorg-lib-libXtst-devel", $2)
+	sub(/^libXv-devel$/, "xorg-lib-libXv-devel", $2)
+	sub(/^libXxf86misc-devel$/, "xorg-lib-libXxf86misc-devel", $2)
+	sub(/^libXxf86vm-devel$/, "xorg-lib-libXxf86vm-devel", $2)
+	sub(/^libacl-devel$/, "acl-devel", $2)
+	sub(/^libattr-devel$/, "attr-devel", $2)
+	sub(/^libcurl-devel$/, "curl-devel", $2)
+	sub(/^libgudev1-devel$/, "udev-glib-devel", $2)
+	sub(/^libmx-devel$/, "mx-devel", $2)
+	sub(/^libselinux-python$/, "python-selinux", $2)
+	sub(/^libsrtp-devel$/, "srtp-devel", $2)
+	sub(/^libtdb$/, "tdb", $2)
+	sub(/^libtdb-devel$/, "tdb-devel", $2)
+	sub(/^libtevent$/, "tevent", $2)
+	sub(/^libtevent-devel$/, "tevent-devel", $2)
+	sub(/^libusb1-devel$/, "libusb-devel", $2)
+	sub(/^libuser-python$/, "python-libuser", $2)
+	sub(/^libxkbfile-devel$/, "xorg-lib-libxkbfile", $2)
+	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2)
+	sub(/^newt-python$/, "python-snack", $2)
+	sub(/^notify-python$/, "python-pynotify", $2)
+	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2)
+	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2)
+	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2)
+	sub(/^pycairo$/, "python-pycairo", $2)
+	sub(/^pyflakes$/, "python-pyflakes", $2)
+	sub(/^pygobject2$/, "python-pygobject", $2)
+	sub(/^pygobject3$/, "python-pygobject3", $2)
+	sub(/^pygobject3-devel$/, "python-pygobject3-common-devel", $2)
+	sub(/^pygtk2$/, "python-pygtk", $2)
+	sub(/^pygtk2-devel$/, "python-pygtk-devel", $2)
+	sub(/^pygtk2-libglade$/, "python-pygtk-glade", $2)
+	sub(/^pykickstart$/, "python-pykickstart", $2)
+	sub(/^pyparsing$/, "python-pyparsing", $2)
+	sub(/^pyparted$/, "python-parted", $2)
+	sub(/^pysvn$/, "python-pysvn", $2)
+	sub(/^pytalloc$/, "python-talloc", $2)
+	sub(/^pytalloc-devel$/, "python-talloc-devel", $2)
+	sub(/^pytest$/, "python-pytest", $2)
+	sub(/^python-crypto$/, "python-Crypto", $2)
+	sub(/^python-cups$/, "python-pycups", $2)
+	sub(/^python-enchant$/, "python-pyenchant", $2)
+	sub(/^python-imaging$/, "python-PIL", $2)
+	sub(/^python-imaging-tk$/, "python-PIL-tk", $2)
+	sub(/^python-newt$/, "python-snack", $2)
+	sub(/^python-pygtk$/, "python-pygtk-gtk", $2)
+	sub(/^python-recaptcha-client$/, "python-recaptcha", $2)
+	sub(/^python-sphinx$/, "python-Sphinx", $2)
+	sub(/^python-twisted$/, "python-TwistedCore", $2)
+	sub(/^python-twisted-core$/, "python-TwistedCore", $2)
+	sub(/^python-twisted-names$/, "python-TwistedNames", $2)
+	sub(/^python2-devel$/, "python-devel", $2)
+	sub(/^pytz$/, "python-pytz", $2)
+	sub(/^pyxdg$/, "python-pyxdg", $2)
+	sub(/^qt4-devel$/, "qt4-build", $2)
+	sub(/^qt4-webkit-devel$/, "QtWebKit-devel", $2)
+	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2)
+	sub(/^qtsingleapplication-devel$/, "QtSingleApplication-devel", $2)
+	sub(/^rpm-python$/, "python-rpm", $2)
+	sub(/^sip-devel$/, "python-sip-devel", $2)
+	sub(/^tftp-server$/, "tftpdaemon", $2)
+	sub(/^tkinter$/, "python-tkinter", $2)
+	sub(/^urw-fonts$/, "fonts-Type1-urw", $2)
+	sub(/^webkitgtk3-devel$/, "gtk-webkit3-devel", $2)
+	sub(/^xapian-bindings-python$/, "python-xapian", $2)
+	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2)
 	# }}}
 
 	# {{{ mandriva
-	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2);
-	sub(/^python-pyrex$/, "python-Pyrex", $2);
-	sub(/^webkitgtk-devel$/, "gtk-webkit-devel", $2);
-	sub(/^python-curl$/, "python-pycurl", $2);
-	sub(/^python-webkitgtk$/, "python-pywebkitgtk", $2);
-	sub(/^pygtk2.0$/, "python-pygtk-gtk", $2);
-	sub(/^gnome-python-gconf$/, "python-gnome-gconf", $2);
+	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2)
+	sub(/^python-pyrex$/, "python-Pyrex", $2)
+	sub(/^webkitgtk-devel$/, "gtk-webkit-devel", $2)
+	sub(/^python-curl$/, "python-pycurl", $2)
+	sub(/^python-webkitgtk$/, "python-pywebkitgtk", $2)
+	sub(/^pygtk2.0$/, "python-pygtk-gtk", $2)
+	sub(/^gnome-python-gconf$/, "python-gnome-gconf", $2)
 	# }}}
 
 	# {{{ debian / ubuntu
-	sub(/^blkid-dev$/, "libblkid-devel", $2);
-	sub(/^ext2fs-dev$/, "e2fsprogs-devel", $2);
-	sub(/^libao-dev$/, "libao-devel", $2);
-	sub(/^libboost-filesystem[0-9.]+-dev$/, "boost-devel", $2);
-	sub(/^libboost-program-options[0-9.]+-dev$/, "boost-devel", $2);
-	sub(/^libboost-regex[0-9.]+-dev$/, "boost-devel", $2);
-	sub(/^libboost-thread[0-9.]+-dev$/, "boost-devel", $2);
-	sub(/^libcurl4-openssl-dev$/, "curl-devel", $2);
-	sub(/^libdnet-dev$/, "libdnet-devel", $2);
-	sub(/^libesd0-dev$/, "esound-devel", $2);
-	sub(/^libfishsound1-dev$/, "libfishsound-devel", $2);
-	sub(/^libgconf2-dev$/, "GConf2-devel", $2);
-	sub(/^libgl1-mesa-dev$/, "OpenGL-devel", $2);
-	sub(/^libgl1-mesa-dri$/, "OpenGL", $2);
-	sub(/^libglib2.0-dev$/, "glib2-devel", $2);
-	sub(/^libglu1-mesa-dev$/, "OpenGL-GLU-devel", $2);
-	sub(/^libgtk2.0-dev$/, "gtk+2-devel", $2);
-	sub(/^libhunspell-dev$/, "hunspell-devel", $2);
-	sub(/^libmcrypt-dev$/, "libmcrypt-devel", $2);
-	sub(/^libmhash-dev$/, "mhash-devel", $2);
-	sub(/^liboggz1-dev$/, "libggz-devel", $2);
-	sub(/^libpango1.0-dev$/, "pango-devel", $2);
-	sub(/^libqt4-dev$/, "qt4-build", $2);
-	sub(/^libshout3-dev$/, "libshout-devel", $2);
-	sub(/^libslp-dev$/, "openslp-devel", $2);
-	sub(/^libsndfile1-dev$/, "libsndfile-devel", $2);
-	sub(/^libspeex-dev$/, "speex-devel", $2);
-	sub(/^libssl-dev$/, "openssl-devel", $2);
-	sub(/^libvorbis-dev$/, "libvorbis-devel", $2);
-	sub(/^libxslt1-dev$/, "libxslt-devel", $2);
-	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2);
-	sub(/^mesa-common-dev$/, "OpenGL-devel", $2);
-	sub(/^libudev$/, "udev-libs", $2);
-	sub(/^tcp_wrappers-devel$/, "libwrap-devel", $2);
-	sub(/^vala-tools$/, "vala", $2);
-	sub(/^vala-devel$/, "vala", $2);
+	sub(/^blkid-dev$/, "libblkid-devel", $2)
+	sub(/^ext2fs-dev$/, "e2fsprogs-devel", $2)
+	sub(/^libao-dev$/, "libao-devel", $2)
+	sub(/^libboost-filesystem[0-9.]+-dev$/, "boost-devel", $2)
+	sub(/^libboost-program-options[0-9.]+-dev$/, "boost-devel", $2)
+	sub(/^libboost-regex[0-9.]+-dev$/, "boost-devel", $2)
+	sub(/^libboost-thread[0-9.]+-dev$/, "boost-devel", $2)
+	sub(/^libcurl4-openssl-dev$/, "curl-devel", $2)
+	sub(/^libdnet-dev$/, "libdnet-devel", $2)
+	sub(/^libesd0-dev$/, "esound-devel", $2)
+	sub(/^libfishsound1-dev$/, "libfishsound-devel", $2)
+	sub(/^libgconf2-dev$/, "GConf2-devel", $2)
+	sub(/^libgl1-mesa-dev$/, "OpenGL-devel", $2)
+	sub(/^libgl1-mesa-dri$/, "OpenGL", $2)
+	sub(/^libglib2.0-dev$/, "glib2-devel", $2)
+	sub(/^libglu1-mesa-dev$/, "OpenGL-GLU-devel", $2)
+	sub(/^libgtk2.0-dev$/, "gtk+2-devel", $2)
+	sub(/^libhunspell-dev$/, "hunspell-devel", $2)
+	sub(/^libmcrypt-dev$/, "libmcrypt-devel", $2)
+	sub(/^libmhash-dev$/, "mhash-devel", $2)
+	sub(/^liboggz1-dev$/, "libggz-devel", $2)
+	sub(/^libpango1.0-dev$/, "pango-devel", $2)
+	sub(/^libqt4-dev$/, "qt4-build", $2)
+	sub(/^libshout3-dev$/, "libshout-devel", $2)
+	sub(/^libslp-dev$/, "openslp-devel", $2)
+	sub(/^libsndfile1-dev$/, "libsndfile-devel", $2)
+	sub(/^libspeex-dev$/, "speex-devel", $2)
+	sub(/^libssl-dev$/, "openssl-devel", $2)
+	sub(/^libvorbis-dev$/, "libvorbis-devel", $2)
+	sub(/^libxslt1-dev$/, "libxslt-devel", $2)
+	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2)
+	sub(/^mesa-common-dev$/, "OpenGL-devel", $2)
+	sub(/^libudev$/, "udev-libs", $2)
+	sub(/^tcp_wrappers-devel$/, "libwrap-devel", $2)
+	sub(/^vala-tools$/, "vala", $2)
+	sub(/^vala-devel$/, "vala", $2)
 	# }}}
 
 	# {{{ altlinux
-	sub(/^libatk-devel$/, "atk-devel", $2);
-	sub(/^libgit-devel$/, "git-core-devel", $2);
-	sub(/^libgtk\+2-devel$/, "gtk+2-devel", $2);
-	sub(/^libncurses-devel$/, "ncurses-devel", $2);
-	sub(/^libncursesxx-devel$/, "ncurses-c++-devel", $2);
-	sub(/^libpango-devel$/, "pango-devel", $2);
-	sub(/^libpcre-devel$/, "pcre-devel", $2);
-	sub(/^libpopt-devel$/, "popt-devel", $2);
-	sub(/^libssl-devel$/, "openssl-devel", $2);
+	sub(/^libatk-devel$/, "atk-devel", $2)
+	sub(/^libgit-devel$/, "git-core-devel", $2)
+	sub(/^libgtk\+2-devel$/, "gtk+2-devel", $2)
+	sub(/^libncurses-devel$/, "ncurses-devel", $2)
+	sub(/^libncursesxx-devel$/, "ncurses-c++-devel", $2)
+	sub(/^libpango-devel$/, "pango-devel", $2)
+	sub(/^libpcre-devel$/, "pcre-devel", $2)
+	sub(/^libpopt-devel$/, "popt-devel", $2)
+	sub(/^libssl-devel$/, "openssl-devel", $2)
 	# }}}
 
 	# {{{ suse/opensuse
-	sub(/^alsa-devel$/, "alsa-lib-devel", $2);
-	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2);
-	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2);
-	sub(/^libexpat-devel$/, "expat-devel", $2);
-	sub(/^libffmpeg-devel$/, "ffmpeg-devel", $2);
-	sub(/^libopenssl-devel$/, "openssl-devel", $2);
-	sub(/^libpulse-devel$/, "pulseaudio-devel", $2);
-	sub(/^monodoc-core$/, "mono-monodoc", $2);
-	sub(/^python-cairo$/, "python-pycairo", $2);
-	sub(/^python-gobject$/, "python-pygobject", $2);
-	sub(/^python-gstreamer-0_10$/, "python-gstreamer", $2);
-	sub(/^python-gtk$/, "python-pygtk-gtk", $2);
-	sub(/^python-xdg$/, "python-pyxdg", $2);
+	sub(/^alsa-devel$/, "alsa-lib-devel", $2)
+	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2)
+	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2)
+	sub(/^libexpat-devel$/, "expat-devel", $2)
+	sub(/^libffmpeg-devel$/, "ffmpeg-devel", $2)
+	sub(/^libopenssl-devel$/, "openssl-devel", $2)
+	sub(/^libpulse-devel$/, "pulseaudio-devel", $2)
+	sub(/^monodoc-core$/, "mono-monodoc", $2)
+	sub(/^python-cairo$/, "python-pycairo", $2)
+	sub(/^python-gobject$/, "python-pygobject", $2)
+	sub(/^python-gstreamer-0_10$/, "python-gstreamer", $2)
+	sub(/^python-gtk$/, "python-pygtk-gtk", $2)
+	sub(/^python-xdg$/, "python-pyxdg", $2)
 	# }}}
 
 	replace_php_virtual_deps(field)
