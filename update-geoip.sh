@@ -115,6 +115,7 @@ cd "$dir"
 
 pkgs='GeoIP-db-City GeoIP-db-Country GeoIP-db-IPASNum xtables-geoip'
 for pkg in ${*:-$pkgs}; do
+	pkg=${pkg%.spec}
 	$status && continue
 
 	get_package $pkg
@@ -132,6 +133,7 @@ done
 
 # report each package git status
 for pkg in ${*:-$pkgs}; do
+	pkg=${pkg%.spec}
 	cd $pkg
 	git status --porcelain
 	cd ..
