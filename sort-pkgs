@@ -32,10 +32,10 @@ def build_requires(name):
 
 def print_packages(p):
 	global packages, packages_res
-	if packages_res[p] == 1:
-		return
+
 	for pp in packages[p]:
-		print_packages(pp)
+		if not packages_res[pp]:
+			print_packages(pp)
 	packages_res[p] = 1
 	print p#, packages[p]
 
