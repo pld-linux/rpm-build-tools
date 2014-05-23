@@ -33,10 +33,10 @@ def build_requires(name):
 def print_packages(p):
 	global packages, packages_res
 
+	packages_res[p] = 1
 	for pp in packages[p]:
 		if not packages_res[pp]:
 			print_packages(pp)
-	packages_res[p] = 1
 	print p#, packages[p]
 
 if __name__ == "__main__":
