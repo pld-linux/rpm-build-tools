@@ -33,11 +33,12 @@ def build_requires(name):
 def print_packages(p):
 	global packages, packages_res
 
-	packages_res[p] = 1
-	for pp in packages[p]:
-		if not packages_res[pp]:
-			print_packages(pp)
-	print p#, packages[p]
+	if not packages_res[p]:
+		packages_res[p] = 1
+		for pp in packages[p]:
+			if not packages_res[pp]:
+				print_packages(pp)
+		print p
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
