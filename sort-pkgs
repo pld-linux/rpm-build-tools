@@ -12,13 +12,14 @@ import os
 import re
 import sys
 
-PATTERN = re.compile('BuildRequires:\t(.*)-devel')
+PATTERN = re.compile('BuildRequires:\s+(.*?)(\s|$|-devel)')
 DIR = '/home/users/builder/rpm/packages'
 
 packages = {}
 packages_res = {}
 
 def build_requires(name):
+	global packages
 	res = []
 	with open(os.path.join(DIR, name, name + '.spec'), 'r') as f:
 		for line in f:
@@ -30,6 +31,7 @@ def build_requires(name):
 	return res
 
 def print_packages(p):
+	global packages, packages_res
 	if packages_res[p] == 1:
 		return
 	for pp in packages[p]:
