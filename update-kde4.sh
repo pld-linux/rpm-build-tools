@@ -4,12 +4,12 @@ KDEPKGS="
 kde4-kdelibs
 kde4-kdegraphics-mobipocket
 kde4-kfilemetadata
-kde4-kactivities
 kde4-kdepimlibs
 kde4-baloo
 kde4-baloo-widgets
 kde4-nepomuk-core
 kde4-nepomuk-widgets
+kde4-kactivities
 kde4-oxygen-icons
 kde4-kdebase
 kde4-libkdeedu
