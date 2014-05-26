@@ -83,7 +83,7 @@ rpmbuild() {
 		--define '__spec_clean_body %{nil}' \
 		--define '_enable_debug_packages 0' \
 		${bb+$(skip_dep_generators)} \
-		${bb+--define '%py_postclean() %{nil}'} \
+		${bb+--define '%py_postclean(-x:) %{nil}'} \
 		$a || exit
 }
 
