@@ -144,11 +144,6 @@ function b_makekey(a, b,	s) {
 }
 
 /^%define/ {
-	# Remove defining _applnkdir (this macro has been included in rpm-3.0.4)
-	if ($2 == "_applnkdir") {
-		next
-	}
-
 	# FIXME: this section will likely never match after cvs->git migration
 	if ($2 == "date") {
 		if (did_files == 0) {
