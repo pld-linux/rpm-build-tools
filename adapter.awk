@@ -1258,6 +1258,7 @@ function use_macros()
 	gsub(php_pear_dir, "%{php_pear_dir}")
 	gsub(php_data_dir, "%{php_data_dir}")
 
+	# change to %{_datadir}, with some exceptions
 	for (c = 1; c <= NF; c++) {
 		if ($c ~ datadir "/automake")
 			continue
@@ -1267,6 +1268,9 @@ function use_macros()
 			continue
 		gsub(datadir, "%{_datadir}", $c)
 	}
+
+	# bash completions dir, after datadir change
+	gsub("%{_datadir}/bash-completion/completions", "%{bash_compdir}")
 
 	gsub("%{prefix}/share", "%{_datadir}")
 	if (prefix"/share" == datadir)
