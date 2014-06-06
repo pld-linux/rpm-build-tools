@@ -4,6 +4,7 @@
 # Author: Elan Ruusamäe <glen@pld-linux.org>
 # 2012-07-04 Created initial version
 # 2014-03-04 Rewritten to be smarter when checking for updates avoiding full download if no changes.
+# 2014-06-06 Fix finding new versions if multiple previous archives were present
 
 set -e
 
@@ -37,20 +38,34 @@ get_package() {
 	out=$(builder -g -ns $pkg 2>&1) || echo "$out"
 }
 
-update_urls() {
-	local specfile=$1 t fn z
-	# update urls
+get_urls() {
+	local specfile=$1 t url
+
 	t=$(mktemp)
-	builder -su $specfile > $t 2>/dev/null
+	builder -su $specfile 2>/dev/null > $t
+
 	while read url; do
+		# skip non-archives
+		case "$url" in
+		*.zip|*.gz|*.xz)
+			echo "$url"
+			;;
+		esac
+	done < $t
+	rm -f $t
+}
+
+update_urls() {
+	local specfile=$1 url fn z
+
+	for url in "$@"; do
 		# take output filename (anything after last slash)
 		fn=${url##*/}
 		# remove querystring for mtime match to work
 		url=${url%\?*}
 		test -e "$fn" && z= || unset z
 		curl ${z+-z "$fn"} -o "$fn" "$url" -R -s
-	done < $t
-	rm -f $t
+	done
 }
 
 # set version to $version in $specfile and build the package
@@ -73,37 +88,27 @@ update_version() {
 # get version from package files
 # set $version variable
 version_from_files() {
-	local pkg=$1 dt4 dt6
+	local pkg=$1 url fn dt d
+	shift
+
+	for url in "$@"; do
+		# take output filename (anything after last slash)
+		fn=${url##*/}
+		# skip inexistent files
+		test -e "$fn" || continue
+
+		d=$(filedate "$fn")
+		if [ "$(echo $d | tr -d -)" -gt "$(echo $dt | tr -d -)" ]; then
+			dt=$d
+		fi
+	done
+
 	case "$pkg" in
 	xtables-geoip)
-		dt4=$(filedate *.zip | tr -d -)
-		dt6=$(filedate *.gz | tr -d -)
-		if [ "$dt4" -gt "$dt6" ]; then
-			version=$dt4
-		else
-			version=$dt6
-		fi
-		;;
-	GeoIP-db-City)
-		dt4=$(filedate GeoLiteCity-*.dat.xz | tr - .)
-		dt6=$(filedate GeoLiteCityv6-*.dat.gz | tr - .)
-		if [ "$(echo $dt4 | tr -d .)" -gt "$(echo $dt6 | tr -d .)" ]; then
-			version=$dt4
-		else
-			version=$dt6
-		fi
-		;;
-	GeoIP-db-Country)
-		dt4=$(filedate GeoIP-*.dat.gz | tr - .)
-		dt6=$(filedate GeoIPv6-*.dat.gz | tr - .)
-		if [ "$(echo $dt4 | tr -d .)" -gt "$(echo $dt6 | tr -d .)" ]; then
-			version=$dt4
-		else
-			version=$dt6
-		fi
+		version=$(echo "$dt" | tr -d -)
 		;;
 	*)
-		version=$(filedate *.gz | tr - .)
+		version=$(echo "$dt" | tr - .)
 		;;
 	esac
 }
@@ -122,8 +127,9 @@ for pkg in ${*:-$pkgs}; do
 	cd $pkg
 	specfile=*.spec
 
-	update_urls $specfile
-	version_from_files $pkg
+	urls=$(get_urls $specfile)
+	update_urls $urls
+	version_from_files $pkg $urls
 	oldvers=$(awk '/^Version:[ 	]+/{print $NF}' $specfile)
 	if [ "$oldvers" != "$version" ]; then
 		update_version $specfile $version
