@@ -165,6 +165,7 @@ kde4-kget
 kde4-krdc
 kde4-krfb
 kde4-okteta
+kde4-l10n
 "
 
 #kde4-kfloppy
