@@ -160,7 +160,7 @@ kde4-kdenetwork-filesharing
 kde4-kdenetwork-strigi-analyzers
 kde4-kopete
 kde4-kcron
-kde4-kdnssd
+kde4-zeroconf-ioslave
 kde4-kget
 kde4-krdc
 kde4-krfb
