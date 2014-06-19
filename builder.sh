@@ -958,7 +958,7 @@ get_spec() {
 		# add default log format to .gitignore if it is relative to package dir
 		if [ -n "$LOGFILE" -a "$LOGFILE" = "${LOGFILE##*/}" ]; then
 			# substitute known "macros" to glob
-			local logfile=$(echo "$LOGFILE" | sed -e 's,\$\(PACKAGE_NAME\|DATE\|TARGET\),*,g')
+			local logfile=$(echo "$LOGFILE" | sed -r -e 's,\$(PACKAGE_(NAME|VERSION|RELEASE)|DATE|TARGET),*,g')
 			if [ "$logfile" ]; then
 				cvsignore_df "$logfile"
 			fi
