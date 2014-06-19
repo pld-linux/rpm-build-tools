@@ -101,8 +101,8 @@ del=$(echo "$diff" | awk '
 n="$(echo -e '\nn')"
 n="${n%%n}"
 msg=""
-[ -n "$ver" ] && msg="$msg- updated to: $ver$n"
-[ -n "$rel" ] && msg="$msg- release: $rel$n"
+[ -n "$ver" ] && msg="$msg- up to $ver$n"
+[ -n "$rel" -a "$rel" != "1" ] && msg="$msg- release $rel$n"
 [ -n "$add" ] && msg="$msg- BR: $add$n"
 [ -n "$del" ] && msg="$msg- dropped BR: $del$n"
 
