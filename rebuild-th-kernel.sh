@@ -5,6 +5,37 @@ dir=$(cd "$(dirname "$0")"; pwd)
 rpmdir=$(rpm -E %_topdir)
 dist=th
 
+# userspace+kernel:
+# crash
+# dahdi-linux
+# ipset
+# linux-fusion
+# open-vm-tools
+# spl
+# tpm_emulator
+# VirtualBox
+# vpb-driver
+# xorg-driver-video-fglrx
+# xorg-driver-video-nvidia
+# xorg-driver-video-nvidia-legacy3
+# xorg-driver-video-nvidia-legacy-304xx
+# xtables-addons
+#
+# lirc
+# madwifi-ng
+#
+# kernel:
+# e1000e
+# igb
+# ixgbe
+# lin_tape
+# lttng-modules
+# nvidiabl
+# r8168
+# wl
+#
+# linuxrdac
+
 pkgs_all="
 	crash
 	dahdi-linux
