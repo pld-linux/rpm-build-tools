@@ -33,7 +33,11 @@ pkgs_head="
 	xtables-addons:master
 "
 
-pkgs_longterm="
+pkgs_3_10="
+	xtables-addons:master
+"
+
+pkgs_3_4="
 	lirc
 	madwifi-ng
 	linuxrdac
@@ -105,19 +109,22 @@ get_last_tags() {
 cd $rpmdir
 case "$1" in
 	all)
-		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-headers kernel-module-build'
-		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-longterm-headers kernel-longterm-module-build'
+		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-headers kernel-module-build kernel-3.4-headers kernel-3.4-module-build kernel-3.10-headers kernel-3.10-module-build'
 		echo press enter after src builder updates kernel packages
 		read
 		specs=$(get_last_tags $pkgs_all)
-		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels longterm' --without userspace $specs
+		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels 3.4,3.10' --without userspace $specs
 		if [ -n "$pkgs_head" ]; then
 			specs=$(get_last_tags $pkgs_head)
 			$dir/make-request.sh -nd -r -d $dist --without userspace $specs
 		fi
-		if [ -n "$pkgs_longterm" ]; then
-			specs=$(get_last_tags $pkgs_longterm)
-			$dir/make-request.sh -nd -r -d $dist --kernel longterm --without userspace $specs
+		if [ -n "$pkgs_3_10" ]; then
+			specs=$(get_last_tags $pkgs_3_10)
+			$dir/make-request.sh -nd -r -d $dist --kernel 3.10 --without userspace $specs
+		fi
+		if [ -n "$pkgs_3_4" ]; then
+			specs=$(get_last_tags $pkgs_3_4)
+			$dir/make-request.sh -nd -r -d $dist --kernel 3.4 --without userspace $specs
 		fi
 		;;
 	head)
@@ -129,25 +136,40 @@ case "$1" in
 		echo press enter after src builder updates kernel packages
 		read
 		specs=$(get_last_tags $pkgs_all)
-		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels longterm' --without userspace $specs
+		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels 3.4,3.10' --without userspace $specs
 		if [ -n "$pkgs_head" ]; then
 			specs=$(get_last_tags $pkgs_head)
 			$dir/make-request.sh -nd -r -d $dist --without userspace $specs
 		fi
 		;;
-	longterm)
-		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-longterm-headers kernel-longterm-module-build'
+	3.10)
+		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-3.10-headers kernel-3.10-module-build'
 
-		kernel=$(alt_kernel=longterm get_last_tags kernel)
+		kernel=$(alt_kernel=3.10 get_last_tags kernel)
 		kernel=$(echo ${kernel#*auto/??/} | tr _ .)
 		echo $kernel
 		echo press enter after src builder updates kernel packages
 		read
 		specs=$(get_last_tags $pkgs_all)
-		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels longterm' --without userspace $specs
-		if [ -n "$pkgs_longterm" ]; then
-			specs=$(get_last_tags $pkgs_longterm)
-			$dir/make-request.sh -nd -r -d $dist --kernel longterm --without userspace $specs
+		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels 3.4,3.10' --without userspace $specs
+		if [ -n "$pkgs_3_10" ]; then
+			specs=$(get_last_tags $pkgs_3_10)
+			$dir/make-request.sh -nd -r -d $dist --kernel 3_10 --without userspace $specs
+		fi
+		;;
+	3.4)
+		$dir/make-request.sh -b th-src -t -c 'poldek -n th -n th-ready -n th-test --up ; poldek -uGv kernel-3.4-headers kernel-3.4-module-build'
+
+		kernel=$(alt_kernel=3.4 get_last_tags kernel)
+		kernel=$(echo ${kernel#*auto/??/} | tr _ .)
+		echo $kernel
+		echo press enter after src builder updates kernel packages
+		read
+		specs=$(get_last_tags $pkgs_all)
+		$dir/make-request.sh -nd -r -d $dist --define 'build_kernels 3.4,3.10' --without userspace $specs
+		if [ -n "$pkgs_3_4" ]; then
+			specs=$(get_last_tags $pkgs_3_4)
+			$dir/make-request.sh -nd -r -d $dist --kernel 3_4 --without userspace $specs
 		fi
 		;;
 	*)
