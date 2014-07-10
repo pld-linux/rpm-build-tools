@@ -146,7 +146,7 @@ case "$1" in
 	all)
 		srcpkgs=
 		for v in "-" "-3.4-" "-3.10-" "-3.14-"; do
-			scrpkgs="$srcpkgs kernel${v}headers kernel${v}module-build"
+			srcpkgs="$srcpkgs kernel${v}headers kernel${v}module-build"
 		done
 		$dir/make-request.sh -b th-src -t -c "poldek -n th -n th-ready -n th-test --up ; poldek -uGv $srcpkgs"
 		echo press enter after src builder updates kernel packages
