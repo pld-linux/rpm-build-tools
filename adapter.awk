@@ -252,6 +252,7 @@ function b_makekey(a, b,	s) {
 
 # %package part
 /^%package/, (!/^%package/ && $0 ~ SECTIONS) {
+	# FIXME: this breaks \t indenting in preamble?
 	gsub(/\t/, " ")
 }
 
@@ -690,7 +691,7 @@ preamble == 1 {
 		$0 = format_requires($1, value)
 	}
 
-	# BR: tar (and others) is to common (rpm-build requires it)
+	# BR: tar (and others) are too common (rpm-build requires it)
 	if (field == "buildrequires:") {
 		l = substr($0, index($0, $2))
 		if (l == "awk" ||
@@ -961,6 +962,7 @@ ENVIRON["SKIP_SORTBR"] != 1 && preamble == 1 && $0 ~ PREAMBLE_TAGS ":", $0 ~ PRE
 	if ($1 == "R:" ) {
 		$1 = "Requires:"
 	}
+	common_macros()
 	format_preamble()
 #	kill_preamble_macros(); # breaks tabbing
 
@@ -1053,6 +1055,23 @@ function replace(s, s1, s2) {
 	}
 }
 
+# replace common macros
+function common_macros() {
+	gsub(/%name/, "%{name}")
+	gsub(/%version/, "%{version}")
+	gsub(/%release/, "%{release}")
+	gsub(/%epoch/, "%{epoch}")
+	gsub(/%_sysconfdir/, "%{_sysconfdir}")
+	gsub(/%_unitdir/, "%{systemdunitdir}")
+	gsub(/%_initdir/, "/etc/rc.d/init.d")
+	gsub(/%_man1dir/, "%{_mandir}/man1")
+	gsub(/%_man2dir/, "%{_mandir}/man2")
+	gsub(/%_man3dir/, "%{_mandir}/man3")
+	gsub(/%_man5dir/, "%{_mandir}/man5")
+	gsub(/%_man8dir/, "%{_mandir}/man8")
+
+}
+
 # There should be one or two tabs after the colon.
 function format_preamble()
 {
@@ -1086,6 +1105,8 @@ function use_macros()
 	if (/-D.+=.+/) {
 		return
 	}
+
+	common_macros()
 
 	sub("%{_defaultdocdir}", "%{_docdir}")
 	sub("%{_datadir}/doc", "%{_docdir}")
@@ -2035,6 +2056,7 @@ function replace_groupnames(group) {
 	group = replace(group, "System Tools", "Applications/System")
 	group = replace(group, "System", "Base")
 	group = replace(group, "System/Base", "Base")
+	group = replace(group, "System/Configuration/Networking", "Applications/Networking")
 	group = replace(group, "System/Kernel and hardware", "Base/Kernel")
 	group = replace(group, "System/Libraries", "Libraries")
 	group = replace(group, "System/Servers", "Daemons")
