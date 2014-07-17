@@ -38,14 +38,7 @@ rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 
 [ -f pear.installed ] || {
 	sudo poldek  --update --upa
-	# as sudo & poldek don't allow us to capture (no pipe or redirection work),
-	# we create markers which we could grab when invoked via "script"
-	echo "BEGIN INSTALL PACKAGES"
 	sed -e 's,^,install ,' pear.pkgs | sudo poldek
-	echo "END INSTALL PACKAGES"
-	# rm -f pear.installed && script -c ./pear-autoup.sh pear.install.log
-	# sed -ne '/BEGIN INSTALL PACKAGES/,/END INSTALL PACKAGES/p' pear.install.log | grep -vE 'poldek:/.*install|: ambiguous name|equal version installed, skipped|Nothing to do' | less
-	touch pear.installed
 }
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
 
