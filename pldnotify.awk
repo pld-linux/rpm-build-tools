@@ -239,7 +239,6 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		gsub("^http://(download|downloads|dl)\.(sf|sourceforge)\.net/", "", newurl)
 		gsub("^project/", "", newurl)
 		gsub("/.*", "", newurl)
-		d("new url " newurl)
 		url = "http://sourceforge.net/projects/" newurl "/rss?path=/"
 		d("sf url, mungled url to: " url)
 
