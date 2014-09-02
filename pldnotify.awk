@@ -239,11 +239,9 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		gsub("^http://(download|downloads|dl)\.(sf|sourceforge)\.net/", "", newurl)
 		gsub("^project/", "", newurl)
 		gsub("/.*", "", newurl)
-		newurl = sf_url(newurl)
-		if (newurl ~ /^http/) {
-			url = newurl
-			d("sf url, mungled url to: " url)
-		}
+		d("new url " newurl)
+		url = "http://sourceforge.net/projects/" newurl "/rss?path=/"
+		d("sf url, mungled url to: " url)
 
 	} else if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
 		gsub("^http://", "", url)
@@ -624,20 +622,6 @@ function process_source(number, lurl, name, version) {
 		else
 			print name "(" number ") [OLD] " oldversion " [NEW] " version
 	}
-}
-
-function sf_url(sf_project) {
-	sf_url_new = ""
-	sf_idurl="http://sourceforge.net/api/project/name/" sf_project "/json"
-	cmd = "wget -t 2 -T 45 -q -O - " sf_idurl " |  awk -F: '/\"id\":/ { gsub(\",\", \"\", $2); print $2 } '"
-	d("sf_url_cmd: " cmd)
-	cmd | getline sf_id
-	d("sf_url_id: " sf_id)
-	if (sf_id ~ /^[0-9]+$/) {
-		sf_url_new = "http://sourceforge.net/api/file/index/project-id/" sf_id "/mtime/desc/limit/20/rss"
-		d("sf_url_new: " sf_url_new)
-	}
-	return sf_url_new
 }
 
 function rss_upgrade(name, ver, url, regex, cmd) {
