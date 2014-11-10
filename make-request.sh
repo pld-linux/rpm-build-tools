@@ -43,7 +43,7 @@ url="$url"
 mailer="/usr/lib/sendmail -t"
 gpg_opts=""
 dist=th
-url="http://src.th.pld-linux.org:1234/"
+url="https://srcbuilder.pld-linux.org:1234/"
 
 # defaults:
 f_upgrade=yes
@@ -540,13 +540,13 @@ ti-dev)
 th)
 	builder_email="builderth@pld-linux.org"
 	default_builders="th-*"
-	url="http://src.th.pld-linux.org:1234/"
-	control_url="http://src.th.pld-linux.org"
+	url="https://srcbuilder.pld-linux.org:1234/"
+	control_url="https://srcbuilder.pld-linux.org/th/"
 	;;
 th-java) # fake "dist" for java available th architectures
 	builder_email="builderth@pld-linux.org"
 	default_builders="th-x86_64 th-athlon th-i686"
-	url="http://src.th.pld-linux.org:1234/"
+	url="https://srcbuilder.pld-linux.org:1234/"
 	;;
 aidath)
 	builder_email="builderaidath@ep09.pld-linux.org"
