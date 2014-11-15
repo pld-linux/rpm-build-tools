@@ -22,7 +22,7 @@ ftp://ftp.alsa-project.org/pub/|ftp://ftp.task.gda.pl/pub/linux/misc/alsa/|TASK
 #ftp://ftp.porcupine.org/mirrors/postfix-release/official/|ftp://ftp.sgh.waw.pl/pub/postfix/src/official/|SGH
 #ftp://ftp.kernel.org/pub/|ftp://ftp.kernel.pl/pub|KernelPL
 ftp://ftp.kernel.org/pub/|ftp://ftp.task.gda.pl/pub/linux/kernel/|CITASK
-http://download.kde.org/|http://ftp.man.szczecin.pl/pub/kde/|MAN.SZCZECIN
+#http://download.kde.org/|http://ftp.man.szczecin.pl/pub/kde/|MAN.SZCZECIN
 http://www.x.org/pub/|http://ftp.task.gda.pl/mirror/ftp.x.org/pub/|TASK
 http://dl.sourceforge.net/|http://heanet.dl.sourceforge.net/|Heanet(browsable)
 #http://dl.sourceforge.net/|http://switch.dl.sourceforge.net/|Open.Source.Development.Network
