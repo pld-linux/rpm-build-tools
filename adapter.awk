@@ -2333,6 +2333,7 @@ function replace_requires(field,   pkg) {
 	sub(/^python-twisted$/, "python-TwistedCore", $2)
 	sub(/^python-twisted-core$/, "python-TwistedCore", $2)
 	sub(/^python-twisted-names$/, "python-TwistedNames", $2)
+	sub(/^python-unittest2$/, "python-modules", $2)
 	sub(/^python2-devel$/, "python-devel", $2)
 	sub(/^pytz$/, "python-pytz", $2)
 	sub(/^pyxdg$/, "python-pyxdg", $2)
