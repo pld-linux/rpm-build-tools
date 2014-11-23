@@ -14,6 +14,10 @@ if [ "$1" = "clean" ]; then
 	exit 0
 fi
 
+if [ $# -gt 0 ]; then
+	echo "$*" | tr ' ' '\n' > pear.channels
+fi
+
 # test that php is working
 php -r 'echo "PHP is working OK\n";'
 
@@ -43,9 +47,12 @@ rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
 
 # process urls to aliases
-[ -s pear.rpms ] || pear list-channels | sed -ne '4,$p' | while read url alias desc; do
-	awk -vurl="$url" -valias="$alias" '$1 == url {printf("php-%s-%s %s\n", alias, $2, $5)}' pear.upgrades
-done > pear.rpms
+[ -s pear.rpms ] || {
+	[ -s pear.channels ] || pear list-channels | sed -ne '4,$p' > pear.channels
+	while read url alias desc; do
+		awk -vurl="$url" -valias="$alias" '$1 == url {printf("php-%s-%s %s\n", alias, $2, $5)}' pear.upgrades
+	done < pear.channels > pear.rpms
+}
 
 # clear it if you do not want to upgrade pkgs. i.e bring ac to sync
 do_upgrade=1
