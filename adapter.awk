@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2013 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2014 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -505,11 +505,9 @@ function b_makekey(a, b,	s) {
 	if ($1 ~ /chmod/ && $2 ~ /644/)
 		next
 
-	# atrpms
 	$0 = fixedsub("%perl_makeinstall", "%{__make} pure_install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0)
-
-	# alt linux
 	$0 = fixedsub("%make_install DESTDIR=$RPM_BUILD_ROOT install", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0)
+	$0 = fixedsub("%make_install", "%{__make} install \\\n\tDESTDIR=$RPM_BUILD_ROOT", $0)
 }
 
 ##########
@@ -742,6 +740,11 @@ preamble == 1 {
 		$1 = "License:"
 	}
 
+	if (field == "buildarch:") {
+		$1 = "BuildArch:"
+	}
+
+
 	# ease updating from debian .dsc
 	if (field ~ /homepage:/) {
 		$1 = "URL:"
@@ -764,6 +767,7 @@ preamble == 1 {
 		if (l == "Apache License 2.0" || \
 			   l == "Apache 2.0" || \
 			   l == "Apache 2" || \
+			   l == "Apache-2.0" || \
 			   l == "Apache License (2.0)" ||
 			   l == "Apache License Version 2.0" || \
 			   l == "Apache License, Version 2.0" || \
@@ -1157,6 +1161,7 @@ function use_macros()
 	gsub(systemduserunitdir, "%{systemduserunitdir}")
 	gsub(systemdtmpfilesdir, "%{systemdtmpfilesdir}")
 	gsub("%{_tmpfilesdir}", "%{systemdtmpfilesdir}")
+	gsub("%{_prefix}/lib/tmpfiles.d", "%{systemdtmpfilesdir}")
 
 	gsub("%{_datadir}/applications", "%{_desktopdir}")
 	gsub("%{_datadir}/pixmaps", "%{_pixmapsdir}")
@@ -1283,6 +1288,7 @@ function use_macros()
 
 	gsub(php_pear_dir, "%{php_pear_dir}")
 	gsub(php_data_dir, "%{php_data_dir}")
+	gsub("%{_datadir}/php", "%{php_data_dir}")
 
 	# change to %{_datadir}, with some exceptions
 	for (c = 1; c <= NF; c++) {
@@ -2407,10 +2413,12 @@ function replace_requires(field,   pkg) {
 
 	# {{{ suse/opensuse
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2)
+	sub(/^libqt4-devel$/, "qt4-build, qt4-qmake, QtCore-devel", $2)
 	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2)
 	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2)
 	sub(/^libexpat-devel$/, "expat-devel", $2)
 	sub(/^libffmpeg-devel$/, "ffmpeg-devel", $2)
+	sub(/^libffms2-devel$/, "ffms2-devel", $2)
 	sub(/^libopenssl-devel$/, "openssl-devel", $2)
 	sub(/^libpulse-devel$/, "pulseaudio-devel", $2)
 	sub(/^monodoc-core$/, "mono-monodoc", $2)
