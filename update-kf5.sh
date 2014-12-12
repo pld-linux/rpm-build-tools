@@ -30,7 +30,6 @@ kf5-kiconthemes
 kf5-knotifications
 kf5-sonnet
 kf5-solid
-#kf5-gpgmepp
 kf5-kwallet
 kf5-ktextwidgets
 kf5-kxmlgui
@@ -42,9 +41,14 @@ kf5-kded
 kf5-kemoticons
 kf5-kidletime
 kf5-threadweaver
-kf5-kactivities
 kf5-kcmutils
 kf5-kactivities
+kf5-plasma-framework
+kf5-krunner
+kf5-kimageformats
+kf5-knotifyconfig
+kf5-ktexteditor
+kf5-kitemmodels
 
 kf5-kjs
 kf5-kparts
