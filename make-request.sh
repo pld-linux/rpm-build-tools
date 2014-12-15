@@ -1,5 +1,6 @@
 #!/bin/sh
-VERSION=1.87
+# vim:noet:ts=4:sw=4
+VERSION=1.88
 
 # prevent "*" from being expanded in builders var
 set -f
@@ -86,13 +87,19 @@ send_request() {
 	# switch to mail mode, if no url set
 	[ -z "$url" ] && send_mode="mail"
 
+	if [ -n "$wait" ]; then
+		msg "Waiting $wait seconds before sending request"
+		sleep $wait
+		msg "Wait has ended, proceeding!"
+	fi
+
 	case "$send_mode" in
 	"mail")
 		msg "Sending using mail mode"
 		cat - | $mailer
 		;;
 	*)
-		msg "Sending using http mode to $url"
+		msg "Sending using HTTP mode to $url"
 		cat - | python -c '
 import sys, socket, urllib2
 
@@ -141,10 +148,11 @@ df_fetch() {
 	local HOST=$(hostname -f)
 	local LOGIN=${requester%@*}
 
+	local SPEC BRANCH
 	for spec in $specs; do
-		local SPEC=$(echo "$spec" | sed -e 's|:.*||')
-                SPEC=${SPEC%.spec}
-		local BRANCH=$(echo "$spec" | sed -e 's|.*:||')
+		SPEC=$(echo "$spec" | sed -e 's|:.*||')
+		SPEC=${SPEC%.spec}
+		BRANCH=$(echo "$spec" | sed -e 's|.*:||')
 		echo >&2 "Distfiles Request: $SPEC:$BRANCH via $MAILER ${VIA_ARGS:+ ($VIA_ARGS)}"
 		cat <<-EOF | "$MAILER" -t -i $VIA_ARGS
 			To: $DMAIL
@@ -276,6 +284,10 @@ Mandatory arguments to long options are mandatory for short options too.
             Pass additional options to gpg binary
       -p, --priority VALUE
             sets request priority (default 2)
+      -w SECONDS
+            Wait SECONDS before sending actual request. Note: gpg passphrase still asked immediately.
+			This may be useful if you just commited package and want to send it
+			for test build after distfiles has fetched the file.
       -h, --help
             Displays this help message
       -v
@@ -408,6 +420,11 @@ while [ $# -gt 0 ]; do
 			jobs="${1#-j}"
 			;;
 
+		-w)
+			wait="$2"
+			shift
+			;;
+
 		-v)
 			verbose=yes
 			;;
@@ -473,9 +490,9 @@ while [ $# -gt 0 ]; do
 			upgrade_macros="yes"
 			;;
 
-                --update-scripts)
-                        upgrade_scripts='yes'
-                        ;;
+		--update-scripts)
+			upgrade_scripts='yes'
+			;;
 
 		-df | --distfiles-fetch | --distfiles-fetch-request)
 			df_fetch=yes
