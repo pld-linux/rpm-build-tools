@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2014 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2015 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -237,6 +237,23 @@ function b_makekey(a, b,	s) {
 		if (pear_subclass) {
 			gsub("%{_subclass}", pear_subclass, $3)
 		}
+	}
+
+	# capture for URL unify in perl packages
+	if ($2 == "pdir") {
+		pdir = $3
+	}
+	if ($2 == "pnam") {
+		pnam = $3
+	}
+	if ($2 == "pkgname") {
+		pkgname = $3
+	}
+	if ($2 == "pkg") {
+		pkg = $3
+	}
+	if ($2 == "module") {
+		module = $3
 	}
 
 	sub(/[ \t]+$/, "")
@@ -848,9 +865,27 @@ preamble == 1 {
 	if (field ~ /home-page:/)
 		$1 = "URL:"
 
-	# proper caps
-	if (field ~ /^url:$/)
+	if (field ~ /^url:$/) {
+		# set proper caps
 		$1 = "URL:"
+
+		# should not use these in URL field, for copy-paste
+		if (/%{pdir}/ || /%{pnam}/) {
+			gsub(/%{pdir}/, pdir, $2);
+			gsub(/%{pnam}/, pnam, $2);
+		}
+
+		if (/%{pkgname}/ && pkgname) {
+			gsub(/%{pkgname}/, pkgname, $2);
+		}
+
+		if (/%{pkg}/ && pkg) {
+			gsub(/%{pkg}/, pkg, $2);
+		}
+		if (/%{module}/ && module) {
+			gsub(/%{module}/, module, $2);
+		}
+	}
 
 	if (field ~ /^patch/)
 		$1 = "Patch" substr(field, 6)
@@ -1134,6 +1169,7 @@ function use_macros()
 	gsub(py_sitescriptdir, "%{py_sitescriptdir}")
 	gsub(py_sitedir, "%{py_sitedir}")
 	gsub(py_scriptdir, "%{py_scriptdir}")
+	gsub("%{python2_sitelib}", "%{py_sitescriptdir}")
 
 	gsub(py3_sitescriptdir, "%{py3_sitescriptdir}")
 	gsub(py3_sitedir, "%{py3_sitedir}")
@@ -1389,6 +1425,7 @@ function use_macros()
 	gsub("%{ruby_sitearch}", "%{ruby_sitearchdir}")
 	gsub("%{python_sitearch}", "%{py_sitedir}")
 	gsub("%{python_sitelib}", "%{py_sitescriptdir}")
+	gsub("%{python2_sitearch}", "%{py_sitedir}")
 
 	# alt linux
 	gsub("%_man1dir", "%{_mandir}/man1")
@@ -2318,6 +2355,7 @@ function replace_requires(field,   pkg) {
 	sub(/^pykickstart$/, "python-pykickstart", $2)
 	sub(/^pyparsing$/, "python-pyparsing", $2)
 	sub(/^pyparted$/, "python-parted", $2)
+	sub(/^pyserial$/, "python-serial", $2)
 	sub(/^pysvn$/, "python-pysvn", $2)
 	sub(/^pytalloc$/, "python-talloc", $2)
 	sub(/^pytalloc-devel$/, "python-talloc-devel", $2)
@@ -2331,12 +2369,14 @@ function replace_requires(field,   pkg) {
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2)
 	sub(/^python-recaptcha-client$/, "python-recaptcha", $2)
 	sub(/^python-sphinx$/, "python-Sphinx", $2)
+	sub(/^python-sqlalchemy$/, "python-SQLAlchemy", $2)
 	sub(/^python-twisted$/, "python-TwistedCore", $2)
 	sub(/^python-twisted-core$/, "python-TwistedCore", $2)
 	sub(/^python-twisted-names$/, "python-TwistedNames", $2)
 	sub(/^python-twisted-web$/, "python-TwistedWeb", $2)
 	sub(/^python-unittest2$/, "python-modules", $2)
 	sub(/^python-uuid$/, "python-modules", $2)
+	sub(/^python-zope-interface$/, "Zope-Interface", $2)
 	sub(/^python2-devel$/, "python-devel", $2)
 	sub(/^pytz$/, "python-pytz", $2)
 	sub(/^pyxdg$/, "python-pyxdg", $2)
@@ -2355,13 +2395,13 @@ function replace_requires(field,   pkg) {
 	# }}}
 
 	# {{{ mandriva
+	sub(/^gnome-python-gconf$/, "python-gnome-gconf", $2)
+	sub(/^pygtk2.0$/, "python-pygtk-gtk", $2)
+	sub(/^python-curl$/, "python-pycurl", $2)
 	sub(/^python-gobject-devel$/, "python-pygobject-devel", $2)
 	sub(/^python-pyrex$/, "python-Pyrex", $2)
-	sub(/^webkitgtk-devel$/, "gtk-webkit-devel", $2)
-	sub(/^python-curl$/, "python-pycurl", $2)
 	sub(/^python-webkitgtk$/, "python-pywebkitgtk", $2)
-	sub(/^pygtk2.0$/, "python-pygtk-gtk", $2)
-	sub(/^gnome-python-gconf$/, "python-gnome-gconf", $2)
+	sub(/^webkitgtk-devel$/, "gtk-webkit-devel", $2)
 	# }}}
 
 	# {{{ debian / ubuntu
@@ -2393,14 +2433,14 @@ function replace_requires(field,   pkg) {
 	sub(/^libsndfile1-dev$/, "libsndfile-devel", $2)
 	sub(/^libspeex-dev$/, "speex-devel", $2)
 	sub(/^libssl-dev$/, "openssl-devel", $2)
+	sub(/^libudev$/, "udev-libs", $2)
 	sub(/^libvorbis-dev$/, "libvorbis-devel", $2)
 	sub(/^libxslt1-dev$/, "libxslt-devel", $2)
 	sub(/^libxss-dev$/, "xorg-lib-libXScrnSaver-devel", $2)
 	sub(/^mesa-common-dev$/, "OpenGL-devel", $2)
-	sub(/^libudev$/, "udev-libs", $2)
 	sub(/^tcp_wrappers-devel$/, "libwrap-devel", $2)
-	sub(/^vala-tools$/, "vala", $2)
 	sub(/^vala-devel$/, "vala", $2)
+	sub(/^vala-tools$/, "vala", $2)
 	# }}}
 
 	# {{{ altlinux
@@ -2417,7 +2457,6 @@ function replace_requires(field,   pkg) {
 
 	# {{{ suse/opensuse
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2)
-	sub(/^libqt4-devel$/, "qt4-build, qt4-qmake, QtCore-devel", $2)
 	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2)
 	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2)
 	sub(/^libexpat-devel$/, "expat-devel", $2)
@@ -2425,6 +2464,7 @@ function replace_requires(field,   pkg) {
 	sub(/^libffms2-devel$/, "ffms2-devel", $2)
 	sub(/^libopenssl-devel$/, "openssl-devel", $2)
 	sub(/^libpulse-devel$/, "pulseaudio-devel", $2)
+	sub(/^libqt4-devel$/, "qt4-build, qt4-qmake, QtCore-devel", $2)
 	sub(/^monodoc-core$/, "mono-monodoc", $2)
 	sub(/^python-cairo$/, "python-pycairo", $2)
 	sub(/^python-gobject$/, "python-pygobject", $2)
