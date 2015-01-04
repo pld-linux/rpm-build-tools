@@ -35,11 +35,10 @@
 
 PROGRAM=${0##*/}
 APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
-RCSID='$Id: builder,v 1.645 2011/02/13 17:54:10 glen Exp $' r=${RCSID#* * } rev=${r%% *}
-VERSION="v0.35/$rev"
+VERSION="v0.35"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
-$VERSION (C) 1999-2014 Free Penguins".
+$VERSION (C) 1999-2015 Free Penguins".
 
 CLEAN_PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -451,7 +450,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 
 # create tempfile. as secure as possible
 tempfile() {
-	mktemp --tmpdir -t builder.$PACKAGE_NAME.XXXXXX || ${TMPDIR:-/tmp}/builder.$RANDOM.$$
+	mktemp --tmpdir -t builder.$PACKAGE_NAME.XXXXXX || echo ${TMPDIR:-/tmp}/builder.$RANDOM.$$
 }
 
 tempdir() {
