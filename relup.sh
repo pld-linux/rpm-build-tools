@@ -77,12 +77,22 @@ bump_release() {
 package_name() {
 	local specfile="${1%/}" package
 
+	# strip branch
+	specfile=${specfile%:*}
 	# basename
 	specfile=${specfile##*/}
 	# strip .spec
 	package=${specfile%.spec}
 
 	echo $package
+}
+
+get_branch() {
+	local specfile="${1%/}" branch
+
+	branch=${specfile#*:}
+
+	echo ${branch:-master}
 }
 
 if [ ! -x /usr/bin/getopt ]; then
@@ -135,6 +145,7 @@ n="${n%%n}"
 
 cd "$topdir"
 for pkg in "$@"; do
+	branch=$(get_branch "$pkg")
 	# pkg: package %{name}
 	pkg=$(package_name "$pkg")
 
@@ -149,13 +160,13 @@ for pkg in "$@"; do
 	specname=${spec##*/}
 
 	# start real work
-	echo "$pkg ..."
+	echo "$pkg:$branch ..."
 
 	# get package
 	[ "$get" = 1 -a -d "$pkgdir" ] && continue
 
 	if [ "$update" = "1" -o "$get" = "1" ]; then
-		./builder -g -ns "$spec"
+		./builder -g -ns "$spec" -r $branch
 	fi
 
 	[ "$get" = 1 ] && continue
