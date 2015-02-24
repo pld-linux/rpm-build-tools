@@ -234,7 +234,7 @@ Mandatory arguments to long options are mandatory for short options too.
       -D "NAME VALUE"|--define "NAME VALUE"
             define macro named NAME with value VALUE
       -s BUILD_ID, --skip BUILD_ID[,BUILD_ID][,BUILD_ID]
-            mark build ids on src builder to be skipped
+            mark build ids on src builder to be skipped (instructs srcbuilder to create 'skipme' file)
       --branch VALUE
             specify default branch for specs in request
       -t, --test-build
