@@ -1,6 +1,6 @@
 #!/bin/sh
 # vim:noet:ts=4:sw=4
-VERSION=1.88
+VERSION=1.89
 
 # prevent "*" from being expanded in builders var
 set -f
@@ -19,6 +19,7 @@ no_depend=no
 verbose=no
 autotag=no
 requester_override=
+relup=no
 
 if [ -x /usr/bin/python ]; then
 	send_mode="python"
@@ -211,6 +212,11 @@ get_autotag() {
 	done
 }
 
+relup() {
+	local script=$(dirname $(rpm -E %_topdir))/rpm-build-tools/relup.sh
+	$script -u -i "$@"
+}
+
 usage() {
 	cat <<EOF
 Usage: make-request.sh [OPTION] ... [SPECFILE] ....
@@ -245,6 +251,10 @@ Mandatory arguments to long options are mandatory for short options too.
             (and later moved by release manager staff to ready/ and main ftp tree)
       -u, --upgrade
             Forces package upgrade (for use with -c or -q, not -t)
+      --relup
+            Bump package release, see also --relup
+      -m, --message
+            Set commit message for relup
       -n, --no-upgrade
             Disables package upgrade (for use with -r)
       -ni, --no-install-br
@@ -285,9 +295,9 @@ Mandatory arguments to long options are mandatory for short options too.
       -p, --priority VALUE
             sets request priority (default 2)
       -w SECONDS
-            Wait SECONDS before sending actual request. Note: gpg passphrase still asked immediately.
-			This may be useful if you just commited package and want to send it
-			for test build after distfiles has fetched the file.
+            Wait SECONDS before sending actual request. Note: gpg passphrase is still asked immediately.
+            This may be useful if you just commited package and want to send it
+            for test build after distfiles has fetched the file.
       -h, --help
             Displays this help message
       -v
@@ -342,6 +352,15 @@ while [ $# -gt 0 ]; do
 
 		-a)
 			autotag=yes
+			;;
+
+		-m)
+			shift
+			message=$1
+			;;
+
+		--relup)
+			relup=yes
 			;;
 
 		--with)
@@ -650,6 +669,11 @@ specs=`for s in $specs; do
 		;;
 	esac
 done`
+
+if [ "$relup" = "yes" ]; then
+	msg "Auto relup enabled"
+	relup ${message:+-m "$message"} $specs
+fi
 
 if [ "$autotag" = "yes" ]; then
 	msg "Auto autotag build enabled"
