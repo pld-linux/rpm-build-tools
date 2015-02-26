@@ -40,6 +40,8 @@ ac-tag() {
 	git push -f origin $branch
 }
 
+alias q='rpm -q --qf "%{N}-%|E?{%{E}:}|%{V}-%{R}.%{ARCH}\n"'
+
 # undo spec utf8
 # note: it will do it blindly, so any lang other than -pl is most likely broken
 specutfundo() {
