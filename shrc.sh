@@ -262,15 +262,3 @@ d() {
 rpm2spec() {
 	sed -re 's,^(.+)-[^-]+-[^-]+$,\1.spec,'
 }
-
-rpmb() {
-	local SPEC SPECDIR arg
-	for arg in "$@"; do
-		case "$arg" in
-			*.spec)	SPEC="$arg"
-				;;
-		esac
-	done
-	SPECDIR=$(dirname "$(pwd)/${SPEC:-.}")
-	command rpmbuild --define "_specdir $SPECDIR" --define "_sourcedir $SPECDIR" "$@"
-}
