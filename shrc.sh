@@ -196,29 +196,6 @@ fi # no $dist set
 alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
 alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Tylko\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
 
-# makes diff from kde svn path
-# requires: wget, tee
-kdediff() {
-	local url="$1" r1 r2
-	# --- branches/KDE/3.5/kdepim/kpilot/conduits/vcalconduit/vcalRecord.cc #624744:624745
-	url=${url#*--- }
-	echo >&2 "Process $url"
-	r1=${url#*#}
-	r2=${r1#*:}
-	r1=${r1%:*}
-
-	#  http://websvn.kde.org/branches/KDE/3.5/kdepim/kpilot/conduits/vcalconduit/vcalRecord.cc?rev=624745&r1=612579&r2=624745&makepatch=1&diff_format=u
-	#  http://websvn.kde.org/branches/KDE/3.5/kdenetwork/kopete/protocols/oscar/aim/aimcontact.cpp?r1=609808&r2=673027&view=patch
-	url=http://websvn.kde.org/${url% *}
-	url="$url?r1=$r1&r2=$r2&view=patch"
-
-	if [ -t 1 ]; then
-		wget "$url" -O -| tee m.patch | diffcol
-	else
-		wget "$url" -O -
-	fi
-}
-
 # merges two patches
 # requires: patchutils
 pmerge() {
