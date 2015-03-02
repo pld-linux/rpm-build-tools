@@ -698,7 +698,7 @@ function rubygem_upgrade(name, ver,   cmd, pkg) {
 		gsub(/^ruby-/, "", pkg);
 	}
 
-	cmd = "gem list --remote '^" pkg "$' | awk '/" pkg "/ {v=$2; sub(/\(/, \"\", v); print v}'"
+	cmd = "gem list --remote '^" pkg "$' | awk '/" pkg "/ {v=$2; sub(/\(/, \"\", v); sub(/\)$/, \"\", v); print v}'"
 	d("RUBYGEM " name " (as " pkg ") " ver ": " cmd);
 	cmd | getline ver
 
