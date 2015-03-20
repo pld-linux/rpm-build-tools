@@ -294,8 +294,8 @@ sed -e '
 # does diff between FILE~ and FILE
 # the diff can be applied with patch -p1
 d() {
-	local file="$1"
-	local dir diff
+	local file="$1" dir
+	shift
 	if [[ "$file" = /* ]]; then
 		# full path -- no idea where to strip
 		dir=.
@@ -306,7 +306,7 @@ d() {
 		diff=${PWD##*/}/${file}
 	fi
 
-	(builtin cd "$dir"; dif $diff{~,})
+	(builtin cd "$dir"; dif $diff{~,} "$@")
 }
 
 # spec name from NVR
