@@ -1826,33 +1826,15 @@ run_sub_builder() {
 # @return exit code from poldek
 #
 # this requires following sudo rules:
-# - poldek -q --update --upa
+# - poldek --noask --caplookup -uG
 poldek_install() {
-# TODO: if carme sudo rules are updated, this function could be just:
-#	LANG=C $POLDEK_CMD --noask --caplookup -uG $*
-
-	local log=$(tempfile poldek) rc
-
-	echo "install $*" | LANG=C script -e -f $log -c "$POLDEK_CMD"; rc=$?
-	# remove color and other terminal escapes
-	# see https://bugs.launchpad.net/poldek/+bug/1434393
-	sed -i -e 's/\r/\n/g;s///g;' $log
-	perl -pe 's/\033\[[\d;]*m//g' -i $log
-
-	# error: libjpeg-devel: no such package
-	local failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
-	rm $log
-
-	# failed to capture error?
-	if [ -n "$failed" -a $rc = 0 ]; then
-		echo >&2 "Failed to install: "$failed
-		rc=1
-	fi
-
-	return $rc
+	LANG=C $POLDEK_CMD --noask --caplookup -uG "$@"
 }
 
 # install packages
+#
+# this requires following sudo rules:
+# - poldek -q --update --upa
 install_packages() {
 	# sync poldek indexes once per invocation
 	if [ -z "$package_indexes_updated" ]; then
