@@ -180,8 +180,9 @@ fi
 #GROUP_BCONDS="yes"
 #LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 #TITLECHANGE=no
-#
-SU_SUDO=""
+
+SU_SUDO="sudo"
+
 if [ -n "$HOME_ETC" ]; then
 	USER_CFG="$HOME_ETC/.builderrc"
 	BUILDER_MACROS="$HOME_ETC/.builder-rpmmacros"
@@ -244,9 +245,10 @@ if [ -d $HOME/rpm/SOURCES ]; then
 fi
 
 POLDEK_INDEX_DIR="$($RPM --eval %_rpmdir)/"
-POLDEK_CMD="$SU_SUDO /usr/bin/poldek --noask"
+POLDEK_CMD="$SU_SUDO /usr/bin/poldek"
 
 # TODO: add teeboth
+# TODO: what this function does?
 run_poldek() {
 	RES_FILE=$(tempfile)
 	if [ -n "$LOGFILE" ]; then
@@ -254,11 +256,11 @@ run_poldek() {
 		if [ -n "$LASTLOG_FILE" ]; then
 			echo "LASTLOG=$LOG" > $LASTLOG_FILE
 		fi
-		(${NICE_COMMAND} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee -a $LOG
+		(${NICE_COMMAND} ${POLDEK_CMD} --noask `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE})|tee -a $LOG
 		# FIXME $exit_pldk undefined
 		return $exit_pldk
 	else
-		(${NICE_COMMAND} ${POLDEK_CMD} `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE}) 1>&2 >/dev/null
+		(${NICE_COMMAND} ${POLDEK_CMD} --noask `while test $# -gt 0; do echo "$1 ";shift;done` ; echo $? > ${RES_FILE}) 1>&2 >/dev/null
 		return `cat ${RES_FILE}`
 		rm -rf ${RES_FILE}
 	fi
@@ -451,11 +453,13 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 
 # create tempfile. as secure as possible
 tempfile() {
-	mktemp --tmpdir -t builder.$PACKAGE_NAME.XXXXXX || echo ${TMPDIR:-/tmp}/builder.$RANDOM.$$
+	local prefix=builder.$PACKAGE_NAME${1:+.$1}
+	mktemp --tmpdir -t $prefix.XXXXXX || echo ${TMPDIR:-/tmp}/$prefix.$RANDOM.$$
 }
 
 tempdir() {
-	mktemp --tmpdir -d builder.$PACKAGE_NAME.XXXXXX
+	local prefix=builder.$PACKAGE_NAME${1:+.$1}
+	mktemp --tmpdir -d $prefix.XXXXXX
 }
 
 # inserts git log instead of %changelog
@@ -527,10 +531,26 @@ teeboth() {
 # common changes:
 # - perl(Package::Name) -> perl-Package-Name
 depspecname() {
-	local package="$1"
+	local DEPS
 
-	package=$(echo "$package" | sed -e '/perl(.*)/{s,perl(\(.*\)),perl-\1,;s,::,-,g};' -e 's/-\(devel\|static\)$//' )
-	echo "$package"
+	if [ $# -gt 0 ]; then
+		DEPS="$@"
+	else
+		DEPS=$(cat)
+	fi
+
+	echo "$DEPS" | tr ' ' '\n' | sed -re '
+		# perl virtual deps
+		/perl\(.*\)/{
+			s/perl\((.*)\)/perl-\1/
+			s/::/-/g
+		}
+
+		s/apache\(EAPI\)-devel/apache-devel/
+
+		s/db-devel/db5.3-devel/
+		s/libjpeg-devel/libjpeg-turbo-devel/
+	'
 }
 
 update_shell_title() {
@@ -758,6 +778,13 @@ parse_spec() {
 	fi
 
 	update_shell_title "parse_spec: OK!"
+}
+
+# aborts program abnormally
+die() {
+	local rc=${2:-1}
+	echo >&2 "$PROGRAM: ERROR: $*"
+	exit $rc
 }
 
 Exit_error() {
@@ -1795,6 +1822,64 @@ run_sub_builder() {
 	NOT_INSTALLED_PACKAGES="$NOT_INSTALLED_PACKAGES $package_name"
 }
 
+# install package with poldek
+# @return exit code from poldek
+#
+# this requires following sudo rules:
+# - poldek -q --update --upa
+poldek_install() {
+# TODO: if carme sudo rules are updated, this function could be just:
+#	LANG=C $POLDEK_CMD --noask --caplookup -uG $*
+
+	local log=$(tempfile poldek) rc
+
+	echo "install $*" | LANG=C script -e -f $log -c "$POLDEK_CMD"; rc=$?
+	# remove color and other terminal escapes
+	# see https://bugs.launchpad.net/poldek/+bug/1434393
+	sed -i -e 's/\r/\n/g;s///g;' $log
+	perl -pe 's/\033\[[\d;]*m//g' -i $log
+
+	# error: libjpeg-devel: no such package
+	local failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
+	rm $log
+
+	# failed to capture error?
+	if [ -n "$failed" -a $rc = 0 ]; then
+		echo >&2 "Failed to install: "$failed
+		rc=1
+	fi
+
+	return $rc
+}
+
+# install packages
+install_packages() {
+	# sync poldek indexes once per invocation
+	if [ -z "$package_indexes_updated" ]; then
+		update_shell_title "poldek: update indexes"
+		$POLDEK_CMD -q --update --upa
+		package_indexes_updated=true
+	fi
+
+	update_shell_title "install packages: $*"
+	poldek_install "$@" && return
+
+	# retry install, install packages one by one
+	# this is slower one
+	local rc=0 package
+	for package in $*; do
+		package=$(depspecname $package)
+		update_shell_title "install package: $package"
+		poldek_install "$package" || rc=$?
+	done
+	return $rc
+}
+
+uninstall_packages() {
+	update_shell_title "uninstall packages: $*"
+	$POLDEK_CMD --noask --nofollow -ev "$@"
+}
+
 spawn_sub_builder() {
 	package_name="${1}"
 	update_shell_title "spawn_sub_builder $package_name"
@@ -1857,7 +1942,7 @@ display_branches() {
 	git branch -r 2>/dev/null | grep "^  ${REMOTE_PLD}" | grep -v ${REMOTE_PLD}/HEAD | sed "s#^ *${REMOTE_PLD}/##" | xargs
 }
 
-# checks a given list of packages/files/provides agains current rpmdb.
+# checks a given list of packages/files/provides against current rpmdb.
 # outputs all dependencies which current rpmdb doesn't satisfy.
 # input can be either STDIN or parameters
 _rpm_prov_check() {
@@ -1895,44 +1980,26 @@ _rpm_cnfl_check() {
 
 # install deps via information from 'rpm-getdeps' or 'rpm --specsrpm'
 install_build_requires_rpmdeps() {
+	local DEPS CNFL
 	if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
 		# TODO: Conflicts list doesn't check versions
-		local CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
-		local DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
+		CNFL=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
+		DEPS=$(rpm-getdeps $BCOND $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 	fi
 	if [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
-		local CNFL=$(rpm -q --specsrpm --conflicts $BCOND $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
-		local DEPS=$(rpm -q --specsrpm --requires $BCOND $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
+		CNFL=$(rpm -q --specsrpm --conflicts $BCOND $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
+		DEPS=$(rpm -q --specsrpm --requires $BCOND $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
 	fi
 
-	if [ -n "$CNFL" ] || [ -n "$DEPS" ]; then
-		echo "fetch BuildRequires: install [$DEPS]; remove [$CNFL]"
-		update_shell_title "poldek: install [$DEPS]; remove [$CNFL]"
-		$SU_SUDO /usr/bin/poldek -q --update || $SU_SUDO /usr/bin/poldek -q --upa
-	fi
 	if [ -n "$CNFL" ]; then
-		update_shell_title "uninstall conflicting packages: $CNFL"
-		echo "Trying to uninstall conflicting packages ($CNFL):"
-		$SU_SUDO /usr/bin/poldek --noask --nofollow -ev $CNFL
+		echo "Uninstall conflicting packages ($CNFL):"
+		uninstall_packages $CNFL
 	fi
 
-	while [ "$DEPS" ]; do
-			update_shell_title "install deps: $DEPS"
-			echo "Trying to install dependencies ($DEPS):"
-			local log=.${SPECFILE}_poldek.log
-			LANG=C $SU_SUDO /usr/bin/poldek --noask --caplookup -uGqQ $DEPS | tee $log
-			failed=$(awk '/^error:/{a=$2; sub(/^error: /, "", a); sub(/:$/, "", a); print a}' $log)
-			rm -f $log
-			local ok
-			if [ -n "$failed" ]; then
-				for package in $failed; do
-					spawn_sub_builder -bb $(depspecname $package) && ok="$ok $package"
-				done
-				DEPS="$ok"
-			else
-				DEPS=""
-			fi
-	done
+	if [ -n "$DEPS" ]; then
+		echo "Install dependencies ($DEPS):"
+		install_packages $DEPS
+	fi
 }
 
 fetch_build_requires()
@@ -1947,149 +2014,7 @@ fetch_build_requires()
 		return
 	fi
 
-		# XXX is this ugliest code written in human history still needed?
-		echo "All packages installed by fetch_build_requires() are written to:"
-		echo "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES"
-		echo ""
-		echo "If anything fails, you may get rid of them by executing:"
-		echo "poldek -e \`cat `pwd`/.${SPECFILE}_INSTALLED_PACKAGES\`"
-		echo ""
-		echo > `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
-		for package_item in $(cat $SPECFILE | grep -B100000 ^%changelog|grep -v ^#|grep BuildRequires|grep -v ^-|sed -e "s/^.*BuildRequires://g"|awk '{print $1}'|sed -e s,perl\(,perl-,g -e s,::,-,g -e s,\(.*\),,g -e s,%{,,g -e s,},,g|grep -v OpenGL-devel|sed -e s,sh-utils,coreutils,g -e s,fileutils,coreutils,g -e s,textutils,coreutils,g -e s,kgcc_package,gcc,g -e s,\),,g)
-		do
-			package_item=$(echo $package_item|sed -e s,rpmbuild,rpm-build,g |sed -e s,__perl,perl,g |sed -e s,gasp,binutils-gasp,g -e s,binutils-binutils,binutils,g -e s,apxs,apache,g|sed -e s,apache\(EAPI\)-devel,apache-devel,g -e s,kernel-headers\(netfilter\),kernel-headers,g -e s,awk,mawk,g -e s,mmawk,mawk,g -e s,motif,openmotif,g -e s,openopenmotif,openmotif,g)
-			GO="yes"
-			package=$(basename "$package_item"|sed -e "s/}$//g")
-			COND_ARCH_TST=$(cat $SPECFILE|grep -B1 BuildRequires|grep -B1 $package|grep ifarch|sed -e "s/^.*ifarch//g")
-			mach=$(uname -m)
-
-			COND_TST=`cat $SPECFILE|grep BuildRequires|grep "$package"`
-			if `echo $COND_TST|grep -q '^BuildRequires:'`; then
-				if [ "$COND_ARCH_TST" != "" ] && [ "`echo $COND_ARCH_TST|sed -e "s/i.86/ix86/g"`" != "`echo $mach|sed -e "s/i.86/ix86/g"`" ]; then
-					GO="yes"
-				fi
-			# bcond:
-			else
-				COND_NAME=`echo $COND_TST|sed -e s,:BuildRequires:.*$,,g`
-				GO=""
-				# %{without}
-				if `echo $COND_TST|grep -q 'without_'`; then
-					COND_NAME=`echo $COND_NAME|sed -e s,^.*without_,,g`
-					if `echo $COND_TST|grep -q !`; then
-						COND_STATE="with"
-					else
-						COND_STATE="wout"
-					fi
-					COND_WITH=`echo $AVAIL_BCONDS_WITH|grep "<$COND_NAME>"`
-					COND_WITHOUT=`echo $AVAIL_BCONDS_WITHOUT|grep "<$COND_NAME>"`
-					if [ -n "$COND_WITHOUT" ] || [ -z "$COND_WITH" ]; then
-						COND_ARGV="wout"
-					else
-						COND_ARGV="with"
-					fi
-				# %{with}
-				elif `echo $COND_TST|grep -q 'with_'`; then
-					COND_NAME=`echo $COND_NAME|sed -e s,^.*with_,,g`
-					if `echo $COND_TST|grep -q !`; then
-						COND_STATE="wout"
-					else
-						COND_STATE="with"
-					fi
-					COND_WITH=`echo $AVAIL_BCONDS_WITH|grep "<$COND_NAME>"`
-					COND_WITHOUT=`echo $AVAIL_BCONDS_WITHOUT|grep "<$COND_NAME>"`
-					if [ -n "$COND_WITH" ] || [ -z "$COND_WITHOUT" ]; then
-						COND_ARGV="with"
-					else
-						COND_ARGV="wout"
-					fi
-				fi
-				RESULT="${COND_STATE}-${COND_ARGV}"
-				case "$RESULT" in
-					"with-wout" | "wout-with" )
-						GO=""
-						;;
-					"wout-wout" | "with-with" )
-						GO="yes"
-						;;
-					* )
-						echo "Action '$RESULT' was not defined for package '$package_item'"
-						GO="yes"
-						;;
-				esac
-			fi
-
-			if [ "$GO" = "yes" ]; then
-				if [ "`rpm -q $package|sed -e "s/$package.*/$package/g"`" != "$package" ]; then
-					echo "Testing if $package has subrequirements..."
-					run_poldek -t -i $package --dumpn=".$package-req.txt"
-					if [ -f ".$package-req.txt" ]; then
-						for package_name in `cat ".$package-req.txt"|grep -v ^#`
-						do
-							if [ "$package_name" = "$package" ]; then
-								echo "Installing BuildRequired package:\t$package_name"
-								update_shell_title "Installing BuildRequired package: ${package_name}"
-								install_required_packages $package
-							else
-								echo "Installing (sub)Required package:\t$package_name"
-								update_shell_title "Installing (sub)Required package: ${package_name}"
-								install_required_packages $package_name
-							fi
-							case $? in
-								0)
-									INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
-									echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
-									;;
-								*)
-									echo "Attempting to run spawn sub - builder..."
-									echo "Package installation failed:\t$package_name"
-									run_sub_builder $package_name
-									if [ $? -eq 0 ]; then
-										install_required_packages $package_name
-										case $? in
-											0)
-												INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
-												echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
-												;;
-											*)
-												NOT_INSTALLED_PACKAGES="$package_name $NOT_INSTALLED_PACKAGES"
-												;;
-										esac
-									fi
-									;;
-							esac
-						done
-						rm -f ".$package-req.txt"
-					else
-						echo "Attempting to run spawn sub - builder..."
-						echo "Package installation failed:\t$package"
-						run_sub_builder $package
-						if [ $? -eq 0 ]; then
-							install_required_packages $package
-							case $? in
-								0)
-									INSTALLED_PACKAGES="$package_name $INSTALLED_PACKAGES"
-									echo $package_name >> `pwd`/.${SPECFILE}_INSTALLED_PACKAGES
-									;;
-								*)
-									NOT_INSTALLED_PACKAGES="$package_name $NOT_INSTALLED_PACKAGES"
-									;;
-							esac
-						fi
-					fi
-				else
-					echo "Package $package is already installed. BuildRequirement satisfied."
-				fi
-			fi
-		done
-		if [ "$NOT_INSTALLED_PACKAGES" != "" ]; then
-			echo >&2 "Unable to install following packages and their dependencies:"
-			for pkg in "$NOT_INSTALLED_PACKAGES"
-			do
-				echo $pkg
-			done
-			remove_build_requires
-			exit 8
-		fi
+	die "need rpm-getdeps tool"
 }
 
 init_repository() {
