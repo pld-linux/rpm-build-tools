@@ -1928,21 +1928,21 @@ display_branches() {
 # outputs all dependencies which current rpmdb doesn't satisfy.
 # input can be either STDIN or parameters
 _rpm_prov_check() {
-	local DEPS
+	local deps out
 
 	if [ $# -gt 0 ]; then
-		DEPS="$@"
+		deps="$@"
 	else
-		DEPS=$(cat)
+		deps=$(cat)
 	fi
 
-	DEPS=$(LANG=C rpm -q --whatprovides $DEPS 2>&1 | awk '/^(error:|no package provides)/ { print }')
+	out=$(LC_ALL=C rpm -q --whatprovides $deps 2>&1)
 
 	# packages
-	echo "$DEPS" | awk '/^no package provides/ { print $NF }'
+	echo "$out" | awk '/^no package provides/ { print $NF }'
 
 	# other deps (files)
-	echo "$DEPS" | awk -F: '/^error:.*No such file/{o = $2; gsub("^ file ", "", o); print o}'
+	echo "$out" | sed -rne 's/file (.*): No such file or directory/\1/p'
 }
 
 # checks if given package/files/provides exists in rpmdb.
@@ -1974,12 +1974,12 @@ install_build_requires_rpmdeps() {
 	fi
 
 	if [ -n "$CNFL" ]; then
-		echo "Uninstall conflicting packages ($CNFL):"
+		echo "Uninstall conflicting packages: $CNFL"
 		uninstall_packages $CNFL
 	fi
 
 	if [ -n "$DEPS" ]; then
-		echo "Install dependencies ($DEPS):"
+		echo "Install dependencies: $DEPS"
 		install_packages $DEPS
 	fi
 }
