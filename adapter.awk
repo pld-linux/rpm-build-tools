@@ -711,7 +711,7 @@ preamble == 1 {
 		$0 = format_requires($1, value)
 	}
 
-	# BR: tar (and others) are too common (rpm-build requires it)
+	# BR: tar (and others) are too common (rpm-build requires them)
 	if (field == "buildrequires:") {
 		l = substr($0, index($0, $2))
 		if (l == "awk" ||
