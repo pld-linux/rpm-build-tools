@@ -1828,7 +1828,7 @@ run_sub_builder() {
 # this requires following sudo rules:
 # - poldek --noask --caplookup -uG
 poldek_install() {
-	LANG=C $POLDEK_CMD --noask --caplookup -uG "$@"
+	LANG=C $POLDEK_CMD --noask --caplookup --uniq -uG "$@"
 }
 
 # install packages
