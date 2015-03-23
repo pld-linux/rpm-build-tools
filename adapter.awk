@@ -473,6 +473,7 @@ function b_makekey(a, b,	s) {
 	sub("^%{__rm} -rf %{buildroot}", "rm -rf $RPM_BUILD_ROOT")
 	sub("%buildroot", "$RPM_BUILD_ROOT")
 	sub("%{buildroot}", "$RPM_BUILD_ROOT")
+	sub("%{\?buildroot}", "$RPM_BUILD_ROOT")
 
 	if (/^[ \t]*rm([ \t]+-[rf]+)*[ \t]+(\${?RPM_BUILD_ROOT}?|%{?buildroot}?)/ && did_rmroot==0) {
 		did_rmroot=1
@@ -1445,6 +1446,7 @@ function use_macros()
 	gsub("^fix-info-dir$", "[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>\\&1")
 	$0 = fixedsub("%buildroot", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("%{buildroot}", "$RPM_BUILD_ROOT", $0)
+	$0 = fixedsub("%{?buildroot}", "$RPM_BUILD_ROOT", $0)
 	$0 = fixedsub("CXXFLAGS=%{rpmcflags} %configure", "CXXFLAGS=%{rpmcflags}\n%configure", $0)
 	$0 = fixedsub("%__install", "install", $0)
 
@@ -2081,6 +2083,7 @@ function replace_groupnames(group) {
 	group = replace(group, "Development/Libraries/Java", "Development/Languages/Java")
 	group = replace(group, "Development/Libraries/Python", "Development/Languages/Python")
 	group = replace(group, "Development/Libraries/TCL", "Development/Languages/Tcl")
+	group = replace(group, "Development/Libraries/X11", "X11/Development/Libraries")
 	group = replace(group, "Development/Other", "Development")
 	group = replace(group, "Development/Python", "Development/Languages/Python")
 	group = replace(group, "Development/Testing", "Development")
@@ -2286,6 +2289,7 @@ function replace_requires(field,   pkg) {
 	sub(/^django-tagging$/, "python-django_tagging", $2)
 	sub(/^elfutils-libelf-devel$/, "elfutils-devel", $2)
 	sub(/^file-devel$/, "libmagic-devel", $2)
+	sub(/^firebird-devel$/, "Firebird-devel", $2)
 	sub(/^freetype2-devel$/, "freetype-devel", $2)
 	sub(/^fuse-devel$/, "libfuse-devel", $2)
 	sub(/^gamin-python$/, "python-gamin", $2)
@@ -2306,6 +2310,7 @@ function replace_requires(field,   pkg) {
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2)
 	sub(/^kdelibs4-devel$/, "kde4-kdelibs-devel", $2)
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2)
+	sub(/^libICE-devel$/, "xorg-lib-libICE-devel", $2)
 	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2)
 	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2)
 	sub(/^libXScrnSaver-devel$/, "xorg-lib-libXScrnSaver-devel", $2)
@@ -2315,7 +2320,9 @@ function replace_requires(field,   pkg) {
 	sub(/^libXdamage-devel$/, "xorg-lib-libXdamage-devel", $2)
 	sub(/^libXext-devel$/, "xorg-lib-libXext-devel", $2)
 	sub(/^libXft-devel$/, "xorg-lib-libXft-devel", $2)
+	sub(/^libXi-devel$/, "xorg-lib-libXi-devel", $2)
 	sub(/^libXinerama-devel$/, "xorg-lib-libXinerama-devel", $2)
+	sub(/^libXmu-devel$/, "xorg-lib-libXmu-devel", $2)
 	sub(/^libXrandr-devel$/, "xorg-lib-libXrandr-devel", $2)
 	sub(/^libXrender-devel$/, "xorg-lib-libXrender-devel", $2)
 	sub(/^libXt-devel$/, "xorg-lib-libXt-devel", $2)
@@ -2397,6 +2404,7 @@ function replace_requires(field,   pkg) {
 	sub(/^urw-fonts$/, "fonts-Type1-urw", $2)
 	sub(/^webkitgtk3-devel$/, "gtk-webkit3-devel", $2)
 	sub(/^xapian-bindings-python$/, "python-xapian", $2)
+	sub(/^xorg-x11-proto-devel$/, "xorg-proto-xproto-devel", $2)
 	sub(/^xorg-x11-server-sdk$/, "xorg-xserver-server-devel", $2)
 	# }}}
 
