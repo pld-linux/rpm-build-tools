@@ -463,7 +463,7 @@ tempdir() {
 }
 
 # inserts git log instead of %changelog
-# outputs name of modified file created by tempfile
+# @output directory containing modified specfile
 insert_gitlog() {
 	local SPECFILE=$1 specdir=$(tempdir) gitlog=$(tempfile) speclog=$(tempfile)
 
