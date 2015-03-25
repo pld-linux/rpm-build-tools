@@ -586,11 +586,11 @@ function process_source(number, lurl, name, version) {
 
 			d("Found link: " addr)
 
-			# github has very different tarball links that clash with this safe check
-			if (!(newurl ~/^(http|https):\/\/github.com\/.*\/tarball/)) {
-				if (addr ~ "[-_.0-9A-Za-z~]" filenameexp) {
-					continue
-				}
+			# Try not to treat foobar or foo-bar as (possibly newer) version of bar
+			# (practical cases: KXL, lineakconfig, mhash...)
+			# but don't skip cases where name is like "/some/link/0.12.2.tar.gz"
+			if ((addr ~ "[-_.0-9A-Za-z~]" filenameexp) && addr !~ "[-_.0-9A-Za-z~]/" filenameexp)  {
+				continue
 			}
 
 			if (addr ~ filenameexp) {
