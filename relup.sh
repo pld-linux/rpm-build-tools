@@ -92,7 +92,11 @@ get_branch() {
 
 	branch=${specfile#*:}
 
-	echo ${branch:-master}
+	if [ "$branch" != "$specfile" ]; then
+		echo "$branch"
+	else
+		echo ""
+	fi
 }
 
 if [ ! -x /usr/bin/getopt ]; then
@@ -160,13 +164,21 @@ for pkg in "$@"; do
 	specname=${spec##*/}
 
 	# start real work
-	echo "$pkg:$branch ..."
+	if [ -n "$branch" ]; then
+		echo "$pkg:$branch ..."
+	else
+		echo "$pkg ..."
+	fi
 
 	# get package
 	[ "$get" = 1 -a -d "$pkgdir" ] && continue
 
 	if [ "$update" = "1" -o "$get" = "1" ]; then
-		./builder -g -ns "$spec" -r $branch
+		if [ -n "$branch" ]; then
+			./builder -g -ns "$spec" -r $branch
+		else
+			./builder -g -ns "$spec"
+		fi
 	fi
 
 	[ "$get" = 1 ] && continue
