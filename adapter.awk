@@ -830,6 +830,9 @@ preamble == 1 {
 		if (l == "MPLv1.1") {
 			l = "MPL v1.1"
 		}
+		if (l == "Mozilla Public License, version 2.0") {
+			l = "MPL v2.0"
+		}
 		$0 = "License:\t" l
 	}
 
@@ -2168,6 +2171,11 @@ function replace_pythonegg(pkg,    cmd, line) {
 # }}}
 
 function replace_requires(field,   pkg) {
+	# strip %{?_isa}
+	if ($2 ~ /_isa/) {
+		$2 = fixedsub("%{?_isa}", "", $2);
+	}
+
 	# pkg-config -> package names
 	if (match($2, /pkgconfig\(([^)]+)\)/)) {
 		pkg = substr($2, RSTART + 10, RLENGTH - 11)
