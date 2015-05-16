@@ -240,82 +240,85 @@ function get_links(url,filename,   errno,link,oneline,retval,odp,wholeodp,lowero
 		gsub("^project/", "", newurl)
 		gsub("/.*", "", newurl)
 		url = "http://sourceforge.net/projects/" newurl "/rss?path=/"
-		d("sf url, mungled url to: " url)
+		d("sf url, mangled url to: " url)
 
 	} else if (url ~ /^http:\/\/(.*)\.googlecode\.com\/files\//) {
 		gsub("^http://", "", url)
 		gsub("\..*", "", url)
 		url = "http://code.google.com/p/" url "/downloads/list"
-		d("googlecode url, mungled url to: " url)
+		d("googlecode url, mangled url to: " url)
 
 	} else if (url ~ /^http:\/\/pecl.php.net\/get\//) {
 		gsub("-.*", "", filename)
 		url = "http://pecl.php.net/package/" filename
-		d("pecl.php.net url, mungled url to: " url)
+		d("pecl.php.net url, mangled url to: " url)
 
 	} else if (url ~/http:\/\/cdn.mysql.com\//) {
 		gsub("http:\/\/cdn.mysql.com\/", "", url)
 		url = "http://vesta.informatik.rwth-aachen.de/mysql/" url
-		d("mysql CDN, mungled url to: " url)
+		d("mysql CDN, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/launchpad\.net\/(.*)\//) {
 		gsub("^(http|https):\/\/launchpad\.net\/", "", url)
 		gsub("\/.*/", "", url)
 		url = "https://code.launchpad.net/" url "/+download"
-		d("main launchpad url, mungled url to: " url)
+		d("main launchpad url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/edge\.launchpad\.net\/(.*)\//) {
 		gsub("^(http|https):\/\/edge\.launchpad\.net\/", "", url)
 		gsub("\/.*/", "", url)
 		url = "https://edge.launchpad.net/" url "/+download"
-		d("edge launchpad url, mungled url to: " url)
+		d("edge launchpad url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/github.com\/.*\/(.*)\/tarball\//) {
 		gsub("\/tarball\/.*", "/downloads", url)
-		d("github tarball url, mungled url to: " url)
+		d("github tarball url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/github.com\/.*\/(.*)\/archive\//) {
 		gsub("\/archive\/.*", "/tags", url)
-		d("github archive url, mungled url to: " url)
+		d("github archive url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/bitbucket.org\/.*\/get\/.*/) {
 		# https://bitbucket.org/logilab/pylint/get/tip.tar.bz2 -> https://bitbucket.org/logilab/pylint/downloads
 		gsub("\/get\/.*", "/downloads", url)
-		d("github bitbucket url, mungled url to: " url)
+		d("github bitbucket url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/cgit\..*\/(.*)\/snapshot\//) {
 		gsub("\/snapshot\/.*", "/", url)
-		d("cgit snapshot tarball url, mungled url to: " url)
+		d("cgit snapshot tarball url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/www2\.aquamaniac\.de\/sites\/download\//) {
 		url = "http://www2.aquamaniac.de/sites/download/packages.php"
-		d("aquamaniac.de tarball url, mungled url to: " url)
+		d("aquamaniac.de tarball url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/www.process-one.net\/downloads\/ejabberd\//) {
 		url = "http://www.process-one.net/en/ejabberd/archive/"
-		d("ejabberd tarball url, mungled url to: " url)
+		d("ejabberd tarball url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/llvm.org\/releases\//) {
 		url = "http://llvm.org/releases/download.html"
-		d("llvm tarball url, mungled url to: " url)
+		d("llvm tarball url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/download\.owncloud\.org\/community\//) {
 		url = "http://owncloud.org/changelog/"
-		d("owncloud tarball url, mungled url to: " url)
+		d("owncloud tarball url, mangled url to: " url)
 
 	} else if (url ~ /^(http|https):\/\/hackage\.haskell\.org\/packages\/archive\//) {
 		gsub("\/packages\/archive","/package",url)
-		d("hackage haskell tarball url, mungled url to: " url)
+		d("hackage haskell tarball url, mangled url to: " url)
 
 	} else if (url ~ /^http:\/\/www.taskwarrior.org\/download\//) {
 		url = "http://taskwarrior.org/projects/taskwarrior/wiki/Download"
-		d("taskwarrior tarball url, mungled url to: " url)
+		d("taskwarrior tarball url, mangled url to: " url)
 	} else if (url ~/^http:\/\/www.rarlab.com\/rar\// && filename ~ /^unrarsrc/) {
 		url = "http://www.rarlab.com/rar_add.htm"
-		d("unrar tarball url, mungled url to: " url)
+		d("unrar tarball url, mangled url to: " url)
 	} else if (url ~/^http:\/\/www.rarlab.com\/rar\//) {
 		url = "http://www.rarlab.com/download.htm"
-		d("rar tarball url, mungled url to: " url)
+		d("rar tarball url, mangled url to: " url)
+	} else if (url ~/^(http|https):\/\/pypi.python.org\/packages\/source\/.*/) {
+		gsub("/packages/source/[a-zA-Z0-9]/", "/pypi/", url)
+		d("pypi.python.org url, mangled url to: " url)
 	}
 
 	d("Retrieving: " url)
