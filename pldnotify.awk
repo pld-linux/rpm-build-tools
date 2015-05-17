@@ -784,6 +784,9 @@ function process_data(name, ver, rel,     src, nver, i) {
 }
 
 BEGIN {
+	# use perl links extraction by default
+	USE_PERL = 1
+
 	# if you want to use DEBUG, run script with "-v DEBUG=1"
 	# or uncomment the line below
 	# DEBUG = 1
