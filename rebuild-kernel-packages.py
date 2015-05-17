@@ -76,11 +76,7 @@ def run_command(command, verbose=False, quiet=True):
         return (False, None)
     return (True, out)
 
-def get_last_tag(package, dist="th", kernel=None, verbose=False):
-    try:
-        name, spec, branch = clean_pkgname(package)
-    except NameError:
-        return None
+def get_last_tag(name, spec, branch, dist="th", kernel=None, verbose=False):
     fetch_package(name, spec, branch, verbose=verbose)
     if os.path.exists("%s/%s/%s" % (get_rpmdir(), name, spec)):
         tag = get_autotag(name, spec, branch, dist=dist, kernel=kernel, verbose=verbose)
@@ -169,7 +165,7 @@ def main():
 
     build_mode = '-r'
     if args.test_build:
-        build_mode = 't'
+        build_mode = '-t'
 
     if not args.skip:
         args.skip = []
@@ -202,33 +198,41 @@ def main():
         branch = 'master'
         if kernel != 'head':
             branch = 'LINUX_%s' % kernel.replace('.','_')
-        print '%s: %s' % (kernel, get_last_tag("kernel:%s" % branch, dist=args.dist, kernel=kernel, verbose=args.verbose))
+        print '%s: %s' % (kernel, get_last_tag('kernel', 'kernel.spec', branch, dist=args.dist, kernel=kernel, verbose=args.verbose))
 
     for pkg, kernels in packages.iteritems():
+        try:
+            name, spec, branch = clean_pkgname(pkg)
+        except NameError:
+            continue
         if not pkg in args.packages:
             continue
         if not set(kernels).symmetric_difference(args.skip):
             continue
-        tag = get_last_tag(pkg, dist=args.dist, verbose=args.verbose)
+        tag = get_last_tag(name, spec, branch, dist=args.dist, verbose=args.verbose)
         if not tag:
             print "Failed getching last autotag for %s!" % pkg
             continue
         command = ("%s -nd %s -d %s --define 'build_kernels %s' --without userspace %s:%s" %
-                (args.make_request, build_mode, args.dist, ','.join(kernels), pkg, tag))
+                (args.make_request, build_mode, args.dist, ','.join(kernels), spec, tag))
         run_command(shlex.split(command), verbose=args.verbose, quiet=False)
 
     if args.nopae:
         for pkg, kernels in packages.iteritems():
+            try:
+                name, spec, branch = clean_pkgname(pkg)
+            except NameError:
+                continue
             if not pkg in args.packages:
                 continue
             if not 'head' in kernels:
                 continue
-            tag = get_last_tag(pkg, dist=args.dist, verbose=args.verbose)
+            tag = get_last_tag(name, spec, branch, dist=args.dist, verbose=args.verbose)
             if not tag:
                 print "Failed getching last autotag for %s!" % pkg
                 continue
             command = ("%s -nd %s -d %s -b th-i686 --define 'build_kernels nopae' --kernel nopae --without userspace %s:%s" %
-                    (args.make_request, build_mode, args.dist, pkg, tag))
+                    (args.make_request, build_mode, args.dist, spec, tag))
             run_command(shlex.split(command), verbose=args.verbose, quiet=False)
 
 if __name__ == "__main__":
