@@ -36,6 +36,7 @@ kf5-kxmlgui
 kf5-kbookmarks
 kf5-kio
 kf5-kinit
+kf5-kpackage
 kf5-kdeclarative
 kf5-kded
 kf5-kemoticons
@@ -47,10 +48,10 @@ kf5-plasma-framework
 kf5-krunner
 kf5-kimageformats
 kf5-knotifyconfig
+kf5-kparts
 kf5-ktexteditor
 kf5-kitemmodels
 
 kf5-kjs
-kf5-kparts
 kf5-khtml
 "
