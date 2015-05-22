@@ -372,10 +372,7 @@ if (USE_PERL) {
 		d("href(): " link)
 	}
 	close(cmd)
-	system("rm -f " tmpfile)
 
-	d("Returning: [" retval "]")
-	return retval
 }
 
 	wholeodp = ""
