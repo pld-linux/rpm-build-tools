@@ -2052,6 +2052,11 @@ if [ $# = 0 ]; then
 	exit 1
 fi
 
+# stuff global $BUILDER_OPTS from env as args
+if [ "$BUILDER_OPTS" ]; then
+	set -- "$BUILDER_OPTS" "$@"
+fi
+
 while [ $# -gt 0 ]; do
 	case "${1}" in
 		-4|-6)
