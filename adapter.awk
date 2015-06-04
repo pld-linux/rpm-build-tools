@@ -2154,6 +2154,26 @@ function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
 }
 # }}}
 
+# {{{ replace_perlmod(pkg)
+function replace_perlmod(pkg, version,   cmd, line) {
+	# do nothing if version is specified
+	if (version) {
+		return
+	}
+	cmd = "rpm -q --qf '%{N}\n' --whatprovides 'perl(" pkg ")' "
+
+	# Getline returns 0 on end-of-file, -1 on error, otherwise 1.
+	if ((cmd | getline line) <= 0) {
+		return
+	}
+
+	if (line !~ /no package provides/) {
+		# @modifies global $2
+		$2 = line
+		return
+	}
+}
+
 # {{{ replace_pythonegg(pkg)
 function replace_pythonegg(pkg,    cmd, line) {
 	cmd = "rpm -q --qf '%{N}' --whatprovides 'pythonegg(" pkg ")'"
@@ -2186,6 +2206,12 @@ function replace_requires(field,   pkg) {
 	if (match($2, /pythonegg\(([^)]+)\)/)) {
 		pkg = substr($2, RSTART + 10, RLENGTH - 11)
 		replace_pythonegg(pkg)
+	}
+
+	# perl() -> package names
+	if (match($2, /perl\(([^)]+)\)/)) {
+		pkg = substr($2, RSTART + 5, RLENGTH - 6)
+		replace_perlmod(pkg, $3)
 	}
 
 	sub(/^python-setuptools-devel$/, "python-distribute", $2)
