@@ -39,6 +39,7 @@ dir=$(dirname "$0")
 APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
 PATH=$APPDIR:$PATH
 topdir=$(rpm -E '%{_topdir}')
+dist=th
 
 # get package, no sources
 get_package() {
@@ -46,14 +47,48 @@ get_package() {
 	out=$(builder -g -ns $pkg 2>&1) || echo "$out"
 }
 
+# get version fron $specfile
+get_version() {
+	local specfile="$1"
+
+	awk '/^Version:[ 	]+/{print $NF}' $specfile | tail -n1
+}
+
+# displays latest used tag for a specfile
+autotag() {
+	local out s
+	for s in "$@"; do
+		# strip branches
+		s=${s%:*}
+		# ensure package ends with .spec
+		s=${s%.spec}.spec
+		git fetch --tags
+		out=$(git for-each-ref --count=1 --sort=-authordate refs/tags/auto/$dist \
+			--format='%(refname:short)')
+		echo "$s:$out"
+	done
+}
+
+# get $pkg, setup $package, $version, $tag
+setup_package() {
+	local package=$1
+	local specfile=$package.spec
+	get_package $package
+	version=$(cd $package && get_version $specfile)
+	tag=$(cd $package && autotag $specfile)
+}
+
 cd "$topdir"
+
+# get new version from qtbase package
+setup_package qt5-qtbase
+echo "Updating version to $version (based on qt5-qtbase)"
+set_version=$version
+
 for pkg in ${*:-$packages}; do
 	pkg=${pkg%.spec}
-	echo "* $pkg"
+	echo -n "* $pkg ... "
 
-	get_package $pkg
-	cd $pkg
-	specfile=*.spec
-
-	cd ..
+	setup_package $pkg
+	echo "$version $tag"
 done
