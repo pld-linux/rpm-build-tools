@@ -2315,7 +2315,7 @@ while [ $# -gt 0 ]; do
 			;;
 		--alt_kernel)
 			shift
-			RPMOPTS="${RPMOPTS} --define \"alt_kernel $1\""
+			RPMOPTS="${RPMOPTS} --define \"alt_kernel $1\" --define \"build_kernels $1\""
 			shift
 			;;
 		--short-circuit)
