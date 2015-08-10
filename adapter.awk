@@ -2416,7 +2416,7 @@ function replace_requires(field,   pkg) {
 	sub(/^python-newt$/, "python-snack", $2)
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2)
 	sub(/^python-recaptcha-client$/, "python-recaptcha", $2)
-	sub(/^python-sphinx$/, "python-Sphinx", $2)
+	sub(/^python-sphinx$/, "sphinx-pdg", $2)
 	sub(/^python-sqlalchemy$/, "python-SQLAlchemy", $2)
 	sub(/^python-twisted$/, "python-TwistedCore", $2)
 	sub(/^python-twisted-core$/, "python-TwistedCore", $2)
