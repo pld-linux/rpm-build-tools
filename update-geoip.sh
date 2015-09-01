@@ -2,14 +2,18 @@
 # Update GeoIP packages to new version provided by MaxMind.
 #
 # Author: Elan Ruusamäe <glen@pld-linux.org>
+#
+# Changelog:
 # 2012-07-04 Created initial version
 # 2014-03-04 Rewritten to be smarter when checking for updates avoiding full download if no changes.
 # 2014-06-06 Fix finding new versions if multiple previous archives were present
+# 2015-08-25 Add auto commit support
 
 set -e
 
 update=false
 status=false
+commit=true
 while [ $# -gt 0 ]; do
 	case "$1" in
 	update|-u|-update|--update)
@@ -85,6 +89,12 @@ update_version() {
 	out=$(builder -bb $specfile 2>&1) || echo "$out"
 }
 
+commit_vcs() {
+	local specfile="$1" version="$2"
+
+	git commit -m "updated to $version" $specfile
+}
+
 # get version from package files
 # set $version variable
 version_from_files() {
@@ -133,6 +143,9 @@ for pkg in ${*:-$pkgs}; do
 	oldvers=$(awk '/^Version:[ 	]+/{print $NF}' $specfile)
 	if [ "$oldvers" != "$version" ]; then
 		update_version $specfile $version
+		if $commit; then
+			commit_vcs $specfile $version
+		fi
 	fi
 	cd ..
 done
