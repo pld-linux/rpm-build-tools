@@ -54,4 +54,7 @@ kf5-kitemmodels
 
 kf5-kjs
 kf5-khtml
+
+kf5-kfilemetadata
+kf5-baloo
 "
