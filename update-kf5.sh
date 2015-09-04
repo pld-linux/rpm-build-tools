@@ -72,3 +72,10 @@ kf5-bluez-qt
 kf5-modemmanager-qt
 kf5-networkmanager-qt
 "
+
+PLASMA="
+kp5-kdecoration
+kp5-oxygen
+kp5-bluedevil
+kp5-breeze
+"
