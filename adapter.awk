@@ -373,7 +373,7 @@ function b_makekey(a, b,	s) {
 ##########
 # %build #
 ##########
-/^%build/, (!/^%build/ && $0 ~ SECTIONS) {
+/^%build([^A-Za-z0-9_]|$)/, (!/^%build/ && $0 ~ SECTIONS) {
 	preamble = 0
 
 	if (did_prep == 0) {
