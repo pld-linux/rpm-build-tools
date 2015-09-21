@@ -656,7 +656,7 @@ minirpm() {
 %remove_etc_shells(p) %{p:<lua>}
 %lua_add_etc_shells()  %{nil}
 %lua_remove_etc_shells() %{nil}
-%required_jdk %{nil}
+%required_jdk jdk
 %buildrequires_jdk %{nil}
 %pear_package_print_optionalpackages %{nil}
 EOF
