@@ -154,6 +154,10 @@ done
 for pkg in ${*:-$pkgs}; do
 	pkg=${pkg%.spec}
 	cd $pkg
+	out=$(
 	git status --porcelain
+	git status | grep ahead || :
+	)
+	test -n "$out" && echo "$pkg: $out"
 	cd ..
 done
