@@ -177,7 +177,7 @@ def main():
 
     if not args.noinstall:
         source_packages = []
-        for ver in ['-','-nopae-','-3.18-','-3.14-','-3.10-','-3.4-']:
+        for ver in ['-','-nopae-','-4.1-','-3.18-','-3.14-','-3.10-']:
             source_packages.extend(['kernel%sheaders' % ver, 'kernel%smodule-build' % ver])
         command = (('%(make_request)s -b %(dist)s-src -t -c '
                 '"poldek -n %(dist)s -n %(dist)s-ready -n %(dist)s-test --up ; '
