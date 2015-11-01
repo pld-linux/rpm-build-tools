@@ -25,6 +25,7 @@
 # - pear (php-pear-PEAR) for php-pear package updates
 # - npm for nodejs packages
 # - gem (ruby-rubygems) for ruby/rubygem packages
+# - node to parse json from release-monitoring.org
 # 
 # Additionally "mirrors" file in current dir, controls local mirrors you prefer
 
@@ -730,6 +731,17 @@ function jenkins_upgrade(name, ver, urls,  url, i, c, chunks, nver) {
 	}
 }
 
+# check for update from release-monitoring.org
+function rmo_check(name,    sourceurl, cmd) {
+	sourceurl = "https://release-monitoring.org/api/project/pld-linux/" name
+	cmd = "echo 'var data='$(curl -s " sourceurl ")';process.stdout.write(data.version)' | node"
+	d("rmo: " cmd);
+	cmd | getline ver
+	close(cmd)
+
+	return ver
+}
+
 function process_data(name, ver, rel,     src, nver, i) {
 	if (name ~ /^php-pear-/) {
 		nver = pear_upgrade(name, ver);
@@ -749,6 +761,8 @@ function process_data(name, ver, rel,     src, nver, i) {
 		nver = rubygem_upgrade(name, ver);
 	} else if (name ~ "jenkins") {
 		nver = jenkins_upgrade(name, ver, src);
+	} else if (name) {
+		nver = rmo_check(name);
 	}
 
 	if (nver) {
