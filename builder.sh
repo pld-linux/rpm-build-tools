@@ -554,7 +554,7 @@ depspecname() {
 }
 
 update_shell_title() {
-	[ -t 1 ] || return
+	[ -t 2 ] || return
 	local len=${COLUMNS:-80}
 	local msg="$(echo "$*" | cut -c-$len)"
 
