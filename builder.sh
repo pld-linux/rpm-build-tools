@@ -1033,15 +1033,22 @@ get_spec() {
 	set_spec_target
 }
 
+# find mirrors in this order. first match wins:
+# - package dir (~/rpm/packages/foo)
+# - repository dir (~/rpm/packages)
+# - tools dir dir (~/rpm/packages/rpm-build-tools)
 find_mirror() {
-	cd "$REPO_DIR"
 	local url="$1"
-	if [ ! -f "mirrors"  ] ; then
-		ln -s ../rpm-build-tools/mirrors .
-	fi
 
-	IFS="|"
+	update_shell_title "find_mirror[$url][$REPO_DIR]"
+
+	# NOTE: as while loop runs in subshell,
+	# we use exit 2 to indicate  that the match was found
+	# otherwise we end up outputing mirror url and origin url.
+
 	local origin mirror name rest ol prefix
+	IFS="|"
+	cat "$PACKAGE_DIR/mirrors" "$REPO_DIR/mirrors" "$REPO_DIR/../rpm-build-tools/mirrors" /dev/null 2>/dev/null | \
 	while read origin mirror name rest; do
 		# skip comments and empty lines
 		if [ -z "$origin" ] || [ "${origin#\#}" != "$origin" ]; then
@@ -1052,10 +1059,9 @@ find_mirror() {
 		if [ "$prefix" = "$origin" ] ; then
 			suffix=$(echo "$url" | cut -b $((ol+1))-)
 			echo -n "$mirror$suffix"
-			return 0
+			exit 2
 		fi
-	done < mirrors
-	echo "$url"
+	done && echo "$url"
 }
 
 # Warning: unpredictable results if same URL used twice
