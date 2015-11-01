@@ -1776,6 +1776,7 @@ function unify_url(url)
 	if (url ~ /sourceforge.net/) {
 		sub("[?&]big_mirror=.*$", "", url)
 		sub("[?&]modtime=.*$", "", url)
+		sub("[?&]r=.*$", "", url)
 		sub("[?]use_mirror=.*$", "", url)
 		sub("[?]download$", "", url)
 		sub("/download$", "", url)
