@@ -993,7 +993,7 @@ get_spec() {
 
 		# create symlinks for tools
 		if [ "$SYMLINK_TOOLS" != "no" -a -d "$PACKAGE_DIR" ]; then
-			for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh pldnotify.awk; do
+			for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh; do
 				# skip tools that don't exist in top dir
 				[ -f $a ] || continue
 				# skip tools that already exist
@@ -1565,12 +1565,12 @@ try_upgrade() {
 		echo "Updating spec file to version $TNEWVER"
 	else
 		if [ -n "$FLOAT_VERSION" ]; then
-			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
+			TNOTIFY=$(pldnotify ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE -n) || exit 1
 		else
-			TNOTIFY=$($APPDIR/pldnotify.awk ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
+			TNOTIFY=$(pldnotify ${BE_VERBOSE:+-vDEBUG=1} $SPECFILE) || exit 1
 		fi
 
-		# pldnotify.awk does not set exit codes, but it has match for ERROR
+		# pldnotify does not set exit codes, but it has match for ERROR
 		# in output which means so.
 		if [[ "$TNOTIFY" = *ERROR* ]]; then
 			echo >&2 "$TNOTIFY"
