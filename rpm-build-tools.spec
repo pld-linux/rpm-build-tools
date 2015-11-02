@@ -28,6 +28,7 @@ Requires:	sed >= 4.0
 Requires:	time
 Requires:	util-linux
 Requires:	wget
+Suggests:	pldnotify
 Suggests:	rpm-specdump >= 0.3
 Suggests:	schedtool
 Suggests:	vim-syntax-spec
