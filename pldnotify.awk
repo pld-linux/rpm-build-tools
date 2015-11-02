@@ -710,7 +710,7 @@ function rubygem_upgrade(name, ver,   cmd, pkg) {
 
 function google_linux_repo(name, ver, reponame,   cmd, sourceurl) {
 	sourceurl = "http://dl.google.com/linux/" reponame "/rpm/stable/x86_64/repodata/primary.xml.gz"
-	cmd = "curl -s " sourceurl " | zcat | perl -ne 'm{<name>" name "-" DEFS["state"] "</name>} and m{<version .*ver=.([\d.]+)} and print $1'"
+	cmd = "curl -m 45 -s " sourceurl " | zcat | perl -ne 'm{<name>" name "-" DEFS["state"] "</name>} and m{<version .*ver=.([\d.]+)} and print $1'"
 	d("google repo: " cmd);
 	cmd | getline ver
 	close(cmd)
@@ -734,7 +734,7 @@ function jenkins_upgrade(name, ver, urls,  url, i, c, chunks, nver) {
 # check for update from release-monitoring.org
 function rmo_check(name,    sourceurl, cmd, ver) {
 	sourceurl = "https://release-monitoring.org/api/project/pld-linux/" name
-	cmd = "echo 'var data='\"$(curl -s " sourceurl ")\"';if (data.version) process.stdout.write(data.version)' | node"
+	cmd = "echo 'var data='\"$(curl -m 45 -s " sourceurl ")\"';if (data.version) process.stdout.write(data.version)' | node"
 	d("rmo: " cmd);
 	cmd | getline ver
 	close(cmd)
