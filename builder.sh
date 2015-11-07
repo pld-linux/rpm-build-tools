@@ -918,10 +918,17 @@ create_git_repo() {
 	fi
 	[ -d "$ASSUMED_NAME/.git" ] || NEW_REPO=yes
 	ssh $GIT_PUSH create ${ASSUMED_NAME} || Exit_error err_cvs_add_failed
+	(
+	set -e
 	git init
-	git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git && \
-		git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME} \
-		|| Exit_error err_remote_problem $REMOTE_PLD
+	git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git
+	git remote set-url --push $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME}
+
+	git config --local push.default current
+	git config --local branch.master.remote $REMOTE_PLD
+	git config --local branch.master.merge refs/heads/master
+	)
+	test $? = 0 || Exit_error err_remote_problem $REMOTE_PLD
 }
 
 get_spec() {
