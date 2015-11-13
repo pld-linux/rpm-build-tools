@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.8
-Release:	1
+Release:	2
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -23,7 +23,7 @@ Requires:	less
 Requires:	openssh-clients
 Requires:	perl-base
 Requires:	rpm-build
-Requires:	rpmbuild(macros) >= 1.539
+Requires:	rpmbuild(macros) >= 1.651
 Requires:	sed >= 4.0
 Requires:	time
 Requires:	util-linux
