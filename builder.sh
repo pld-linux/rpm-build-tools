@@ -447,7 +447,8 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
                       constructions. Set GROUP_BCONDS to yes to make use of it.
 --target <platform>, --target=<platform>
                     - build for platform <platform>.
---init-rpm-dir      - initialize ~/rpm directory structure
+--init-rpm-dir, --init
+                    - initialize ~/rpm directory structure
 "
 }
 
@@ -2303,7 +2304,7 @@ while [ $# -gt 0 ]; do
 		-Upi | --update-poldek-indexes )
 			UPDATE_POLDEK_INDEXES="yes"
 			shift ;;
-		--init-rpm-dir)
+		--init-rpm-dir|--init)
 			COMMAND="init_rpm_dir"
 			shift ;;
 		-u | --try-upgrade )
