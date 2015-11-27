@@ -1,10 +1,10 @@
 #!/bin/sh
 # Purges packages/ checkouts
-# - if package has clean state, the dir is removed
-# - otherwise git gc is called
+# - if package has clean state, the dir is cleaned up (moved to purge dir)
+# - otherwise git gc is called if CALL_GC=yes
 set -e
 
-CALL_GC=${CALL_GC:-'no'}
+CALL_GC=${CALL_GC:-no}
 
 topdir="${1:-$(rpm -E %_topdir)}"
 topdir=$(readlink -f "$topdir")
@@ -53,7 +53,7 @@ for pkg in */.git; do
 	done
 	if [ "$purge" = 'yes' ]; then
 		cat <<-EOF
-		* Package $pkg - State clean. Removing
+		* Package $pkg - State clean. Purging
 		EOF
 		mv ../$pkg $purgedir
 	fi }
