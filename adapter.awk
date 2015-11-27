@@ -1329,6 +1329,7 @@ function use_macros()
 	gsub(php_pear_dir, "%{php_pear_dir}")
 	gsub(php_data_dir, "%{php_data_dir}")
 	gsub("%{_datadir}/php", "%{php_data_dir}")
+	gsub("%{php_home}", "%{php_data_dir}")
 
 	# change to %{_datadir}, with some exceptions
 	for (c = 1; c <= NF; c++) {
@@ -2051,6 +2052,10 @@ function replace_php_virtual_deps(field) {
 		if ($4 ~ /^[0-9]:/) {
 			$4 = substr($4, 3)
 		}
+	}
+
+	if (pkg == "php(language)") {
+		$2 = "php(core)"
 	}
 
 	if (pkg == "php4") {
