@@ -31,7 +31,7 @@ packages = collections.OrderedDict([
     ('xorg-driver-video-nvidia-legacy-304xx', ['head', '4.1', '3.18', '3.14', '3.10']),
     ('xorg-driver-video-nvidia-legacy-340xx', ['head', '4.1', '3.18', '3.14', '3.10']),
     ('zfs',                                   ['head', '4.1', '3.18', '3.14', '3.10']),
-    ('xtables-addons:master',                 ['head', '4.1', '3.18', '3.14', '3.10']),
+    ('xtables-addons',                        ['head', '4.1', '3.18', '3.14', '3.10']),
     ('e1000e',                                ['3.18', '3.14', '3.10']),
     ('open-vm-tools',                         ['3.18', '3.14', '3.10']),
 ])
