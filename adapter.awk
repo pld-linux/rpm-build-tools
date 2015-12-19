@@ -1160,6 +1160,10 @@ function use_macros()
 	sub("%{_datadir}/doc", "%{_docdir}")
 	sub("%{_bindir}/perl", "%{__perl}")
 	sub("%{_bindir}/python", "%{__python}")
+	sub("%{__python2}", "%{__python}")
+
+	sub("%py2_build", "%py_build")
+	sub("%py2_install", "%py_install")
 
 	gsub(infodir, "%{_infodir}")
 
@@ -1531,6 +1535,7 @@ function use_files_macros(	i, n, t, a, l)
 	}
 
 	sub("^%doc %{_mandir}", "%{_mandir}")
+	sub("^%license", "%doc")
 
 	gsub("^%{_sbindir}", "%attr(755,root,root) %{_sbindir}")
 	gsub("^%{_bindir}", "%attr(755,root,root) %{_bindir}")
@@ -2419,6 +2424,7 @@ function replace_requires(field,   pkg) {
 	sub(/^python-enchant$/, "python-pyenchant", $2)
 	sub(/^python-imaging$/, "python-PIL", $2)
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2)
+	sub(/^python-ndg_httpsclient$/, "python-ndg-httpsclient", $2)
 	sub(/^python-newt$/, "python-snack", $2)
 	sub(/^python-pygtk$/, "python-pygtk-gtk", $2)
 	sub(/^python-recaptcha-client$/, "python-recaptcha", $2)
@@ -2432,6 +2438,8 @@ function replace_requires(field,   pkg) {
 	sub(/^python-uuid$/, "python-modules", $2)
 	sub(/^python-xlib$/, "python-Xlib", $2)
 	sub(/^python-zope-interface$/, "Zope-Interface", $2)
+	sub(/^python-zope.component$/, "Zope-Component", $2)
+	sub(/^python-zope.interface$/, "Zope-Interface", $2)
 	sub(/^python2-devel$/, "python-devel", $2)
 	sub(/^pytz$/, "python-pytz", $2)
 	sub(/^pyxdg$/, "python-pyxdg", $2)
