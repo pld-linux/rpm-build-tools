@@ -1650,6 +1650,13 @@ build_package() {
 		fi
 	fi
 
+	# unset these, should not be exposed to builder shell!
+	unset GIT_WORK_TREE GIT_DIR
+	# thse are set by jenkins
+	unset GIT_PREVIOUS_COMMIT GIT_URL GIT_PREVIOUS_SUCCESSFUL_COMMIT GIT_BRANCH GIT_COMMIT
+	# fail if something still set
+	env | grep ^GIT_ && Exit_error err_build_fail
+
 	local specdir=$(insert_gitlog $SPECFILE)
 	# FIXME: eval here is exactly why?
 	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
