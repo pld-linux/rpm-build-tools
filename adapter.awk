@@ -2397,6 +2397,7 @@ function replace_requires(field,   pkg) {
 	sub(/^mod_wsgi$/, "apache-mod_wsgi", $2)
 	sub(/^newt-python$/, "python-snack", $2)
 	sub(/^notify-python$/, "python-pynotify", $2)
+	sub(/^oxygen-icon-theme$/, "kde4-icons-oxygen", $2)
 	sub(/^pcsc-lite-ccid$/, "pcsc-driver-ccid", $2)
 	sub(/^pulseaudio-libs-devel$/, "pulseaudio-devel", $2)
 	sub(/^pyOpenSSL$/, "python-pyOpenSSL", $2)
