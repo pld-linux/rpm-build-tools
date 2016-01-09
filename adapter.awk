@@ -1161,6 +1161,7 @@ function use_macros()
 	sub("%{_bindir}/perl", "%{__perl}")
 	sub("%{_bindir}/python", "%{__python}")
 	sub("%{__python2}", "%{__python}")
+	sub("%{nodejs_sitelib}", "%{nodejs_libdir}")
 
 	sub("%py2_build", "%py_build")
 	sub("%py2_install", "%py_install")
