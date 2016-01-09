@@ -286,7 +286,8 @@ __bash_prompt_command() {
 	local LIGHT_GRAY="\[\033[0;37m\]"
 	local COLOR_NONE="\[\e[0m\]"
 
-	local prompt="${BLUE}[${RED}\w${GREEN}$(__bash_parse_git_branch)${BLUE}]${COLOR_NONE} "
+	local rpmver=$(__package_rpmversion)
+	local prompt="${BLUE}[${RED}\w${GREEN}${rpmver:+($rpmver)}$(parse_git_branch)${BLUE}]${COLOR_NONE} "
 	if [ $previous_return_value -eq 0 ]; then
 		PS1="${prompt}➔ "
 	else
@@ -329,5 +330,13 @@ __bash_parse_git_branch() {
 	if [[ ${git_status} =~ ${branch_pattern} ]]; then
 		branch=${BASH_REMATCH[1]}
 		echo " (${branch})${remote}${state}"
+	fi
+}
+
+# if we are in rpm subdir and have exactly one .spec in the dir, include package version
+__package_rpmversion() {
+	if [[ $PWD =~ $(rpm -E %_topdir) ]] && [ "$(echo *.spec | wc -w)" = 1 ]; then
+		# give only first version (ignore subpackages)
+		rpm --specfile *.spec -q --qf '%{VERSION}\n' | head -n1
 	fi
 }
