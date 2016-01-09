@@ -286,7 +286,10 @@ __bash_prompt_command() {
 	local LIGHT_GRAY="\[\033[0;37m\]"
 	local COLOR_NONE="\[\e[0m\]"
 
+	# if we are in rpm subdir and have exactly one .spec in the dir, include package version
+	__package_update_rpmversion
 	local rpmver=$(__package_rpmversion)
+
 	local prompt="${BLUE}[${RED}\w${GREEN}${rpmver:+($rpmver)}$(__bash_parse_git_branch)${BLUE}]${COLOR_NONE} "
 	if [ $previous_return_value -eq 0 ]; then
 		PS1="${prompt}➔ "
@@ -333,10 +336,46 @@ __bash_parse_git_branch() {
 	fi
 }
 
-# if we are in rpm subdir and have exactly one .spec in the dir, include package version
-__package_rpmversion() {
-	if [[ $PWD =~ $(rpm -E %_topdir) ]] && [ "$(\ls *.spec 2>/dev/null | wc -w)" = 1 ]; then
-		# give only first version (ignore subpackages)
-		rpm --define "_specdir $PWD" --specfile *.spec -q --qf '%{VERSION}\n' | head -n1
+# cache requires bash 4.x
+declare -A __package_update_rpmversion_cache
+__package_update_rpmversion() {
+	# extract vars from cache
+	set -- ${__package_update_rpmversion_cache[$PWD]}
+	local specfile=$1 version=$2 mtime=$3
+
+	# invalidate cache
+	if [ -f "$specfile" ]; then
+		local stat
+		stat=$(stat -c %Y $specfile)
+		if [ $mtime ] && [ $stat -gt $mtime ]; then
+			unset version
+		fi
+		mtime=$stat
+	else
+		# reset cache, .spec may be renamed
+		unset version specfile
 	fi
+
+	# we have cached version
+	test -n "$version" && return
+
+	# needs to be one file
+	specfile=${specfile:-$(\ls *.spec 2>/dev/null)}
+	if [ ! -f "$specfile" ]; then
+		unset __package_update_rpmversion_cache[$PWD]
+		return
+	fi
+
+	mtime=${mtime:-$(stat -c %Y $specfile)}
+
+	# give only first version (ignore subpackages)
+	version=$(rpm --define "_specdir $PWD" --specfile $specfile -q --qf '%{VERSION}\n' | head -n1)
+	__package_update_rpmversion_cache[$PWD]="$specfile $version $mtime"
+}
+
+__package_rpmversion() {
+	# extract vars from cache
+	set -- ${__package_update_rpmversion_cache[$PWD]}
+	# print version
+	echo $2
 }
