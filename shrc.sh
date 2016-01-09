@@ -337,6 +337,6 @@ __bash_parse_git_branch() {
 __package_rpmversion() {
 	if [[ $PWD =~ $(rpm -E %_topdir) ]] && [ "$(\ls *.spec 2>/dev/null | wc -w)" = 1 ]; then
 		# give only first version (ignore subpackages)
-		rpm --specfile *.spec -q --qf '%{VERSION}\n' | head -n1
+		rpm --define "_specdir $PWD" --specfile *.spec -q --qf '%{VERSION}\n' | head -n1
 	fi
 }
