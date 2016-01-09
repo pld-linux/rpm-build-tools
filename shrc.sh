@@ -287,7 +287,7 @@ __bash_prompt_command() {
 	local COLOR_NONE="\[\e[0m\]"
 
 	local rpmver=$(__package_rpmversion)
-	local prompt="${BLUE}[${RED}\w${GREEN}${rpmver:+($rpmver)}$(parse_git_branch)${BLUE}]${COLOR_NONE} "
+	local prompt="${BLUE}[${RED}\w${GREEN}${rpmver:+($rpmver)}$(__bash_parse_git_branch)${BLUE}]${COLOR_NONE} "
 	if [ $previous_return_value -eq 0 ]; then
 		PS1="${prompt}➔ "
 	else
