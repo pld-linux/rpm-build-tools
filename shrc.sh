@@ -335,7 +335,7 @@ __bash_parse_git_branch() {
 
 # if we are in rpm subdir and have exactly one .spec in the dir, include package version
 __package_rpmversion() {
-	if [[ $PWD =~ $(rpm -E %_topdir) ]] && [ "$(echo *.spec | wc -w)" = 1 ]; then
+	if [[ $PWD =~ $(rpm -E %_topdir) ]] && [ "$(\ls *.spec 2>/dev/null | wc -w)" = 1 ]; then
 		# give only first version (ignore subpackages)
 		rpm --specfile *.spec -q --qf '%{VERSION}\n' | head -n1
 	fi
