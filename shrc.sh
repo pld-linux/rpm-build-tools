@@ -370,7 +370,7 @@ __package_update_rpmversion() {
 
 	# give only first version (ignore subpackages)
 	version=$(rpm --define "_specdir $PWD" --specfile $specfile -q --qf '%{VERSION}\n' | head -n1)
-	__package_update_rpmversion_cache[$PWD]="$specfile $version $mtime"
+	__package_update_rpmversion_cache[$PWD]="$specfile ${version:-?} $mtime"
 }
 
 __package_rpmversion() {
