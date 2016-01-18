@@ -93,6 +93,7 @@ commit_vcs() {
 	local specfile="$1" version="$2"
 
 	git commit -m "updated to $version" $specfile
+	git push || echo push failed
 }
 
 # get version from package files
