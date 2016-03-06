@@ -2,7 +2,7 @@
 #
 # Adapter adapts .spec files for PLD Linux.
 #
-# Copyright (C) 1999-2015 PLD-Team <feedback@pld-linux.org>
+# Copyright (C) 1999-2016 PLD-Team <feedback@pld-linux.org>
 # Authors:
 # 	Michał Kuratczyk <kura@pld.org.pl>
 # 	Sebastian Zagrodzki <s.zagrodzki@mimuw.edu.pl>
@@ -1335,6 +1335,7 @@ function use_macros()
 	gsub(php_data_dir, "%{php_data_dir}")
 	gsub("%{_datadir}/php", "%{php_data_dir}")
 	gsub("%{php_home}", "%{php_data_dir}")
+	gsub("%{php_extdir}", "%{php_extensiondir}")
 
 	# change to %{_datadir}, with some exceptions
 	for (c = 1; c <= NF; c++) {
