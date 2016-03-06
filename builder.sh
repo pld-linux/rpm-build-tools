@@ -1652,7 +1652,7 @@ build_package() {
 
 	# unset these, should not be exposed to builder shell!
 	unset GIT_WORK_TREE GIT_DIR
-	# thse are set by jenkins
+	# these are set by jenkins
 	unset GIT_PREVIOUS_COMMIT GIT_URL GIT_PREVIOUS_SUCCESSFUL_COMMIT GIT_BRANCH GIT_COMMIT
 	# fail if something still set
 	env | grep ^GIT_ && Exit_error err_build_fail
