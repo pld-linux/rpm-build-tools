@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.8
-Release:	3
+Release:	4
 License:	GPL
 Group:		Applications/File
 Group:		Base
@@ -14,7 +14,8 @@ Source0:	builder.sh
 Source1:	adapter.awk
 Source2:	adapter.sh
 Source4:	shrc.sh
-Source5:	dropin
+Source5:	bash-prompt.sh
+Source6:	dropin
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
 Requires:	git-core >= 1.7
@@ -75,8 +76,9 @@ install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir},/etc/shrc.d}
 cp -p adapter.awk $RPM_BUILD_ROOT%{_libdir}/adapter.awk
 install -p builder.sh $RPM_BUILD_ROOT%{_bindir}/builder
 install -p adapter.sh $RPM_BUILD_ROOT%{_bindir}/adapter
-install -p %{SOURCE5} $RPM_BUILD_ROOT%{_bindir}
+install -p %{SOURCE6} $RPM_BUILD_ROOT%{_bindir}
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/shrc.d/rpm-build.sh
+install -p %{SOURCE5} $RPM_BUILD_ROOT%{_libdir}/bash-prompt.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -88,3 +90,4 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/dropin
 /etc/shrc.d/rpm-build.sh
 %{_libdir}/adapter.awk
+%{_libdir}/bash-prompt.sh
