@@ -1185,6 +1185,7 @@ function use_macros()
 	gsub(py3_scriptdir, "%{py3_scriptdir}")
 	gsub("%{python3_sitelib}", "%{py3_sitescriptdir}")
 	gsub("%{python3_version}", "%{py3_ver}")
+	gsub("%{python2_version}", "%{py_ver}")
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
 	gsub(ruby_libdir, "%{ruby_libdir}")
