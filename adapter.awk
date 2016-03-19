@@ -1157,6 +1157,7 @@ function use_macros()
 	common_macros()
 
 	sub("%{_defaultdocdir}", "%{_docdir}")
+	sub("%{_pkgdocdir}", "%{_docdir}")
 	sub("%{_datadir}/doc", "%{_docdir}")
 	sub("%{_bindir}/perl", "%{__perl}")
 	sub("%{_bindir}/python", "%{__python}")
