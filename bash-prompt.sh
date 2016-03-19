@@ -74,7 +74,7 @@ __bash_parse_git_branch() {
 }
 
 # cache requires bash 4.x
-declare -A __package_update_rpmversion_cache
+declare -A __package_update_rpmversion_cache=()
 __package_update_rpmversion() {
 	# extract vars from cache
 	set -- ${__package_update_rpmversion_cache[$PWD]}
