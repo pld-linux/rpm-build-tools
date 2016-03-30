@@ -194,7 +194,7 @@ get-buildlog() {
 fi # no $dist set
 
 alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
-alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Tylko\|Files\|Common\|Index:\|RCS file\|retrieving\)/d'"
+alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Tylko\|Binary files\|Files\|Common\|index \|Index:\|RCS file\|retrieving\)/d'"
 
 # merges two patches
 # requires: patchutils
