@@ -2325,6 +2325,8 @@ function replace_requires(field,   pkg) {
 	sub(/^GitPython$/, "python-git", $2)
 	sub(/^MySQL-python$/, "python-MySQLdb", $2)
 	sub(/^NetworkManager-glib-devel$/, "NetworkManager-devel", $2)
+	sub(/^python-docker-py$/, "python-docker", $2)
+	sub(/^python3-docker-py$/, "python3-docker", $2)
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2)
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2)
 	sub(/^PyYAML$/, "python-PyYAML", $2)
