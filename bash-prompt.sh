@@ -1,6 +1,9 @@
 # NOTE:
 # This code works known to work for bash
 
+# the code below requires bash 4.x, skip if earlier
+test ${BASH_VERSION%%.*} -lt 4 && return
+
 # To use it, source this file and set $PROMPT_COMMAND env var:
 # PROMPT_COMMAND=__bash_prompt_command
 
