@@ -38,7 +38,7 @@ APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
 VERSION="v0.35"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
-$VERSION (C) 1999-2015 Free Penguins".
+$VERSION (C) 1999-2016 Free Penguins".
 
 CLEAN_PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
@@ -1152,7 +1152,7 @@ cvsignore_df() {
 	if [ "$CVSIGNORE_DF" != "yes" ]; then
 		return
 	fi
-	cvsignore=${PACKAGE_DIR}/.gitignore
+	local cvsignore=${PACKAGE_DIR}/.git/info/exclude
 
 	# add only if not yet there
 	if ! awk -vf="$1" -vc=1 '$0 == f { c = 0 } END { exit c }' $cvsignore 2>/dev/null; then
