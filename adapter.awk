@@ -1931,7 +1931,7 @@ function add_br(br)
 	BR[BR_count++] = br
 }
 
-# Load rpm macros
+# {{{ Load rpm macros
 # you should update the list also in adapter when making changes here
 function import_rpm_macros(  v) {
 	# File with rpm groups
@@ -2009,8 +2009,9 @@ function import_rpm_macros(  v) {
 	systemduserunitdir = ENVIRON["systemduserunitdir"]
 	systemdtmpfilesdir = ENVIRON["systemdtmpfilesdir"]
 }
+# }}}
 
-# replace opam names (caml)
+# {{{ replace opam names (caml)
 function replace_opam_deps(field,     name) {
 	name = $2
 	if (name ~ "^(cryptokit|extlib|xmlm)$") {
@@ -2035,8 +2036,9 @@ function replace_opam_deps(field,     name) {
 		$2 = name
 	}
 }
+# }}}
 
-# php virtual deps as discussed in devel-en
+# {{{ php virtual deps as discussed in devel-en
 function replace_php_virtual_deps(field) {
 	pkg = $2
 #	if (pkg == "php-program") {
@@ -2074,6 +2076,7 @@ function replace_php_virtual_deps(field) {
 		}
 	}
 }
+# }}}
 
 # {{{ replace_groupnames(group)
 function replace_groupnames(group) {
@@ -2188,6 +2191,7 @@ function replace_perlmod(pkg, version,   cmd, line) {
 		return
 	}
 }
+# }}}
 
 # {{{ replace_pythonegg(pkg)
 function replace_pythonegg(pkg,    cmd, line) {
@@ -2205,6 +2209,7 @@ function replace_pythonegg(pkg,    cmd, line) {
 }
 # }}}
 
+# {{{ replace_requires
 function replace_requires(field,   pkg) {
 	# strip %{?_isa}
 	if ($2 ~ /_isa/) {
@@ -2325,8 +2330,6 @@ function replace_requires(field,   pkg) {
 	sub(/^GitPython$/, "python-git", $2)
 	sub(/^MySQL-python$/, "python-MySQLdb", $2)
 	sub(/^NetworkManager-glib-devel$/, "NetworkManager-devel", $2)
-	sub(/^python-docker-py$/, "python-docker", $2)
-	sub(/^python3-docker-py$/, "python3-docker", $2)
 	sub(/^PyQt4-devel$/, "python-PyQt4-devel", $2)
 	sub(/^PyQwt-devel$/, "python-PyQwt-devel", $2)
 	sub(/^PyYAML$/, "python-PyYAML", $2)
@@ -2361,6 +2364,7 @@ function replace_requires(field,   pkg) {
 	sub(/^iscsi-initiator-utils$/, "open-iscsi", $2)
 	sub(/^kdelibs4-devel$/, "kde4-kdelibs-devel", $2)
 	sub(/^keyutils-libs-devel$/, "keyutils-devel", $2)
+	sub(/^lasso-python$/, "python-lasso", $2)
 	sub(/^libICE-devel$/, "xorg-lib-libICE-devel", $2)
 	sub(/^libSM-devel$/, "xorg-lib-libSM-devel", $2)
 	sub(/^libX11-devel$/, "xorg-lib-libX11-devel", $2)
@@ -2428,6 +2432,7 @@ function replace_requires(field,   pkg) {
 	sub(/^python-PyQt4-devel$/, "sip-PyQt4", $2)
 	sub(/^python-crypto$/, "python-Crypto", $2)
 	sub(/^python-cups$/, "python-pycups", $2)
+	sub(/^python-docker-py$/, "python-docker", $2)
 	sub(/^python-enchant$/, "python-pyenchant", $2)
 	sub(/^python-imaging$/, "python-PIL", $2)
 	sub(/^python-imaging-tk$/, "python-PIL-tk", $2)
@@ -2448,6 +2453,7 @@ function replace_requires(field,   pkg) {
 	sub(/^python-zope.component$/, "Zope-Component", $2)
 	sub(/^python-zope.interface$/, "Zope-Interface", $2)
 	sub(/^python2-devel$/, "python-devel", $2)
+	sub(/^python3-docker-py$/, "python3-docker", $2)
 	sub(/^pytz$/, "python-pytz", $2)
 	sub(/^pyxdg$/, "python-pyxdg", $2)
 	sub(/^qt4-devel$/, "qt4-build", $2)
@@ -2549,5 +2555,6 @@ function replace_requires(field,   pkg) {
 
 	replace_opam_deps(field)
 }
+# }}}
 
 # vim:ts=4:sw=4 fdm=marker
