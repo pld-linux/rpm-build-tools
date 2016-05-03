@@ -962,7 +962,10 @@ get_spec() {
 						echo "Warning: package not in CVS - assuming new package"
 						NOCVSSPEC="yes"
 					}
-					git config --local --add "remote.$REMOTE_PLD.fetch"  'refs/notes/*:refs/notes/*'
+					git config --local --add "remote.$REMOTE_PLD.fetch" 'refs/notes/*:refs/notes/*'
+					git config --local --add "remote.$REMOTE_PLD.push" 'refs/notes/*:refs/notes/*'
+					git config --local --add "remote.$REMOTE_PLD.push" HEAD
+					git config --local push.default current
 					git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME}
 				)
 			fi
@@ -973,7 +976,10 @@ get_spec() {
 				fi
 				git init
 				git remote add $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git
-				git config --local --add "remote.$REMOTE_PLD.fetch"  'refs/notes/*:refs/notes/*'
+				git config --local --add "remote.$REMOTE_PLD.fetch" 'refs/notes/*:refs/notes/*'
+				git config --local --add "remote.$REMOTE_PLD.push" 'refs/heads/*:refs/remotes/origin/*'
+				git config --local --add "remote.$REMOTE_PLD.push" HEAD
+				git config --local push.default current
 				git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/${PACKAGES_DIR}/${ASSUMED_NAME}
 				CVSTAG=${CVSTAG:-"master"}
 			fi
