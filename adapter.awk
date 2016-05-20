@@ -1773,6 +1773,9 @@ function unify_url(url)
 	# sourceforge urls
 	# Docs about sourceforge mirror system: http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
 
+	# 0. strip "#", rpm5 chops it off
+	sub("#.*", "", url)
+
 	# 1. unify domains
 	sub("^http://prdownloads\.sourceforge\.net/", "http://downloads.sourceforge.net/", url)
 	sub("^http://download\.sf\.net/", "http://downloads.sourceforge.net/", url)
