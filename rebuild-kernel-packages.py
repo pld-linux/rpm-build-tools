@@ -16,6 +16,7 @@ packages = collections.OrderedDict([
     ('ixgbe',                                 ['head', '4.4', '4.1', '3.18']),
     ('lin_tape',                              ['head', '4.4', '4.1', '3.18']),
     ('linux-fusion',                          ['head', '4.4', '4.1', '3.18']),
+    {'linux-gpib',                            ['head', '4.4', '4.1', '3.18']),
     ('lttng-modules',                         ['head', '4.4', '4.1', '3.18']),
     ('nvidiabl',                              ['head', '4.4', '4.1', '3.18']),
     ('r8168',                                 ['head', '4.4', '4.1', '3.18']),
