@@ -43,6 +43,7 @@ rpm -q php-packagexml2cl php-pear-PEAR_Command_Packaging
 [ -f pear.installed ] || {
 	sudo poldek  --update --upa
 	sed -e 's,^,install ,' pear.pkgs | sudo poldek
+	touch pear.installed
 }
 [ -s pear.upgrades ] || pear list-upgrades > pear.upgrades
 
