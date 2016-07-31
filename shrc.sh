@@ -1,6 +1,7 @@
 # shell aliases and functions for PLD Developer
 
 # set $dist, used by functions below
+[ -n "$dist" ] || dist=$(lsb_release -sc 2>/dev/null | tr 'A-Z' 'a-z')
 [ -n "$dist" ] || dist=$(awk '/PLD Linux/ {print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
 
 case "$dist" in
