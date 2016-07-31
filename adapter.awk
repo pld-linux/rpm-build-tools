@@ -431,12 +431,14 @@ function b_makekey(a, b,	s) {
 
 	# use PLD Linux macros
 	$0 = fixedsub("glib-gettextize --copy --force","%{__glib_gettextize}", $0)
+	$0 = fixedsub("glib-gettextize --force --copy", "%{__glib_gettextize}", $0)
 	$0 = fixedsub("intltoolize --copy --force", "%{__intltoolize}", $0)
 	$0 = fixedsub("automake --add-missing --copy", "%{__automake}", $0)
 	$0 = fixedsub("automake -a --foreign --copy", "%{__automake}", $0)
 	$0 = fixedsub("automake -a -c --foreign", "%{__automake}", $0)
 	$0 = fixedsub("automake -a -c", "%{__automake}", $0)
 	$0 = fixedsub("libtoolize --force --automake --copy", "%{__libtoolize}", $0)
+	$0 = fixedsub("libtoolize --force --copy", "%{__libtoolize}", $0)
 	$0 = fixedsub("libtoolize -c -f --automake", "%{__libtoolize}", $0)
 
 	sub(/^aclocal$/, "%{__aclocal}")
@@ -1187,6 +1189,7 @@ function use_macros()
 	gsub("%{python3_sitelib}", "%{py3_sitescriptdir}")
 	gsub("%{python3_version}", "%{py3_ver}")
 	gsub("%{python2_version}", "%{py_ver}")
+	gsub("%{python3_sitearch}", "%{py3_sitedir}")
 
 	gsub(ruby_archdir, "%{ruby_archdir}")
 	gsub(ruby_libdir, "%{ruby_libdir}")
@@ -1482,6 +1485,9 @@ function use_macros()
 	gsub(/%__sed/, "%{__sed}")
 	gsub(/%__cat/, "cat")
 	gsub(/%__chmod/, "chmod")
+
+	gsub(/%desktop_database_postun/, "%update_desktop_database")
+	gsub(/%desktop_database_post/, "%update_desktop_database")
 
 	gsub("/usr/src/linux", "%{_kernelsrcdir}")
 	gsub("%{_prefix}/src/linux", "%{_kernelsrcdir}")
@@ -2330,6 +2336,7 @@ function replace_requires(field,   pkg) {
 
 	# {{{ fedora / redhat
 	sub(/^Django$/, "python-django", $2)
+	sub(/^qt5-qtwebkit-devel$/, "Qt5WebKit-devel", $2)
 	sub(/^GitPython$/, "python-git", $2)
 	sub(/^MySQL-python$/, "python-MySQLdb", $2)
 	sub(/^NetworkManager-glib-devel$/, "NetworkManager-devel", $2)
@@ -2538,6 +2545,9 @@ function replace_requires(field,   pkg) {
 
 	# {{{ suse/opensuse
 	sub(/^alsa-devel$/, "alsa-lib-devel", $2)
+	sub(/^python-djangorestframework$/, "python-django-rest-framework", $2)
+	sub(/^python-django_compressor$/, "python-django-compressor", $2)
+	sub(/^bitstream-vera$/, "fonts-TTF-bitstream-vera", $2)
 	sub(/^gtk-sharp2$/, "dotnet-gtk-sharp2", $2)
 	sub(/^gtkmm2-devel$/, "gtkmm-devel", $2)
 	sub(/^libexpat-devel$/, "expat-devel", $2)
@@ -2547,6 +2557,9 @@ function replace_requires(field,   pkg) {
 	sub(/^libpulse-devel$/, "pulseaudio-devel", $2)
 	sub(/^libqt4-devel$/, "qt4-build, qt4-qmake, QtCore-devel", $2)
 	sub(/^monodoc-core$/, "mono-monodoc", $2)
+	sub(/^python-Babel$/, "python-babel", $2)
+	sub(/^python-Django$/, "python-django", $2)
+	sub(/^python-Pillow$/, "python-pillow", $2)
 	sub(/^python-cairo$/, "python-pycairo", $2)
 	sub(/^python-gobject$/, "python-pygobject", $2)
 	sub(/^python-gstreamer-0_10$/, "python-gstreamer", $2)
