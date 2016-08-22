@@ -81,7 +81,8 @@ function mktemp(template, tmp) {
    return tmp
 }
 
-function b_makekey(a, b,	s) {
+function b_makekey(a, b, # parameters
+				   s) {  # locals
 	s = a "" b
 	# kill bcond
 	gsub(/[#%]+{[!?]+[_a-zA-Z0-9]+:/, "", s)
@@ -1090,7 +1091,8 @@ END {
 }
 
 # substitutes fixed strings (not regexps)
-function fixedsub(s1,s2,t, ind) {
+function fixedsub(s1,s2,t, # parameters
+					ind) { # locals
 	if (ind = index(t,s1))
 		t = substr(t, 1, ind-1) s2 substr(t, ind+length(s1))
 	return t
@@ -1513,7 +1515,8 @@ function use_macros()
 	}
 }
 
-function format_configure(line,		n, a, s) {
+function format_configure(line, # parameters
+					n, a, s) {  # locals
 	n = split(line, a, / /)
 	s = a[1] " \\\n"
 	for (i = 2; i <= n; i++) {
@@ -1525,7 +1528,8 @@ function format_configure(line,		n, a, s) {
 
 # insertion sort of A[1..n]
 # copied from mawk manual
-function isort(A,n,		i,j,hold) {
+function isort(A,n, # parameters
+		i,j,hold) { # locals
 	for (i = 2; i <= n; i++) {
 		hold = A[j = i]
 		while (A[j-1] > hold) {
@@ -1536,9 +1540,9 @@ function isort(A,n,		i,j,hold) {
 	# sentinel A[0] = "" will be created if needed
 }
 
+function use_files_macros( # no parameters
+		i, n, t, a, l) {   # locals
 
-function use_files_macros(	i, n, t, a, l)
-{
 	use_macros()
 
 	# skip comments
@@ -1891,7 +1895,8 @@ function kill_preamble_macros()
 	}
 }
 
-function get_epoch(pkg, ver,	epoch)
+function get_epoch(pkg, ver, # parameters
+					epoch)   # locals
 {
 	return
 # should parse the BR lines more adequately:
@@ -1903,7 +1908,8 @@ function get_epoch(pkg, ver,	epoch)
 	return epoch
 }
 
-function format_requires(tag, value,	n, p, i, deps, ndeps) {
+function format_requires(tag, value, # parameters
+			n, p, i, deps, ndeps) {  # locals
 	# skip any formatting for commented out items or some weird macros
 	if (/^#/ || /%\(/) {
 		return tag "\t" value
@@ -1944,7 +1950,8 @@ function add_br(br)
 
 # {{{ Load rpm macros
 # you should update the list also in adapter when making changes here
-function import_rpm_macros(  v) {
+function import_rpm_macros( # no parameters
+					v) {    # locals
 	# File with rpm groups
 	topdir = ENVIRON["_topdir"]
 
@@ -2023,7 +2030,8 @@ function import_rpm_macros(  v) {
 # }}}
 
 # {{{ replace opam names (caml)
-function replace_opam_deps(field,     name) {
+function replace_opam_deps(field, # paramters
+						name) {   # locals
 	name = $2
 	if (name ~ "^(cryptokit|extlib|xmlm)$") {
 		name = "ocaml-" name
@@ -2165,7 +2173,8 @@ function replace_groupnames(group) {
 # }}}
 
 # {{{ replace_pkgconfig(pkg)
-function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
+function replace_pkgconfig(pkg,  # parameters
+		cmd, path, n, i, line) { # locals
 	n = split("/usr/lib64/pkgconfig /usr/lib/pkgconfig /usr/share/pkgconfig", path, / /)
 	for (i = 1; i <= n; i++) {
 		cmd = "rpm -qf --qf '%{N}' " path[i] "/" pkg ".pc"
@@ -2184,7 +2193,8 @@ function replace_pkgconfig(pkg,    cmd, path, n, i, line) {
 # }}}
 
 # {{{ replace_perlmod(pkg)
-function replace_perlmod(pkg, version,   cmd, line) {
+function replace_perlmod(pkg, version, # parameters
+						cmd, line) {   # locals
 	# do nothing if version is specified
 	if (version) {
 		return
@@ -2205,7 +2215,8 @@ function replace_perlmod(pkg, version,   cmd, line) {
 # }}}
 
 # {{{ replace_pythonegg(pkg)
-function replace_pythonegg(pkg,    cmd, line) {
+function replace_pythonegg(pkg, # parameters
+				cmd, line) {    # locals
 	cmd = "rpm -q --qf '%{N}' --whatprovides 'pythonegg(" pkg ")'"
 	# Getline returns 0 on end-of-file, -1 on error, otherwise 1.
 	if ((cmd | getline line) <= 0) {
@@ -2221,7 +2232,8 @@ function replace_pythonegg(pkg,    cmd, line) {
 # }}}
 
 # {{{ replace_requires
-function replace_requires(field,   pkg) {
+function replace_requires(field, # parameters
+						pkg) {   # locals
 	# strip %{?_isa}
 	if ($2 ~ /_isa/) {
 		$2 = fixedsub("%{?_isa}", "", $2);
