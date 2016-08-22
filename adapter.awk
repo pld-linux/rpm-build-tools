@@ -1353,8 +1353,10 @@ function use_macros()
 		gsub(datadir, "%{_datadir}", $c)
 	}
 
-	# bash completions dir, after datadir change
+	# completions dir, after datadir change
 	gsub("%{_datadir}/bash-completion/completions", "%{bash_compdir}")
+	gsub("%{_datadir}/fish/vendor_completions.d", "%{fish_compdir}")
+	gsub("%{_datadir}/zsh/site-functions", "%{zsh_compdir}")
 
 	gsub("%{prefix}/share", "%{_datadir}")
 	if (prefix"/share" == datadir)
