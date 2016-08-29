@@ -1992,12 +1992,12 @@ install_build_requires_rpmdeps() {
 	local DEPS CNFL
 	if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ]; then
 		# TODO: Conflicts list doesn't check versions
-		CNFL=$(rpm-getdeps $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
-		DEPS=$(rpm-getdeps $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
+		CNFL=$(eval rpm-getdeps $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
+		DEPS=$(eval rpm-getdeps $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 	fi
 	if [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
-		CNFL=$(rpm -q --specsrpm --conflicts $BCOND $RPMOPTS $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
-		DEPS=$(rpm -q --specsrpm --requires $BCOND $RPMOPTS $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
+		CNFL=$(eval rpm -q --specsrpm --conflicts $BCOND $RPMOPTS $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
+		DEPS=$(eval rpm -q --specsrpm --requires $BCOND $RPMOPTS $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
 	fi
 
 	if [ -n "$CNFL" ]; then
