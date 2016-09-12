@@ -9,7 +9,6 @@ Version:	4.8
 Release:	6
 License:	GPL
 Group:		Applications/File
-Group:		Base
 Source0:	builder.sh
 Source1:	adapter.awk
 Source2:	adapter.sh
