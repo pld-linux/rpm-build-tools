@@ -5,13 +5,11 @@ Summary(pt_BR.UTF-8):	Scripts e programas executáveis usados para construir pac
 Summary(ru.UTF-8):	Скрипты и утилиты, необходимые для сборки пакетов
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
-Version:	4.8
-Release:	6
+Version:	4.9
+Release:	1
 License:	GPL
 Group:		Applications/File
 Source0:	builder.sh
-Source1:	adapter.awk
-Source2:	adapter.sh
 Source4:	shrc.sh
 Source5:	bash-prompt.sh
 Source6:	dropin
@@ -28,6 +26,7 @@ Requires:	sed >= 4.0
 Requires:	time
 Requires:	util-linux
 Requires:	wget
+Suggests:	adapter
 Suggests:	pldnotify
 Suggests:	rpm-specdump >= 0.3
 Suggests:	schedtool
@@ -61,20 +60,14 @@ construir pacotes usando o RPM.
 
 %prep
 %setup -qcT
-cp -p %{SOURCE0} %{SOURCE2} .
-cp -p %{SOURCE1} adapter.awk
+cp -p %{SOURCE0} .
 
-%{__sed} -i -e 's,^adapter=.*/adapter.awk,adapter=%{_libdir}/adapter.awk,' adapter.sh
-
-%{__sed} -i -e '/^VERSION=/s,\([^/]\+\)/.*",\1-RELEASE",' builder.sh adapter.sh
-%{__sed} -i -e '/\tRCSID =/,/^\trev =/d;/\tVERSION = /s,\([^/]\+\)/.*,\1-RELEASE",' adapter.awk
+%{__sed} -i -e '/^VERSION=/s,\([^/]\+\)/.*",\1-RELEASE",' builder.sh
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir},/etc/shrc.d}
-cp -p adapter.awk $RPM_BUILD_ROOT%{_libdir}/adapter.awk
 install -p builder.sh $RPM_BUILD_ROOT%{_bindir}/builder
-install -p adapter.sh $RPM_BUILD_ROOT%{_bindir}/adapter
 install -p %{SOURCE6} $RPM_BUILD_ROOT%{_bindir}
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/shrc.d/rpm-build.sh
 install -p %{SOURCE5} $RPM_BUILD_ROOT%{_libdir}/bash-prompt.sh
@@ -84,9 +77,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/adapter
 %attr(755,root,root) %{_bindir}/builder
 %attr(755,root,root) %{_bindir}/dropin
 /etc/shrc.d/rpm-build.sh
-%{_libdir}/adapter.awk
 %{_libdir}/bash-prompt.sh

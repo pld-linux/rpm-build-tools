@@ -1011,7 +1011,7 @@ get_spec() {
 
 		# create symlinks for tools
 		if [ "$SYMLINK_TOOLS" != "no" -a -d "$PACKAGE_DIR" ]; then
-			for a in dropin md5 adapter builder {relup,compile,repackage,rsync,pearize}.sh; do
+			for a in dropin md5 builder {relup,compile,repackage,rsync,pearize}.sh; do
 				# skip tools that don't exist in top dir
 				[ -f $a ] || continue
 				# skip tools that already exist
@@ -2054,7 +2054,7 @@ init_rpm_dir() {
 	cd "$TOP_DIR"
 	init_repository ${PACKAGES_DIR}/rpm-build-tools.git ../rpm-build-tools
 	init_repository projects/$TEMPLATES ../$TEMPLATES
-	for a in adapter builder fetchsrc_request compile repackage; do
+	for a in builder fetchsrc_request compile repackage; do
 		ln -sf ../rpm-build-tools/${a}.sh $a
 	done
 	for a in md5; do
