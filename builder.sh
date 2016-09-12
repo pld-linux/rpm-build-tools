@@ -806,7 +806,11 @@ Exit_error() {
 			exit 2 ;;
 		"err_no_spec_in_repo" )
 			remove_build_requires
-			echo >&2 "Error: spec file not stored in PLD repo."
+			echo >&2 "Error: spec file not stored in repository."
+			if [ -n "$2" ]; then
+				echo >&2 "Tried: $2"
+			fi
+
 			exit 3 ;;
 		"err_no_source_in_repo" )
 			remove_build_requires
@@ -1035,7 +1039,7 @@ get_spec() {
 	fi
 
 	if [ ! -f "$PACKAGE_DIR/$SPECFILE" ]; then
-		Exit_error err_no_spec_in_repo
+		Exit_error err_no_spec_in_repo "$PACKAGE_DIR/$SPECFILE"
 	fi
 
 	if [ "$CHMOD" = "yes" -a -n "$SPECFILE" ]; then
