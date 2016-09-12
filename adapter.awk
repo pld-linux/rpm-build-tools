@@ -2338,7 +2338,6 @@ function replace_requires(field,   pkg) {
 
 	# {{{ fedora / redhat
 	sub(/^Django$/, "python-django", $2)
-	sub(/^qt5-qtwebkit-devel$/, "Qt5WebKit-devel", $2)
 	sub(/^GitPython$/, "python-git", $2)
 	sub(/^MySQL-python$/, "python-MySQLdb", $2)
 	sub(/^NetworkManager-glib-devel$/, "NetworkManager-devel", $2)
@@ -2470,6 +2469,9 @@ function replace_requires(field,   pkg) {
 	sub(/^pyxdg$/, "python-pyxdg", $2)
 	sub(/^qt4-devel$/, "qt4-build", $2)
 	sub(/^qt4-webkit-devel$/, "QtWebKit-devel", $2)
+	sub(/^qt5-qtgraphicaleffects$/, "Qt5Quick-graphicaleffects", $2)
+	sub(/^qt5-qtquickcontrols$/, "Qt5Quick-controls", $2)
+	sub(/^qt5-qtwebkit-devel$/, "Qt5WebKit-devel", $2)
 	sub(/^qtiocompressor-devel$/, "QtIOCompressor-devel", $2)
 	sub(/^qtlockedfile-devel$/, "QtLockedFile-devel", $2)
 	sub(/^qtsingleapplication-devel$/, "QtSingleApplication-devel", $2)
