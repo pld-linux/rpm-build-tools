@@ -1664,6 +1664,8 @@ build_package() {
 	unset GIT_WORK_TREE GIT_DIR
 	# these are set by jenkins
 	unset GIT_PREVIOUS_COMMIT GIT_URL GIT_PREVIOUS_SUCCESSFUL_COMMIT GIT_BRANCH GIT_COMMIT
+	# this may be set by user
+	unset GIT_SSH
 	# fail if something still set
 	env | grep ^GIT_ && Exit_error err_build_fail
 
