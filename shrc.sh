@@ -4,20 +4,85 @@
 [ -n "$dist" ] || dist=$(lsb_release -sc 2>/dev/null | tr 'A-Z' 'a-z')
 [ -n "$dist" ] || dist=$(awk '/PLD Linux/ {print tolower($NF)}' /etc/pld-release 2>/dev/null | tr -d '()')
 
-case "$dist" in
-ac|th|ti)
-	;;
-*)
-	# invalid one ;)
-	dist=
-esac
+alias q='rpm -q --qf "%{N}-%|E?{%{E}:}|%{V}-%{R}.%{ARCH}\n"'
+alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
+alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Tylko\|Binary files\|Files\|Common\|index \|Index:\|RCS file\|retrieving\)/d'"
 
-if [ "$dist" ]; then
+# undo spec utf8
+# note: it will do it blindly, so any lang other than -pl is most likely broken
+specutfundo() {
+	local spec="$1"
+	iconv -futf8 -tlatin2 "$spec" > m
+	sed -e 's/\.UTF-8//' m > "$spec"
+	rm -f m
+}
 
-alias ipoldek-$dist="poldek -q --sn $dist --cmd"
-alias $dist-provides="ipoldek-$dist what-provides"
-alias $dist-verify=dist-verify
-alias $dist-requires=dist-requires
+# merges two patches
+# requires: patchutils
+pmerge() {
+	combinediff -p1 $1 $2 > m.patch || return
+	pclean m.patch
+	dif $1 m.patch
+}
+
+# downloads sourceforge url from specific mirror
+sfget() {
+	local url="$1"
+	url="${url%?download}"
+	url="${url%?use_mirror=*}"
+	url="${url#http://downloads.}"
+	url="http://dl.${url#http://prdownloads.}"
+	# use mirror
+	local mirror="http://nchc.dl.sourceforge.net"
+	url="$mirror/sourceforge/${url#http://dl.sourceforge.net/}"
+	wget -c "$url"
+}
+
+dif() {
+	if [ -t 1 ]; then
+		diff -ur -x .svn -x .git -x .bzr -x CVS "$@" | diffcol | less -R
+	else
+		diff -ur -x .svn -x .git -x .bzr -x CVS "$@"
+	fi
+}
+
+diffcol() {
+sed -e '
+	s,,[44m^[[49m,g;
+	s,,[44m^G[49m,g;
+	s,^\(Index:\|diff\|---\|+++\) .*$,[32m&,;
+	s,^@@ ,[33m&,;
+	s,^-,[35m&,;
+	s,^+,[36m&,;
+	s,\r,[44m^M[49m,g;
+	s,	,    ,g;
+	s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
+	s,$,[0m,
+' ${1:+"$@"}
+}
+
+# does diff between FILE~ and FILE
+# the diff can be applied with patch -p1
+d() {
+	local file="$1" dir
+	shift
+	if [[ "$file" = /* ]]; then
+		# full path -- no idea where to strip
+		dir=.
+		diff=$file
+	else
+		# relative path -- keep one path component from current dir
+		dir=..
+		diff=${PWD##*/}/${file}
+	fi
+
+	(builtin cd "$dir"; dif $diff{~,} "$@")
+}
+
+# spec name from NVR
+rpm2spec() {
+	sed -re 's,^(.+)-[^-]+-[^-]+$,\1.spec,'
+}
 
 # move AC-branch tag to current checkout
 # if AC-branch as branch exists, it is first removed
@@ -41,16 +106,24 @@ ac-tag() {
 	git push -f origin $branch
 }
 
-alias q='rpm -q --qf "%{N}-%|E?{%{E}:}|%{V}-%{R}.%{ARCH}\n"'
+###### functions/aliases below require $dist to be set ###### 
 
-# undo spec utf8
-# note: it will do it blindly, so any lang other than -pl is most likely broken
-specutfundo() {
-	local spec="$1"
-	iconv -futf8 -tlatin2 "$spec" > m
-	sed -e 's/\.UTF-8//' m > "$spec"
-	rm -f m
-}
+case "$dist" in
+ac|th|ti)
+	;;
+*)
+	# invalid one ;)
+	dist=
+esac
+
+if [ -z "$dist" ]; then
+	return
+fi
+
+alias ipoldek-$dist="poldek -q --sn $dist --cmd"
+alias $dist-provides="ipoldek-$dist what-provides"
+alias $dist-verify=dist-verify
+alias $dist-requires=dist-requires
 
 dist-requires() {
 	local opts deps
@@ -192,74 +265,3 @@ get-buildlog() {
 	done
 }
 
-fi # no $dist set
-
-alias adif="dif -x '*.m4' -x ltmain.sh -x install-sh -x depcomp -x 'Makefile.in' -x compile -x 'config.*' -x configure -x missing -x mkinstalldirs -x autom4te.cache"
-alias pclean="sed -i~ -e '/^\(?\|=\+$\|unchanged:\|diff\|only\|Only\|Tylko\|Binary files\|Files\|Common\|index \|Index:\|RCS file\|retrieving\)/d'"
-
-# merges two patches
-# requires: patchutils
-pmerge() {
-	combinediff -p1 $1 $2 > m.patch || return
-	pclean m.patch
-	dif $1 m.patch
-}
-
-# downloads sourceforge url from specific mirror
-sfget() {
-	local url="$1"
-	url="${url%?download}"
-	url="${url%?use_mirror=*}"
-	url="${url#http://downloads.}"
-	url="http://dl.${url#http://prdownloads.}"
-	# use mirror
-	local mirror="http://nchc.dl.sourceforge.net"
-	url="$mirror/sourceforge/${url#http://dl.sourceforge.net/}"
-	wget -c "$url"
-}
-
-dif() {
-	if [ -t 1 ]; then
-		diff -ur -x .svn -x .git -x .bzr -x CVS "$@" | diffcol | less -R
-	else
-		diff -ur -x .svn -x .git -x .bzr -x CVS "$@"
-	fi
-}
-
-diffcol() {
-sed -e '
-	s,,[44m^[[49m,g;
-	s,,[44m^G[49m,g;
-	s,^\(Index:\|diff\|---\|+++\) .*$,[32m&,;
-	s,^@@ ,[33m&,;
-	s,^-,[35m&,;
-	s,^+,[36m&,;
-	s,\r,[44m^M[49m,g;
-	s,	,    ,g;
-	s,\([^[:space:]]\)\([[:space:]]\+\)$,\1[41m\2[49m,g;
-	s,$,[0m,
-' ${1:+"$@"}
-}
-
-# does diff between FILE~ and FILE
-# the diff can be applied with patch -p1
-d() {
-	local file="$1" dir
-	shift
-	if [[ "$file" = /* ]]; then
-		# full path -- no idea where to strip
-		dir=.
-		diff=$file
-	else
-		# relative path -- keep one path component from current dir
-		dir=..
-		diff=${PWD##*/}/${file}
-	fi
-
-	(builtin cd "$dir"; dif $diff{~,} "$@")
-}
-
-# spec name from NVR
-rpm2spec() {
-	sed -re 's,^(.+)-[^-]+-[^-]+$,\1.spec,'
-}
