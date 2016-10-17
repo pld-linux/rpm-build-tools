@@ -1666,6 +1666,8 @@ build_package() {
 	unset GIT_PREVIOUS_COMMIT GIT_URL GIT_PREVIOUS_SUCCESSFUL_COMMIT GIT_BRANCH GIT_COMMIT
 	# this may be set by user
 	unset GIT_SSH
+	# may be set by user
+	unset GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL
 	# fail if something still set
 	env | grep ^GIT_ && Exit_error err_build_fail
 
