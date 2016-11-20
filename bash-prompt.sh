@@ -54,7 +54,7 @@ __bash_parse_git_branch() {
 	diverge_pattern="Your branch and (.*) have diverged"
 
 	if [[ ! ${git_status} =~ "working directory clean" ]]; then
-		state="${RED}⚡"
+		state="${RED}★"
 	fi
 
 	# add an else if or two here if you want to get more specific
