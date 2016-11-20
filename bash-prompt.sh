@@ -55,18 +55,20 @@ __bash_parse_git_branch() {
 	fi
 
 	# http://stackoverflow.com/a/3278427
-	local=$(git rev-parse @)
-	remote=$(git rev-parse '@{u}')
-	base=$(git merge-base @ '@{u}')
+	remote=$(git rev-parse '@{u}' 2>/dev/null)
+	if [[ -n "$remote" ]]; then
+		local=$(git rev-parse @)
+		base=$(git merge-base @ '@{u}')
 
-	if [ $local = $remote ]; then
-		remote=""
-	elif [ $local = $base ]; then
-		remote="${YELLOW}↓"
-	elif [ $remote = $base ]; then
-		remote="${YELLOW}↑"
-	else
-		remote="${YELLOW}↕"
+		if [[ $local = $remote ]]; then
+			remote=""
+		elif [[ $local = $base ]]; then
+			remote="${YELLOW}↓"
+		elif [[ $remote = $base ]]; then
+			remote="${YELLOW}↑"
+		else
+			remote="${YELLOW}↕"
+		fi
 	fi
 
 	echo " (${branch})${remote}${state}"
