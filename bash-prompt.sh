@@ -45,7 +45,7 @@ __bash_parse_git_branch() {
 	# not in git dir. return early
 	git rev-parse --git-dir &> /dev/null || return
 
-	local state remote branch
+	local state remote branch base local
 
 	# without branch, nothing is shown; don't bother further
 	branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return
@@ -56,9 +56,9 @@ __bash_parse_git_branch() {
 
 	# http://stackoverflow.com/a/3278427
 	remote=$(git rev-parse '@{u}' 2>/dev/null)
-	if [[ -n "$remote" ]]; then
+	base=$(git merge-base @ '@{u}' 2>/dev/null)
+	if [[ -n "$remote" && -n "$base" ]]; then
 		local=$(git rev-parse @)
-		base=$(git merge-base @ '@{u}')
 
 		if [[ $local = $remote ]]; then
 			remote=""
@@ -69,6 +69,8 @@ __bash_parse_git_branch() {
 		else
 			remote="${YELLOW}↕"
 		fi
+	else
+		remote=""
 	fi
 
 	echo " (${branch})${remote}${state}"
