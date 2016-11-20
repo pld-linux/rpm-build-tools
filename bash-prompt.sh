@@ -1,5 +1,5 @@
 # NOTE:
-# This code works known to work for bash
+# This code is known to work with bash
 
 # the code below requires bash 4.x, skip if earlier
 test ${BASH_VERSION%%.*} -lt 4 && return 1
@@ -9,7 +9,7 @@ test ${BASH_VERSION%%.*} -lt 4 && return 1
 
 #
 # A colorized bash prompt
-# - shows curret branch
+# - shows current branch
 # - shows if branch is up to date/ahead/behind
 # - shows if last command exited with error (red)
 #
@@ -43,37 +43,33 @@ __bash_prompt_command() {
 # note we use "\" here to avoid any "git" previous alias/func
 __bash_parse_git_branch() {
 	# not in git dir. return early
-	\git rev-parse --git-dir &> /dev/null || return
+	git rev-parse --git-dir &> /dev/null || return
 
-	local git_status branch_pattern remote_pattern diverge_pattern
 	local state remote branch
 
-	git_status=$(\git -c color.ui=no status 2> /dev/null)
-	branch_pattern="^On branch ([^${IFS}]*)"
-	remote_pattern="Your branch is (behind|ahead) "
-	diverge_pattern="Your branch and (.*) have diverged"
+	# without branch, nothing is shown; don't bother further
+	branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return
 
-	if [[ ! ${git_status} =~ "working directory clean" ]]; then
+	if [ -n "$(git status -s 2> /dev/null)" ]; then
 		state="${RED}★"
 	fi
 
-	# add an else if or two here if you want to get more specific
-	if [[ ${git_status} =~ ${remote_pattern} ]]; then
-		if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
-			remote="${YELLOW}↑"
-		else
-			remote="${YELLOW}↓"
-		fi
-	fi
+	# http://stackoverflow.com/a/3278427
+	local=$(git rev-parse @)
+	remote=$(git rev-parse '@{u}')
+	base=$(git merge-base @ '@{u}')
 
-	if [[ ${git_status} =~ ${diverge_pattern} ]]; then
+	if [ $local = $remote ]; then
+		remote=""
+	elif [ $local = $base ]; then
+		remote="${YELLOW}↓"
+	elif [ $remote = $base ]; then
+		remote="${YELLOW}↑"
+	else
 		remote="${YELLOW}↕"
 	fi
 
-	if [[ ${git_status} =~ ${branch_pattern} ]]; then
-		branch=${BASH_REMATCH[1]}
-		echo " (${branch})${remote}${state}"
-	fi
+	echo " (${branch})${remote}${state}"
 }
 
 # cache requires bash 4.x
