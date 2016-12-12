@@ -29,7 +29,6 @@ packages = collections.OrderedDict([
     ('ixgbe',                                 ['4.4', '4.1', '3.18']),
     ('nvidiabl',                              ['4.4', '4.1', '3.18']),
     ('e1000e',                                ['3.18']),
-    ('open-vm-tools',                         ['3.18']),
 ])
 
 def get_rpmdir():
