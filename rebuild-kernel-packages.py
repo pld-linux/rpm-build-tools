@@ -28,7 +28,6 @@ packages = collections.OrderedDict([
     ('igb',                                   ['4.4', '4.1', '3.18']),
     ('ixgbe',                                 ['4.4', '4.1', '3.18']),
     ('nvidiabl',                              ['4.4', '4.1', '3.18']),
-    ('e1000e',                                ['3.18']),
 ])
 
 def get_rpmdir():
