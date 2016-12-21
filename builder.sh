@@ -484,7 +484,7 @@ insert_gitlog() {
 	done > $gitlog
 
 	# add link to full git logs
-	local giturl="http://git.pld-linux.org/?p=packages/$PACKAGE_NAME.git;a=log"
+	local giturl="http://git.pld-linux.org/?p=packages/${SPECFILE%.spec}.git;a=log"
 	if [ -n "$CVSTAG" ]; then
 		giturl="$giturl;h=$CVSTAG"
 	fi
