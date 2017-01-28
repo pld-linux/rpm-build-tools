@@ -18,6 +18,7 @@ packages = collections.OrderedDict([
     ('r8168',                                 ['head', '4.4', '4.1', '3.18']),
     ('rtl8812au',                             ['head', '4.4', '4.1', '3.18']),
     ('spl',                                   ['head', '4.4', '4.1', '3.18']),
+    ('sysdig',                                ['head', '4.4', '4.1', '3.18']),
     ('tpm_emulator',                          ['head', '4.4', '4.1', '3.18']),
     ('VirtualBox',                            ['head', '4.4', '4.1', '3.18']),
     ('vpb-driver',                            ['head', '4.4', '4.1', '3.18']),
