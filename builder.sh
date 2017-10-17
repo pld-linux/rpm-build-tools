@@ -2599,6 +2599,7 @@ case "$COMMAND" in
 		fi
 		get_files $SOURCES $PATCHES
 		check_md5 $SOURCES
+		fetch_build_requires
 		;;
 	"update_md5" )
 		init_builder

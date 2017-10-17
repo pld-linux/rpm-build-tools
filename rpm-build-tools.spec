@@ -6,7 +6,7 @@ Summary(ru.UTF-8):	Скрипты и утилиты, необходимые дл
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
 Version:	4.9
-Release:	3
+Release:	4
 License:	GPL
 Group:		Applications/File
 Source0:	builder.sh
