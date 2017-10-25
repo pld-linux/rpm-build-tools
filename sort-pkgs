@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 This script tries to set ordering in which packages ought to be sent to builders.
@@ -12,50 +12,69 @@ import os
 import re
 import sys
 
-PATTERN = re.compile('BuildRequires:\s+(.*?)(\s|$|-devel)')
-DIR = '/home/users/builder/rpm/packages'
+BR_PATTERN = re.compile('BuildRequires:\s+(.*?)(\s|$)')
+PACKAGE_PATTERN_WITH_N = re.compile('%package\s+-n\s+(.*)')
+PACKAGE_PATTERN = re.compile('%package\s+(.*)')
 
-packages = {}
-packages_res = {}
+DIR = os.getenv("HOME") + '/rpm/packages'
 
-def build_requires(name):
-	global packages
-	res = []
-	with open(os.path.join(DIR, name, name + '.spec'), 'r') as f:
-		for line in f:
-			br = PATTERN.match(line)
-			if br:
-				p = br.group(1)
-				if p in packages:
-					res.append(p)
-	return res
+BUILD_REQUIRES = {}
+PACKAGES = {}
+SPECS = {}
+VISITED = {}
 
-def print_packages(p):
-	global packages, packages_res
 
-	if not packages_res[p]:
-		packages_res[p] = 1
-		for pp in packages[p]:
-			if not packages_res[pp]:
-				print_packages(pp)
-		print p
+def parse_spec(name):
+    global PACKAGES, SPECS, BUILD_REQUIRES, VISITED
+    res = []
+    try:
+        with open(os.path.join(DIR, name, name + '.spec'), 'r') as f:
+            for line in f:
+                br = BR_PATTERN.match(line)
+                if br:
+                    p = br.group(1)
+                    res.append(p)
+                if line.startswith('%package'):
+                    pn = PACKAGE_PATTERN_WITH_N.match(line)
+                    if pn:
+                        package = pn.group(1)
+                        PACKAGES[package] = name
+                    else:
+                        pn = PACKAGE_PATTERN.match(line)
+                        if pn:
+                            ext = pn.group(1)
+                            if ext:
+                                package = name + '-' + ext
+                                PACKAGES[package] = name
+        BUILD_REQUIRES[name] = res[:]
+        PACKAGES[name] = name
+        SPECS[name] = True
+        VISITED[name] = False
+    except:
+        pass
+
+
+def print_spec(spec):
+    global PACKAGES, SPECS, BUILD_REQUIRES, VISITED
+
+    if not VISITED[spec]:
+        VISITED[spec] = True
+        for br in BUILD_REQUIRES[spec]:
+            name = PACKAGES.get(br, '')
+            if name in SPECS:
+                if not VISITED[name]:
+                    print_spec(name)
+        print(spec)
+
 
 if __name__ == "__main__":
-	if len(sys.argv) < 2:
-		print "Usage: %s filename" % sys.argv[0]
-		sys.exit(1)
-	with open(sys.argv[1], 'r') as f:
-		for line in f:
-			p = line.rstrip()
-			packages[p] = []
-			packages_res[p] = 0
-	for p in packages.keys():
-		res = build_requires(p)
-		if res:
-			packages[p] = res[:]
+    if len(sys.argv) < 2:
+        print("Usage: %s filename" % sys.argv[0])
+        sys.exit(1)
+    with open(sys.argv[1], 'r') as f:
+        for line in f:
+            spec = line.rstrip()
+            parse_spec(spec)
 
-#	for p in packages.keys():
-#		print p, packages[p]
-
-	for p in packages.keys():
-		print_packages(p)
+    for spec in SPECS:
+        print_spec(spec)
