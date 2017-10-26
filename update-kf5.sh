@@ -199,7 +199,7 @@ for pkg in $PKGS ; do
 	# commit the changes
 	msg=""
 	[ -n "$message" ] && msg="$msg- $message$n"
-	msg="$msg- updated to $newver (by update-kf5up.sh)"
+	msg="$msg- updated to $newver (by update-kf5.sh)"
 	echo git commit -m "$msg" $spec
 	if [ "$test" != 1 ]; then
 		cd $pkgdir
