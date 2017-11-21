@@ -79,5 +79,5 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/builder
 %attr(755,root,root) %{_bindir}/dropin
-/etc/shrc.d/rpm-build.sh
+%config(noreplace) %verify(not md5 mtime size) /etc/shrc.d/rpm-build.sh
 %{_libdir}/bash-prompt.sh
