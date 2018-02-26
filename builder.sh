@@ -963,7 +963,7 @@ get_spec() {
 					git clone  -o $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git || {
 						# softfail if new package, i.e not yet added to PLD rep
 						[ ! -f "$PACKAGE_DIR/$SPECFILE" ] && Exit_error err_no_spec_in_repo
-						echo "Warning: package not in CVS - assuming new package"
+						echo "Warning: package not in GIT - assuming new package"
 						NOCVSSPEC="yes"
 					}
 					git config --local --add "remote.$REMOTE_PLD.fetch" 'refs/notes/*:refs/notes/*'
