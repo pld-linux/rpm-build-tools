@@ -225,7 +225,7 @@ else
 	OUTFILEOPT="-O"
 fi
 
-GETLOCAL="cp -a"
+GETLOCAL=${GETLOCAL:-cp -a}
 
 if rpm --version 2>&1 | grep -q '4.0.[0-2]'; then
 	RPM="rpm"
