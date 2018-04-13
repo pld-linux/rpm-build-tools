@@ -1881,7 +1881,7 @@ install_packages() {
 	# sync poldek indexes once per invocation
 	if [ -z "$package_indexes_updated" ]; then
 		update_shell_title "poldek: update indexes"
-		$POLDEK_CMD -q --update --upa
+		$POLDEK_CMD -q --update --upa --mo=nodesc
 		package_indexes_updated=true
 	fi
 
