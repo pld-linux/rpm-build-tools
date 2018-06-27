@@ -297,7 +297,7 @@ download_wget() {
 
 download_lftp() {
 	local outfile=$1 url=$2 retval tmpfile
-	tmpfile=$(mktemp) || exit 1
+	tmpfile=$(tempfile) || exit 1
 	lftp -c "
 		$([ "$DEBUG" = "yes" ] && echo "debug 5;")
 		$([ "$IPOPT" = "-4" ] && echo "set dns:order \"inet\";")
