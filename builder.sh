@@ -111,6 +111,7 @@ PACKAGE_VERSION=""
 PACKAGE_NAME=""
 ASSUMED_NAME=""
 PROTOCOL="http"
+IPOPT=""
 
 # use lftp by default when available
 USE_LFTP=
@@ -202,27 +203,13 @@ if [ "$SCHEDTOOL" = "auto" ]; then
 fi
 
 if [ -n "$USE_PROZILLA" ]; then
-	GETURI="proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS"
-	GETURI2="$GETURI"
-	OUTFILEOPT="-O"
+	GETURI=download_proz
 elif [ -n "$USE_AXEL" ]; then
-	GETURI="axel -a $AXEL_OPTS"
-	GETURI2="$GETURI"
-	OUTFILEOPT="-o"
+	GETURI=download_axel
 elif [ -n "$USE_LFTP" ]; then
 	GETURI=download_lftp
-	GETURI2=$GETURI
-	OUTFILEOPT=""
 else
-	wget --help 2>&1 | grep -q -- ' --no-check-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
-	wget --help 2>&1 | grep -q -- ' --inet ' && WGET_OPTS="$WGET_OPTS --inet"
-	wget --help 2>&1 | grep -q -- ' --retry-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
-	wget --help 2>&1 | grep -q -- ' --no-iri ' && WGET_OPTS="$WGET_OPTS --no-iri"
-	WGET_OPTS="$WGET_OPTS --user-agent=$USER_AGENT"
-
-	GETURI="wget --passive-ftp -c -nd -t$WGET_RETRIES $WGET_OPTS"
-	GETURI2="wget -c -nd -t$WGET_RETRIES $WGET_OPTS"
-	OUTFILEOPT="-O"
+	GETURI=download_wget
 fi
 
 GETLOCAL=${GETLOCAL:-cp -a}
@@ -269,12 +256,52 @@ run_poldek() {
 #---------------------------------------------
 # functions
 
+download_prozilla() {
+	local outfile=$1 url=$2 retval
+
+	proz --no-getch -r -P ./ -t$WGET_RETRIES $PROZILLA_OPTS -O "$outfile" "$url"
+	retval=$?
+
+	return $retval
+}
+
+download_axel() {
+	local outfile=$1 url=$2 retval
+
+	axel -a $AXEL_OPTS -o "$outfile" "$url"
+	retval=$?
+
+	return $retval
+}
+
+download_wget() {
+	local outfile=$1 url=$2 retval
+	wget --help 2>&1 | grep -q -- ' --no-check-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
+	wget --help 2>&1 | grep -q -- ' --inet ' && WGET_OPTS="$WGET_OPTS --inet"
+	wget --help 2>&1 | grep -q -- ' --retry-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
+	wget --help 2>&1 | grep -q -- ' --no-iri ' && WGET_OPTS="$WGET_OPTS --no-iri"
+	WGET_OPTS="$WGET_OPTS --user-agent=$USER_AGENT"
+
+	GETURI="wget -c -nd -t$WGET_RETRIES $WGET_OPTS $IPOPT"
+
+	${GETURI} --passive-ftp -O "$outfile" "$url"
+	retval=$?
+	if [ $retval -ne 0 ]; then
+		if [ "`echo $url | grep -E 'ftp://'`" ]; then
+			${GETURI} -O "$outfile" "$url"
+			retval=$?
+		fi
+	fi
+	return $retval
+}
+
 download_lftp() {
 	local outfile=$1 url=$2 retval tmpfile
-	# TODO: use mktemp
-	tmpfile=$outfile.tmp
+	tmpfile=$(mktemp) || exit 1
 	lftp -c "
 		$([ "$DEBUG" = "yes" ] && echo "debug 5;")
+		$([ "$IPOPT" = "-4" ] && echo "set dns:order \"inet\";")
+		$([ "$IPOPT" = "-6" ] && echo "set dns:order \"inet6\";")
 		set ssl:verify-certificate no;
 		set net:max-retries $WGET_RETRIES;
 		set http:user-agent \"$USER_AGENT\";
@@ -950,7 +977,7 @@ get_spec() {
 	if [ "$NOCVSSPEC" != "yes" ]; then
 		if [ -z "$DEPTH" ]; then
 			if [ -d "$PACKAGE_DIR/.git" ]; then
-				git fetch $REMOTE_PLD || Exit_error err_no_spec_in_repo
+				git fetch $IPOPT $REMOTE_PLD || Exit_error err_no_spec_in_repo
 			elif [ "$ADD_PACKAGE_CVS" = "yes" ]; then
 				if [ ! -r "$PACKAGE_DIR/$SPECFILE" ]; then
 					echo "ERROR: No package to add ($PACKAGE_DIR/$SPECFILE)" >&2
@@ -960,7 +987,7 @@ get_spec() {
 			else
 				(
 					unset GIT_WORK_TREE
-					git clone  -o $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git || {
+					git clone $IPOPT -o $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git || {
 						# softfail if new package, i.e not yet added to PLD rep
 						[ ! -f "$PACKAGE_DIR/$SPECFILE" ] && Exit_error err_no_spec_in_repo
 						echo "Warning: package not in GIT - assuming new package"
@@ -991,12 +1018,12 @@ get_spec() {
 			if [ -z "$ALL_BRANCHES" ]; then
 				refs="${CVSTAG}:remotes/${REMOTE_PLD}/${CVSTAG}"
 			fi
-			git fetch $DEPTH $REMOTE_PLD $refs || {
+			git fetch $IPOPT $DEPTH $REMOTE_PLD $refs || {
 				echo >&2 "Error: branch $CVSTAG does not exist"
 				exit 3
 			}
 		fi
-		git fetch $REMOTE_PLD 'refs/notes/*:refs/notes/*'
+		git fetch $IPOPT $REMOTE_PLD 'refs/notes/*:refs/notes/*'
 
 		cvsignore_df .gitignore
 
@@ -1333,11 +1360,7 @@ get_files() {
 							uri="df: $uri"
 						fi
 						update_shell_title "${GETURI%% *}: $uri"
-						${GETURI} ${OUTFILEOPT} "$target" "$url" || \
-						if [ "`echo $url | grep -E 'ftp://'`" ]; then
-							update_shell_title "${GETURI2%% *}: $url"
-							${GETURI2} ${OUTFILEOPT} "$target" "$url"
-						fi
+						${GETURI} "$target" "$url"
 					fi
 
 					# is it empty file?
@@ -1348,11 +1371,7 @@ get_files() {
 							${GETLOCAL} $url_attic $target
 						else
 							update_shell_title "${GETURI%% *}: $url_attic"
-							${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
-							if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
-								update_shell_title "${GETURI2%% *}: $url_attic"
-								${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
-							fi
+							${GETURI} "$target" "$url_attic"
 							test -s "$target" || rm -f "$target"
 						fi
 					fi
@@ -1372,11 +1391,7 @@ get_files() {
 						im="$i"
 					fi
 					update_shell_title "${GETURI%% *}: $im"
-					${GETURI} ${OUTFILEOPT} "$target" "$im" || \
-					if [ "`echo $im | grep -E 'ftp://'`" ]; then
-						update_shell_title "${GETURI2%% *}: $im"
-						${GETURI2} ${OUTFILEOPT} "$target" "$im"
-					fi
+					${GETURI} "$target" "$im"
 					test -s "$target" || rm -f "$target"
 				fi
 
@@ -1401,19 +1416,11 @@ get_files() {
 				FROM_DISTFILES=2
 				rm -f $target
 				update_shell_title "${GETURI%% *}: $url"
-				${GETURI} ${OUTFILEOPT} "$target" "$url" || \
-				if [ "`echo $url | grep -E 'ftp://'`" ]; then
-					update_shell_title "${GETURI2%% *}: $url"
-					${GETURI2} ${OUTFILEOPT} "$target" "$url"
-				fi
+				${GETURI} "$target" "$url"
 				if [ ! -s "$target" ]; then
 					rm -f "$target"
 					update_shell_title "${GETURI%% *}: $url_attic"
-					${GETURI} ${OUTFILEOPT} "$target" "$url_attic" || \
-					if [ "`echo $url_attic | grep -E 'ftp://'`" ]; then
-						update_shell_title "${GETURI2%% *}: $url_attic"
-						${GETURI2} ${OUTFILEOPT} "$target" "$url_attic"
-					fi
+					${GETURI} "$target" "$url_attic"
 				fi
 				test -s "$target" || rm -f "$target"
 			fi
@@ -1497,7 +1504,7 @@ tag_files() {
 	if tag_exist $_tag || [ -n "$CVS_FORCE" ]; then
 		update_shell_title "tag sources: $_tag"
 		git $OPTIONS $_tag || exit
-		git push $CVS_FORCE $REMOTE_PLD tag $_tag || Exit_error err_remote_problem $REMOTE_PLD
+		git push $IPOPT $CVS_FORCE $REMOTE_PLD tag $_tag || Exit_error err_remote_problem $REMOTE_PLD
 	else
 		echo "Tag $_tag already exists and points to the same commit"
 	fi
@@ -2039,7 +2046,7 @@ init_repository() {
 	local localrepo=$2
 
 	if [ ! -e $localrepo ]; then
-		git clone -o $REMOTE_PLD ${GIT_SERVER}/$remoterepo $localrepo
+		git clone $IPOPT -o $REMOTE_PLD ${GIT_SERVER}/$remoterepo $localrepo
 		git --git-dir=$localrepo/.git remote set-url --push  $REMOTE_PLD ssh://${GIT_PUSH}/$remoterepo
 	fi
 }
@@ -2095,9 +2102,7 @@ fi
 while [ $# -gt 0 ]; do
 	case "${1}" in
 		-4|-6)
-			# NOTE: we should be fetcher specific, like fille WGET_OPTS, but
-			# unfortunately $GETURI is already formed
-			GETURI="$GETURI $1"
+			IPOPT="${1}"
 			shift
 			;;
 		-5 | --update-md5)
