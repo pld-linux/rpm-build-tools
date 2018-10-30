@@ -124,6 +124,25 @@ version_from_files() {
 	esac
 }
 
+version_from_attachment() {
+	local url fn dt d t
+	t=$(mktemp)
+
+	for url in "$@"; do
+		curl -Is "$url" -o "$t"
+		fn=$(awk 'BEGIN {FS=": "}/^Content-Disposition/{sub(/.*filename=/, "", $2); print $2}' "$t")
+		fn=${fn#GeoLite2-Country-CSV_}
+		d=$(echo "$fn" | sed -e 's/[^0-9-]//g')
+
+		if [ "$d" -gt "$dt" ]; then
+			dt=$d
+		fi
+	done
+
+	rm -f $t
+	version=$dt
+}
+
 dir=$(dirname "$0")
 APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
 PATH=$APPDIR:$PATH
@@ -139,8 +158,13 @@ for pkg in ${*:-$pkgs}; do
 	specfile=*.spec
 
 	urls=$(get_urls $specfile)
-	update_urls $urls
-	version_from_files $pkg $urls
+	if [ "$pkg" = "xtables-geoip" ]; then
+		version_from_attachment $urls
+	else
+		update_urls $urls
+		version_from_files $pkg $urls
+	fi
+
 	oldvers=$(awk '/^Version:[ 	]+/{print $NF}' $specfile)
 	if [ "$oldvers" != "$version" ]; then
 		update_version $specfile $version
