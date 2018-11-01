@@ -30,6 +30,11 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
+die() {
+	echo >&2 "$0: ERROR: $*"
+	exit 1
+}
+
 # get file DATE in GMT timezone
 filedate() {
 	local file="$1"
@@ -82,6 +87,7 @@ update_version() {
 		s/^\(Release:[ \t]\+\)[.0-9]\+\$/\11/
 	" $specfile
 
+	rm *.zip *.gz *.xz
 	# update md5
 	out=$(md5 -p1 $specfile 2>&1) || echo "$out"
 
@@ -129,8 +135,10 @@ version_from_attachment() {
 	t=$(mktemp)
 
 	for url in "$@"; do
+		# remove querystring to receive proper headers
+		url=${url%\?*}
 		curl -Is "$url" -o "$t"
-		fn=$(awk 'BEGIN {FS=": "}/^Content-Disposition/{sub(/.*filename=/, "", $2); print $2}' "$t")
+		fn=$(awk 'BEGIN {FS=": "}/^[Cc]ontent-[Dd]isposition/{sub(/.*filename=/, "", $2); print $2}' "$t")
 		fn=${fn#GeoLite2-Country-CSV_}
 		d=$(echo "$fn" | sed -e 's/[^0-9-]//g')
 
@@ -138,6 +146,8 @@ version_from_attachment() {
 			dt=$d
 		fi
 	done
+
+	test -n "$dt" || die "Failed to find date from $*"
 
 	rm -f $t
 	version=$dt
