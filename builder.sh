@@ -990,7 +990,7 @@ get_spec() {
 					git clone $IPOPT -o $REMOTE_PLD ${GIT_SERVER}/${PACKAGES_DIR}/${ASSUMED_NAME}.git || {
 						# softfail if new package, i.e not yet added to PLD rep
 						[ ! -f "$PACKAGE_DIR/$SPECFILE" ] && Exit_error err_no_spec_in_repo
-						echo "Warning: package not in GIT - assuming new package"
+						echo "Warning: package not in Git - assuming new package"
 						NOCVSSPEC="yes"
 					}
 					git config --local --add "remote.$REMOTE_PLD.fetch" 'refs/notes/*:refs/notes/*'
@@ -1050,7 +1050,7 @@ get_spec() {
 	fi
 
 	if [ -n "$CVSTAG" ]; then
-		if git rev-parse --verify -q "$CVSTAG"; then
+		if git rev-parse --verify -q "$CVSTAG" >/dev/null; then
 			git checkout "$CVSTAG" --
 		elif git rev-parse --verify -q "refs/remotes/${REMOTE_PLD}/$CVSTAG"; then
 			git checkout -t "refs/remotes/${REMOTE_PLD}/$CVSTAG" > /dev/null
@@ -1058,7 +1058,8 @@ get_spec() {
 		if [ $(git rev-parse "$CVSTAG") != $(git rev-parse HEAD) ]; then
 			Exit_error "err_no_checkut" "$CVSTAG"
 		fi
-			git merge --ff-only '@{u}'
+
+		git merge --ff-only '@{u}'
 		git symbolic-ref -q HEAD > /dev/null && [ "$NOCVSSPEC" != "yes" ] &&
 		if [ -n "$CVSDATE" ]; then
 			git checkout $(git rev-list -n1 --before="'$CVSDATE'" $CVSTAG) || exit 1
