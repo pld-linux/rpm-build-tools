@@ -1680,6 +1680,7 @@ build_package() {
 	env | grep ^GIT_ && Exit_error err_build_fail
 
 	local specdir=$(insert_gitlog $SPECFILE)
+	ulimit -c unlimited
 	# FIXME: eval here is exactly why?
 	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
 	retval=$?
