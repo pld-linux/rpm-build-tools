@@ -1,9 +1,17 @@
 #!/usr/bin/python3
 
+# thisscript.py --root=~/tmp/somepackage ~/rpm/BUILD/somepackage/
+
+import argparse
 import io
 import os
 import re
 import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('sourcedir', help='RPM_SOURCE_DIR directory')
+parser.add_argument("--buildroot", help="RPM_BUILD_ROOT directory")
+args = parser.parse_args()
 
 rep = {
     'python2': [],
@@ -11,9 +19,20 @@ rep = {
     'perl': [],
 }
 
-skip_files = [".h", ".c", ".cc", ".gif", ".png", ".jpg"]
+skip_files = [".h", ".c", ".cc", ".gif", ".png", ".jpg", ".ko", ".gz", ".o"]
 
-for root, dirs, files in os.walk(sys.argv[1]):
+if args.buildroot:
+    print("%s: Caching `%s' files..." % (sys.argv[0], args.buildroot))
+    rpm_build_root_files = []
+    for root, dirs, files in os.walk(args.buildroot):
+        for name in files:
+            fname, fext = os.path.splitext(name)
+            if fext in skip_files:
+                continue
+            rpm_build_root_files.append(fname)
+    print("%s: Caching done." % (sys.argv[0]))
+
+for root, dirs, files in os.walk(args.sourcedir):
     for name in files:
         fname, fext = os.path.splitext(name)
         if fext in skip_files:
@@ -38,11 +57,20 @@ for root, dirs, files in os.walk(sys.argv[1]):
                 rep['perl'].append(fpath)
 
 def gf(files):
-    files.sort()
-    for i in range(0, len(files) - 1):
-        print("\t%s \\\n" % files[i], end='')
-    print("\t%s\n" % files[len(files) - 1])
+    newfiles = []
+    for f in files:
+        if not rpm_build_root_files or os.path.basename(f) in rpm_build_root_files:
+            newfiles.append(f)
+    newfiles.sort()
+    for i in range(0, len(newfiles) - 1):
+        print("\t%s \\\n" % newfiles[i], end='')
+    print("\t%s\n" % newfiles[len(newfiles) - 1])
 
+print("\n# Copy from here:", file=sys.stderr)
+print("# %s " % sys.argv[0], end='')
+if args.buildroot:
+    print("--root=%s " % args.buildroot, end='')
+print("%s\n" % args.sourcedir)
 
 if rep['python2']:
     print("sed -i -e '1s,#!/usr/bin/env python2,%{__python},' -e '1s,#!/usr/bin/env python,%{__python},' -e '1s,#!/usr/bin/python,%{__python},' \\")
