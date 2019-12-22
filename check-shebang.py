@@ -63,8 +63,8 @@ def gf(files):
             newfiles.append(f)
     newfiles.sort()
     for i in range(0, len(newfiles) - 1):
-        print("\t%s \\\n" % newfiles[i], end='')
-    print("\t%s\n" % newfiles[len(newfiles) - 1])
+        print("\t%s \\\n" % os.path.relpath(newfiles[i], start=args.sourcedir), end='')
+    print("\t%s\n" % os.path.relpath(newfiles[len(newfiles) - 1], start=args.sourcedir))
 
 print("\n# Copy from here:", file=sys.stderr)
 print("# %s " % sys.argv[0], end='')
