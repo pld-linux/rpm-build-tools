@@ -56,13 +56,13 @@ for root, dirs, files in os.walk(args.sourcedir):
             except UnicodeDecodeError as e:
                 print("%s: skipping file `%s': %s" % (sys.argv[0], fpath, e), file=sys.stderr)
                 continue
-            if re.compile(r'^#!/usr/bin/env python\s').match(shebang) \
-                    or re.compile(r'^#!/usr/bin/env python2\s').match(shebang) \
-                    or re.compile(r'^#!/usr/bin/python\s').match(shebang):
+            if re.compile(r'^#!\s*/usr/bin/env python\s').match(shebang) \
+                    or re.compile(r'^#!\s*/usr/bin/env\s+python2\s').match(shebang) \
+                    or re.compile(r'^#!\s*/usr/bin/python\s').match(shebang):
                 rep['python2'].append(fpath)
-            elif re.compile(r'^#!/usr/bin/env python3\s').match(shebang):
+            elif re.compile(r'^#!\s*/usr/bin/env\s+python3\s').match(shebang):
                 rep['python3'].append(fpath)
-            elif re.compile(r'^#!/usr/bin/env perl\s').match(shebang):
+            elif re.compile(r'^#!\s*/usr/bin/env\s+perl\s').match(shebang):
                 rep['perl'].append(fpath)
 
 def gf(cmd, files):
@@ -84,7 +84,7 @@ if args.buildroot:
     print("--root=%s " % args.buildroot, end='')
 print("%s\n" % args.sourcedir)
 
-gf("sed -i -e '1s,#!/usr/bin/env python2,%{__python},' -e '1s,#!/usr/bin/env python,%{__python},' -e '1s,#!/usr/bin/python,%{__python},' \\",
+gf("sed -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python2,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/python,#!%{__python},' \\",
    rep['python2'])
-gf("sed -i -e '1s,#!/usr/bin/env python3,%{__python3},' \\", rep['python3'])
-gf("sed -i -e '1s,#!/usr/bin/env perl,%{__perl},' \\", rep['perl'])
+gf("sed -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python3,#!%{__python3},' \\", rep['python3'])
+gf("sed -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+perl,#!%{__perl},' \\", rep['perl'])
