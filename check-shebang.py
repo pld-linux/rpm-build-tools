@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# thisscript.py --root=~/tmp/somepackage ~/rpm/BUILD/somepackage/
+# thisscript.py --buildroot=~/tmp/somepackage ~/rpm/BUILD/somepackage/
 
 import argparse
 import io
@@ -66,7 +66,7 @@ def gf(files):
         print("\t%s \\\n" % os.path.relpath(newfiles[i], start=args.sourcedir), end='')
     print("\t%s\n" % os.path.relpath(newfiles[len(newfiles) - 1], start=args.sourcedir))
 
-print("\n# Copy from here:", file=sys.stderr)
+print("\n# Copy from here:")
 print("# %s " % sys.argv[0], end='')
 if args.buildroot:
     print("--root=%s " % args.buildroot, end='')
