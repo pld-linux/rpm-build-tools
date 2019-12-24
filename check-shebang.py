@@ -84,7 +84,7 @@ if args.buildroot:
     print("--root=%s " % args.buildroot, end='')
 print("%s\n" % args.sourcedir)
 
-gf("sed -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python2,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/python,#!%{__python},' \\",
+gf("sed -E -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python2,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/python,#!%{__python},' \\",
    rep['python2'])
-gf("sed -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python3,#!%{__python3},' \\", rep['python3'])
-gf("sed -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+perl,#!%{__perl},' \\", rep['perl'])
+gf("sed -E -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python3,#!%{__python3},' \\", rep['python3'])
+gf("sed -E -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+perl,#!%{__perl},' \\", rep['perl'])
