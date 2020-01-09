@@ -75,16 +75,16 @@ def gf(cmd, files):
         return
     print(cmd)
     for i in range(0, len(newfiles) - 1):
-        print("\t%s \\\n" % os.path.relpath(newfiles[i], start=args.sourcedir), end='')
-    print("\t%s\n" % os.path.relpath(newfiles[len(newfiles) - 1], start=args.sourcedir))
+        print("      %s \\\n" % os.path.relpath(newfiles[i], start=args.sourcedir), end='')
+    print("      %s\n" % os.path.relpath(newfiles[len(newfiles) - 1], start=args.sourcedir))
 
 print("\n# Copy from here:")
 print("# %s " % sys.argv[0], end='')
 if args.buildroot:
-    print("--root=%s " % args.buildroot, end='')
+    print("--buildroot=%s " % args.buildroot, end='')
 print("%s\n" % args.sourcedir)
 
-gf("sed -E -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python2,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python,#!%{__python},' -e '1s,#![[:space:]]*/usr/bin/python,#!%{__python},' \\",
+gf("sed -E -i -e '1s,#!\s*/usr/bin/env\s+python2(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/env\s+python(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/python(\s|$),#!%{__python}\\1,' \\",
    rep['python2'])
-gf("sed -E -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+python3,#!%{__python3},' \\", rep['python3'])
-gf("sed -E -i -e '1s,#![[:space:]]*/usr/bin/env[[:space:]]+perl,#!%{__perl},' \\", rep['perl'])
+gf("sed -E -i -e '1s,#!\s*/usr/bin/env\s+python3(\s|$),#!%{__python3}\\1,' \\", rep['python3'])
+gf("sed -E -i -e '1s,#!\s*/usr/bin/env\s+perl(\s|$),#!%{__perl}\\1,' \\", rep['perl'])
