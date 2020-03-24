@@ -18,6 +18,7 @@ rep = {
     'python2': [],
     'python3': [],
     'perl': [],
+    'ruby': [],
 }
 
 skip_files = [".h", ".c", ".cc", ".gif", ".png", ".jpg", ".ko", ".gz", ".o"]
@@ -64,6 +65,8 @@ for root, dirs, files in os.walk(args.sourcedir):
                 rep['python3'].append(fpath)
             elif re.compile(r'^#!\s*/usr/bin/env\s+perl\s').match(shebang):
                 rep['perl'].append(fpath)
+            elif re.compile(r'^#!\s*/usr/bin/env\s+ruby\s').match(shebang):
+                rep['ruby'].append(fpath)
 
 def gf(cmd, files):
     newfiles = []
@@ -84,7 +87,8 @@ if args.buildroot:
     print("--buildroot=%s " % args.buildroot, end='')
 print("%s\n" % args.sourcedir)
 
-gf("sed -E -i -e '1s,#!\s*/usr/bin/env\s+python2(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/env\s+python(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/python(\s|$),#!%{__python}\\1,' \\",
+gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python2(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/env\s+python(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/python(\s|$),#!%{__python}\\1,' \\",
    rep['python2'])
-gf("sed -E -i -e '1s,#!\s*/usr/bin/env\s+python3(\s|$),#!%{__python3}\\1,' \\", rep['python3'])
-gf("sed -E -i -e '1s,#!\s*/usr/bin/env\s+perl(\s|$),#!%{__perl}\\1,' \\", rep['perl'])
+gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python3(\s|$),#!%{__python3}\\1,' \\", rep['python3'])
+gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+perl(\s|$),#!%{__perl}\\1,' \\", rep['perl'])
+gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+ruby(\s|$),#!%{__ruby}\\1,' \\", rep['ruby'])
