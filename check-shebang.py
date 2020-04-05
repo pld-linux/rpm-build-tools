@@ -39,7 +39,10 @@ if args.buildroot:
             if fext in skip_files:
                 continue
             fpath = os.path.join(root, name)
-            rpm_build_root_files.append(hash(fpath))
+            try:
+                rpm_build_root_files.append(hash(fpath))
+            except FileNotFoundError:
+                pass
     print("%s: Caching done." % (sys.argv[0]))
 
 for root, dirs, files in os.walk(args.sourcedir):
@@ -49,24 +52,27 @@ for root, dirs, files in os.walk(args.sourcedir):
             continue
 
         fpath = os.path.join(root, name)
-        with open(fpath, 'rt', encoding='utf-8', errors='replace') as f:
-            try:
-                fline = f.read(128)
-                f = io.StringIO(fline)
-                shebang = f.readline()
-            except UnicodeDecodeError as e:
-                print("%s: skipping file `%s': %s" % (sys.argv[0], fpath, e), file=sys.stderr)
-                continue
-            if re.compile(r'^#!\s*/usr/bin/env python\s').match(shebang) \
-                    or re.compile(r'^#!\s*/usr/bin/env\s+python2\s').match(shebang) \
-                    or re.compile(r'^#!\s*/usr/bin/python\s').match(shebang):
-                rep['python2'].append(fpath)
-            elif re.compile(r'^#!\s*/usr/bin/env\s+python3\s').match(shebang):
-                rep['python3'].append(fpath)
-            elif re.compile(r'^#!\s*/usr/bin/env\s+perl\s').match(shebang):
-                rep['perl'].append(fpath)
-            elif re.compile(r'^#!\s*/usr/bin/env\s+ruby\s').match(shebang):
-                rep['ruby'].append(fpath)
+        try:
+            with open(fpath, 'rt', encoding='utf-8', errors='replace') as f:
+                try:
+                    fline = f.read(128)
+                    f = io.StringIO(fline)
+                    shebang = f.readline()
+                except UnicodeDecodeError as e:
+                    print("%s: skipping file `%s': %s" % (sys.argv[0], fpath, e), file=sys.stderr)
+                    continue
+                if re.compile(r'^#!\s*/usr/bin/env python\s').match(shebang) \
+                        or re.compile(r'^#!\s*/usr/bin/env\s+python2\s').match(shebang) \
+                        or re.compile(r'^#!\s*/usr/bin/python\s').match(shebang):
+                    rep['python2'].append(fpath)
+                elif re.compile(r'^#!\s*/usr/bin/env\s+python3\s').match(shebang):
+                    rep['python3'].append(fpath)
+                elif re.compile(r'^#!\s*/usr/bin/env\s+perl\s').match(shebang):
+                    rep['perl'].append(fpath)
+                elif re.compile(r'^#!\s*/usr/bin/env\s+ruby\s').match(shebang):
+                    rep['ruby'].append(fpath)
+        except FileNotFoundError:
+            pass
 
 def gf(cmd, files):
     newfiles = []
