@@ -1870,7 +1870,7 @@ run_sub_builder() {
 # @return exit code from poldek
 #
 # this requires following sudo rules:
-# - poldek --noask --caplookup -uG
+# - poldek --noask --caplookup -ug
 poldek_install() {
 	LANG=C $POLDEK_CMD --noask --caplookup --uniq -ug "$@"
 }
