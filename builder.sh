@@ -214,13 +214,8 @@ fi
 
 GETLOCAL=${GETLOCAL:-cp -a}
 
-if rpm --version 2>&1 | grep -q '4.0.[0-2]'; then
-	RPM="rpm"
-	RPMBUILD="rpm"
-else
-	RPM="rpm"
-	RPMBUILD="rpmbuild"
-fi
+RPM="rpm"
+RPMBUILD="rpmbuild"
 
 #
 # sanity checks
@@ -630,8 +625,6 @@ set_spec_target() {
 
 # runs rpm with minimal macroset
 minirpm() {
-	safe_macrofiles=$(rpm $TARGET_SWITCH --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); print $0 } ')
-
 	# TODO: move these to /usr/lib/rpm/macros
 	cat > $BUILDER_MACROS <<'EOF'
 %x8664 x86_64 amd64 ia32e
@@ -694,7 +687,12 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-	eval PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
+    if rpm --version 2>&1 | grep -qE '5\.[0-9]+\.[0-9]+'; then
+		safe_macrofiles=$(rpm $TARGET_SWITCH --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); print $0 } ')
+		eval PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
+	else
+		eval PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH --load "$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
+	fi
 }
 
 cache_rpm_dump() {
