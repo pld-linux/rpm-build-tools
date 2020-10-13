@@ -687,7 +687,7 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-    if rpm --version 2>&1 | grep -qE '5\.[0-9]+\.[0-9]+'; then
+	if rpm --version 2>&1 | grep -qE '5\.[0-9]+\.[0-9]+'; then
 		safe_macrofiles=$(rpm $TARGET_SWITCH --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); print $0 } ')
 		eval PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
 	else
