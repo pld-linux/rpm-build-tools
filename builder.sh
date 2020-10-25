@@ -1050,7 +1050,10 @@ get_spec() {
 
 	if [ -n "$CVSTAG" ]; then
 		if git rev-parse --verify -q "$CVSTAG" >/dev/null; then
-			git checkout "$CVSTAG" --
+			# checkout only if differs, so this will not trash git reflog
+			if [ $(git rev-parse "$CVSTAG") != $(git rev-parse HEAD) ]; then
+				git checkout "$CVSTAG" --
+			fi
 		elif git rev-parse --verify -q "refs/remotes/${REMOTE_PLD}/$CVSTAG"; then
 			git checkout -t "refs/remotes/${REMOTE_PLD}/$CVSTAG" > /dev/null
 		fi
