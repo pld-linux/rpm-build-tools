@@ -114,8 +114,7 @@ PROTOCOL="http"
 IPOPT=""
 
 # use lftp by default when available
-USE_LFTP=
-lftp --version > /dev/null 2>&1 && USE_LFTP=yes
+test -z "${USE_LFTP+x}" && lftp --version > /dev/null 2>&1 && USE_LFTP=yes
 PARALLEL_DOWNLOADS=10
 
 WGET_RETRIES=${MAX_WGET_RETRIES:-0}
