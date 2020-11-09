@@ -475,6 +475,23 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 "
 }
 
+is_rpmorg() {
+	local v
+
+	v=$(rpm --version 2>&1)
+	v=${v#RPM version } # rpm 4
+	v=${v#rpm (RPM) } # rpm 5
+
+	case "$v" in
+		4.5|5.*)
+			return 1
+			;;
+		4.*)
+			return 0;
+			;;
+	esac
+}
+
 # create tempfile. as secure as possible
 tempfile() {
 	local prefix=builder.$PACKAGE_NAME${1:+.$1}
@@ -688,7 +705,8 @@ EOF
 %_sourcedir ./
 EOF
 	fi
-	if rpm --version 2>&1 | grep -qE '5\.[0-9]+\.[0-9]+'; then
+	if ! is_rpmorg; then
+		local safe_macrofiles
 		safe_macrofiles=$(rpm $TARGET_SWITCH --showrc | awk -F: '/^macrofiles/ { gsub(/^macrofiles[ \t]+:/, "", $0); print $0 } ')
 		eval PATH=$CLEAN_PATH $RPMBUILD $TARGET_SWITCH --macros "$safe_macrofiles:$BUILDER_MACROS" $QUIET $RPMOPTS $RPMBUILDOPTS $BCOND $* 2>&1
 	else
