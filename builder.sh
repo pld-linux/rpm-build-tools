@@ -38,7 +38,7 @@ APPDIR=$(d=$0; [ -L "$d" ] && d=$(readlink -f "$d"); dirname "$d")
 VERSION="v0.35"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
-$VERSION (C) 1999-2016 Free Penguins".
+$VERSION (C) 1999-2020 Free Penguins".
 
 CLEAN_PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
 
