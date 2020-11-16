@@ -1824,7 +1824,7 @@ set_bconds_values() {
 		without_*)
 			bcond=${opt#without_}
 			case "$BCOND" in
-			*--without?${bcond}*)
+			*--without?${bcond}\ *|*--without?${bcond})
 				AVAIL_BCONDS_WITHOUT="$AVAIL_BCONDS_WITHOUT <$bcond>"
 				;;
 			*)
@@ -1835,7 +1835,7 @@ set_bconds_values() {
 		with_*)
 			bcond=${opt#with_}
 			case "$BCOND" in
-			*--with?${bcond}*)
+			*--with?${bcond}\ *|*--with?${bcond})
 				AVAIL_BCONDS_WITH="$AVAIL_BCONDS_WITH <$bcond>"
 				;;
 			*)
