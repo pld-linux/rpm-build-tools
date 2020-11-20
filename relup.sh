@@ -38,7 +38,7 @@ get_release() {
 	rel=$(awk '/^%define[ 	]+_?rel[ 	]+/{print $NF}' $specfile)
 	if [ -z "$rel" ]; then
 		dump=$(get_dump "$specfile")
-		rel=$(echo "$dump" | awk '/PACKAGE_RELEASE/{print $NF; exit}')
+		rel=$(echo "$dump" | awk '$2~/^(PACKAGE_)?RELEASE$/{print $NF; exit}')
 	fi
 	echo $rel
 }
