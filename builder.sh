@@ -480,7 +480,7 @@ is_rpmorg() {
 
 	v=$(rpm --version 2>&1)
 	v=${v#RPM version } # rpm 4
-	v=${v#rpm (RPM) } # rpm 5
+	v=${v#rpm \(RPM\) } # rpm 5
 
 	case "$v" in
 		4.5|5.*)
@@ -489,6 +489,9 @@ is_rpmorg() {
 		4.*)
 			return 0;
 			;;
+		*)
+			echo "ERROR: unsupported RPM version $v" >&2
+			exit 1
 	esac
 }
 
