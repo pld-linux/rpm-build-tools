@@ -40,7 +40,8 @@ VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
 $VERSION (C) 1999-2020 Free Penguins".
 
-CLEAN_PATH="/bin:/usr/bin:/usr/sbin:/sbin:/usr/X11R6/bin"
+# Clean PATH without /usr/local or user paths
+CLEAN_PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/X11R6/bin"
 
 # required rpm-build-macros
 RPM_MACROS_VER=1.534
