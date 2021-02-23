@@ -479,7 +479,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 is_rpmorg() {
 	local v
 
-	v=$(rpm --version 2>&1)
+	v=$(LANG=C rpm --version 2>&1)
 	v=${v#RPM version } # rpm 4
 	v=${v#rpm \(RPM\) } # rpm 5
 
