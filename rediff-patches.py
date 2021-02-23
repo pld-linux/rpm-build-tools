@@ -2,11 +2,6 @@
 
 # rediff-patches.py name.spec
 
-# TODO:
-# - handle rediff of last patch (need some way to terminate build just after that patch is applied)
-# - or maybe apply patches on our own instead of using rpmbuild for that
-# - cleanup
-
 import argparse
 import collections
 import logging
@@ -20,11 +15,30 @@ import tempfile
 
 RPMBUILD_ISPATCH = (1<<1)
 
-def unpack(spec, builddir, until_patch=None):
-    cmd = [ 'rpmbuild', '-bp', '--define',  '_builddir %s' % builddir, '--define', '_default_patch_fuzz 2' ]
-    if until_patch is not None:
-        cmd += [ '--define', '%%patch%d exit; #' % until_patch ]
-    cmd += [ spec ]
+def prepare_spec(r, patch_nr, before=False):
+    tempspec = tempfile.NamedTemporaryFile()
+    re_patch = re.compile(r'^%patch(?P<patch_number>\d+)\w*')
+    for line in r.parsed.split('\n'):
+        m = re_patch.match(line)
+        if m:
+            patch_number = int(m.group('patch_number'))
+            if patch_nr == patch_number:
+                if before:
+                    tempspec.write(b"exit 0\n# here was patch%d\n" % patch_nr)
+                else:
+                    line = re.sub(r'#.*', "", line)
+                    tempspec.write(b"%s\nexit 0\n" % line.encode('utf-8'))
+                continue
+        tempspec.write(b"%s\n" % line.encode('utf-8'))
+    tempspec.flush()
+    return tempspec
+
+def unpack(spec, builddir):
+    cmd = [ 'rpmbuild', '-bp',
+           '--define',  '_builddir %s' % builddir,
+           '--define', '_enable_debug_packages 0',
+           '--define', '_default_patch_fuzz 2',
+           spec ]
     logging.debug("running %s" % repr(cmd))
     subprocess.check_call(cmd, stdout=sys.stderr, stderr=sys.stderr,
                           env={'LC_ALL': 'C.UTF-8'}, timeout=600)
@@ -43,7 +57,6 @@ def diff(diffdir_org, diffdir, builddir, output):
             if err.returncode != 1:
                 raise
     logging.info("rediff generated as %s" % output)
-
 
 def main():
     parser = parser = argparse.ArgumentParser(description='rediff patches to avoid fuzzy hunks')
@@ -91,18 +104,23 @@ def main():
     appsourcedir = rpm.expandMacro("%{_sourcedir}")
     appbuilddir = rpm.expandMacro("%{_builddir}/%{?buildsubdir}")
 
-    for patch_nr, patch_nr_next in zip(applied_patches.keys(), list(applied_patches.keys())[1:] + [None]):
+    for patch_nr in applied_patches.keys():
         if args.patches and patch_nr not in args.patches:
             continue
-        if patch_nr_next is None:
-            logging.warning("can't rediff last patch, see TODO")
-            break
         patch_name = patches[patch_nr]
         logging.info("*** patch %d: %s" % (patch_nr, patch_name))
-        unpack(specfile, builddir, patch_nr)
+
+        tempspec = prepare_spec(r, patch_nr, before=True)
+        unpack(tempspec.name, builddir)
+        tempspec.close()
         os.rename(appbuilddir, appbuilddir + ".org")
-        unpack(specfile, builddir, patch_nr_next)
+
+        tempspec = prepare_spec(r, patch_nr, before=False)
+        unpack(tempspec.name, builddir)
+        tempspec.close()
+
         diff(appbuilddir + ".org", appbuilddir, builddir, os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
+
         shutil.rmtree(builddir)
     tempdir.cleanup()
 
