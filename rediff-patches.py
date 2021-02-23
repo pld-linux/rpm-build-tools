@@ -37,42 +37,46 @@ def diff(diffdir_org, diffdir, builddir, output):
             if err.returncode != 1:
                 raise
 
-specfile = sys.argv[1]
+def main():
+    specfile = sys.argv[1]
 
-tempdir = tempfile.TemporaryDirectory(dir="/dev/shm")
-topdir = tempdir.name
-builddir = os.path.join(topdir, 'BUILD')
+    tempdir = tempfile.TemporaryDirectory(dir="/dev/shm")
+    topdir = tempdir.name
+    builddir = os.path.join(topdir, 'BUILD')
 
-rpm.addMacro("_builddir", builddir)
+    rpm.addMacro("_builddir", builddir)
 
-r = rpm.spec(specfile)
+    r = rpm.spec(specfile)
 
-patches = {}
+    patches = {}
 
-for (name, nr, flags) in r.sources:
-    if flags & RPMBUILD_ISPATCH:
-        patches[nr] = name
+    for (name, nr, flags) in r.sources:
+        if flags & RPMBUILD_ISPATCH:
+            patches[nr] = name
 
-applied_patches = {}
-re_patch = re.compile(r'^%patch(?P<patch_number>\d+)\w*(?P<patch_args>.*)')
-for line in r.parsed.split('\n'):
-    m = re_patch.match(line)
-    if not m:
-        continue
-    patch_nr = int(m.group('patch_number'))
-    patch_args = m.group('patch_args')
-    applied_patches[patch_nr] = patch_args
+    applied_patches = {}
+    re_patch = re.compile(r'^%patch(?P<patch_number>\d+)\w*(?P<patch_args>.*)')
+    for line in r.parsed.split('\n'):
+        m = re_patch.match(line)
+        if not m:
+            continue
+        patch_nr = int(m.group('patch_number'))
+        patch_args = m.group('patch_args')
+        applied_patches[patch_nr] = patch_args
 
-appsourcedir = rpm.expandMacro("%{_sourcedir}")
-appbuilddir = rpm.expandMacro("%{_builddir}/%{?buildsubdir}")
+    appsourcedir = rpm.expandMacro("%{_sourcedir}")
+    appbuilddir = rpm.expandMacro("%{_builddir}/%{?buildsubdir}")
 
-for (patch_nr, patch_name) in sorted(patches.items()):
-    if patch_nr not in applied_patches:
-        continue
-    print("*** patch %d: %s" % (patch_nr, patch_name), file=sys.stderr)
-    unpack(specfile, builddir, patch_nr)
-    os.rename(appbuilddir, appbuilddir + ".org")
-    unpack(specfile, builddir, patch_nr + 1)
-    diff(appbuilddir + ".org", appbuilddir, builddir, os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
-    shutil.rmtree(builddir)
-tempdir.cleanup()
+    for (patch_nr, patch_name) in sorted(patches.items()):
+        if patch_nr not in applied_patches:
+            continue
+        print("*** patch %d: %s" % (patch_nr, patch_name), file=sys.stderr)
+        unpack(specfile, builddir, patch_nr)
+        os.rename(appbuilddir, appbuilddir + ".org")
+        unpack(specfile, builddir, patch_nr + 1)
+        diff(appbuilddir + ".org", appbuilddir, builddir, os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
+        shutil.rmtree(builddir)
+    tempdir.cleanup()
+
+if __name__ == '__main__':
+    main()
