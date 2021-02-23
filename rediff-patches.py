@@ -19,7 +19,7 @@ import tempfile
 RPMBUILD_ISPATCH = (1<<1)
 
 def unpack(spec, builddir, until_patch=None):
-    cmd = [ 'rpmbuild', '-bp', '--define',  '_builddir %s' % builddir ]
+    cmd = [ 'rpmbuild', '-bp', '--define',  '_builddir %s' % builddir, '--define', '_default_patch_fuzz 2' ]
     if until_patch is not None:
         cmd += [ '--define', '%%patch%d exit; #' % until_patch ]
     cmd += [ spec ]
