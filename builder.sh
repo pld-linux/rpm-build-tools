@@ -479,7 +479,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 is_rpmorg() {
 	local v
 
-	v=$(LANG=C rpm --version 2>&1)
+	v=$(LC_ALL=C LANG=C rpm --version 2>&1)
 	v=${v#RPM version } # rpm 4
 	v=${v#rpm \(RPM\) } # rpm 5
 
@@ -1896,7 +1896,7 @@ run_sub_builder() {
 # this requires following sudo rules:
 # - poldek --noask --caplookup -ug
 poldek_install() {
-	LANG=C $POLDEK_CMD --noask --caplookup --uniq -ug "$@"
+	LC_ALL=C LANG=C $POLDEK_CMD --noask --caplookup --uniq -ug "$@"
 }
 
 # install packages
@@ -2025,7 +2025,7 @@ _rpm_cnfl_check() {
 		DEPS=$(cat)
 	fi
 
-	LANG=C rpm -q --whatprovides $DEPS 2>/dev/null | awk '!/no package provides/ { print }'
+	LC_ALL=C LANG=C rpm -q --whatprovides $DEPS 2>/dev/null | awk '!/no package provides/ { print }'
 }
 
 # install deps via information from 'rpm-getdeps' or 'rpm --specsrpm'
