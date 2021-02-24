@@ -58,6 +58,17 @@ def diff(diffdir_org, diffdir, builddir, output):
                 raise
     logging.info("rediff generated as %s" % output)
 
+def diffstat(patch):
+    cmd = [ 'diffstat', patch ]
+    logging.info("running diffstat for: %s" % patch)
+    try:
+        subprocess.check_call(cmd, stdout=sys.stdout, stderr=sys.stderr,
+                              env={'LC_ALL': 'C.UTF-8'}, timeout=60)
+    except subprocess.CalledProcessError as err:
+        logging.error("running diffstat failed: %s" % err)
+    except FileNotFoundError as err:
+        logging.error("running diffstat failed: %s, install diffstat package?" % err)
+
 def main():
     parser = parser = argparse.ArgumentParser(description='rediff patches to avoid fuzzy hunks')
     parser.add_argument('spec', type=str, help='spec file name')
@@ -120,6 +131,9 @@ def main():
         tempspec.close()
 
         diff(appbuilddir + ".org", appbuilddir, builddir, os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
+
+        diffstat(os.path.join(topdir, os.path.join(appsourcedir, patch_name)))
+        diffstat(os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
 
         shutil.rmtree(builddir)
     tempdir.cleanup()
