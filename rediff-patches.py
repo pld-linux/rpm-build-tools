@@ -94,6 +94,7 @@ def main():
     parser = parser = argparse.ArgumentParser(description='rediff patches to avoid fuzzy hunks')
     parser.add_argument('spec', type=str, help='spec file name')
     parser.add_argument('-p', '--patches', type=str, help='comma separated list of patch numbers to rediff')
+    parser.add_argument('-s', '--skip-patches', type=str, help='comma separated list of patch numbers to skip rediff')
     parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
     args = parser.parse_args()
 
@@ -106,6 +107,9 @@ def main():
 
     if args.patches:
         args.patches = [int(x) for x in args.patches.split(',')]
+
+    if args.skip_patches:
+        args.skip_patches = [int(x) for x in args.skip_patches.split(',')]
 
     specfile = args.spec
     appsourcedir = os.path.dirname(os.path.abspath(specfile))
@@ -138,6 +142,8 @@ def main():
 
     for patch_nr in applied_patches.keys():
         if args.patches and patch_nr not in args.patches:
+            continue
+        if args.skip_patches and patch_nr in args.skip_patches:
             continue
         patch_name = patches[patch_nr]
         logging.info("*** patch %d: %s" % (patch_nr, patch_name))
