@@ -40,8 +40,9 @@ def unpack(spec, builddir):
            '--define', '_default_patch_fuzz 2',
            spec ]
     logging.debug("running %s" % repr(cmd))
-    subprocess.check_call(cmd, stdout=sys.stderr, stderr=sys.stderr,
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True,
                           env={'LC_ALL': 'C.UTF-8'}, timeout=600)
+    logging.debug("unpacking exited with %d status code. STDOUT/STDERR: %s" % (res.returncode, res.stdout))
 
 def diff(diffdir_org, diffdir, builddir, output):
     diffdir_org = os.path.basename(diffdir_org)
