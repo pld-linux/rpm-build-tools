@@ -33,16 +33,36 @@ def prepare_spec(r, patch_nr, before=False):
     tempspec.flush()
     return tempspec
 
-def unpack(spec, builddir):
+def unpack(spec, appsourcedir, builddir):
     cmd = [ 'rpmbuild', '-bp',
            '--define',  '_builddir %s' % builddir,
+           '--define', '_specdir %s' % appsourcedir,
+           '--define', '_sourcedir %s' % appsourcedir,
            '--define', '_enable_debug_packages 0',
            '--define', '_default_patch_fuzz 2',
            spec ]
     logging.debug("running %s" % repr(cmd))
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True,
-                          env={'LC_ALL': 'C.UTF-8'}, timeout=600)
-    logging.debug("unpacking exited with %d status code. STDOUT/STDERR: %s" % (res.returncode, res.stdout))
+    try:
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True,
+                              env={'LC_ALL': 'C.UTF-8'}, timeout=600)
+    except subprocess.CalledProcessError as err:
+        logging.error("unpacking exited with status code %d." % err.returncode)
+        logging.error("STDOUT:")
+        if err.stdout:
+            for line in err.stdout.decode('utf-8').split("\n"):
+                logging.error(line)
+        logging.error("STDERR:")
+        if err.stderr:
+            for line in err.stderr.decode('utf-8').split("\n"):
+                logging.error(line)
+        raise
+    else:
+        logging.debug("unpacking exited with status code %d." % res.returncode)
+        logging.debug("STDOUT/STDERR:")
+        if res.stdout:
+            for line in res.stdout.decode('utf-8').split("\n"):
+                logging.debug(line)
+
 
 def diff(diffdir_org, diffdir, builddir, output):
     diffdir_org = os.path.basename(diffdir_org)
@@ -88,6 +108,7 @@ def main():
         args.patches = [int(x) for x in args.patches.split(',')]
 
     specfile = args.spec
+    appsourcedir = os.path.dirname(os.path.abspath(specfile))
 
     tempdir = tempfile.TemporaryDirectory(dir="/dev/shm")
     topdir = tempdir.name
@@ -113,7 +134,6 @@ def main():
         patch_args = m.group('patch_args')
         applied_patches[patch_nr] = patch_args
 
-    appsourcedir = rpm.expandMacro("%{_sourcedir}")
     appbuilddir = rpm.expandMacro("%{_builddir}/%{?buildsubdir}")
 
     for patch_nr in applied_patches.keys():
@@ -123,12 +143,12 @@ def main():
         logging.info("*** patch %d: %s" % (patch_nr, patch_name))
 
         tempspec = prepare_spec(r, patch_nr, before=True)
-        unpack(tempspec.name, builddir)
+        unpack(tempspec.name, appsourcedir, builddir)
         tempspec.close()
         os.rename(appbuilddir, appbuilddir + ".org")
 
         tempspec = prepare_spec(r, patch_nr, before=False)
-        unpack(tempspec.name, builddir)
+        unpack(tempspec.name, appsourcedir, builddir)
         tempspec.close()
 
         diff(appbuilddir + ".org", appbuilddir, builddir, os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
