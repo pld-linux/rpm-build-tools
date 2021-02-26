@@ -8,12 +8,19 @@ set -e
 
 get_dump() {
 	local specfile="$1"
-	if ! out=$(rpm --specfile "$specfile" --define 'prep %dump' -q 2>&1); then
-		echo >&2 "$out"
+	local rpm_dump
+	local success="y"
+	if [ -x /usr/bin/rpm-specdump ]; then
+		rpm_dump=$(rpm-specdump "$specfile" 2>&1) || success="n"
+	else
+		rpm_dump=$(rpm --specfile "$specfile" --define 'prep %dump' -q 2>&1) || success="n"
+	fi
+	if [ "$success" != "y" ]; then
+		echo >&2 "$rpm_dump"
 		echo >&2 "You need icon files being present in SOURCES."
 		exit 1
 	fi
-	echo "$out"
+	echo "$rpm_dump"
 }
 
 usage="Usage:
