@@ -273,7 +273,6 @@ download_wget() {
 	local outfile=$1 url=$2 retval wget_help
 	if [ -z "${WGET_OPTS_SET+x}" ]; then
 		wget_help="$(wget --help 2>&1)"
-		echo "$wget_help" | grep -q -- ' --no-check-certificate ' && WGET_OPTS="$WGET_OPTS --no-check-certificate"
 		echo "$wget_help" | grep -q -- ' --inet ' && WGET_OPTS="$WGET_OPTS --inet"
 		echo "$wget_help" | grep -q -- ' --retry-connrefused ' && WGET_OPTS="$WGET_OPTS --retry-connrefused"
 		echo "$wget_help" | grep -q -- ' --no-iri ' && WGET_OPTS="$WGET_OPTS --no-iri"
