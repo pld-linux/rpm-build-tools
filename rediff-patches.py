@@ -64,11 +64,23 @@ def unpack(spec, appsourcedir, builddir):
                 logging.debug(line)
 
 
-def diff(diffdir_org, diffdir, builddir, output):
+def patch_comment_get(patch):
+    patch_comment = ""
+    with open(patch, 'rt') as f:
+        for line in f:
+            if line.startswith('diff ') or line.startswith('--- '):
+                break
+            patch_comment += line
+    return patch_comment
+
+def diff(diffdir_org, diffdir, builddir, patch_comment, output):
     diffdir_org = os.path.basename(diffdir_org)
     diffdir = os.path.basename(diffdir)
 
     with open(output, 'wt') as f:
+        if patch_comment:
+            f.write(patch_comment)
+            f.flush()
         cmd = [ 'diff', '-urNp', '-x', '*.orig', diffdir_org, diffdir ]
         logging.debug("running %s" % repr(cmd))
         try:
@@ -157,7 +169,12 @@ def main():
         unpack(tempspec.name, appsourcedir, builddir)
         tempspec.close()
 
-        diff(appbuilddir + ".org", appbuilddir, builddir, os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
+        patch_comment = patch_comment_get(patch_name)
+        diff(appbuilddir + ".org",
+             appbuilddir,
+             builddir,
+             patch_comment,
+             os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
 
         diffstat(os.path.join(topdir, os.path.join(appsourcedir, patch_name)))
         diffstat(os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
