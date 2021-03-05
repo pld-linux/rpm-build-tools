@@ -66,12 +66,14 @@ def unpack(spec, appsourcedir, builddir):
 
 def patch_comment_get(patch):
     patch_comment = ""
+    patch_got = False
     with open(patch, 'rt') as f:
         for line in f:
             if line.startswith('diff ') or line.startswith('--- '):
+                patch_got = True
                 break
             patch_comment += line
-    return patch_comment
+    return patch_comment if patch_got else ""
 
 def diff(diffdir_org, diffdir, builddir, patch_comment, output):
     diffdir_org = os.path.basename(diffdir_org)
