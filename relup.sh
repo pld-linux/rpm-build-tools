@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # script to run after "release bump" style change.
 # takes Release from spec and creates commit with message
 # groups similiar commits together.
