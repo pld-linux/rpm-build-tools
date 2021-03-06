@@ -208,8 +208,9 @@ for pkg in "$@"; do
 
 	# commit the changes
 	msg=""
-	[ -n "$message" ] && msg="$msg- $message$n"
-	msg="$msg- release ${rel%%%*} (by relup.sh)"
+	[ -n "$message" ] && msg="${msg}$message$n$n"
+	msg="${msg}Release ${rel%%%*} (by relup.sh)"
+
 	echo git commit -m "$msg" $spec
 	if [ "$test" != 1 ]; then
 		cd $pkgdir
