@@ -128,7 +128,10 @@ def main():
     specfile = args.spec
     appsourcedir = os.path.dirname(os.path.abspath(specfile))
 
-    tempdir = tempfile.TemporaryDirectory(dir="/dev/shm")
+    try:
+        tempdir = tempfile.TemporaryDirectory(dir="/dev/shm")
+    except FileNotFoundError as e:
+        tempdir = tempfile.TemporaryDirectory(dir="/tmp")
     topdir = tempdir.name
     builddir = os.path.join(topdir, 'BUILD')
 
