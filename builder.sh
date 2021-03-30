@@ -2189,11 +2189,11 @@ while [ $# -gt 0 ]; do
 		--http )
 			PROTOCOL="http"; shift ;;
 		-j)
-			RPMOPTS="${RPMOPTS} --define \"_smp_mflags -j$2\""
+			RPMOPTS="${RPMOPTS} --define \"__jobs $2\""
 			shift 2
 			;;
 		-j[0-9]*)
-			RPMOPTS="${RPMOPTS} --define \"_smp_mflags $1\""
+			RPMOPTS="${RPMOPTS} --define \"__jobs ${1#-j}\""
 			shift
 			;;
 		-p)
