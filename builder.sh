@@ -1700,7 +1700,7 @@ build_package() {
 	# may be set by user
 	unset GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_TESTING_PORCELAIN_COMMAND_LIST GIT_EDITOR
 	# fail if something still set
-	env | grep ^GIT_ && Exit_error err_build_fail
+	env | grep ^GIT_ && Exit_error err_build_fail "One of GIT_* env variables is still set. The builder script needs to be updated to unset that variable. In the meantime, unset it manually."
 
 	local specdir=$(insert_gitlog $SPECFILE)
 	ulimit -c unlimited
