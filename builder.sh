@@ -1698,7 +1698,7 @@ build_package() {
 	# this may be set by user
 	unset GIT_SSH
 	# may be set by user
-	unset GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_TESTING_PORCELAIN_COMMAND_LIST
+	unset GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_TESTING_PORCELAIN_COMMAND_LIST GIT_EDITOR
 	# fail if something still set
 	env | grep ^GIT_ && Exit_error err_build_fail
 
