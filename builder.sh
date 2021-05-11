@@ -151,9 +151,13 @@ REVERT_BROKEN_UPGRADE="yes"
 
 if rpm --specsrpm 2>/dev/null; then
 	FETCH_BUILD_REQUIRES_RPMSPECSRPM="yes"
+	FETCH_BUILD_REQUIRES_RPMSPEC_BINARY="no"
+	FETCH_BUILD_REQUIRES_RPMGETDEPS="no"
+elif [ -x /usr/bin/rpmspec ]; then
+	FETCH_BUILD_REQUIRES_RPMSPECSRPM="no"
+	FETCH_BUILD_REQUIRES_RPMSPEC_BINARY="yes"
 	FETCH_BUILD_REQUIRES_RPMGETDEPS="no"
 else
-	FETCH_BUILD_REQUIRES_RPMSPECSRPM="no"
 	if [ -x /usr/bin/rpm-getdeps ]; then
 		FETCH_BUILD_REQUIRES_RPMGETDEPS="yes"
 	else
@@ -2035,6 +2039,10 @@ install_build_requires_rpmdeps() {
 		CNFL=$(eval rpm-getdeps $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '/^\-/ { print $3 } ' | _rpm_cnfl_check | xargs)
 		DEPS=$(eval rpm-getdeps $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 	fi
+	if [ "$FETCH_BUILD_REQUIRES_RPMSPEC_BINARY" = "yes" ]; then
+		CNFL=$(eval rpmspec --query --conflicts     $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '{print $1}' | _rpm_cnfl_check | xargs);
+		DEPS=$(eval rpmspec --query --buildrequires $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '{print $1}' | _rpm_prov_check | xargs);
+	fi
 	if [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
 		CNFL=$(eval rpm -q --specsrpm --conflicts $BCOND $RPMOPTS $SPECFILE | awk '{print $1}' | _rpm_cnfl_check | xargs)
 		DEPS=$(eval rpm -q --specsrpm --requires $BCOND $RPMOPTS $SPECFILE | awk '{print $1}' | _rpm_prov_check | xargs)
@@ -2058,7 +2066,7 @@ fetch_build_requires()
 	fi
 
 	update_shell_title "fetch build requires"
-	if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ] || [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
+	if [ "$FETCH_BUILD_REQUIRES_RPMGETDEPS" = "yes" ] || [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ] || [ "$FETCH_BUILD_REQUIRES_RPMSPEC_BINARY" = "yes" ]; then
 		install_build_requires_rpmdeps
 		return
 	fi
