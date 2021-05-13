@@ -10,9 +10,9 @@ Release:	10
 License:	GPL
 Group:		Applications/File
 Source0:	builder.sh
-Source4:	shrc.sh
-Source5:	bash-prompt.sh
-Source6:	dropin
+Source1:	shrc.sh
+Source2:	bash-prompt.sh
+Source3:	dropin
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
 Requires:	git-core >= 1.7
@@ -68,9 +68,9 @@ cp -p %{SOURCE0} .
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_libdir},/etc/shrc.d}
 install -p builder.sh $RPM_BUILD_ROOT%{_bindir}/builder
-install -p %{SOURCE6} $RPM_BUILD_ROOT%{_bindir}
-install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/shrc.d/rpm-build.sh
-install -p %{SOURCE5} $RPM_BUILD_ROOT%{_libdir}/bash-prompt.sh
+install -p %{SOURCE3} $RPM_BUILD_ROOT%{_bindir}
+install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/shrc.d/rpm-build.sh
+install -p %{SOURCE2} $RPM_BUILD_ROOT%{_libdir}/bash-prompt.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
