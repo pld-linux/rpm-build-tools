@@ -5,14 +5,18 @@ Summary(pt_BR.UTF-8):	Scripts e programas executáveis usados para construir pac
 Summary(ru.UTF-8):	Скрипты и утилиты, необходимые для сборки пакетов
 Summary(uk.UTF-8):	Скрипти та утиліти, необхідні для побудови пакетів
 Name:		rpm-build-tools
-Version:	4.9
-Release:	10
+Version:	4.10
+Release:	1
 License:	GPL
 Group:		Applications/File
 Source0:	builder.sh
 Source1:	shrc.sh
 Source2:	bash-prompt.sh
 Source3:	dropin
+Source4:	relup.sh
+Source5:	sort-pkgs
+Source6:	check-shebang.py
+Source7:	rediff-patches.py
 BuildRequires:	sed >= 4.0
 Requires:	gawk >= 3.1.7
 Requires:	git-core >= 1.7
@@ -20,6 +24,10 @@ Requires:	grep
 Requires:	less
 Requires:	openssh-clients
 Requires:	perl-base
+Requires:	python3
+Requires:	python3
+Requires:	python3-modules
+Requires:	python3-rpm
 Requires:	rpm-build
 Requires:	rpmbuild(macros) >= 1.651
 Requires:	sed >= 4.0
@@ -72,12 +80,21 @@ install -p %{SOURCE3} $RPM_BUILD_ROOT%{_bindir}
 install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/shrc.d/rpm-build.sh
 install -p %{SOURCE2} $RPM_BUILD_ROOT%{_libdir}/bash-prompt.sh
 
+install -p %{SOURCE4} $RPM_BUILD_ROOT%{_bindir}/relup
+install -p %{SOURCE5} $RPM_BUILD_ROOT%{_bindir}/sort-pkgs
+install -p %{SOURCE6} $RPM_BUILD_ROOT%{_bindir}/check-shebang
+install -p %{SOURCE7} $RPM_BUILD_ROOT%{_bindir}/rediff-patches
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/builder
+%attr(755,root,root) %{_bindir}/check-shebang
 %attr(755,root,root) %{_bindir}/dropin
+%attr(755,root,root) %{_bindir}/rediff-patches
+%attr(755,root,root) %{_bindir}/relup
+%attr(755,root,root) %{_bindir}/sort-pkgs
 %config(noreplace) %verify(not md5 mtime size) /etc/shrc.d/rpm-build.sh
 %{_libdir}/bash-prompt.sh
