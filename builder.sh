@@ -596,7 +596,7 @@ depspecname() {
 
 		s/apache\(EAPI\)-devel/apache-devel/
 
-		s/db-devel/db5.3-devel/
+		s/^db-devel/db5.3-devel/
 		s/libjpeg-devel/libjpeg-turbo-devel/
 	'
 }
