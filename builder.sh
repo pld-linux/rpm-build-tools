@@ -2040,7 +2040,7 @@ install_build_requires_rpmdeps() {
 		DEPS=$(eval rpm-getdeps $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '/^\+/ { print $3 } ' | _rpm_prov_check | xargs)
 	fi
 	if [ "$FETCH_BUILD_REQUIRES_RPMSPEC_BINARY" = "yes" ]; then
-		CNFL=$(eval rpmspec --query --conflicts     $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '{print $1}' | _rpm_cnfl_check | xargs);
+		CNFL=$(eval rpmspec --query --buildconflicts     $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '{print $1}' | _rpm_cnfl_check | xargs);
 		DEPS=$(eval rpmspec --query --buildrequires $BCOND $RPMOPTS $SPECFILE 2> /dev/null | awk '{print $1}' | _rpm_prov_check | xargs);
 	fi
 	if [ "$FETCH_BUILD_REQUIRES_RPMSPECSRPM" = "yes" ]; then
