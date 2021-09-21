@@ -186,7 +186,9 @@ fi
 #LOGFILE='../LOGS/log.$PACKAGE_NAME.$DATE'
 #TITLECHANGE=no
 
-SU_SUDO="sudo"
+if [ "$(id -u )" != "0" ]; then
+	SU_SUDO="sudo"
+fi
 
 if [ -n "$HOME_ETC" ]; then
 	USER_CFG="$HOME_ETC/.builderrc"
