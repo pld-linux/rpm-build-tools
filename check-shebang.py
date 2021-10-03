@@ -20,6 +20,7 @@ rep = {
     'perl': [],
     'ruby': [],
     'bash': [],
+    'awk': [],
 }
 
 skip_files = [".h", ".c", ".cc", ".gif", ".png", ".jpg", ".ko", ".gz", ".o"]
@@ -74,6 +75,8 @@ for root, dirs, files in os.walk(args.sourcedir):
                     rep['ruby'].append(fpath)
                 elif re.compile(r'^#!\s*/usr/bin/env\s+bash\s').match(shebang):
                     rep['bash'].append(fpath)
+                elif re.compile(r'^#!\s*/usr/bin/env\s+awk\s').match(shebang):
+                    rep['awk'].append(fpath)
         except FileNotFoundError:
             pass
 
@@ -102,3 +105,4 @@ gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python3(\s|$),#!%{__python3}\\1,' 
 gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+perl(\s|$),#!%{__perl}\\1,' \\", rep['perl'])
 gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+ruby(\s|$),#!%{__ruby}\\1,' \\", rep['ruby'])
 gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+bash(\s|$),#!/bin/bash\\1,' \\", rep['bash'])
+gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+awk(\s|$),#!/bin/awk\\1,' \\", rep['awk'])
