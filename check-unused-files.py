@@ -5,10 +5,22 @@ import sys
 import os
 import fnmatch
 
+def filterout_warnings(err, separator="\n"):
+    def filter():
+        for line in err.split(separator):
+            if line.startswith("warning: "):
+                continue
+            yield line
+
+    return separator.join(list(filter()))
+
 def specdump(spec):
     p = subprocess.Popen(['rpm-specdump', spec], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate(None)
     p.wait()
+
+    err = filterout_warnings(err)
+
     return (out, err)
 
 if len(sys.argv) == 2:
