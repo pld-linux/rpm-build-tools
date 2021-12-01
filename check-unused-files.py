@@ -5,6 +5,12 @@ import sys
 import os
 import fnmatch
 
+def specdump(spec):
+    p = subprocess.Popen(['rpm-specdump', spec], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, err) = p.communicate(None)
+    p.wait()
+    return (out, err)
+
 if len(sys.argv) == 2:
     spec = sys.argv[1]
 else:
@@ -19,9 +25,7 @@ dir = os.path.dirname(spec)
 if dir == '':
     dir = '.'
 
-p = subprocess.Popen(['rpm-specdump', spec], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-(out, err) = p.communicate(None)
-p.wait()
+(out, err) = specdump(spec)
 if err:
     print >> sys.stderr, "%s: %s" % (sys.argv[0], err)
     sys.exit(1)
