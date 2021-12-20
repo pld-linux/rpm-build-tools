@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # will build package, skipping %prep and %build stage
 # i use it a lot!
 #
@@ -19,6 +19,13 @@
 
 set -e
 
+dump() {
+	local a
+	for a in "$@"; do
+		echo "$a"
+	done
+}
+
 skip_dep_generators() {
 	local dep
 	for dep in \
@@ -35,8 +42,8 @@ skip_dep_generators() {
 		python \
 		ruby \
 	; do
-		printf "--define __%s_provides%%{nil}\n" $dep
-		printf "--define __%s_requires%%{nil}\n" $dep
+		args+=("--define=__${dep}_provides %%{nil}")
+		args+=("--define=__${dep}_requires %%{nil}")
 	done
 }
 
@@ -68,10 +75,17 @@ rpmbuild() {
 	# we use %__ldconfig variable to test are we on rpm 4.4.9
 	# on 4.4.9 we should not redefine %clean to contain %clean, and redefine %__spec_clean_body instead
 	# on 4.4.2 we must redefine %clean to contain %clean
+	local -a args=()
+	if [ -n "${bb+1}" ]; then
+		skip_dep_generators
+		args+=(--define '%py_postclean(-x:) %{nil}')
+	fi
+
 	set -x
 	/usr/bin/rpmbuild \
 		${TARGET:+--target $TARGET} \
 		--short-circuit \
+		--define 'disable_short_circuited_deps 0' \
 		--define "_specdir $specdir" --define "_sourcedir $specdir" \
 		--define 'clean %%%{!?__ldconfig:clean}%{?__ldconfig:check} \
 		exit 0%{nil}' \
@@ -82,8 +96,7 @@ rpmbuild() {
 		--define '__spec_install_pre %___build_pre' \
 		--define '__spec_clean_body %{nil}' \
 		--define '_enable_debug_packages 0' \
-		${bb+$(skip_dep_generators)} \
-		${bb+--define '%py_postclean(-x:) %{nil}'} \
+		"${args[@]}" \
 		$a || exit
 }
 
