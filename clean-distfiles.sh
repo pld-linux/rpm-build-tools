@@ -21,7 +21,7 @@ fi
 
 cd "$topdir"
 
-ext=bz2,gz,rar,tgz,tbz2,zip,jar,Z,tar,png,ico,xpm,gif,rpm,bin,run,exe,iso,xpi,ZIP,dll,pdf,xz,deb,crx
+ext=bz2,gz,rar,tgz,tbz2,zip,jar,Z,tar,png,ico,xpm,gif,rpm,bin,run,exe,iso,xpi,ZIP,dll,pdf,xz,deb,crx,war,gem,bz,lzma
 ls -ldrSh */*.{$ext} || :
 echo */*.{$ext} | xargs stat -c %s | awk '{s+=$1} END {printf("Total: %d MiB\n", s/1014/1024)}'
 
@@ -29,5 +29,7 @@ echo Move to $purgedir? Hit Ctrl+C to abort
 read a
 
 install -d $purgedir
-mv */*.{$ext} $purgedir
+mv */*.{$ext} $purgedir || :
 rmdir $purgedir || :
+
+du -sh "$purgedir"
