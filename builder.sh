@@ -2756,5 +2756,6 @@ esac
 if [ -f "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES" -a "$REMOVE_BUILD_REQUIRES" != "" ]; then
 	rm "`pwd`/.${SPECFILE}_INSTALLED_PACKAGES"
 fi
+test -d "$__PWD" && cd "$__PWD"
 
 # vi:syntax=sh:ts=4:sw=4:noet
