@@ -23,7 +23,7 @@ if [ -n "$not_installed" ]; then
   exit 1
 fi
 
-while getopts p:o:fvh OPTNAME; do
+while getopts :p:o:fvh OPTNAME; do
   case $OPTNAME in
     p)
       force_cargo_package="$OPTARG"
@@ -42,7 +42,7 @@ while getopts p:o:fvh OPTNAME; do
       exit 0
       ;;
     ?)
-      echo "ERROR: unknown option '-$OPTNAME'" >&2
+      echo "ERROR: unknown option '-$OPTARG'" >&2
       usage
       exit 1
       ;;
