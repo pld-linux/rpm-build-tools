@@ -16,7 +16,15 @@ BR_PATTERN = re.compile('BuildRequires:\s+(.*?)(\s|$)')
 PACKAGE_PATTERN_WITH_N = re.compile('%package\s+-n\s+(.*)')
 PACKAGE_PATTERN = re.compile('%package\s+(.*)')
 
-DIR = os.getenv("HOME") + '/rpm/packages'
+try:
+    import rpm
+    DIR = rpm.expandMacro('%_topdir')
+except ModuleNotFoundError:
+    try:
+        import subprocess
+        DIR = subprocess.check_output(['rpm', '-E', '%_topdir']).decode('utf-8').strip()
+    except:
+        DIR = os.getenv("HOME") + '/rpm/packages'
 
 BUILD_REQUIRES = {}
 PACKAGES = {}
