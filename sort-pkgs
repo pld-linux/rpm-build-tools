@@ -2,7 +2,7 @@
 
 """
 This script tries to set ordering in which packages ought to be sent to builders.
-Input: file with names of packages (without the .spec suffix). One package name per line.
+Input: file with names of packages. One package name per line.
 Output: sorted packages on stdout.
 
 If the script goes in a infinite loop, that means there is a cycle or other bug.
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         sys.exit(1)
     with open(sys.argv[1], 'r') as f:
         for line in f:
-            spec = line.rstrip()
+            spec = os.path.basename(os.path.normpath(line.rstrip())).removesuffix('.spec')
             parse_spec(spec)
 
     for spec in SPECS:
