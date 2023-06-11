@@ -2192,6 +2192,8 @@ while [ $# -gt 0 ]; do
 			;;
 		-g | --get )
 			COMMAND="get"; shift ;;
+		-gs | --get-spec )
+			COMMAND="get_spec"; shift ;;
 		-h | --help )
 			COMMAND="usage"; shift ;;
 		--ftp )
@@ -2640,6 +2642,14 @@ case "$COMMAND" in
 		get_files $SOURCES $PATCHES
 		check_md5 $SOURCES
 		fetch_build_requires
+		;;
+	"get_spec" )
+		init_builder
+		if [ -z "$SPECFILE" ]; then
+			Exit_error err_no_spec_in_cmdl
+		fi
+
+		get_spec
 		;;
 	"update_md5" )
 		init_builder
