@@ -87,7 +87,7 @@ LOGFILE=''
 
 # use teeboth Perl wrapper
 # temporary option to disable if broken
-USE_TEEBOTH=yes
+command -v perl > /dev/null 2>&1 && USE_TEEBOTH=yes || USE_TEEBOTH=no
 
 LOGDIR=""
 LOGDIROK=""
