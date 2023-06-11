@@ -1290,11 +1290,11 @@ update_md5() {
 			fi
 			md5=$(md5sum "$fp" | cut -f1 -d' ')
 			echo "Updating $srcno ($md5: $fp)."
-			perl -i -ne '
-				print unless (/^\s*#\s*(No)?'$srcno'-md5\s*:/i or /^\s*BuildRequires:\s*digest\(%SOURCE'$srcno'\)/i);
-				print "'"$tag$md5"'\n" if /^'$srcno'\s*:\s+/i;
-			' \
-			$PACKAGE_DIR/$SPECFILE
+			sed -i \
+				-e '/^\(\s*#\s*\(No\)\?'$srcno'-md5\s*:\|\s*BuildRequires:\s*digest(%SOURCE'$srcno')\)/Id' \
+				-e '/^'$srcno'\s*:\s\+/Ia \
+'"$tag$md5" \
+				$PACKAGE_DIR/$SPECFILE
 		fi
 	done
 }
