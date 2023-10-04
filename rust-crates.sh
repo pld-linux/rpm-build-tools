@@ -110,7 +110,11 @@ if [ $(echo "$src_dir" | wc -l) -ne 1 ]; then
 fi
 
 cd "$src_dir${subdir:+/$subdir}"
-cargo vendor
+if command -v cargo-vendor-filterer > /dev/null 2> /dev/null; then
+  cargo vendor-filterer --platform='*-unknown-linux-*' --tier=2
+else
+  cargo vendor
+fi
 if [ $? -ne 0 ]; then
   echo "ERROR: cargo vendor failed" >&2
   exit 1
