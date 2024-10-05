@@ -149,6 +149,9 @@ TRY_UPGRADE=""
 # should the specfile be restored if upgrade failed?
 REVERT_BROKEN_UPGRADE="yes"
 
+# disable network for rpm build tool
+NONETWORK="unshare --user --net --map-current-user"
+
 if rpm --specsrpm 2>/dev/null; then
 	FETCH_BUILD_REQUIRES_RPMSPECSRPM="yes"
 	FETCH_BUILD_REQUIRES_RPMSPEC_BINARY="no"
@@ -362,6 +365,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -bl                 - execute the %files phase of <package>.spec
 -bs                 - get all files from PLD repo or HTTP/FTP and only pack
                       them into src.rpm,
+--bnet				- enable network access for rpm build tool
 --short-circuit     - short-circuit build
 -B, --branch        - add branch
 -c,
@@ -1711,7 +1715,7 @@ build_package() {
 	local specdir=$(insert_gitlog $SPECFILE)
 	ulimit -c unlimited
 	# FIXME: eval here is exactly why?
-	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
+	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} ${NONETWORK} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
 	retval=$?
 	rm -r $specdir
 
@@ -2243,6 +2247,9 @@ while [ $# -gt 0 ]; do
 			NOURLS="yes"
 			NOSRCS="yes"
 			ALWAYS_CVSUP="no"
+			shift;;
+		--bnet )
+			NONETWORK="";
 			shift;;
 		-pm | --prefer-mirrors )
 			PREFMIRRORS="yes"
