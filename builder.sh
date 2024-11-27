@@ -2422,6 +2422,10 @@ while [ $# -gt 0 ]; do
 			shift
 			RPMOPTS="${RPMOPTS} --nodeps"
 			;;
+		--noclean)
+			shift
+			RPMBUILDOPTS="${RPMBUILDOPTS} --noclean"
+			;;
 		-debug)
 			RPMBUILDOPTS="${RPMBUILDOPTS} -debug"; shift
 			;;
