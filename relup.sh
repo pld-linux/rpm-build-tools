@@ -17,10 +17,10 @@ get_dump() {
 	fi
 	if [ "$success" != "y" ]; then
 		echo >&2 "$rpm_dump"
-		echo >&2 "You need icon files being present in SOURCES."
-		exit 1
+		return 1
 	fi
 	echo "$rpm_dump"
+	return 0
 }
 
 usage="Usage:
@@ -44,20 +44,26 @@ get_release() {
 	local specfile="$1"
 	rel=$(awk '/^%define[ 	]+_?rel[ 	]+/{print $NF}' $specfile)
 	if [ -z "$rel" ]; then
-		dump=$(get_dump "$specfile")
+		dump=$(get_dump "$specfile") || return 1
 		rel=$(echo "$dump" | awk '$2~/^(PACKAGE_)?RELEASE$/{print $NF; exit}')
 	fi
 	echo $rel
+	return 0
 }
 
 set_release() {
 	local specfile="$1"
 	local rel="$2"
 	local newrel="$3"
+	if [ -z "$newrel" ]; then
+		echo >&2 "Refusing to set empty release."
+		return 1
+	fi
 	sed -i -e "
 		s/^\(%define[ \t]\+_\?rel[ \t]\+\)$rel\$/\1$newrel/
 		s/^\(Release:[ \t]\+\)$rel\$/\1$newrel/
 	" $specfile
+	return 0
 }
 
 bump_release() {
@@ -191,19 +197,19 @@ for pkg in "$@"; do
 	[ "$get" = 1 ] && continue
 
 	# update .spec files
-	rel=$(get_release "$spec")
+	rel=$(get_release "$spec") || exit 1
 	if [ "$inc" = 1 ]; then
 		if [[ $rel = *%* ]]; then
 			relmacro=${rel#*%}
 			newrel=$(bump_release ${rel%%%*})
-			set_release "$spec" $rel "${newrel}%${relmacro}"
+			set_release "$spec" $rel "${newrel}%${relmacro}" || exit 1
 		else
 			newrel=$(bump_release ${rel})
-			set_release "$spec" $rel $newrel
+			set_release "$spec" $rel $newrel || exit 1
 		fi
 
 		# refetch release
-		rel=$(get_release "$spec")
+		rel=$(get_release "$spec") || exit 1
 	fi
 
 	# commit the changes
