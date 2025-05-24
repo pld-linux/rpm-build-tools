@@ -20,6 +20,7 @@ rep = {
     'perl': [],
     'ruby': [],
     'bash': [],
+    'zsh': [],
     'awk': [],
 }
 
@@ -75,6 +76,8 @@ for root, dirs, files in os.walk(args.sourcedir):
                     rep['ruby'].append(fpath)
                 elif re.compile(r'^#!\s*/usr/bin/env\s+bash\s').match(shebang):
                     rep['bash'].append(fpath)
+                elif re.compile(r'^#!\s*/usr/bin/env\s+zsh\s').match(shebang):
+                    rep['zsh'].append(fpath)
                 elif re.compile(r'^#!\s*/usr/bin/env\s+awk\s').match(shebang):
                     rep['awk'].append(fpath)
         except FileNotFoundError:
@@ -99,10 +102,11 @@ if args.buildroot:
     print("--buildroot=%s " % args.buildroot, end='')
 print("%s\n" % args.sourcedir)
 
-gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python2(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/env\s+python(\s|$),#!%{__python}\\1,' -e '1s,#!\s*/usr/bin/python(\s|$),#!%{__python}\\1,' \\",
+gf(r"%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python2(\s|$),#!%{__python}\1,' -e '1s,#!\s*/usr/bin/env\s+python(\s|$),#!%{__python}\1,' -e '1s,#!\s*/usr/bin/python(\s|$),#!%{__python}\1,' \ ",
    rep['python2'])
-gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python3(\s|$),#!%{__python3}\\1,' \\", rep['python3'])
-gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+perl(\s|$),#!%{__perl}\\1,' \\", rep['perl'])
-gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+ruby(\s|$),#!%{__ruby}\\1,' \\", rep['ruby'])
-gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+bash(\s|$),#!/bin/bash\\1,' \\", rep['bash'])
-gf("%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+awk(\s|$),#!/bin/awk\\1,' \\", rep['awk'])
+gf(r"%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+python3(\s|$),#!%{__python3}\1,' \ ", rep['python3'])
+gf(r"%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+perl(\s|$),#!%{__perl}\1,' \ ", rep['perl'])
+gf(r"%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+ruby(\s|$),#!%{__ruby}\1,' \ ", rep['ruby'])
+gf(r"%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+bash(\s|$),#!/bin/bash\1,' \ ", rep['bash'])
+gf(r"%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+zsh(\s|$),#!/bin/zsh\1,' \ ", rep['zsh'])
+gf(r"%{__sed} -E -i -e '1s,#!\s*/usr/bin/env\s+awk(\s|$),#!/bin/awk\1,' \ ", rep['awk'])
