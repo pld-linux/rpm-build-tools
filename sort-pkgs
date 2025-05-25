@@ -12,9 +12,9 @@ import os
 import re
 import sys
 
-BR_PATTERN = re.compile('BuildRequires:\s+(.*?)(\s|$)')
-PACKAGE_PATTERN_WITH_N = re.compile('%package\s+-n\s+(.*)')
-PACKAGE_PATTERN = re.compile('%package\s+(.*)')
+BR_PATTERN = re.compile(r'BuildRequires:\s+(.*?)(\s|$)')
+PACKAGE_PATTERN_WITH_N = re.compile(r'%package\s+-n\s+(.*)')
+PACKAGE_PATTERN = re.compile(r'%package\s+(.*)')
 
 try:
     import rpm
