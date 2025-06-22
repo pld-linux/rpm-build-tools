@@ -113,6 +113,7 @@ cd "$src_dir${subdir:+/$subdir}"
 if command -v cargo-vendor-filterer > /dev/null 2> /dev/null; then
   cargo vendor-filterer --platform='*-unknown-linux-*' --tier=2
 else
+  echo 'WARNING: cargo vendor-filterer not found. Install cargo-vendor-filterer for smaller crates tarballs.' >&2
   cargo vendor
 fi
 if [ $? -ne 0 ]; then
