@@ -89,9 +89,6 @@ def patch_comment_get(patch):
     return patch_comment if patch_got else ""
 
 def diff(diffdir_org, diffdir, builddir, patch_comment, output):
-    diffdir_org = os.path.basename(diffdir_org)
-    diffdir = os.path.basename(diffdir)
-
     with open(output, 'wt') as f:
         if patch_comment:
             f.write(patch_comment)
@@ -103,7 +100,6 @@ def diff(diffdir_org, diffdir, builddir, patch_comment, output):
                                   env={'LC_ALL': 'C.UTF-8'}, timeout=600)
         except subprocess.CalledProcessError as err:
             if err.returncode != 1:
-                print(f"builddir: {builddir}", file=sys.stderr)
                 raise
     logging.info("rediff generated as %s" % output)
 
@@ -181,9 +177,8 @@ def main():
         applied_patches[patch_nr] = patch_args
         i += 1
 
-    appbuilddir = rpm.expandMacro("%{_builddir}/%{?buildsubdir}")
-
-    print(applied_patches)
+    appbuilddir = rpm.expandMacro("%{_builddir}")
+    appbuildsubdir = rpm.expandMacro("%{?buildsubdir}")
 
     for patch_nr in applied_patches.keys():
         if args.patches and patch_nr not in args.patches:
@@ -201,11 +196,12 @@ def main():
         tempspec = prepare_spec(r, patch_nr, before=False)
         unpack(tempspec.name, appsourcedir, builddir)
         tempspec.close()
+        os.rename(os.path.join(appbuilddir + ".org", appbuildsubdir), os.path.join(appbuilddir, appbuildsubdir + ".org"))
 
         patch_comment = patch_comment_get(patch_name)
-        diff(appbuilddir + ".org",
+        diff(appbuildsubdir + ".org",
+             appbuildsubdir,
              appbuilddir,
-             builddir,
              patch_comment,
              os.path.join(topdir, os.path.join(appsourcedir, patch_name + ".rediff")))
 
