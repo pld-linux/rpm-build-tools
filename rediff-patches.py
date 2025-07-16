@@ -15,21 +15,34 @@ import tempfile
 
 RPMBUILD_ISPATCH = (1<<1)
 
+re_new_echo = re.compile(r'^echo\s+"Patch\s+#(?P<patch_number>\d+)')
+re_patch_cmd = re.compile(r'^\s*/?\S*patch\s+(?P<patch_args>.+) <')
+
 def prepare_spec(r, patch_nr, before=False):
     tempspec = tempfile.NamedTemporaryFile()
-    re_patch = re.compile(r'^%patch(?P<patch_number>\d+)\w*')
-    for line in r.parsed.split('\n'):
-        m = re_patch.match(line)
+
+    lines = r.parsed.split('\n')
+    i=0
+    i_break=None
+    while i < len(lines):
+        line = lines[i]
+        line = line.replace('--fuzz=0', '')
+
+        m = re_new_echo.match(line)
         if m:
             patch_number = int(m.group('patch_number'))
             if patch_nr == patch_number:
+                i_break = i + 2
                 if before:
                     tempspec.write(b"exit 0\n# here was patch%d\n" % patch_nr)
-                else:
-                    line = re.sub(r'#.*', "", line)
-                    tempspec.write(b"%s\nexit 0\n" % line.encode('utf-8'))
-                continue
+
+        if i_break and i == i_break:
+            tempspec.write(b"exit 0\n")
+            break
         tempspec.write(b"%s\n" % line.encode('utf-8'))
+
+        i += 1
+
     tempspec.flush()
     return tempspec
 
@@ -90,6 +103,7 @@ def diff(diffdir_org, diffdir, builddir, patch_comment, output):
                                   env={'LC_ALL': 'C.UTF-8'}, timeout=600)
         except subprocess.CalledProcessError as err:
             if err.returncode != 1:
+                print(f"builddir: {builddir}", file=sys.stderr)
                 raise
     logging.info("rediff generated as %s" % output)
 
@@ -116,7 +130,7 @@ def main():
     rpm.setVerbosity(rpm.RPMLOG_ERR)
 
     if args.verbose:
-            logging.basicConfig(level=logging.DEBUG)
+            logging.basicConfig(level=logging.DEBUG, force=True)
             rpm.setVerbosity(rpm.RPMLOG_DEBUG)
 
     if args.patches:
@@ -146,16 +160,30 @@ def main():
             patches[nr] = name
 
     applied_patches = collections.OrderedDict()
-    re_patch = re.compile(r'^%patch(?P<patch_number>\d+)\w*(?P<patch_args>.*)')
-    for line in r.parsed.split('\n'):
-        m = re_patch.match(line)
+
+    lines = r.parsed.split('\n')
+    i=0
+    while i < len(lines):
+        line = lines[i]
+
+        m = re_new_echo.match(line)
         if not m:
+            i += 1
             continue
+
         patch_nr = int(m.group('patch_number'))
-        patch_args = m.group('patch_args')
+        patch_args = ''
+        if i + 1 < len(lines):
+            m2 = re_patch_cmd.match(lines[i + 1])
+            if m2:
+                patch_args = m2.group('patch_args').strip()
+                i += 1
         applied_patches[patch_nr] = patch_args
+        i += 1
 
     appbuilddir = rpm.expandMacro("%{_builddir}/%{?buildsubdir}")
+
+    print(applied_patches)
 
     for patch_nr in applied_patches.keys():
         if args.patches and patch_nr not in args.patches:
