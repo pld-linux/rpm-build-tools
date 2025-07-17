@@ -53,6 +53,7 @@ def unpack(spec, appsourcedir, builddir):
            '--define', '_sourcedir %s' % appsourcedir,
            '--define', '_enable_debug_packages 0',
            '--define', '_default_patch_fuzz 2',
+           '--nodeps',
            spec ]
     logging.debug("running %s" % repr(cmd))
     try:
