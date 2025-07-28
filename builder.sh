@@ -2019,7 +2019,7 @@ _rpm_prov_check() {
 	echo "$out" | awk '/^no package provides/ { print $NF }'
 
 	# other deps (files)
-	echo "$out" | sed -rne 's/file (.*): No such file or directory/\1/p'
+	echo "$out" | sed -rne 's/(error: )?file (.*): No such file or directory/\2/p'
 }
 
 # checks if given package/files/provides exists in rpmdb.
