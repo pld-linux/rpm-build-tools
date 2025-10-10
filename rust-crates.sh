@@ -79,10 +79,25 @@ else
 fi
 
 spec_dump=$(rpm-specdump "$pkg_dir/$pkg_name.spec")
-pkg_version=$(echo "$spec_dump" | grep PACKAGE_VERSION | cut -f3 -d' ')
-pkg_src=$(basename $(echo "$spec_dump" | grep SOURCEURL0 | cut -f3- -d' '))
+pkg_version=$(grep PACKAGE_VERSION <<EOF | cut -f3 -d' '
+$spec_dump
+EOF
+)
+pkg_src=$(basename $(grep SOURCEURL0 <<EOF | cut -f3- -d' '
+$spec_dump
+EOF
+))
 if [ -z "$crates_file" ]; then
-  crates_file="$pkg_name-crates-$pkg_version.tar.xz"
+  # try to guess filename based on spec
+  crates_file=$(grep '^Source.*\(crates\|vendor\).*\.tar' "$pkg_dir/$pkg_name.spec" | # sources which look like crates
+    grep '%{[^}]*ver[^}]*}' | # macro with version is mandatory
+    head -n 1 | sed -e "s/%{name}/$pkg_name/" -e "s/%{[^}]*ver[^}]*}/$pkg_version/" | # best effort to replace known macros
+    grep -v '%[^%]' | # sanity check any unevaluated macros
+    sed -e 's/Source[0-9]*:[[:space:]]*//') # extract filename
+  if [ -z "$crates_file" ]; then
+    # fallback to fixed name
+    crates_file="$pkg_name-crates-$pkg_version.tar.xz"
+  fi
 fi
 
 if [ -e "$pkg_dir/$crates_file" ] && [ -z "$overwrite" ]; then
