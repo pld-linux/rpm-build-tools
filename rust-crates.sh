@@ -6,6 +6,7 @@ usage() {
   echo "\t-p <package_name>\tforce cargo <package_name> for version override instead of automatic detection"
   echo "\t-o <crates_file>\tforce output file name instead of automatically determined name"
   echo "\t-d <src subdirectory>\tsubdirectory within source directory where rust sources are located"
+  echo "\t-n\t\t\tcreate tarball without any parent directories"
   echo "\t-f\t\t\toverwrite creates file if it already exists"
   echo "\t-v\t\t\tset cargo package version to @@VERSION@@ for easier crates tarball reuse"
   echo "\t-h\t\t\tprint this help"
@@ -24,7 +25,7 @@ if [ -n "$not_installed" ]; then
   exit 1
 fi
 
-while getopts :p:o:d:fvh OPTNAME; do
+while getopts :p:o:d:nfvh OPTNAME; do
   case $OPTNAME in
     p)
       force_cargo_package="$OPTARG"
@@ -37,6 +38,9 @@ while getopts :p:o:d:fvh OPTNAME; do
       ;;
     d)
       subdir="$OPTARG"
+      ;;
+    n)
+      nonesting=
       ;;
     v)
       version_override=1
@@ -138,7 +142,7 @@ if [ -n "$version_override" ]; then
 fi
 
 cd "$tmpdir"
-tar cJf "$pkg_dir/$crates_file" "$src_dir${subdir:+/$subdir}"/{Cargo.lock,vendor}
+tar cJf "$pkg_dir/$crates_file" ${nonesting+-C }"$src_dir${subdir:+/$subdir}"/${nonesting+ }{Cargo.lock,vendor}
 echo "Created $pkg_dir/$crates_file"
 
 # vim: expandtab shiftwidth=2 tabstop=2
