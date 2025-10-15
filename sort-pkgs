@@ -8,6 +8,7 @@ Output: sorted packages on stdout.
 If the script goes in a infinite loop, that means there is a cycle or other bug.
 """
 
+import argparse
 import os
 import re
 import sys
@@ -30,6 +31,7 @@ BUILD_REQUIRES = {}
 PACKAGES = {}
 SPECS = {}
 VISITED = {}
+LEAVES = False
 
 
 def parse_spec(name):
@@ -70,13 +72,20 @@ def print_spec(spec):
         for br in BUILD_REQUIRES[spec]:
             name = PACKAGES.get(br, '')
             if name in SPECS:
-                if not VISITED[name]:
+                if LEAVES:
+                    return
+                elif not VISITED[name]:
                     print_spec(name)
         print(spec)
 
 
 if __name__ == "__main__":
-    with (len(sys.argv) > 1 and open(sys.argv[1], 'r') or sys.stdin) as f:
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('path', nargs='?', help='input file with list of packages, if not passed list is read from stdin')
+    argparser.add_argument('-l', action='store_true', help='show only leaves in dependency graph')
+    args = argparser.parse_args()
+    LEAVES = args.l
+    with (args.path and open(args.path, 'r') or sys.stdin) as f:
         for line in f:
             spec = os.path.basename(os.path.normpath(line.rstrip())).removesuffix('.spec')
             parse_spec(spec)
