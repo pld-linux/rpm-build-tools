@@ -365,7 +365,7 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 -bl                 - execute the %files phase of <package>.spec
 -bs                 - get all files from PLD repo or HTTP/FTP and only pack
                       them into src.rpm,
---bnet				- enable network access for rpm build tool
+--bnet              - enable network access for rpm build tool
 --short-circuit     - short-circuit build
 -B, --branch        - add branch
 -c,
@@ -2183,6 +2183,7 @@ while [ $# -gt 0 ]; do
 		-bp | --build-prep )
 			COMMAND="build-prep"; shift ;;
 		-bs | --build-source )
+			NONETWORK="";
 			COMMAND="build-source"; shift ;;
 		-B | --branch )
 			COMMAND="branch"; shift; TAG="${1}"; shift;;
