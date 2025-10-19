@@ -149,8 +149,8 @@ TRY_UPGRADE=""
 # should the specfile be restored if upgrade failed?
 REVERT_BROKEN_UPGRADE="yes"
 
-# disable network for rpm build tool
-NONETWORK="unshare --user --net --map-current-user"
+# disable network for rpm build tool, autodetect if it works (doesn't work in chroot and in vserver guest)
+unshare --user --net --map-current-user true 2> /dev/null && NONETWORK="unshare --user --net --map-current-user" || NONETWORK=""
 
 if rpm --specsrpm 2>/dev/null; then
 	FETCH_BUILD_REQUIRES_RPMSPECSRPM="yes"
@@ -2183,7 +2183,6 @@ while [ $# -gt 0 ]; do
 		-bp | --build-prep )
 			COMMAND="build-prep"; shift ;;
 		-bs | --build-source )
-			NONETWORK="";
 			COMMAND="build-source"; shift ;;
 		-B | --branch )
 			COMMAND="branch"; shift; TAG="${1}"; shift;;
