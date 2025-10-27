@@ -153,7 +153,7 @@ REVERT_BROKEN_UPGRADE="yes"
 IP=/sbin/ip
 
 # disable network for rpm build tool, autodetect if it works (doesn't work in chroot and in vserver guest)
-unshare --user --net --map-current-user true 2> /dev/null && NONETWORK="unshare --user --net --map-root-user $SHELL -c 'test -x $IP && $IP a add 127.0.0.1/8 dev lo && $IP a add ::1/128 dev lo noprefixroute; $IP l set lo up; exec unshare --map-user $(id -un) $SHELL'" || NONETWORK=""
+unshare --user --net --map-current-user true 2> /dev/null && NONETWORK="unshare --user --net --map-root-user $SHELL -c 'test -x $IP && $IP a add 127.0.0.1/8 dev lo && $IP a add ::1/128 dev lo noprefixroute && $IP l set lo up; exec unshare --map-user $(id -un) $SHELL'" || NONETWORK=""
 
 if rpm --specsrpm 2>/dev/null; then
 	FETCH_BUILD_REQUIRES_RPMSPECSRPM="yes"
