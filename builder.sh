@@ -39,6 +39,7 @@ VERSION="v0.35"
 VERSIONSTRING="\
 Build package utility from PLD Linux Packages repository
 $VERSION (C) 1999-2021 Free Penguins".
+SHELL=/bin/ksh
 
 # Clean PATH without /usr/local or user paths
 CLEAN_PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/X11R6/bin"
@@ -149,8 +150,10 @@ TRY_UPGRADE=""
 # should the specfile be restored if upgrade failed?
 REVERT_BROKEN_UPGRADE="yes"
 
+IP=/sbin/ip
+
 # disable network for rpm build tool, autodetect if it works (doesn't work in chroot and in vserver guest)
-unshare --user --net --map-current-user true 2> /dev/null && NONETWORK="unshare --user --net --map-current-user" || NONETWORK=""
+unshare --user --net --map-current-user true 2> /dev/null && NONETWORK="unshare --user --net --map-root-user $SHELL -c 'test -x $IP && $IP a add 127.0.0.1/8 dev lo; exec unshare --map-user $(id -un) $SHELL'" || NONETWORK=""
 
 if rpm --specsrpm 2>/dev/null; then
 	FETCH_BUILD_REQUIRES_RPMSPECSRPM="yes"
@@ -1715,7 +1718,10 @@ build_package() {
 	local specdir=$(insert_gitlog $SPECFILE)
 	ulimit -c unlimited
 	# FIXME: eval here is exactly why?
-	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} ${NONETWORK} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
+	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} ${NONETWORK:-$SHELL}<<EOF
+${DEBUG:+set -x; set -v}
+exec $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define '_specdir $PACKAGE_DIR' --define '_sourcedir $PACKAGE_DIR' $specdir/$SPECFILE
+EOF
 	retval=$?
 	rm -r $specdir
 
