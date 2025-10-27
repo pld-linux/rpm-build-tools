@@ -153,7 +153,7 @@ REVERT_BROKEN_UPGRADE="yes"
 IP=/sbin/ip
 
 # disable network for rpm build tool, autodetect if it works (doesn't work in chroot and in vserver guest)
-unshare --user --net --map-current-user true 2> /dev/null && NONETWORK="unshare --user --net --map-root-user $SHELL -\${DEBUG:+xv}c 'if test -x $IP; then $IP a add 127.0.0.1/8 dev lo 2> /dev/null && addr=1; $IP a add ::1/128 dev lo noprefixroute 2> /dev/null && addr=1; test -n \"\$addr\" && $IP l set lo up; unset addr; fi; exec unshare --map-user $(id -un) $SHELL'" || NONETWORK=""
+test -x "$APPDIR/no-net.sh" && "$APPDIR/no-net.sh" -t && NONETWORK="'$APPDIR/no-net.sh' \${DEBUG:+-D}" || NONETWORK=""
 
 if rpm --specsrpm 2>/dev/null; then
 	FETCH_BUILD_REQUIRES_RPMSPECSRPM="yes"
@@ -1718,10 +1718,7 @@ build_package() {
 	local specdir=$(insert_gitlog $SPECFILE)
 	ulimit -c unlimited
 	# FIXME: eval here is exactly why?
-	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} ${NONETWORK:-$SHELL}<<EOF
-${DEBUG:+set -x; set -v}
-exec $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define '_specdir $PACKAGE_DIR' --define '_sourcedir $PACKAGE_DIR' $specdir/$SPECFILE
-EOF
+	PATH=$CLEAN_PATH eval teeboth "'$logfile'" ${TIME_COMMAND} ${NICE_COMMAND} ${NONETWORK} $RPMBUILD $TARGET_SWITCH $BUILD_SWITCH -v $QUIET $CLEAN $RPMOPTS $RPMBUILDOPTS $BCOND --define \'_specdir $PACKAGE_DIR\' --define \'_sourcedir $PACKAGE_DIR\' $specdir/$SPECFILE
 	retval=$?
 	rm -r $specdir
 
