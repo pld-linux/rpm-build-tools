@@ -112,7 +112,7 @@ PACKAGE_RELEASE=""
 PACKAGE_VERSION=""
 PACKAGE_NAME=""
 ASSUMED_NAME=""
-PROTOCOL="http"
+PROTOCOL="https"
 IPOPT=""
 
 # use lftp by default when available
@@ -2205,8 +2205,8 @@ while [ $# -gt 0 ]; do
 			COMMAND="usage"; shift ;;
 		--ftp )
 			PROTOCOL="ftp"; shift ;;
-		--http )
-			PROTOCOL="http"; shift ;;
+		--http | --https )
+			PROTOCOL="https"; shift ;;
 		-j)
 			RPMOPTS="${RPMOPTS} --define \"__jobs $2\""
 			shift 2
