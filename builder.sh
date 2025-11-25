@@ -335,7 +335,7 @@ usage() {
 Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [-a|--add_cvs] [-b|-ba|--build]
 [-bb|--build-binary] [-bs|--build-source] [-bc] [-bi] [-bl] [-u|--try-upgrade]
 [{-cf|--cvs-force}] [{-B|--branch} <branch>] [--depth <number>]
-[-g|--get] [-h|--help] [--ftp] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
+[-g|--get] [-h|--help] [--http] [{-l|--logtofile} <logfile>] [-m|--mr-proper]
 [-q|--quiet] [--date <yyyy-mm-dd> [-r <tag>] [{-T|--tag <tag>]
 [-Tvs|--tag-version-stable] [-Ts|--tag-stable] [-Tv|--tag-version]
 [{-Tp|--tag-prefix} <prefix>] [{-tt|--test-tag}]
@@ -387,7 +387,6 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
 --get               - get <package>.spec and all related files from PLD repo
 -h, --help          - this message,
 -j N                - set %_smp_mflags to propagate concurrent jobs
---ftp               - use FTP protocol to access distfiles server
 --http              - use HTTP protocol to access distfiles server
 -l <logfile>, --logtofile=<logfile>
                     - log all to file,
@@ -2203,8 +2202,6 @@ while [ $# -gt 0 ]; do
 			COMMAND="get_spec"; shift ;;
 		-h | --help )
 			COMMAND="usage"; shift ;;
-		--ftp )
-			PROTOCOL="ftp"; shift ;;
 		--http | --https )
 			PROTOCOL="https"; shift ;;
 		-j)
