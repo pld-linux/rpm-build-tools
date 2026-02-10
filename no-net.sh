@@ -64,6 +64,6 @@ if test -x $IP; then
     $IP l set lo up
   fi
   unset addr
-  exec unshare --map-user $(id -un) --map-group $(id -gn) "\$@"
 fi
+exec unshare --map-user $(id -un) --map-group $(id -gn) "\$@"
 EOF
