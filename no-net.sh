@@ -54,12 +54,13 @@ fi
 
 exec unshare --user --net --map-root-user $SHELL -s${DEBUG:+xv} "$@" <<EOF
 if test -x $IP; then
+  exec </dev/tty
   $IP a add 127.0.0.1/8 dev lo 2> /dev/null && addr=1
   $IP a add ::1/128 dev lo noprefixroute 2> /dev/null && addr=1
   if test -n "\$addr"; then
     $IP l set lo up
   fi
   unset addr
-  exec unshare --map-user $(id -un) "\$@"
+  exec unshare --map-user $(id -un) --map-group $(id -gn) "\$@"
 fi
 EOF
