@@ -5,7 +5,6 @@ IP=/sbin/ip
 
 TEST_NS=""
 DEBUG=""
-[ -t 0 ] && TTY=yes || TTY=no
 
 usage() {
   echo "Usage: $0 [-t] [-D] [-h] <command> [args...]"
@@ -53,11 +52,18 @@ if [ -n "$DEBUG" ]; then
   set -v
 fi
 
-exec unshare --user --net --map-root-user $SHELL -s${DEBUG:+xv} "$@" <<EOF
+# find free descriptor to pass original stdin
+stdin_fd=3
+while { true <&$stdin_fd; } 2> /dev/null; do
+  stdin_fd=$((stdin_fd + 1))
+done
+
+# duplicate stdin
+eval exec $stdin_fd'<&0'
+
+# explicitly pass stdin_fd (mksh does not inherit duplicated descriptors by default)
+cat <<EOF | eval exec unshare --user --net --map-root-user $SHELL -s${DEBUG:+xv} '"$@"' $stdin_fd"<&$stdin_fd"
 if test -x $IP; then
-  if [ "$TTY" = "yes" ]; then
-    exec </dev/tty
-  fi
   $IP a add 127.0.0.1/8 dev lo 2> /dev/null && addr=1
   $IP a add ::1/128 dev lo noprefixroute 2> /dev/null && addr=1
   if test -n "\$addr"; then
@@ -65,5 +71,5 @@ if test -x $IP; then
   fi
   unset addr
 fi
-exec unshare --map-user $(id -un) --map-group $(id -gn) "\$@"
+exec unshare --map-user $(id -un) --map-group $(id -gn) "\$@" <&$stdin_fd
 EOF
