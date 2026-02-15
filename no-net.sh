@@ -62,7 +62,7 @@ done
 eval exec $stdin_fd'<&0'
 
 # explicitly pass stdin_fd (mksh does not inherit duplicated descriptors by default)
-cat <<EOF | eval exec unshare --user --net --map-root-user $SHELL -s${DEBUG:+xv} '"$@"' $stdin_fd"<&$stdin_fd"
+eval exec unshare --user --net --map-root-user $SHELL -s${DEBUG:+xv} '"$@"' $stdin_fd"<&$stdin_fd" <<EOF
 if test -x $IP; then
   $IP a add 127.0.0.1/8 dev lo 2> /dev/null && addr=1
   $IP a add ::1/128 dev lo noprefixroute 2> /dev/null && addr=1
