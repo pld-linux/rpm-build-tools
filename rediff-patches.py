@@ -186,7 +186,7 @@ def main():
             continue
         if args.skip_patches and patch_nr in args.skip_patches:
             continue
-        patch_name = patches[patch_nr]
+        patch_name = os.path.basename(patches[patch_nr])
         logging.info("*** patch %d: %s" % (patch_nr, patch_name))
 
         tempspec = prepare_spec(r, patch_nr, before=True)
