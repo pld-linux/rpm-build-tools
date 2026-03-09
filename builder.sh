@@ -1710,7 +1710,7 @@ build_package() {
 	# this may be set by user
 	unset GIT_SSH
 	# may be set by user
-	unset GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_TESTING_PORCELAIN_COMMAND_LIST GIT_EDITOR
+	unset GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_TESTING_PORCELAIN_COMMAND_LIST GIT_EDITOR GIT_PAGER
 	# fail if something still set
 	env | grep -vE "^($(echo GIT_ENV_WHITELIST $GIT_ENV_WHITELIST | tr ' ' '|'))=" | grep ^GIT_ && Exit_error err_build_fail "One of GIT_* env variables is still set. The builder script needs to be updated to unset that variable. In the meantime, unset it manually."
 
