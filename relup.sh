@@ -69,6 +69,10 @@ set_release() {
 bump_release() {
 	local release=$1 rel
 
+	if ! [[ $release =~ ^[0-9]+$ ]]; then
+		echo >&2 "ERROR: Release '$release' is not an integer, cannot auto-increment fractional releases."
+		return 1
+	fi
 	rel=$(expr ${release} + 1)
 	echo $rel
 }
@@ -201,10 +205,10 @@ for pkg in "$@"; do
 	if [ "$inc" = 1 ]; then
 		if [[ $rel = *%* ]]; then
 			relmacro=${rel#*%}
-			newrel=$(bump_release ${rel%%%*})
+			newrel=$(bump_release ${rel%%%*}) || exit 1
 			set_release "$spec" $rel "${newrel}%${relmacro}" || exit 1
 		else
-			newrel=$(bump_release ${rel})
+			newrel=$(bump_release ${rel}) || exit 1
 			set_release "$spec" $rel $newrel || exit 1
 		fi
 
