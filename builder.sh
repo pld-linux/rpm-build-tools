@@ -58,6 +58,8 @@ DEBUG=""
 NOURLS=""
 NOCVSSPEC=""
 NODIST=""
+DISTFILES_RETRY_COUNT=0
+DISTFILES_RETRY_DELAY=0
 NOINIT=""
 PREFMIRRORS=""
 UPDATE=""
@@ -392,6 +394,8 @@ Usage: builder [--all-branches] [-D|--debug] [-V|--version] [--short-version]  [
                     - log all to file,
 -ncs, --no-cvs-specs
                     - don't pull from PLD repo
+--retry-distfiles TRIES,SECONDS
+                    - retry distfiles fetch TRIES times with SECONDS delay between retries
 -nd, --no-distfiles - don't download from distfiles
 -nm, --no-mirrors   - don't download from mirror, if source URL is given,
 -nu, --no-urls      - don't try to download from FTP/HTTP location,
@@ -1382,6 +1386,9 @@ get_files() {
 					fi
 
 					url_attic=$(distfiles_attic_url "$i")
+
+					local df_try=0
+					while true; do
 					FROM_DISTFILES=1
 					# is $url local file?
 					if [[ "$url" = [./]* ]]; then
@@ -1414,10 +1421,18 @@ get_files() {
 
 					if [ -s "$target" ]; then
 						cvsignore_df $target
+						break
+					elif [ "$DISTFILES_RETRY_DELAY" -gt 0 ] 2>/dev/null && [ "$df_try" -lt "$DISTFILES_RETRY_COUNT" ]; then
+						rm -f "$target"
+						df_try=$((df_try + 1))
+						echo "Distfiles fetch failed for $(nourl "$i"), retry ${df_try}/${DISTFILES_RETRY_COUNT} with ${DISTFILES_RETRY_DELAY}s delay..."
+						sleep "$DISTFILES_RETRY_DELAY"
 					else
 						rm -f "$target"
 						FROM_DISTFILES=0
+						break
 					fi
+					done
 				fi
 
 				if [ -z "$NOURLS" ] && [ ! -f "$fp" -o -n "$UPDATE" ] && [ "`echo $i | grep -E 'ftp://|http://|https://'`" ]; then
@@ -2230,6 +2245,10 @@ while [ $# -gt 0 ]; do
 			COMMAND="mr-proper"; shift ;;
 		-ncs | --no-cvs-specs )
 			NOCVSSPEC="yes"; shift ;;
+		--retry-distfiles )
+			DISTFILES_RETRY_COUNT=${2%%,*}
+			DISTFILES_RETRY_DELAY=${2#*,}
+			shift 2 ;;
 		-nd | --no-distfiles )
 			NODIST="yes"; shift ;;
 		-nm | --no-mirrors )
